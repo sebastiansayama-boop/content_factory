@@ -86,22 +86,22 @@ def verify_github_change(evidence: GitHubChangeEvidence) -> FactoryChangeVerific
         f"github://{evidence.repository_full_name}/pull/{evidence.pull_request_number}",
         f"github://{evidence.repository_full_name}/commit/{evidence.head_sha}",
     )
-    unknowns: list[str] = []
 
     if not evidence.ci_passed:
         return FactoryChangeVerification(
             verified=False,
             evidence_refs=refs,
-            reason="required GitHub CI evidence is not passing",
+            reason="required GitHub CI evidence is not passing; semantic acceptance remains external",
         )
 
     if evidence.change_state == GitHubChangeState.CLOSED and not evidence.merged:
         return FactoryChangeVerification(
             verified=False,
             evidence_refs=refs,
-            reason="pull request is closed without a merge",
+            reason="pull request is closed without a merge; semantic acceptance remains external",
         )
 
+    unknowns: list[str] = []
     if evidence.review_count == 0:
         unknowns.append("independent review boundary was not observed")
 
