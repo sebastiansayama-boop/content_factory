@@ -407,4 +407,64 @@ REPORT
 STOP
 ```
 
+## 21. Project operating memory
+
+The protocol also governs preservation of project experience across context changes.
+
+Before leaving a material direction, the cycle must preserve:
+
+```text
+current direction
+current checkpoint
+proven state
+unproven state
+research needed
+dependencies / blockers
+what changed
+what was learned
+what was disproved
+what remains unknown
+what should not be repeated
+next legitimate step
+return point
+```
+
+The Project Direction Map is `docs/29_project_direction_map.md`; its machine-readable projection is `model/project-direction-map.yaml`.
+
+The Project Operating Memory model is `docs/28_project_operating_memory.md`.
+
+## 22. Mechanism-selection gate
+
+When designing a new structural mechanism:
+
+```text
+PROBLEM
+→ FIND REAL SYSTEMS THAT SOLVE IT
+→ IDENTIFY THE ACTUAL MECHANISM
+→ CHECK EVIDENCE OF USE
+→ IDENTIFY LIMITATIONS
+→ TEST APPLICABILITY
+→ RECORD ADAPTATION DECISION
+→ IMPLEMENT ONLY THE REQUIRED BOUNDARY
+```
+
+The existence of a mechanism in another system is not proof that Content Factory should adopt it. The adaptation decision must remain explicit.
+
+## 23. Knowledge and creative learning gate
+
+Reusable experience must pass through an explicit learning transition:
+
+```text
+OBSERVATION / EXPERIMENT
+→ EVIDENCE
+→ INTERPRETATION
+→ LESSON
+→ KNOWLEDGE CANDIDATE
+→ EXPLICIT DECISION
+```
+
+Creative results follow the same epistemic discipline as engineering results while preserving creative-specific context such as treatment, composition, reference, observed effect, successful pattern and uncertainty.
+
+Both success and failure are eligible for learning. Neither becomes a reusable rule automatically.
+
 This protocol governs future repository interactions unless the user explicitly replaces it with a newer governing protocol recorded in the repository.
