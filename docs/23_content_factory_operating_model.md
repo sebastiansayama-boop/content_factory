@@ -320,19 +320,21 @@ Each requires an explicit transition and appropriate evidence/authority.
 
 ## 16. Implementation status
 
-`PHASE 1 COMPLETE / PHASE 2 NEXT`
+`PHASE 1 COMPLETE / PHASE 2 IN PROGRESS`
 
-The repository contains a coherent executable bounded runtime, explicit zone operating contracts, a capability/integration boundary, durable workspace artifact materialization, and CI verification for the repository test suite.
+The repository contains a coherent executable bounded runtime, explicit zone operating contracts, a capability/integration boundary, durable workspace artifact materialization, durable runtime control state, and CI verification for the repository test suite.
 
 Phase 1 adds durable runtime control state: SQLite-backed work-item state and an append-only event journal are committed atomically, and a new runtime instance reconstructs the persisted state and event history after restart. This is distinct from `ArtifactStore`: runtime persistence is recovery/control state, while artifact materialization is repository evidence projection.
 
-The following remain outside the completed phases: real provider credentials and provider execution, a real external publication destination, independently verified external effect, external-operation idempotency/reconciliation, queues/leases, broader control-plane operations, and the learning loop.
+Phase 2 now has a concrete OpenAI Responses provider adapter with an explicit `OPENAI_API_KEY` secret boundary and an opt-in external execution test. Unit tests verify the provider boundary and mapping into `ExecutionResult`. Phase 2 is not complete until a real credential is available in an execution environment and a real provider call, connectivity result and revision-bound verification are observed.
+
+The following remain outside the completed phases: real external publication destination, independently verified external effect, external-operation idempotency/reconciliation, queues/leases, broader control-plane operations, operations/governance and the learning loop.
 
 Phase sequence:
 
 ```text
 1 durable runtime                COMPLETE
-2 real execution                 NEXT
+2 real execution                 IN PROGRESS
 3 real external effect           NOT STARTED
 4 reliability and control        NOT STARTED
 5 factory control plane          NOT STARTED
