@@ -1,5 +1,6 @@
 """Executable Content Factory v0."""
 
+from .artifacts import ArtifactStore
 from .runtime import (
     AcceptanceDecision,
     Capability,
@@ -11,6 +12,7 @@ from .runtime import (
 
 __all__ = [
     "AcceptanceDecision",
+    "ArtifactStore",
     "Capability",
     "ExecutionResult",
     "FactoryRuntime",
