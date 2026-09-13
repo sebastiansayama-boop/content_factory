@@ -1,3 +1,4 @@
+from content_factory.artifacts import ArtifactStore
 from content_factory.runtime import (
     AcceptanceDecision,
     Capability,
@@ -36,8 +37,8 @@ def make_work_item():
     )
 
 
-def make_runtime():
-    runtime = FactoryRuntime(publisher=FakePublisher())
+def make_runtime(artifact_store=None):
+    runtime = FactoryRuntime(publisher=FakePublisher(), artifact_store=artifact_store)
 
     def validate(item):
         assert item.requested_outcome
@@ -55,11 +56,9 @@ def make_runtime():
     return runtime
 
 
-def test_end_to_end_v0_reaches_observed():
-    runtime = make_runtime()
+def run_success(runtime):
     item = make_work_item()
     runtime.submit(item, actor="owner")
-
     publication = runtime.run(
         item,
         verification=lambda _, execution: VerificationResult(
@@ -74,6 +73,12 @@ def test_end_to_end_v0_reaches_observed():
         ),
         release_authority="publisher",
     )
+    return item, publication
+
+
+def test_end_to_end_v0_reaches_observed():
+    runtime = make_runtime()
+    item, publication = run_success(runtime)
 
     assert publication is not None
     assert runtime.states[item.work_item_id] == FactoryState.OBSERVED
@@ -137,3 +142,28 @@ def test_acceptance_requires_authority():
 
     assert publication is None
     assert runtime.states[item.work_item_id] == FactoryState.FAILED
+
+
+def test_runtime_materializes_durable_artifacts(tmp_path):
+    runtime = make_runtime(ArtifactStore(tmp_path))
+    item, publication = run_success(runtime)
+
+    assert publication is not None
+    expected = {
+        "01_observation/wi-1.json",
+        "03_working_context/wi-1.json",
+        "05_decision/wi-1.json",
+        "06_production/wi-1.json",
+        "07_verification/wi-1.json",
+        "08_effects_feedback/wi-1.json",
+        "10_records/wi-1.json",
+    }
+    actual = {
+        path.relative_to(tmp_path).as_posix()
+        for path in tmp_path.rglob("*.json")
+    }
+    assert actual == expected
+
+    record = (tmp_path / "10_records/wi-1.json").read_text(encoding="utf-8")
+    assert '"state": "OBSERVED"' in record
+    assert '"operation": "deliver"' in record
