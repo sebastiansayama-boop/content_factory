@@ -1,4 +1,4 @@
-version: 3
+version: 4
 status: candidate
 name: content_factory
 parent_system: content_ecosystem
@@ -52,6 +52,31 @@ architecture:
     - reusable_components
     - taxonomy
 
+  capability_system:
+    - discover
+    - research
+    - extract
+    - analyze
+    - write
+    - design
+    - generate
+    - transform
+    - localize
+    - verify
+    - package
+    - publish
+    - measure
+    - learn
+
+  engineering_system:
+    - domain_model
+    - execution
+    - storage
+    - integration
+    - governance
+    - observability
+    - infrastructure
+
 flow:
   - ecosystem_context -> input
   - input -> knowledge
@@ -65,6 +90,14 @@ flow:
   - learning -> editorial
   - learning -> production
   - learning -> ecosystem_context_review
+
+execution_boundary:
+  - work_item -> capability_request
+  - capability_request -> executor
+  - executor -> provider_adapter
+  - provider_adapter -> tool_model_service_provider
+  - tool_model_service_provider -> execution_result_or_external_effect
+  - execution_result_or_external_effect -> verification_or_observation
 
 control_plane_relations:
   - control -> input
@@ -83,6 +116,8 @@ substrate_relations:
   - substrate <-> quality
   - substrate <-> distribution
   - substrate <-> learning
+  - substrate <-> capability_system
+  - substrate <-> engineering_system
 
 work_item:
   identity:
@@ -104,6 +139,28 @@ work_item:
     - release_requirements
     - success_signals
 
+capability_contract:
+  required:
+    - capability_id
+    - input_contract
+    - output_contract
+    - preconditions
+    - constraints
+    - quality_requirements
+    - authority_requirements
+    - failure_semantics
+    - observability_requirements
+
+executor_contract:
+  required:
+    - capability_binding
+    - execution_identity
+    - provider_adapter
+    - result_contract
+    - recovery_semantics
+    - idempotency_policy
+    - authority_boundary
+
 release:
   may_bundle: true
   readiness_boundary: explicit
@@ -113,6 +170,12 @@ quality:
   acceptance_distinct_from_verification: true
   acceptance_distinct_from_publication: true
   publication_distinct_from_outcome: true
+  execution_result_not_automatically_accepted: true
+
+authority:
+  execution_does_not_imply_authority: true
+  publish_requires_explicit_authority: true
+  external_effect_requires_explicit_boundary: true
 
 learning:
   metric_is_not_learning: true
@@ -131,3 +194,5 @@ factory_principles:
   - escalate_consequential_decisions
   - manage_bottlenecks_continuously
   - optimize_system_flow_over_local_utilization
+  - decouple_factory_from_provider_implementations
+  - preserve_replaceable_execution_mechanisms
