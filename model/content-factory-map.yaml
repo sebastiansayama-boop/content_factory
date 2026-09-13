@@ -1,4 +1,4 @@
-version: 9
+version: 10
 status: candidate_with_durable_runtime_and_real_provider_boundary
 name: content_factory
 parent_system: content_ecosystem
@@ -108,9 +108,12 @@ external_integration_boundary:
   implementation:
     - src/content_factory/integrations.py
     - src/content_factory/openai_adapter.py
+    - src/content_factory/openai_capability.py
+    - scripts/prove_openai_execution.py
   tests:
     - tests/test_integrations.py
     - tests/test_external_openai.py
+    - tests/test_openai_capability.py
   provider:
     name: openai_responses_api
     endpoint: https://api.openai.com/v1/responses
@@ -157,8 +160,10 @@ phase_sequence:
     status: in_progress_external_proof_pending
     implementation:
       - openai_responses_adapter
+      - openai_capability_binding
       - opt_in_external_execution_test
       - secret_environment_boundary
+      - revision_bound_verification_proof_command
     remaining_proof:
       - provider_credentials_available_in_execution_environment
       - connectivity_test
