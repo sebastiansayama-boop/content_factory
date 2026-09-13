@@ -56,6 +56,12 @@ CONTENT ECOSYSTEM
 
 Машинно-читаемая карта фабрики: `model/content-factory-map.yaml`.
 
+Проектная operating memory: `docs/28_project_operating_memory.md`.
+
+Карта направлений и return points: `docs/29_project_direction_map.md`.
+
+Машинно-читаемая карта направлений: `model/project-direction-map.yaml`.
+
 ## 3. Factory value flow
 
 ```text
@@ -268,7 +274,33 @@ CAPABILITY ≠ TOOL
 EXECUTION RESULT ≠ ACCEPTED CONTENT
 ```
 
-## 12. Research / state / authority foundation
+## 12. Project operating memory
+
+Репозиторий сохраняет не только текущую архитектуру, но и опыт, необходимый для продолжения работы после смены контекста.
+
+Основной цикл:
+
+```text
+QUESTION
+→ RESEARCH / EXPERIMENT / IMPLEMENTATION
+→ EVIDENCE
+→ INTERPRETATION
+→ LESSON
+→ KNOWLEDGE CANDIDATE
+→ DECISION
+→ WORK / OUTCOME
+→ PROJECT MAP UPDATE
+```
+
+`PROJECT MAP` и `CURRENT CHECKPOINT` различаются: карта сохраняет направления и return points, checkpoint фиксирует точное место остановки.
+
+Правила этого слоя: `docs/28_project_operating_memory.md`.
+
+Карта направлений: `docs/29_project_direction_map.md`.
+
+Правила взаимодействия chat ↔ repository: `docs/25_chat_repository_operating_protocol.md`.
+
+## 13. Research / state / authority foundation
 
 Репозиторий содержит отдельные модели:
 
@@ -280,11 +312,13 @@ EXECUTION RESULT ≠ ACCEPTED CONTENT
 - ontology candidate;
 - system map / space map;
 - operator navigation;
-- repository rules.
+- repository rules;
+- project direction map;
+- project operating memory.
 
 Эти модели не смешиваются в одну workflow-схему.
 
-## 13. Status
+## 14. Status
 
 `PHASE 1 COMPLETE / PHASE 2 IN PROGRESS / PRODUCTION NOT CLAIMED`
 
