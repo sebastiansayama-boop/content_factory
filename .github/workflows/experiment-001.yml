@@ -1,0 +1,27 @@
+name: experiment-001
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-experiment:
+    if: github.ref == 'refs/heads/experiment/001-real-github-publisher'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install package
+        run: pip install -e .
+      - name: Execute bounded external-effect experiment
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python experiments/experiment_001_runner.py
+      - name: Upload experiment evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: experiment-001-evidence
+          path: experiment-001-result.json
