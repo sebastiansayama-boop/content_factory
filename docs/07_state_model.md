@@ -2,7 +2,7 @@
 
 This document turns the synthesis into an operational conceptual state model.
 
-It is still implementation-independent: states and transitions are defined so that real editorial cases can be executed against them before a database or runtime exists.
+It is implementation-independent: states and transitions are defined so that real editorial cases can be executed against them before a database or runtime exists.
 
 ## 1. State is not just a stage
 
@@ -22,7 +22,7 @@ OBJECT
 Therefore:
 
 ```text
-ASSET A12 revision 3 / VERIFIED
+ASSET A12 revision 3 / ACCEPTED
 ```
 
 is materially different from:
@@ -31,141 +31,66 @@ is materially different from:
 ASSET A12 revision 4 / DRAFT
 ```
 
-## 2. State families
+## 2. Object-specific state
 
-The system has six state families.
+There is no single global status field for the whole editorial system.
 
-### 2.1 Intake states
+The lifecycle of an `Asset`, `Publication`, `Observation`, and `Learning` is different because they are different objects.
 
-```text
-SIGNAL
-QUESTION
-CANDIDATE
-```
+The canonical machine-readable model is in `model/state-machine.yaml` and the object-by-object explanation is in `docs/11_object_lifecycles.md`.
 
-### 2.2 Knowledge states
+## 3. Case-level reference flow
 
-```text
-RESEARCH_REQUIREMENT
-RESEARCH_ACTIVE
-KNOWLEDGE_DRAFT
-KNOWLEDGE_SUFFICIENT
-KNOWLEDGE_INCONCLUSIVE
-KNOWLEDGE_AFFECTED
-```
-
-### 2.3 Editorial states
-
-```text
-EDITORIAL_PENDING
-EDITORIAL_PROCEED
-EDITORIAL_HOLD
-EDITORIAL_REJECT
-EDITORIAL_UPDATE
-```
-
-### 2.4 Production states
-
-```text
-SPEC_DRAFT
-SPEC_READY
-ASSET_DRAFT
-ASSET_READY_FOR_VERIFICATION
-ASSET_REVISION_REQUIRED
-```
-
-### 2.5 Verification and effect states
-
-```text
-VERIFICATION_PENDING
-VERIFIED
-VERIFICATION_FAILED
-ACCEPTED
-REJECTED
-RELEASE_CANDIDATE
-PUBLISHED
-PUBLICATION_HELD
-RETIRED
-```
-
-### 2.6 Learning states
-
-```text
-OBSERVED
-INTERPRETED
-LEARNING_CANDIDATE
-LEARNING_ACCEPTED
-NEW_EVIDENCE
-KNOWLEDGE_UPDATE_REQUIRED
-```
-
-## 3. Canonical lifecycle
+A case may present its work as this derived view:
 
 ```text
 SIGNAL
   ↓
-QUESTION
-  ↓
 CANDIDATE
   ↓
-RESEARCH_REQUIREMENT
+RESEARCH
   ↓
-RESEARCH_ACTIVE
+KNOWLEDGE REVISION
   ↓
-KNOWLEDGE_DRAFT
+EDITORIAL DECISION
   ↓
-KNOWLEDGE_SUFFICIENT
+CONTENT SPEC REVISION
   ↓
-EDITORIAL_PENDING
+ASSET REVISION
   ↓
-EDITORIAL_PROCEED
+VERIFICATION RESULT
   ↓
-SPEC_READY
+ACCEPTANCE
   ↓
-ASSET_DRAFT
+RELEASE
   ↓
-ASSET_READY_FOR_VERIFICATION
+PUBLICATION
   ↓
-VERIFICATION_PENDING
+OBSERVATION
   ↓
-VERIFIED
-  ↓
-ACCEPTED
-  ↓
-RELEASE_CANDIDATE
-  ↓
-PUBLISHED
-  ↓
-OBSERVED
-  ↓
-INTERPRETED
-  ↓
-LEARNING_CANDIDATE
-  ↙              ↘
-KNOWLEDGE_UPDATE  NEW_EVIDENCE
+LEARNING / NEW EVIDENCE
+  ↺
 ```
 
-This is a reference lifecycle, not a requirement that every case traverse every state.
+This is a **case projection**, not a universal lifecycle of one object.
 
 ## 4. State ownership
 
 Ownership is attached to the state boundary.
 
-| State family | Primary owner | Authority boundary |
+| Object | Primary owner | Authority boundary |
 |---|---|---|
-| Signal / Question | Discovery | create candidate |
-| Candidate | Discovery | admit to research |
-| Research Requirement | Research | define research stop condition |
-| Knowledge | Research | assert knowledge sufficiency |
-| Editorial | Editorial | decide whether to produce |
-| Specification | Content Design | define production contract |
-| Asset | Production | deliver specified form |
-| Verification | Verification | report conformity |
-| Acceptance | Editorial / designated approver | accept exact revision |
-| Release Candidate | Publication owner | authorize external publication |
-| Publication | Publication | record external effect |
-| Observation | Observation owner | preserve observed signal |
-| Learning | Learning / Editorial | interpret observation and propose update |
+| Candidate | Discovery | admit / hold / reject |
+| Research | Research | define sufficiency / inconclusive |
+| Knowledge revision | Research | establish and revalidate sufficiency |
+| Editorial decision | Editorial | proceed / hold / reject / update |
+| Content specification | Content Design | make production contract ready |
+| Asset revision | Production | deliver specified form |
+| Verification result | Verification | pass / fail against exact revision |
+| Acceptance decision | designated approver | accept / reject exact revision |
+| Release | Publication | assemble / hold / publish / retire |
+| Observation | Observation | preserve observed signal |
+| Learning | Learning / Editorial | accept or reject interpretation for reuse |
 
 ## 5. State invariants
 
@@ -195,31 +120,27 @@ Previous states remain recoverable even when a newer revision becomes current.
 
 ### S7 — Learning is not automatically knowledge
 
-An interpretation of observations remains a hypothesis or learning candidate until separately accepted for use in knowledge or editorial decision-making.
+An interpretation of observations remains a learning candidate until separately accepted for reuse in knowledge or editorial decisions.
 
-## 6. Terminal and reversible states
+### S8 — One object, one lifecycle
 
-The system distinguishes states that normally move forward from states that create a new revision.
+`Observation` must not become a status of `Publication`; `Learning` must not become a status of `Observation`; `Acceptance` must not become a hidden state of `Verification`.
+
+## 6. Revision rule
+
+A material change to an accepted or published object produces a new revision.
 
 ```text
-ACCEPTED
-  ↓
-new revision required for material changes
-
-PUBLISHED
-  ↓
-new publication event or retirement/update
-
-RETIRED
-  ↓
-terminal for that publication revision
+ACCEPTED revision 2
+        ↓ material change
+DRAFT revision 3
 ```
 
-A material change should generally create a new revision rather than mutate the accepted or published historical state in place.
+Revision 2 remains historical and traceable.
 
 ## 7. Current state versus history
 
-For every object, two views are required conceptually:
+For every stateful object, two views are required conceptually:
 
 ```text
 HISTORY
