@@ -2,6 +2,8 @@
 
 The transition matrix defines which state changes are allowed, what must be known before the transition, and what authority is required.
 
+The machine-readable object lifecycles in `model/state-machine.yaml` are the canonical state vocabulary. This document may describe a cross-object operation as one business step, but must not collapse distinct object lifecycles into one state.
+
 A transition is:
 
 ```text
@@ -19,76 +21,78 @@ FROM STATE
 |---|---|---|---|---|
 | SIGNAL | frame question | QUESTION | signal reference | Discovery |
 | QUESTION | formulate candidate | CANDIDATE | rationale | Discovery |
-| CANDIDATE | admit | RESEARCH_REQUIREMENT | decision rationale | Candidate authority |
-| CANDIDATE | hold | CANDIDATE/HOLD | reason | Discovery |
+| CANDIDATE | admit | ADMITTED | decision rationale | Candidate authority |
+| CANDIDATE | hold | HELD | reason | Discovery |
 | CANDIDATE | reject | REJECTED | reason | Candidate authority |
+
+Admission closes the candidate lifecycle at `ADMITTED`. If research is required, admission also creates or activates a separate research object at `RESEARCH_REQUIREMENT`; that is a cross-object relation, not a candidate state transition.
 
 ## 2. Research
 
 | From | Operation | To | Required evidence | Authority |
 |---|---|---|---|---|
 | RESEARCH_REQUIREMENT | begin research | RESEARCH_ACTIVE | research brief | Research |
-| RESEARCH_ACTIVE | add findings | KNOWLEDGE_DRAFT | sources/evidence | Research |
-| KNOWLEDGE_DRAFT | assess sufficiency | KNOWLEDGE_SUFFICIENT | required claims addressed | Research |
-| KNOWLEDGE_DRAFT | continue research | RESEARCH_ACTIVE | explicit gap | Research |
-| KNOWLEDGE_DRAFT | declare inconclusive | KNOWLEDGE_INCONCLUSIVE | unresolved questions | Research |
-| KNOWLEDGE_SUFFICIENT | material evidence changes | KNOWLEDGE_AFFECTED | new/changed evidence | Research |
+| RESEARCH_ACTIVE | establish knowledge sufficiency | SUFFICIENT | sources/evidence and required claims addressed | Research |
+| RESEARCH_ACTIVE | declare inconclusive | INCONCLUSIVE | unresolved questions | Research |
+| RESEARCH_ACTIVE | continue research | RESEARCH_ACTIVE | explicit gap | Research |
+| SUFFICIENT | material evidence changes | AFFECTED | new/changed evidence | Research |
+| AFFECTED | reopen | RESEARCH_ACTIVE | impact assessment | Research |
+| SUFFICIENT | close | CLOSED | closure rationale | Research |
 
-`KNOWLEDGE_SUFFICIENT` means sufficient for a specific editorial decision, not globally true or complete.
+`SUFFICIENT` means sufficient for a specific editorial decision, not globally true or complete.
 
 ## 3. Editorial
 
 | From | Operation | To | Required evidence | Authority |
 |---|---|---|---|---|
-| KNOWLEDGE_SUFFICIENT | evaluate opportunity | EDITORIAL_PENDING | knowledge revision + context | Editorial |
-| EDITORIAL_PENDING | proceed | EDITORIAL_PROCEED | audience/strategy rationale | Editorial |
-| EDITORIAL_PENDING | hold | EDITORIAL_HOLD | reason | Editorial |
-| EDITORIAL_PENDING | reject | EDITORIAL_REJECT | reason | Editorial |
-| EDITORIAL_PENDING | update existing | EDITORIAL_UPDATE | existing publication reference | Editorial |
-| KNOWLEDGE_AFFECTED | review decision | EDITORIAL_PENDING | impact assessment | Editorial |
+| PENDING | proceed | PROCEED | audience/strategy rationale | Editorial |
+| PENDING | hold | HOLD | reason | Editorial |
+| PENDING | reject | REJECT | reason | Editorial |
+| PENDING | update existing | UPDATE_EXISTING | existing publication reference | Editorial |
+| PROCEED | replace decision | SUPERSEDED | replacement decision | Editorial |
 
 ## 4. Content design
 
 | From | Operation | To | Required evidence | Authority |
 |---|---|---|---|---|
-| EDITORIAL_PROCEED | create production contract | SPEC_DRAFT | exact decision + knowledge revision | Content Design |
-| SPEC_DRAFT | satisfy contract | SPEC_READY | selected claims, format, criteria | Content Design |
-| SPEC_READY | material upstream change | SPEC_DRAFT | affected dependency | Content Design |
+| DRAFT | satisfy contract | READY | selected claims, format, criteria | Content Design |
+| READY | material upstream change | AFFECTED | affected dependency | Content Design |
+| AFFECTED | revise | DRAFT | revision rationale | Content Design |
+| READY | create new revision | SUPERSEDED | replacement revision | Content Design |
 
 ## 5. Production
 
 | From | Operation | To | Required evidence | Authority |
 |---|---|---|---|---|
-| SPEC_READY | produce | ASSET_DRAFT | specification + bound knowledge revision | Production |
-| ASSET_DRAFT | finish | ASSET_READY_FOR_VERIFICATION | asset revision | Production |
-| ASSET_READY_FOR_VERIFICATION | revise | ASSET_REVISION_REQUIRED | verification feedback | Production |
-| ASSET_REVISION_REQUIRED | resubmit | ASSET_READY_FOR_VERIFICATION | new asset revision | Production |
+| DRAFT | submit | READY_FOR_VERIFICATION | specification + bound knowledge revision | Production |
+| READY_FOR_VERIFICATION | fail verification | REVISION_REQUIRED | verification feedback | Verification |
+| REVISION_REQUIRED | revise | DRAFT | defect classification | Production |
+| READY_FOR_VERIFICATION | accept exact revision | ACCEPTED | exact verification binding | Acceptance authority |
+| READY_FOR_VERIFICATION | reject exact revision | REJECTED | rejection reason | Acceptance authority |
 
 Production does not own factual truth of the source knowledge.
 
-## 6. Verification and acceptance
+## 6. Verification
 
 | From | Operation | To | Required evidence | Authority |
 |---|---|---|---|---|
-| ASSET_READY_FOR_VERIFICATION | inspect | VERIFICATION_PENDING | asset revision + spec revision + knowledge revision | Verification |
-| VERIFICATION_PENDING | pass | VERIFIED | verification result | Verification |
-| VERIFICATION_PENDING | fail | VERIFICATION_FAILED | failed checks | Verification |
-| VERIFICATION_FAILED | revise | ASSET_REVISION_REQUIRED | defect classification | Production |
-| VERIFIED | accept | ACCEPTED | exact verification + evidence binding | Acceptance authority |
-| VERIFIED | reject | REJECTED | rejection reason | Acceptance authority |
-| VERIFIED | request research | RESEARCH_ACTIVE | unresolved knowledge issue | Editorial / Research authority |
+| PENDING | pass | PASSED | verification result | Verification |
+| PENDING | fail | FAILED | failed checks | Verification |
+| PASSED | newer revision verified | SUPERSEDED | newer verification | Verification |
+| FAILED | newer revision verified | SUPERSEDED | newer verification | Verification |
 
-`VERIFIED` is a verification result. `ACCEPTED` is an acceptance decision. They are intentionally distinct.
+`PASSED` is a verification result. `ACCEPTED` is an acceptance decision on an exact revision. They are intentionally distinct object lifecycles.
 
 ## 7. Release and publication
 
 | From | Operation | To | Required evidence | Authority |
 |---|---|---|---|---|
-| ACCEPTED | assemble release | RELEASE_CANDIDATE | exact accepted revisions | Publication authority |
-| RELEASE_CANDIDATE | hold | PUBLICATION_HELD | explicit reason | Publication authority |
-| RELEASE_CANDIDATE | publish | PUBLISHED | exact release identity + publication receipt | Publication authority |
-| PUBLICATION_HELD | publish | PUBLISHED | still-valid accepted revision | Publication authority |
-| PUBLISHED | retire | RETIRED | retirement rationale | Publication authority |
+| DRAFT | assemble release | READY | exact accepted revisions | Publication |
+| READY | hold | HELD | explicit reason | Publication |
+| READY | publish | PUBLISHED | exact release identity + publication receipt | Publication |
+| HELD | publish | PUBLISHED | still-valid accepted revision | Publication |
+| PUBLISHED | retire | RETIRED | retirement rationale | Publication |
+| PUBLISHED | replace with new release | SUPERSEDED | replacement release | Publication |
 
 A publication record must identify the exact accepted asset revisions that produced the external effect.
 
@@ -96,15 +100,24 @@ A publication record must identify the exact accepted asset revisions that produ
 
 | From | Operation | To | Required evidence | Authority |
 |---|---|---|---|---|
-| PUBLISHED | collect signal | OBSERVED | timestamp + observation source | Observation |
-| OBSERVED | interpret | INTERPRETED | observation set + method | Learning |
-| INTERPRETED | propose | LEARNING_CANDIDATE | explicit interpretation | Learning |
-| LEARNING_CANDIDATE | accept for reuse | LEARNING_ACCEPTED | decision rationale | Editorial / Learning |
-| OBSERVED | identify new source | NEW_EVIDENCE | source/evidence reference | Observation / Research |
-| NEW_EVIDENCE | assess impact | KNOWLEDGE_UPDATE_REQUIRED | dependency impact | Research |
-| KNOWLEDGE_UPDATE_REQUIRED | update | KNOWLEDGE_AFFECTED | changed evidence/claim | Research |
+| RECORDED | interpret | INTERPRETED | observation set + method | Learning |
+| INTERPRETED | close | CLOSED | closure rationale | Learning |
+| CANDIDATE | accept for reuse | ACCEPTED | decision rationale | Editorial Learning |
+| CANDIDATE | reject | REJECTED | rejection rationale | Editorial Learning |
+| ACCEPTED | replace learning | SUPERSEDED | replacement learning | Editorial Learning |
 
-## 9. Forbidden implicit transitions
+Observation and learning are separate lifecycles. A publication becoming externally observable creates an observation object; it does not directly mutate knowledge.
+
+## 9. Evidence
+
+| From | Operation | To | Required evidence | Authority |
+|---|---|---|---|---|
+| OBSERVED | assess relevance | RELEVANT | relevance assessment | Research |
+| RELEVANT | source change | AFFECTED | changed source | Research |
+| AFFECTED | invalidate | INVALID | invalidation rationale | Research |
+| RELEVANT | replace evidence | SUPERSEDED | replacement evidence | Research |
+
+## 10. Forbidden implicit transitions
 
 The following shortcuts are not allowed in the conceptual model:
 
@@ -124,7 +137,7 @@ NEW_EVIDENCE → RETIRE_PUBLICATION
 
 Each requires an explicit intermediate decision or review appropriate to the case.
 
-## 10. Revision rule
+## 11. Revision rule
 
 A material change to a previously accepted or published object creates a new revision.
 
@@ -136,7 +149,11 @@ DRAFT revision 3
 
 The system must not rewrite revision 2 into revision 3 in place.
 
-## 11. Transition completeness test
+## 12. Runtime boundary clarification
+
+The runtime's `FactoryState` is a bounded orchestration lifecycle and is not a replacement for the object-specific state machines above. It currently models ambiguous execution/publication exceptions as `FAILED`; an `UNKNOWN` outcome state is not implemented. Therefore the repository must not claim ambiguous external outcome recovery as a proven runtime mechanism until that mechanism is explicitly implemented and tested.
+
+## 13. Transition completeness test
 
 A proposed transition is not part of the model until it can answer:
 
