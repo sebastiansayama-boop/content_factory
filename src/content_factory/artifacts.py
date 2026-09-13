@@ -6,10 +6,10 @@ from typing import Any
 
 
 class ArtifactStore:
-    """Explicit filesystem sink for durable runtime evidence.
+    """Explicit filesystem sink for runtime evidence.
 
-    The store writes only runtime observations/projections. It never promotes
-    execution output to knowledge, strategy, acceptance, or publication truth.
+    This is a workspace sink. Repository history is updated only by an
+    explicit repository-synchronization operation outside the runtime.
     """
 
     def __init__(self, root: str | Path) -> None:
@@ -59,7 +59,7 @@ class ArtifactStore:
         if work_id in runtime.publications:
             publication = runtime.publications[work_id]
             self._write("08_effects_feedback", work_id, {
-                "type": "external_effect_observation",
+                "type": "publication_record",
                 "work_item_id": work_id,
                 "revision_id": publication.output_revision_id,
                 "publication_id": publication.publication_id,
