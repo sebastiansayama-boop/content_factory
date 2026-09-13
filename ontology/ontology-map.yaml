@@ -1,0 +1,136 @@
+version: 0.1
+status: candidate
+purpose: semantic_domain_model
+
+principles:
+  - ontology_is_not_workflow
+  - ontology_is_not_folder_structure
+  - ontology_is_not_state_machine
+  - identity_precedes_lifecycle
+  - relation_meaning_is_explicit
+  - authority_is_contextual
+  - history_is_not_current_state
+
+categories:
+  information_entity:
+    - Source
+    - Evidence
+    - Claim
+    - Knowledge
+    - KnowledgeRevision
+    - ContentSpecification
+    - ContentSpecificationRevision
+    - Model
+  artifact:
+    - Asset
+    - AssetRevision
+    - PublicationArtifact
+  agent:
+    - Agent
+    - Human
+    - System
+    - ModelAgent
+  context_role:
+    - Role
+    - DecisionContext
+    - AuthorityAssignment
+  event_activity:
+    - ObservationEvent
+    - ResearchActivity
+    - DecisionEvent
+    - VerificationActivity
+    - AcceptanceEvent
+    - PublicationEvent
+    - LearningActivity
+  result_interpretation:
+    - ObservationResult
+    - ResearchResult
+    - DecisionOutcome
+    - VerificationResult
+    - LearningCandidate
+  record:
+    - DecisionRecord
+    - AcceptanceRecord
+    - PublicationRecord
+    - CaseRecord
+
+relations:
+  has_revision:
+    class: versioning
+  part_of:
+    class: structural
+  assembled_into:
+    class: structural
+  supports:
+    class: epistemic
+  contradicts:
+    class: epistemic
+  invalidates:
+    class: epistemic
+  verified_against:
+    class: epistemic
+  derived_from:
+    class: derivational
+  produced_from:
+    class: production
+  depends_on:
+    class: dependency
+    kinds:
+      - semantic
+      - operational
+      - existential
+      - provenance
+  impacts:
+    class: evolution
+  supersedes:
+    class: evolution
+  plays_role:
+    class: normative
+  within_context:
+    class: normative
+  authorizes:
+    class: normative
+  requires_authority:
+    class: normative
+  constrains:
+    class: semantic
+  informs:
+    class: informational
+  publishes:
+    class: external_effect
+  published_as:
+    class: provenance
+  observes:
+    class: observation
+
+versioning:
+  Knowledge:
+    revision_type: KnowledgeRevision
+    identity: knowledge_id
+  ContentSpecification:
+    revision_type: ContentSpecificationRevision
+    identity: specification_id
+  Asset:
+    revision_type: AssetRevision
+    identity: asset_id
+
+boundaries:
+  lifecycle_state:
+    owned_by: state_model
+  process:
+    owned_by: process_model
+  repository_location:
+    owned_by: space_map
+  authority_scope:
+    owned_by: authority_model
+  history:
+    owned_by: records_model
+
+open_questions:
+  - release_semantics
+  - publication_event_vs_artifact_vs_record
+  - evidence_subtypes
+  - knowledge_identity
+  - claim_revision_strategy
+  - model_semantics
+  - formal_upper_ontology_reuse
