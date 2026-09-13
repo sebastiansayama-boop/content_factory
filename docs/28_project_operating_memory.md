@@ -36,13 +36,22 @@ INTERPRETATION
     ↓
 LESSON
     ↓
+KNOWLEDGE CANDIDATE
+    ↓
+VALIDATION / APPLICABILITY
+    ↓
 REUSABLE KNOWLEDGE
     ↓
-DECISION
+RETRIEVAL
     ↓
-CHANGED WORK / OUTCOME
+APPLICATION / DECISION
     ↓
-PROJECT MAP UPDATE
+CHANGED WORK / EXECUTION
+    ↓
+OUTCOME
+    ↓
+EVALUATION
+    ↺ RETAIN / REVISE / SUPERSEDE / REJECT / SCOPE
 ```
 
 These are semantic roles, not mandatory folders.
@@ -78,18 +87,24 @@ INTERPRETATION
         ↓
 LESSON / LEARNING CANDIDATE
         ↓
+VALIDATION / APPLICABILITY
+        ↓
 KNOWLEDGE
+        ↓
+RETRIEVAL / APPLICATION
         ↓
 DECISION
         ↓
 IMPLEMENTATION / PROCESS CHANGE
         ↓
-OBSERVED RESULT
+OBSERVED RESULT / EXTERNAL OUTCOME
+        ↓
+EVALUATION OF KNOWLEDGE
 ```
 
 The chain is not a claim that every item must have every stage. It is a reconstruction pattern for material conclusions.
 
-Evidence remains distinct from knowledge. Knowledge remains distinct from decision. A decision remains distinct from implementation outcome.
+Evidence remains distinct from knowledge. Knowledge remains distinct from decision. A decision remains distinct from implementation outcome. Outcome is evidence about knowledge, not automatic proof that knowledge caused the outcome.
 
 ## 4. Real-world mechanisms
 
@@ -146,6 +161,7 @@ QUESTION
 → INTERPRETATION
 → LESSON
 → KNOWLEDGE CANDIDATE
+→ VALIDATION / APPLICABILITY
 → DECISION
 ```
 
@@ -175,7 +191,32 @@ Examples include visual direction, composition, editorial framing, storytelling 
 
 The repository therefore preserves creative experience alongside engineering experience without pretending that aesthetic judgments have the same epistemic status as executable test results.
 
-## 8. Project Direction Map
+## 8. Learning-loop control boundaries
+
+External research for Program 1 establishes that the following claims must remain distinct:
+
+```text
+knowledge validity
+      ≠ applicability
+      ≠ retrieval
+      ≠ actual use
+      ≠ decision impact
+      ≠ execution impact
+      ≠ external outcome
+      ≠ causal attribution
+```
+
+A retrieved memory is not evidence that it was useful. A changed decision is not evidence that the decision improved the outcome. A positive outcome is not automatic proof that the memory caused it.
+
+Contradictory evidence enters an evaluation path. It does not automatically invalidate prior knowledge. Knowledge may be retained, revised, superseded, rejected, or restricted in scope depending on evidence and context.
+
+Knowledge-management research also identifies the risk of stale knowledge and competency traps. Therefore deliberate challenge, review and unlearning are part of the learning boundary rather than optional documentation features.
+
+Memory admission is a security/control boundary. External content or retrieved material does not become trusted reusable knowledge merely because it is stored.
+
+The Program 1 evidence synthesis is preserved in `10_records/2026-09-13-learning-loop-program-1-research-synthesis.md` and the corresponding model evolution decision in `05_decision/2026-09-13-program-1-learning-loop-model-evolution.md`.
+
+## 9. Project Direction Map
 
 The Project Direction Map is the navigation layer for the whole project. It prevents the active branch of work from becoming the only remembered branch.
 
@@ -209,7 +250,7 @@ Parking a direction does not delete its context. Completing a direction does not
 
 The current map is maintained in `docs/29_project_direction_map.md` with a machine-readable projection in `model/project-direction-map.yaml`.
 
-## 9. Current checkpoint
+## 10. Current checkpoint
 
 The Project Direction Map answers `where can the project go?`.
 
@@ -230,7 +271,7 @@ return point
 
 The checkpoint must never be reconstructed from conversation memory when the repository can contain it.
 
-## 10. Completion and context transfer
+## 11. Completion and context transfer
 
 Before leaving a material direction, the assistant must preserve:
 
@@ -246,7 +287,7 @@ where to return
 
 A branch of work is not considered safely parked if only its final conclusion survives while the path, evidence and unresolved questions are lost.
 
-## 11. Operating principle
+## 12. Operating principle
 
 The repository should behave as project operating memory, not merely as source code plus documentation:
 
