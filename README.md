@@ -2,9 +2,9 @@
 
 Исследовательская и частично исполняемая среда для проектирования `Content Ecosystem` и `Content Factory`.
 
-Репозиторий завершил bounded v0 и первую эксплуатационную фазу: модель системы, операционные контракты зон, executable runtime, evidence materialization, durable runtime control state, integration boundary и CI-проверки согласованы между собой. Phase 2 — Real Execution — сейчас реализуется через реальный provider boundary; production readiness и реальный внешний эффект по-прежнему не заявляются.
+Репозиторий завершил bounded v0 и Phase 1 durable runtime. Phase 2 — Real Execution — реализуется через реальный provider boundary; production readiness и реальный внешний эффект не заявляются.
 
-## 1. Current system hierarchy
+## Current system hierarchy
 
 ```text
 CONTENT ECOSYSTEM
@@ -23,129 +23,74 @@ CONTENT ECOSYSTEM
 │   │   └── LEARNING
 │   ├── FACTORY CONTROL
 │   └── SHARED SEMANTIC SUBSTRATE
-│
 ├── CAPABILITY SYSTEM
-│
 ├── ENGINEERING SYSTEM
-│   ├── DOMAIN MODEL
-│   ├── EXECUTION
-│   ├── STORAGE
-│   ├── INTEGRATION
-│   ├── GOVERNANCE
-│   ├── OBSERVABILITY
-│   └── INFRASTRUCTURE
-│
 └── EXPERIENCE / CHANNELS
 ```
 
-`Content Factory` — одна функциональная система внутри `Content Ecosystem`. Capability и Engineering — execution layers, которые позволяют фабрике использовать абстрактные способности без прямой зависимости от конкретных инструментов и провайдеров.
+`Content Factory` — функциональная система внутри `Content Ecosystem`. Capability и Engineering являются execution layers, позволяющими фабрике использовать абстрактные способности без прямой зависимости от конкретных инструментов и провайдеров.
 
-## 2. Integrated operating model
+## Integrated operating model
 
-Основной документ: `docs/23_content_factory_operating_model.md`.
+Основные документы:
 
-Модель Capability / Engineering layers: `docs/24_capability_and_engineering_layer.md`.
+- `docs/23_content_factory_operating_model.md`
+- `docs/24_capability_and_engineering_layer.md`
+- `docs/26_first_external_proof.md`
+- `docs/27_factory_runtime_v0.md`
+- `docs/28_project_operating_memory.md`
+- `docs/29_project_direction_map.md`
+- `model/content-factory-map.yaml`
+- `model/project-direction-map.yaml`
 
-Исполняемый Runtime v0: `docs/27_factory_runtime_v0.md`.
+## Executable Runtime v0
 
-Критерий первого внешнего доказательства работы: `docs/26_first_external_proof.md`.
-
-Верхнеуровневая модель экосистемы: `docs/22_content_ecosystem_model.md`.
-
-Исследовательски выведенная модель фабрики: `docs/21_content_factory_level_model.md`.
-
-Машинно-читаемая карта фабрики: `model/content-factory-map.yaml`.
-
-Проектная operating memory: `docs/28_project_operating_memory.md`.
-
-Карта направлений и return points: `docs/29_project_direction_map.md`.
-
-Машинно-читаемая карта направлений: `model/project-direction-map.yaml`.
-
-## 3. Factory value flow
-
-```text
-STRATEGIC DEMAND + EXTERNAL CONTEXT
-                ↓
-             INPUT
-                ↓
-           KNOWLEDGE
-                ↓
-           EDITORIAL
-                ↓
-           PRODUCTION
-                ↓
-             QUALITY
-                ↓
-          DISTRIBUTION
-                ↓
-          EXTERNAL EFFECT
-                ↓
-            LEARNING
-                ↺
-```
-
-Это projection потока ценности, а не единая state machine.
-
-## 4. Executable Runtime v0
-
-Минимальный runtime реализует один контролируемый execution path:
+Минимальный runtime реализует контролируемый execution path:
 
 ```text
 WORK ITEM
    ↓
-RECEIVED
-   ↓ ADMIT
-ADMITTED
-   ↓ EXECUTE CAPABILITY
-PRODUCED
-   ↓ VERIFY EXACT REVISION
-VERIFIED
-   ↓ ACCEPT + AUTHORITY
-ACCEPTED
-   ↓ RELEASE AUTHORITY
-RELEASE_READY
-   ↓ RELEASE
-RELEASED
-   ↓ PUBLISHER
-DELIVERED
-   ↓ OBSERVABLE EFFECT
-OBSERVED
+ADMIT
+   ↓
+EXECUTE CAPABILITY
+   ↓
+VERIFY EXACT REVISION
+   ↓
+ACCEPT + AUTHORITY
+   ↓
+RELEASE AUTHORITY
+   ↓
+RELEASE
+   ↓
+PUBLISHER
+   ↓
+OBSERVABLE EFFECT
 ```
 
 Реализация: `src/content_factory/runtime.py`.
-
 Тесты: `tests/test_runtime.py`.
 
-Runtime v0 намеренно ограничен одним capability и injected publisher. Без publisher внешний эффект невозможен. Execution result не становится accepted content автоматически.
+Runtime v0 ограничен одним capability и injected publisher. Без publisher внешний эффект невозможен. Execution result не становится accepted content автоматически. Synthetic/demo publication не считается доказательством внешнего эффекта.
 
-Runtime materializes evidence into a workspace filesystem through `ArtifactStore`. Это не означает запись в Git history. Синхронизация workspace evidence с репозиторием выполняется отдельной workflow: `.github/workflows/materialize-runtime.yml`.
+## Durable runtime — Phase 1
 
-Синтетический demo runtime не создаёт `01_observation`: он моделирует publication, но не доказывает внешний эффект.
-
-## 5. Durable runtime — Phase 1
-
-`RuntimeStore` добавляет отдельный слой durable control state:
+`RuntimeStore` предоставляет bounded single-node durable control state:
 
 ```text
-RuntimeStore
-    ↓
 work-item state + append-only event journal
-    ↓
+        ↓
 atomic state/event transaction
-    ↓
+        ↓
 process restart
-    ↓
+        ↓
 state + event history reconstruction
 ```
 
-Это не замена `ArtifactStore`. `RuntimeStore` нужен для восстановления управляющего состояния; `ArtifactStore` остаётся projection доказательств в workspace.
+Phase 1 проверена runtime-тестами на restart recovery и атомарную фиксацию перехода вместе с событием. Используется SQLite WAL с `synchronous=FULL`.
 
-Phase 1 проверена тестами на restart recovery и атомарную фиксацию перехода вместе с событием. Используется SQLite WAL с `synchronous=FULL` для bounded single-node runtime.
+## Real Execution — Phase 2
 
-## 6. Real Execution — Phase 2
-
-Первый реальный provider boundary реализован для OpenAI Responses API:
+Первый provider boundary реализован для OpenAI Responses API:
 
 ```text
 WORK ITEM
@@ -162,14 +107,13 @@ output revision
 ```
 
 Реализация: `src/content_factory/openai_adapter.py`.
+Секретная граница: `OPENAI_API_KEY`; raw key не входит в repository, provenance или logs. Default model: `gpt-5.6-luna`.
 
-Секретная граница: `OPENAI_API_KEY`; raw key не входит в repository, provenance или logs. Для модели по умолчанию используется `gpt-5.6-luna`.
+Unit-тесты проверяют provider boundary и mapping ответа в `ExecutionResult`. Есть opt-in external test: `tests/test_external_openai.py`.
 
-Unit-тесты проверяют provider boundary и mapping ответа в `ExecutionResult`. Есть отдельный opt-in external test: `tests/test_external_openai.py`.
+Phase 2 не завершена: требуется реальный credential в execution environment, connectivity test, реальный capability execution и revision-bound verification. Unit-тесты эти шаги не заменяют.
 
-Phase 2 пока не завершена: требуется реальный credential в execution environment, connectivity test, реальный capability execution и revision-bound verification. Эти шаги нельзя считать выполненными по unit-тестам.
-
-## 7. Capability and Engineering boundary
+## Capability and Engineering boundary
 
 ```text
 FACTORY WORK ITEM
@@ -187,8 +131,6 @@ RESULT / EXTERNAL EFFECT
 VERIFICATION / OBSERVATION
 ```
 
-Factory формулирует требуемый результат и capability. Engineering отвечает за контролируемое исполнение. Concrete tools/providers являются заменяемыми реализациями.
-
 Ключевое правило:
 
 ```text
@@ -197,86 +139,15 @@ CAN EXECUTE
 ≠ CAN PUBLISH
 ```
 
-## 8. First external proof
+## First external proof
 
-Минимальное доказательство работы фабрики — один завершённый `Content Work Item`, который проходит от bounded input до авторизованной публикации/доставки, создаёт реально наблюдаемый внешний эффект, а вся цепочка provenance и authority восстанавливаема.
+Минимальное внешнее доказательство — завершённый bounded `Content Work Item`, который проходит через авторизованную публикацию/доставку к реальному внешнему destination, создаёт реально наблюдаемый внешний эффект, а provenance и authority chain восстанавливаемы.
 
-Публикация сама по себе не считается достаточным доказательством: `publication ≠ outcome`.
+`publication ≠ outcome`.
 
-Runtime v0 может пройти эту цепочку с fake publisher в тесте, но это не является external proof. Для external proof нужен реальный внешний destination.
+Fake/synthetic publisher не является external proof.
 
-## 9. Factory Control
-
-Factory Control — control plane над семью системами потока:
-
-```text
-priority
-routing
-WIP / queues
-capacity
-scheduling
-ownership
-service expectations
-orchestration
-bottleneck management
-```
-
-Она управляет движением работы, но не является источником истины контента.
-
-## 10. Shared Semantic Substrate
-
-Общий смысловой слой:
-
-```text
-identity
-revisions
-structured content
-knowledge graph
-claims / evidence
-provenance
-dependencies
-audience / taxonomy metadata
-reusable components
-```
-
-Он используется всеми системами и не является отдельной стадией workflow.
-
-## 11. Work Item
-
-Основная единица производственного потока — `Content Work Item` / `Work Package`.
-
-```text
-WORK ITEM
-├── strategic intent
-├── audience context
-├── objective
-├── requested outcome
-├── inputs
-├── knowledge basis
-├── dependencies
-├── capabilities
-├── owner
-├── priority
-├── constraints
-├── acceptance criteria
-├── release requirements
-└── success signals
-```
-
-Основные различия:
-
-```text
-WORK ITEM ≠ REQUEST
-WORK ITEM ≠ ASSET
-WORK ITEM ≠ RELEASE
-WORK ITEM ≠ PUBLICATION
-CAPABILITY ≠ TOOL
-EXECUTION RESULT ≠ ACCEPTED CONTENT
-```
-
-## 12. Project operating memory
-
-Репозиторий сохраняет не только текущую архитектуру, но и опыт, необходимый для продолжения работы после смены контекста.
+## Project operating memory
 
 Основной цикл:
 
@@ -292,41 +163,30 @@ QUESTION
 → PROJECT MAP UPDATE
 ```
 
-`PROJECT MAP` и `CURRENT CHECKPOINT` различаются: карта сохраняет направления и return points, checkpoint фиксирует точное место остановки.
+`PROJECT MAP` и `CURRENT CHECKPOINT` различаются. Правила: `docs/28_project_operating_memory.md`. Chat ↔ repository protocol: `docs/25_chat_repository_operating_protocol.md`.
 
-Правила этого слоя: `docs/28_project_operating_memory.md`.
+## Learning Loop — current state
 
-Карта направлений: `docs/29_project_direction_map.md`.
+Program 1 external research produced a bounded model evolution. Q19–Q21 demonstrated a project-level path from research to learning candidate, explicit promotion, reusable memory consumption and decision change.
 
-Правила взаимодействия chat ↔ repository: `docs/25_chat_repository_operating_protocol.md`.
+Externally supported principles include provenance, explicit derivation, measurement/validity limits, retrieval/application distinction, contradiction evaluation, stale-knowledge concerns and memory-security concerns. These are external support, not proof that Content Factory is effective in production.
 
-## 13. Research / state / authority foundation
+Still unproven:
 
-Репозиторий содержит отдельные модели:
+- memory changing execution;
+- real external outcome from memory-informed execution;
+- outcome evaluating memory;
+- contradiction-driven revision in a real external case;
+- successful cross-context transfer;
+- product/business improvement.
 
-- state model;
-- transition matrix;
-- dependency and provenance model;
-- effect and authority boundaries;
-- object lifecycles;
-- ontology candidate;
-- system map / space map;
-- operator navigation;
-- repository rules;
-- project direction map;
-- project operating memory.
+Research: `10_records/2026-09-13-learning-loop-program-1-research-synthesis.md`.
+Audit: `10_records/2026-09-13-repository-external-evidence-audit.md`.
+Decision: `05_decision/2026-09-13-program-1-learning-loop-model-evolution.md`.
 
-Эти модели не смешиваются в одну workflow-схему.
+## Status
 
-## 14. Status
-
-`PHASE 1 COMPLETE / PHASE 2 IN PROGRESS / PRODUCTION NOT CLAIMED`
-
-Завершены bounded v0 и Phase 1 durable runtime: Work Item → execution → revision-bound verification → explicit acceptance → release authority → injected publication → optional external observation; evidence materialization; SQLite control-state persistence; append-only event journal; restart reconstruction; CI verification.
-
-Phase 2 имеет реализованный provider boundary для OpenAI Responses API и opt-in real-execution test, но её внешний proof ещё не завершён.
-
-Последовательность следующих фаз:
+`PHASE 1 COMPLETE / PHASE 2 IN PROGRESS / PHASE 3 NOT STARTED / LEARNING LOOP ACTIVE RESEARCH / PRODUCTION NOT CLAIMED`
 
 ```text
 1 durable runtime                COMPLETE
@@ -335,7 +195,7 @@ Phase 2 имеет реализованный provider boundary для OpenAI Re
 4 reliability and control        NOT STARTED
 5 factory control plane          NOT STARTED
 6 operations and governance      NOT STARTED
-7 learning loop                  NOT STARTED
+7 learning loop                  ACTIVE RESEARCH / EXTERNAL PROOF PENDING
 ```
 
-Ни одна последующая граница не считается выполненной документацией или fake publisher.
+No subsequent boundary is considered complete merely because it exists in documentation or uses a fake publisher.
