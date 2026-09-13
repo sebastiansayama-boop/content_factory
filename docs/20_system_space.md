@@ -1,265 +1,186 @@
 # 20 — System Space
 
-The repository is not only a workflow. It is a bounded space of possible information states and authorized transitions.
+The repository is a bounded model inside a larger Content Ecosystem and Content Factory.
 
-## 1. System-level abstraction
-
-```text
-WORLD
-  ↓
-PERCEPTION
-  ↓
-REPRESENTATION
-  ↓
-MODEL
-  ↓
-POSSIBILITIES
-  ↓
-DECISION
-  ↓
-ACTION
-  ↓
-CONSEQUENCE
-  ↓
-OBSERVATION
-  ↓
-MODEL UPDATE
-```
-
-A state describes where the system is.
-
-A transition describes what can happen from that state.
-
-A decision determines which transition is authorized.
-
-## 2. The space is four-dimensional
-
-Every important state can be located by four coordinates:
+## 1. Nested system model
 
 ```text
-INFORMATION
-What exists or is known?
-
-STATE
-What lifecycle condition is it in?
-
-DEPENDENCY
-What other things must remain valid?
-
-AUTHORITY
-What may legally happen next?
+EXTERNAL WORLD / MARKET
+        ↓
+CONTENT ECOSYSTEM
+        ↓
+CONTENT FACTORY
+        ↓
+REPOSITORY MODEL / CASES / RECORDS
 ```
 
-A fifth coordinate is useful for navigation:
+The repository should not confuse these boundaries.
+
+## 2. Ecosystem state space
+
+Contains context such as:
 
 ```text
-TIME
-What is historical, current, proposed, superseded or unknown?
+strategy
+portfolio
+objectives
+audience context
+market signals
+product/business context
+experience
+outcomes
 ```
 
-## 3. The system has a state space and an action space
-
-### State space
+## 3. Factory state space
 
 Contains:
 
-- observations;
-- evidence;
-- claims;
-- knowledge revisions;
-- active contexts;
-- decisions;
-- specifications;
-- assets;
-- verification results;
-- releases;
-- publications;
-- learning candidates;
-- current model;
-- historical records.
+```text
+work items
+inputs
+research
+knowledge revisions
+editorial decisions
+specifications
+asset revisions
+verification results
+acceptance decisions
+releases
+publications
+effects
+learning candidates
+```
 
-### Action space
+## 4. Factory action space
 
-Contains only actions that are legitimate from the current state and authority:
+Actions are legitimate only when permitted by current state, dependencies and authority:
 
 ```text
-observe
+capture
 classify
 research
 relate
+prioritize
+route
 reason
-propose
-approve
-reject
-hold
+draft
 produce
 verify
 accept
+release
 publish
-retire
+observe
+measure
+experiment
 learn
 update
-archive
+retire
 ```
 
-The repository must never infer an available action from the existence of a file alone.
+Factory Control chooses or coordinates flow actions; it does not create epistemic truth by itself.
 
-## 4. The current model is a map, not the territory
+## 5. Semantic coordinates
 
-`model/` describes the current best working model of the system.
-
-It is not the world, the complete evidence base, or the complete history.
-
-Therefore:
+Every material factory item is navigated through:
 
 ```text
-WORLD ≠ MODEL
-MODEL ≠ MEMORY
-MEMORY ≠ HISTORY
-HISTORY ≠ AUTHORITY
+SYSTEM LEVEL
+OBJECT
+REVISION / STATE
+EVIDENCE
+DEPENDENCIES
+AUTHORITY
+TIME
 ```
 
-A model change is itself an event that must be explainable by evidence, experiment, case failure or explicit decision.
-
-## 5. The repository contains multiple realities
-
-At any moment the repository may contain:
+## 6. Realities to keep separate
 
 ```text
 OBSERVED REALITY
-what was actually observed
+what was observed externally
 
 REPRESENTED REALITY
-what the current knowledge model says
+what the current knowledge/model says
 
 INTENDED FUTURE
-what decisions propose to do
+what strategy/decisions propose
 
 COMMITTED HISTORY
-what the records say happened
+what records say happened
 
 UNKNOWN SPACE
 what cannot currently be established
 ```
 
-Confusing these realities is a primary source of system error.
+## 7. Factory control coordinates
 
-## 6. Decision-making in the space
-
-When asked to perform work, first locate:
+For flow management, add:
 
 ```text
-CURRENT STATE
-TARGET OBJECT
-TARGET REVISION
-KNOWN EVIDENCE
-DEPENDENCIES
-AUTHORITY
-POSSIBLE NEXT TRANSITIONS
+DEMAND
+PRIORITY
+QUEUE / WIP
+CAPACITY
+ROUTE
+OWNER
+SERVICE EXPECTATION
+BOTTLENECK
 ```
 
-Then choose the smallest valid transition.
+These coordinates describe the state of the work system, not the truth of content.
 
-The default decision function is:
+## 8. Available transition calculation
+
+Conceptually:
 
 ```text
-DECIDE = f(state, evidence, dependencies, authority, objective, constraints)
+NEXT ACTIONS
+= f(
+  current state,
+  work item objective,
+  evidence,
+  dependencies,
+  authority,
+  capability,
+  capacity,
+  constraints
+)
 ```
 
-It is not:
+A file's existence is not evidence that its corresponding action is available.
+
+## 9. Cross-boundary transitions
 
 ```text
-DECIDE = f(request text alone)
+ECOSYSTEM → FACTORY
+strategy / audience / demand becomes bounded content work
+
+FACTORY → EXPERIENCE
+accepted release becomes an external delivery
+
+EXPERIENCE → ECOSYSTEM
+response/outcome becomes market, audience or business signal
+
+FACTORY → REPOSITORY
+state, evidence, decisions and history become inspectable records
 ```
 
-## 7. Constraint field
+## 10. System integrity
 
-Constraints are part of the state space.
-
-Examples:
+A material case is navigable when an operator can answer:
 
 ```text
-unknown factual claim
-missing evidence
-blocked dependency
-expired decision
-unaccepted revision
-publication already occurred
-explicit user boundary
-repository scope boundary
+What strategic or external context created the demand?
+What work item entered?
+What was known?
+What did the factory decide?
+What capability processed it?
+What constrained the flow?
+What exact revision was verified and accepted?
+What release occurred?
+What external effect occurred?
+What was observed afterward?
+What changed in factory or ecosystem state?
 ```
 
-A constraint can remove transitions from the action space without changing the underlying information.
-
-## 8. Opportunity field
-
-The system should also identify available legitimate transitions, not only blockers.
-
-For a given state:
-
-```text
-AVAILABLE
-BLOCKED
-REQUIRES RESEARCH
-REQUIRES DECISION
-REQUIRES ACCEPTANCE
-REQUIRES EXTERNAL AUTHORITY
-UNKNOWN
-```
-
-This makes the map operational: it tells the operator not only where the system is, but what can happen next.
-
-## 9. Local map versus global map
-
-A case has a local space:
-
-```text
-CASE
- ├── objects
- ├── revisions
- ├── evidence
- ├── dependencies
- ├── decisions
- ├── effects
- └── observations
-```
-
-The repository has a global space containing many cases, shared knowledge and the current model.
-
-A local case may change shared memory only through explicit promotion.
-
-## 10. Navigation principle
-
-The operator should move through the repository by semantic coordinates, not filenames:
-
-```text
-space
-→ object
-→ state
-→ evidence
-→ dependency
-→ authority
-→ next transition
-→ record
-```
-
-The file path is chosen after these coordinates are known.
-
-## 11. System integrity condition
-
-The space is considered navigable when an operator can answer, for a meaningful case:
-
-```text
-Where are we?
-What do we know?
-What do we not know?
-What versions are current?
-What depends on what?
-What decisions exist?
-What authority exists?
-What can happen next?
-What already happened?
-How do we know?
-```
-
-If these answers cannot be recovered, the problem is not merely documentation. It is a failure of system state representation.
+If these answers cannot be recovered, the problem is a failure of state representation or system boundary definition, not merely documentation quality.
