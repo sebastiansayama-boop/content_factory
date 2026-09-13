@@ -2,7 +2,10 @@
 
 Date: 2026-09-13
 Learning ID: LEARN-2026-09-13-001
-Status: CANDIDATE
+Status: PROMOTED
+Promotion decision: `05_decision/2026-09-13-learning-001-promotion.md`
+Promoted memory: `02_memory/2026-09-13-memory-001-idempotency-vs-correlation.md`
+Promoted memory revision: `MEM-2026-09-13-001-r1`
 
 ## 1. Trigger / question
 
@@ -28,8 +31,6 @@ Q15 reports external evidence from AWS Builders Library and W3C PROV, plus the r
 
 Q15 also rejects the propositions that a factory correlation ID automatically makes retry safe, or that an operation ID automatically makes retry safe.
 
-The source record classifies the distinction as established by external evidence where the external sources directly support it, and as derived for Content Factory where the repository applies that evidence to factory design.
-
 No production execution, external mutation, or local provider behavior is claimed here.
 
 ## 3. Observation / established input
@@ -50,30 +51,28 @@ This learning is narrower than a rule that every external mutation requires an i
 
 A. `Every externally mutating operation needs a provider idempotency key.`
 
-Rejected by Q15. The required mechanism depends on operation semantics; natural idempotency or exact conditional state semantics can sometimes provide sufficient safety.
+Rejected by Q15.
 
 B. `A factory correlation ID is sufficient for safe retry.`
 
-Rejected by Q15. Correlation supports attribution/provenance but does not create provider-side duplicate suppression.
+Rejected by Q15.
 
 C. `A provider operation ID is sufficient for safe retry.`
 
-Rejected by Q15. It can identify an existing execution without preventing a second execution.
+Rejected by Q15.
 
 D. `No idempotency mechanism means the external action cannot be executed.`
 
-Rejected by Q15. The action may be executable while remaining unsuitable for automatic recovery.
+Rejected by Q15.
 
 ## 6. Uncertainties
 
-The learning candidate does not establish:
+The learning does not establish:
 
 - which concrete first Content Factory provider will expose which identity/idempotency mechanisms;
 - whether a specific provider supports factory-visible correlation after execution;
 - whether a concrete external effect can be made automatically recoverable;
 - the provider-specific admission threshold for any particular capability.
-
-These remain unknown until a concrete provider/capability case is examined.
 
 ## 7. Proposed consequence
 
@@ -93,19 +92,13 @@ A capability should not be classified as automatically recoverable merely becaus
 
 `external-effect design / recovery / provider capability evaluation`
 
-This candidate does not authorize an implementation change, external action, new ontology class, or generic idempotency infrastructure.
+The promoted memory does not authorize an implementation change, external action, new ontology class, or generic idempotency infrastructure.
 
-## 9. Promotion eligibility assessment
+## 9. Promotion result
 
-The candidate is eligible for consideration for explicit promotion because:
+Explicit promotion decision `DEC-2026-09-13-001` accepted this proposition as bounded reusable knowledge.
 
-- its source research is reconstructable;
-- the proposition is stated separately from the underlying evidence;
-- competing simplifications are recorded and rejected;
-- uncertainty and applicability limits are explicit;
-- the proposed consequence is bounded.
-
-Promotion is not implied by this record. An explicit decision must determine whether this proposition becomes reusable memory.
+The promotion preserves the distinction between research evidence, learning interpretation, reusable knowledge and authority. It also preserves the unresolved provider-specific questions.
 
 ## 10. Evidence boundary
 
@@ -116,7 +109,7 @@ Promotion is not implied by this record. An explicit decision must determine whe
 - operation identity alone does not make retry safe;
 - automatic recoverability requires stronger conditions than mere executability.
 
-### Not established by this record
+### Not established by this learning
 
 - universal provider requirements;
 - correctness of any future provider-specific implementation;
@@ -124,12 +117,9 @@ Promotion is not implied by this record. An explicit decision must determine whe
 
 ## 11. Decision
 
-`CANDIDATE / USER-DECISION-REQUIRED-FOR-PROMOTION`
-
-No implementation or model change follows from Q19 alone.
+`PROMOTED / REUSABLE_MEMORY_CREATED`
 
 ## 12. Derived questions
 
-- Q20: Is this learning proposition sufficiently scoped and evidenced to be explicitly promoted into reusable memory?
 - Q21: If promoted, can a subsequent bounded work item retrieve this memory and demonstrably change its decision rather than merely cite it?
 - Q22: What observable result would strengthen, weaken, or falsify the promoted proposition in a concrete provider case?
