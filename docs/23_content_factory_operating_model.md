@@ -326,7 +326,7 @@ The repository contains a coherent executable bounded runtime, explicit zone ope
 
 Phase 1 adds durable runtime control state: SQLite-backed work-item state and an append-only event journal are committed atomically, and a new runtime instance reconstructs the persisted state and event history after restart. This is distinct from `ArtifactStore`: runtime persistence is recovery/control state, while artifact materialization is repository evidence projection.
 
-Phase 2 now has a concrete OpenAI Responses provider adapter with an explicit `OPENAI_API_KEY` secret boundary and an opt-in external execution test. Unit tests verify the provider boundary and mapping into `ExecutionResult`. Phase 2 is not complete until a real credential is available in an execution environment and a real provider call, connectivity result and revision-bound verification are observed.
+Phase 2 now has a concrete OpenAI Responses provider adapter, a capability binding that maps a provider response into `ExecutionResult`, an explicit `OPENAI_API_KEY` secret boundary, and an operator proof command. Unit tests verify the provider boundary and capability mapping. Phase 2 is not complete until a real credential is available in an execution environment and a real provider call, connectivity result and revision-bound verification are observed. The credential itself must never enter the repository, provenance or logs.
 
 The following remain outside the completed phases: real external publication destination, independently verified external effect, external-operation idempotency/reconciliation, queues/leases, broader control-plane operations, operations/governance and the learning loop.
 
