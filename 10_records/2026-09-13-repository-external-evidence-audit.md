@@ -46,11 +46,25 @@ No substantive external contradiction was found in the audited claims.
 
 ## Repository consistency findings
 
-1. `docs/29_project_direction_map.md` already records Learning Loop as `ACTIVE RESEARCH / EXTERNAL PROOF PENDING`.
-2. `model/content-factory-map.yaml` already records Phase 7 as `research_complete_real_external_proof_pending`.
-3. `model/project-direction-map.yaml` is stale: Learning Loop is still marked `PARKED`, conflicting with the human-readable direction map and current machine-readable factory map.
-4. `README.md` is stale: its final phase list still marks Learning Loop `NOT STARTED`.
+1. `docs/29_project_direction_map.md` correctly records Learning Loop as `ACTIVE RESEARCH / EXTERNAL PROOF PENDING`.
+2. `model/content-factory-map.yaml` correctly records Phase 7 as `research_complete_real_external_proof_pending` and now separates externally supported claims from project-demonstrated claims.
+3. `model/project-direction-map.yaml` was stale at audit time: Learning Loop was marked `PARKED`. Corrected to `ACTIVE` in version 3.
+4. `README.md` was stale at audit time: its final phase list marked Learning Loop `NOT STARTED`. Corrected to `ACTIVE RESEARCH / EXTERNAL PROOF PENDING`.
 5. `10_records/2026-09-13-experiment-001-status.md` correctly remains at `EXECUTION GATE`; no external-effect result has been established.
+
+## Corrections applied
+
+- `model/project-direction-map.yaml` → version 3; Learning Loop synchronized to `ACTIVE`.
+- `docs/29_project_direction_map.md` → synchronized current navigation state and external/project evidence labels.
+- `model/content-factory-map.yaml` → version 12; `externally_supported_scope` and `project_demonstrated_scope` are now distinct.
+- `README.md` → current phase status synchronized.
+
+Commits:
+- Audit record: `45a1241ee8b97599f01f2b2a8975c81185886c6e`
+- Direction model: `ca54870834bcc6b738272da2620c27a79977e974`
+- Direction map: `88e5cb0e7aa9635125a63d9673159aff15cafdc7`
+- README: `919eb1b7c8570fe3eaac3a3aa48f85efa76bede0`
+- Factory model epistemic labels: `ccdedae6ec749df17e4f9ed3f15160b5c92d960a`
 
 ## Proven project state after audit
 
@@ -61,13 +75,6 @@ No substantive external contradiction was found in the audited claims.
 - Real external outcome evaluating memory: not proven.
 - Automatic promotion, automatic authority, self-modifying learning policy and production readiness: not authorized/proven.
 
-## Required repository corrections
-
-- Synchronize `model/project-direction-map.yaml` with `docs/29_project_direction_map.md`: Learning Loop = `ACTIVE`, external proof pending.
-- Synchronize the README status line: Learning Loop = `ACTIVE RESEARCH / EXTERNAL PROOF PENDING`, while Phase 3 remains `NOT STARTED`.
-- Preserve the distinction between externally supported principles and project-proven behavior.
-- Do not change implementation solely from this audit.
-
 ## Audit conclusion
 
-The substantive model is consistent with the external evidence reviewed. The main defect found is repository-state synchronization, not a need for new architecture. The next empirical boundary remains: memory-informed decision -> changed execution -> real external outcome -> evaluation -> memory revision.
+The substantive model is consistent with the external evidence reviewed. The main defect found was repository-state synchronization, not a need for new architecture. The repository is now synchronized at the audited boundaries. The next empirical boundary remains: memory-informed decision -> changed execution -> real external outcome -> evaluation -> memory revision.
