@@ -10,6 +10,10 @@ class GitHubChangeState(str, Enum):
     CLOSED = "closed"
 
 
+class GitHubOperation(str, Enum):
+    UPDATE_FILE = "update_file"
+
+
 @dataclass(frozen=True)
 class GitHubWorkContext:
     """Repository-facing identity for one Factory work item.
@@ -22,6 +26,47 @@ class GitHubWorkContext:
     issue_number: int
     branch_name: str
     repository_full_name: str
+
+
+@dataclass(frozen=True)
+class GitHubOperationIntent:
+    """Factory-side description of one bounded GitHub operation.
+
+    The intent describes what the adapter is asked to cause in GitHub. It is
+    not itself evidence that GitHub performed the operation.
+    """
+
+    operation_id: str
+    work_item_id: str
+    operation: GitHubOperation
+    repository_full_name: str
+    branch_name: str
+    path: str
+    expected_commit_sha: str | None = None
+
+
+@dataclass(frozen=True)
+class GitHubOperationObservation:
+    """Observed GitHub result fetched independently after an operation."""
+
+    operation_id: str
+    repository_full_name: str
+    operation: GitHubOperation
+    branch_name: str
+    path: str
+    commit_sha: str
+    observed: bool = True
+
+
+@dataclass(frozen=True)
+class GitHubReconciliation:
+    """Factory-side comparison of operation intent and observed GitHub state."""
+
+    reconciled: bool
+    evidence_refs: tuple[str, ...]
+    unknowns: tuple[str, ...] = ()
+    mismatches: tuple[str, ...] = ()
+    reason: str = ""
 
 
 @dataclass(frozen=True)
@@ -76,6 +121,54 @@ def bind_work_item_to_github(
         issue_number=issue_number,
         branch_name=branch_name,
         repository_full_name=repository_full_name,
+    )
+
+
+def reconcile_github_operation(
+    intent: GitHubOperationIntent,
+    observation: GitHubOperationObservation | None,
+) -> GitHubReconciliation:
+    """Reconcile an intended GitHub operation with independently observed state."""
+
+    if observation is None or not observation.observed:
+        return GitHubReconciliation(
+            reconciled=False,
+            evidence_refs=(),
+            unknowns=("GitHub operation result was not observed",),
+            reason="execution cannot be treated as reconciled without an observation",
+        )
+
+    refs = (
+        f"github://{observation.repository_full_name}/commit/{observation.commit_sha}",
+        f"github://{observation.repository_full_name}/blob/{observation.branch_name}/{observation.path}",
+    )
+    mismatches: list[str] = []
+
+    if observation.operation_id != intent.operation_id:
+        mismatches.append("operation identity differs")
+    if observation.repository_full_name != intent.repository_full_name:
+        mismatches.append("repository differs")
+    if observation.operation != intent.operation:
+        mismatches.append("operation differs")
+    if observation.branch_name != intent.branch_name:
+        mismatches.append("branch differs")
+    if observation.path != intent.path:
+        mismatches.append("path differs")
+    if intent.expected_commit_sha is not None and observation.commit_sha != intent.expected_commit_sha:
+        mismatches.append("observed commit differs from expected commit")
+
+    if mismatches:
+        return GitHubReconciliation(
+            reconciled=False,
+            evidence_refs=refs,
+            mismatches=tuple(mismatches),
+            reason="GitHub observation does not reconcile with the Factory operation intent",
+        )
+
+    return GitHubReconciliation(
+        reconciled=True,
+        evidence_refs=refs,
+        reason="GitHub operation result reconciled; semantic acceptance remains external",
     )
 
 
