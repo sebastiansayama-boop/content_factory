@@ -1,167 +1,154 @@
 # Content Factory
 
-Экспериментальная среда для исследования editorial knowledge system и production system.
+Исследовательская среда для проектирования `Content Ecosystem` и `Content Factory`.
 
-Репозиторий не является реализацией контентного продукта. Его задача — сделать наблюдаемой модель того, как информация возникает, исследуется, принимается, превращается в производный материал, выпускается и возвращается в следующий производственный цикл.
+Репозиторий не является реализацией контентного продукта. Его задача — сделать наблюдаемой и проверяемой модель системы, которая связывает стратегический контекст, аудиторию/рынок, производство контента, выпуск, внешние эффекты и обучение.
 
-## Уровни модели
-
-Репозиторий рассматривается на нескольких уровнях:
+## 1. Current system hierarchy
 
 ```text
-SYSTEM SPACE
-  ↓
-ONTOLOGY
-  ↓
-CONTENT FACTORY SYSTEM MODEL
-  ↓
-FUNCTIONAL NETWORK
-  ↓
-OBJECT / STATE / DEPENDENCY / AUTHORITY
-  ↓
-FOLDERS / RECORDS / CASES
-```
-
-### Content Factory system model
-
-Текущая кандидатная архитектура:
-
-```text
-CONTENT FACTORY
+CONTENT ECOSYSTEM
 │
-├── STRATEGY / PORTFOLIO INTENT
-│
-├── VALUE FLOW
-│   ├── INPUT
-│   ├── KNOWLEDGE
-│   ├── EDITORIAL
-│   ├── PRODUCTION
-│   ├── QUALITY
-│   ├── DISTRIBUTION
-│   └── LEARNING
-│
-├── FACTORY CONTROL
-│   ├── prioritization
-│   ├── intake / routing
-│   ├── WIP / queues
-│   ├── capacity / scheduling
-│   ├── ownership / service expectations
-│   ├── orchestration
-│   └── bottleneck management
-│
-└── SHARED SEMANTIC SUBSTRATE
-    ├── structured content
-    ├── knowledge graph
-    ├── provenance
-    ├── revisions
-    ├── dependencies
-    └── reusable components
+├── STRATEGY / INTENT
+├── AUDIENCE / MARKET
+├── PRODUCT / BUSINESS
+├── CONTENT FACTORY
+│   ├── VALUE FLOW
+│   │   ├── INPUT
+│   │   ├── KNOWLEDGE
+│   │   ├── EDITORIAL
+│   │   ├── PRODUCTION
+│   │   ├── QUALITY
+│   │   ├── DISTRIBUTION
+│   │   └── LEARNING
+│   ├── FACTORY CONTROL
+│   └── SHARED SEMANTIC SUBSTRATE
+└── EXPERIENCE / CHANNELS
 ```
 
-`docs/21_content_factory_level_model.md` содержит исследовательское обоснование этой модели. `model/content-factory-map.yaml` — машинно-читаемая кандидатная карта.
+`Content Factory` — одна функциональная система внутри `Content Ecosystem`, а не весь ecosystem/business layer.
 
-Главный сдвиг относительно старой восьмисистемной схемы:
+## 2. Integrated operating model
+
+Основной документ: `docs/23_content_factory_operating_model.md`.
+
+Верхнеуровневая модель экосистемы: `docs/22_content_ecosystem_model.md`.
+
+Исследовательски выведенная модель фабрики: `docs/21_content_factory_level_model.md`.
+
+Машинно-читаемая карта фабрики: `model/content-factory-map.yaml`.
+
+## 3. Factory value flow
 
 ```text
-семь систем = value flow
-Factory Control = control plane
-Shared Semantic Substrate = common meaning/state substrate
-Strategy / Portfolio = upstream intent
+STRATEGIC DEMAND + EXTERNAL CONTEXT
+                ↓
+             INPUT
+                ↓
+           KNOWLEDGE
+                ↓
+           EDITORIAL
+                ↓
+           PRODUCTION
+                ↓
+             QUALITY
+                ↓
+          DISTRIBUTION
+                ↓
+          EXTERNAL EFFECT
+                ↓
+            LEARNING
+                ↺
 ```
 
-Factory Control не является восьмым последовательным этапом.
+Это projection потока ценности, а не единая state machine.
 
-## Ontology
+## 4. Factory Control
 
-Ontology отвечает на вопрос:
+Factory Control — control plane над семью системами потока:
 
 ```text
-Что существует в предметной области,
-как эти вещи различаются,
-какие отношения между ними имеют смысл?
+priority
+routing
+WIP / queues
+capacity
+scheduling
+ownership
+service expectations
+orchestration
+bottleneck management
 ```
 
-Она не является state machine, workflow или схемой папок.
+Она управляет движением работы, но не является источником истины контента.
 
-Текущий ontology layer:
+## 5. Shared Semantic Substrate
 
-- `ontology/00_requirements.md` — scope, requirements и границы.
-- `ontology/01_competency_questions.md` — вопросы, которыми проверяется достаточность ontology.
-- `ontology/02_term_inventory.md` — inventory терминов и candidate classifications.
-- `ontology/03_identity_and_dependence.md` — identity и виды зависимости.
-- `ontology/04_relation_analysis.md` — семантика отношений.
-- `ontology/05_candidate_model.md` — текущая candidate conceptual ontology.
-- `ontology/06_constraints.md` — ограничения и formalization gate.
-- `ontology/ontology-map.yaml` — machine-readable candidate map.
-
-Статус ontology: `candidate`. Это сознательно не оформлено как OWL/RDF implementation; сначала модель должна пройти реальные editorial cases и competency-question tests.
-
-### System space
+Общий смысловой слой:
 
 ```text
-WORLD
-  ↓
-PERCEPTION
-  ↓
-REPRESENTATION
-  ↓
-MODEL
-  ↓
-POSSIBILITIES
-  ↓
-DECISION
-  ↓
-ACTION
-  ↓
-CONSEQUENCE
-  ↓
-OBSERVATION
-  ↓
-MODEL UPDATE
+identity
+revisions
+structured content
+knowledge graph
+claims / evidence
+provenance
+dependencies
+audience / taxonomy metadata
+reusable components
 ```
 
-### Functional repository level
+Он используется всеми системами и не является отдельной стадией workflow.
+
+## 6. Work Item
+
+Основная единица производственного потока — `Content Work Item` / `Work Package`.
 
 ```text
-00_inbox → 01_observation
-                 ↓
-          02_memory ←→ 04_reasoning
-                 ↑          ↓
-          03_working_context
-                 ↓
-             05_decision
-                 ↓
-            06_production
-                 ↓
-           07_verification
-                 ↓
-             05_decision
-                 ↓
-        08_effects_feedback
-                 ↓
-           01_observation
-                 ↓
-             09_learning
-              ↙       ↘
-         02_memory   04_reasoning
-
-10_records observes the whole system.
-model/ = current model.
-docs/ = explanation and synthesis.
-templates/ = capture contracts.
-archive/ = superseded material.
+WORK ITEM
+├── strategic intent
+├── audience context
+├── objective
+├── requested outcome
+├── inputs
+├── knowledge basis
+├── dependencies
+├── capabilities
+├── owner
+├── priority
+├── constraints
+├── acceptance criteria
+├── release requirements
+└── success signals
 ```
 
-Neuroscience is used here only as a functional analogy. Human cognition is supported by interacting distributed networks, not isolated modules.
+Work item, asset, release, publication и request — разные сущности.
 
-## Space Map
+## 7. Ecosystem boundary
 
-The operational navigation map is `SPACE_MAP.md`.
-
-Before deciding what to edit, locate the situation by:
+Content Factory получает:
 
 ```text
-SPACE
+strategic demand
++
+audience / market context
++
+evidence-backed knowledge
+```
+
+и производит:
+
+```text
+verified / authorized content releases
+```
+
+Далее experience/channel layer производит внешние response/outcome signals, которые могут вернуться выше уровня фабрики.
+
+## 8. Navigation
+
+Перед изменением репозитория использовать:
+
+```text
+SYSTEM LEVEL
 → OBJECT
 → STATE / REVISION
 → EVIDENCE
@@ -170,136 +157,102 @@ SPACE
 → NEXT LEGITIMATE TRANSITION
 ```
 
-The full navigation procedure is in `docs/19_operator_navigation.md`.
+Главная карта: `SPACE_MAP.md`.
 
-## System space model
+Полный протокол: `docs/19_operator_navigation.md`.
 
-`docs/20_system_space.md` defines the repository as a bounded state space with both a state space and an action space. It separates observed reality, represented reality, intended future, committed history and unknown space.
+System space: `docs/20_system_space.md`.
 
-## Editorial trajectory
+## 9. Ontology
 
-```text
-STRATEGY / PORTFOLIO INTENT
-  ↓
-SIGNAL / REQUEST / OPPORTUNITY
-  ↓
-RESEARCH / KNOWLEDGE
-  ↓
-EDITORIAL DECISION
-  ↓
-CONTENT SPECIFICATION
-  ↓
-PRODUCTION
-  ↓
-VERIFICATION / REVIEW
-  ↓
-ACCEPTANCE
-  ↓
-RELEASE / PUBLICATION
-  ↓
-EXTERNAL EFFECT
-  ↓
-OBSERVATION / MEASUREMENT
-  ↓
-LEARNING / EXPERIMENT
-  ↺
-```
-
-Это не одна глобальная state machine. Каждый значимый object имеет отдельный lifecycle; case-level pipeline является projection над этими lifecycles.
-
-## State model
-
-Значимое состояние определяется комбинацией:
+Ontology отвечает за семантическую вселенную системы:
 
 ```text
-OBJECT
-+ REVISION
-+ LIFECYCLE STATE
-+ BOUND INPUTS
-+ EVIDENCE
-+ OWNER / AUTHORITY
+что существует
+как сущности различаются
+какие отношения между ними имеют смысл
 ```
 
-Ontology не определяет lifecycle states; она определяет семантические виды сущностей и отношений, на которые state model накладывается.
+Она не является workflow, state machine или схемой папок.
 
-## Важные разделения
+Папка `ontology/` содержит requirements, competency questions, identity/dependence analysis, relation analysis, candidate model and constraints.
 
-Knowledge — не публикация.
+## 10. State / dependency / authority
 
-Asset — не source of truth.
+State model: `model/state-machine.yaml`.
 
-Work item — не asset.
+Dependency and provenance: `docs/09_dependency_and_provenance.md`.
 
-History — не current state.
+Effect and authority boundaries: `docs/10_effect_and_authority_boundaries.md`.
 
-Review — не acceptance.
+Object lifecycles: `docs/11_object_lifecycles.md`.
 
-Acceptance — не publication.
+## 11. System maps
 
-Release — не отдельный asset; он может быть bundle зависимых revisions.
+- `docs/15_system_level_model.md` — nested Ecosystem → Factory boundary.
+- `docs/16_system_map.md` — integrated ecosystem/factory map.
+- `docs/17_system_rules.md` — system-level binding rules.
+- `docs/18_space_map.md` — semantic repository space.
+- `docs/19_operator_navigation.md` — operating navigation protocol.
+- `docs/20_system_space.md` — nested state/action space.
+- `docs/21_content_factory_level_model.md` — evolved factory model.
+- `docs/22_content_ecosystem_model.md` — ecosystem model above the factory.
+- `docs/23_content_factory_operating_model.md` — integrated operating model.
 
-Observation — не learning.
-
-Learning — не автоматически knowledge truth.
-
-Factory Control — не source of truth контента; он управляет потоком работы вокруг content objects.
-
-## Основные карты и правила
-
-- `docs/21_content_factory_level_model.md` — текущая системная эволюция Content Factory на основе внешнего research.
-- `model/content-factory-map.yaml` — machine-readable candidate factory map.
-- `SPACE_MAP.md` — основная карта пространства для навигации и принятия решений.
-- `docs/19_operator_navigation.md` — операционный протокол навигации.
-- `docs/20_system_space.md` — state space, action space, constraints, opportunities и system boundary.
-- `docs/15_system_level_model.md` — система как bounded cognitive-production loop.
-- `docs/16_system_map.md` — highest-level functional map и три пересекающиеся плоскости: information, control, time.
-- `docs/17_system_rules.md` — правила системы, расположенные выше отдельных folder rules.
-- `RULES.md` — краткая binding-версия правил.
-- `docs/12_brain_functional_analogy.md` — ограниченная функциональная аналогия с мозгом.
-- `docs/13_repository_structure_and_map.md` — назначение repository zones.
-- `docs/14_repository_rules.md` — подробные операционные правила.
-- `model/repository-map.md` — компактная карта repository functions.
-- `model/state-machine.yaml` — object-specific state machines.
-
-## Остальные модели
+## 12. Existing research layers
 
 - `docs/01_information_flow.md` — information flow.
 - `docs/02_primitives.md` — primitives.
 - `docs/03_processes.md` — processes.
-- `docs/04_decision_points.md` — decisions.
+- `docs/04_decision_points.md` — decision points.
 - `docs/05_roles.md` — roles.
-- `docs/06_unified_state_dependency_map.md` — synthesis с девятью существующими репозиториями.
+- `docs/06_unified_state_dependency_map.md` — synthesis from nine existing repositories.
 - `docs/07_state_model.md` — state semantics.
-- `docs/08_transition_matrix.md` — transitions и authority.
+- `docs/08_transition_matrix.md` — transitions and authority.
 - `docs/09_dependency_and_provenance.md` — provenance/dependency/impact.
 - `docs/10_effect_and_authority_boundaries.md` — effect boundaries.
-- `docs/11_object_lifecycles.md` — отдельные lifecycles.
-- `templates/case.md` — case contract.
-- `templates/decision.md` — decision contract.
+- `docs/11_object_lifecycles.md` — object-specific lifecycles.
 
-## Как использовать модель
-
-Новый вопрос сначала рассматривается как research question или case.
-
-Новая папка, primitive, state, ontology class или factory subsystem не добавляются только потому, что они красиво описывают один пример.
-
-Каждый material case должен позволять восстановить:
+## 13. Repository projection
 
 ```text
-strategy / external demand
-→ input
-→ knowledge
-→ editorial decision
-→ specification
-→ production
-→ verification
-→ acceptance
-→ release
-→ external effect
-→ learning
-→ model update
+00_inbox/                    input / intake
+01_observation/              observed signals and effects
+02_memory/                   reusable knowledge
+03_working_context/          active work item context
+04_reasoning/                interpretation
+05_decision/                 authority-bearing choices
+06_production/               production work
+07_verification/             quality assessment
+08_effects_feedback/         external effects
+09_learning/                 learning candidates
+10_records/                  durable history
+ontology/                    semantic domain model
+model/                       current model and machine-readable maps
+docs/                        research and explanation
+templates/                   capture contracts
+archive/                     inactive history
 ```
 
-## Статус
+## 14. Core distinctions
 
-Это **working model**. System-level model, ontology candidate model, Content Factory level model, functional repository map, object-specific state machines, dependency semantics и operational space map являются текущими гипотезами, предназначенными для проверки на реальных editorial cases. Это ещё не окончательная БД, runtime architecture или организационная структура.
+```text
+Content Ecosystem ≠ Content Factory
+Factory Control ≠ Value-flow stage
+Semantic substrate ≠ Workflow
+Knowledge ≠ Publication
+Asset ≠ Source of truth
+Work Item ≠ Asset
+History ≠ Current state
+Review ≠ Acceptance
+Acceptance ≠ Publication
+Publication ≠ Outcome
+Learning ≠ Truth
+Folder ≠ Authority
+```
+
+## 15. Status
+
+`candidate / integrated working model`
+
+The current architecture is research-derived and must be challenged with real Content Factory cases before implementation hardening. Structural changes require evidence, external research, experiments, case failures or explicit decisions.
