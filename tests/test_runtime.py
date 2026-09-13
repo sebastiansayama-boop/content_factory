@@ -22,6 +22,17 @@ class FakePublisher:
         )
 
 
+class SimulatedPublisher:
+    def publish(self, work_item, execution):
+        return PublicationResult(
+            publication_id="sim-1",
+            output_revision_id=execution.output_revision_id,
+            target="simulated://external/channel/1",
+            externally_observable=False,
+            evidence_refs=("simulation-1",),
+        )
+
+
 def make_work_item():
     return WorkItem(
         work_item_id="wi-1",
@@ -37,8 +48,11 @@ def make_work_item():
     )
 
 
-def make_runtime(artifact_store=None):
-    runtime = FactoryRuntime(publisher=FakePublisher(), artifact_store=artifact_store)
+def make_runtime(artifact_store=None, publisher=None):
+    runtime = FactoryRuntime(
+        publisher=publisher or FakePublisher(),
+        artifact_store=artifact_store,
+    )
 
     def validate(item):
         assert item.requested_outcome
@@ -167,3 +181,16 @@ def test_runtime_materializes_durable_artifacts(tmp_path):
     record = (tmp_path / "10_records/wi-1.json").read_text(encoding="utf-8")
     assert '"state": "OBSERVED"' in record
     assert '"operation": "deliver"' in record
+
+
+def test_simulated_publication_does_not_create_observation(tmp_path):
+    runtime = make_runtime(ArtifactStore(tmp_path), publisher=SimulatedPublisher())
+    item, publication = run_success(runtime)
+
+    assert publication is not None
+    assert runtime.states[item.work_item_id] == FactoryState.DELIVERED
+    assert not (tmp_path / "01_observation/wi-1.json").exists()
+
+    effects = (tmp_path / "08_effects_feedback/wi-1.json").read_text(encoding="utf-8")
+    assert '"type": "publication_record"' in effects
+    assert '"externally_observable": false' in effects
