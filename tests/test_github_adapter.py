@@ -39,7 +39,7 @@ def test_passing_github_change_is_verified_without_granting_acceptance():
         "github://sebastiansayama-boop/content_factory/commit/abc123",
     )
     assert result.unknowns == ()
-    assert "acceptance" in result.reason
+    assert "semantic acceptance remains external" in result.reason
 
 
 def test_ci_failure_is_not_verified():
@@ -57,6 +57,7 @@ def test_ci_failure_is_not_verified():
     )
 
     assert result.verified is False
+    assert "semantic acceptance remains external" in result.reason
 
 
 def test_missing_review_remains_explicit_unknown():
