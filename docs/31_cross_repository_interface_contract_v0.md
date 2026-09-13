@@ -1,0 +1,495 @@
+# 31 — Cross-Repository Interface Contract v0
+
+Status: `CURRENT WORKING CONTRACT — CANDIDATE`
+As of: 2026-09-13
+
+This document defines the smallest sufficient technical contract for one cross-repository value slice. It is a design contract, not proof that the interfaces are implemented end-to-end.
+
+## 1. Contracted slice
+
+```text
+bounded demand
+  -> Factory WorkItem
+  -> Atlas orchestration
+  -> capability request
+  -> controlled execution
+  -> Whisper Studio production
+  -> verification
+  -> human acceptance
+  -> release boundary
+  -> observation
+```
+
+The contract deliberately stops before automatic publication and closed-loop learning. Those remain separate capabilities.
+
+## 2. Ownership rule
+
+Each object has one semantic owner. Other repositories may hold projections, references, or evidence about the object, but must not silently become its owner.
+
+| Object | Semantic owner | Consumers | Current implementation status |
+|---|---|---|---|
+| Demand | Content Factory | Atlas | candidate |
+| WorkItem + WorkItem revision | Content Factory | Atlas, capability layer | bounded runtime exists |
+| WorkOrder | Atlas | Executor/capability adapter | exists in Atlas |
+| Capability contract | Factory/capability layer | Atlas, capability implementation | local contracts exist; cross-system registry unproven |
+| Execution record | Execution substrate | Factory, Atlas | local execution mechanisms exist |
+| Output revision / artifact package | Producing capability | Factory, acceptance, publication | local Whisper artifacts exist; common contract candidate |
+| Verification result | Factory semantic layer | Acceptance/release | bounded Factory runtime exists |
+| Acceptance decision | Human/authorized decision boundary | Factory/release | bounded Factory runtime exists |
+| Release authorization | Factory authority boundary | Publisher | semantic boundary exists; cross-system enforcement incomplete |
+| Publication result | Publisher / Factory integration boundary | Factory observation | partial |
+| External effect | External system/world | Factory | not owned by repository |
+| Observation | Factory measurement layer | Learning | partial |
+| Learning decision | Factory operating model | future planning | not implemented |
+
+## 3. Identity model
+
+The minimum candidate identity chain is:
+
+```text
+work_item_id
+  -> work_order_id
+  -> capability_request_id
+  -> execution_id
+  -> output_revision_id
+  -> verification_id
+  -> acceptance_id
+  -> release_id
+  -> publication_id
+  -> observation_id
+```
+
+The chain is causal, not necessarily a one-to-one database foreign-key chain. One WorkItem may create multiple WorkOrders or executions in a later version; therefore the parent relationship must remain explicit rather than encoding hierarchy into identifiers.
+
+Every cross-repository message must carry at least:
+
+- `work_item_id`
+- `work_item_revision_id`
+- `correlation_id`
+- `causation_id` when derived from an earlier message/event
+- the local object identifier
+- `contract_version`
+
+A distributed trace identifier may be carried separately for operational tracing. It must not replace domain identity. OpenTelemetry explicitly distinguishes a propagated TraceId/SpanId from the operation represented by the span. citeturn0search0turn0search3
+
+## 4. Interface I01 — Demand → WorkItem
+
+### Producer
+Content Factory.
+
+### Consumer
+Factory Runtime / future Factory Control; Atlas may request or refine a bounded WorkItem but does not own its semantic identity.
+
+### Input
+`Demand` containing objective, requested outcome, constraints, source/context, priority and success signals.
+
+### Output
+`WorkItemCreated`:
+
+```text
+work_item_id
+work_item_revision_id
+objective
+requested_outcome
+inputs[]
+knowledge_basis[]
+required_capabilities[]
+ownership
+acceptance_criteria[]
+release_requirements[]
+constraints[]
+dependencies[]
+success_signals[]
+contract_version
+```
+
+### Authority
+Creation/admission authority belongs to the Factory. Atlas cannot infer authority merely because it can reason about the request.
+
+### Evidence
+Durable WorkItem record + admission event + immutable revision/hash.
+
+## 5. Interface I02 — WorkItem → Atlas
+
+### Producer
+Content Factory.
+
+### Consumer
+Atlas.
+
+### Input
+A specific `work_item_id` and immutable `work_item_revision_id` plus the bounded execution objective and acceptance criteria.
+
+### Output
+`WorkOrder`:
+
+```text
+work_order_id
+work_item_id
+work_item_revision_id
+objective
+scope
+required_capability
+acceptance_criteria
+constraints
+requested_authority
+correlation_id
+contract_version
+```
+
+Atlas may determine execution planning within the supplied authority boundary. It must not mutate the canonical WorkItem meaning silently.
+
+### Authority
+Atlas owns orchestration authority for its WorkOrder. It does not thereby receive publication or spending authority.
+
+### Evidence
+Atlas task/work journal, WorkOrder revision, authorization event and eventual ResultEnvelope.
+
+## 6. Interface I03 — Atlas → Capability / Executor
+
+### Producer
+Atlas.
+
+### Consumer
+Controlled Agent Executor or a future capability adapter.
+
+### Input
+`CapabilityRequest`:
+
+```text
+capability_request_id
+work_item_id
+work_item_revision_id
+work_order_id
+capability_id
+capability_contract_version
+input_refs[]
+output_contract
+allowed_effects[]
+requested_authority
+acceptance_checks[]
+correlation_id
+contract_version
+```
+
+### Output
+`ExecutionAccepted` or `ExecutionRejected`, followed eventually by `ExecutionResult`.
+
+The Executor must not treat a successful authorization as acceptance of the eventual output. Its current orchestration principles explicitly separate execution, verification and acceptance. fileciteturn484file0
+
+### Authority
+Execution authority is granted explicitly and scoped to the request. It must not inherit publication, deployment, spending or general provider authority.
+
+### Evidence
+Authorization record, execution claim/attempt, execution events, exact inputs/arguments, checks and re-observed result evidence.
+
+## 7. Interface I04 — Capability → Output Revision
+
+### Producer
+Concrete capability implementation, initially potentially Whisper Studio.
+
+### Consumer
+Factory verification layer.
+
+### Input
+`CapabilityRequest` + referenced input artifacts.
+
+### Output
+`OutputRevisionProduced`:
+
+```text
+output_revision_id
+capability_id
+execution_id
+artifact_refs[]
+artifact_manifest_ref
+artifact_hashes[]
+producer_version
+input_revision_refs[]
+production_evidence_refs[]
+contract_version
+```
+
+The output revision is the semantic product of execution. It is not equivalent to a successful process exit code.
+
+Whisper Studio's current production grammar already distinguishes project, scene, shot, element, candidate, selected asset, QC, render and export, while its current product boundary remains a local-first renderer. fileciteturn496file0turn496file3
+
+### Authority
+The producer may create an output revision. It cannot declare the revision accepted merely because it produced it.
+
+### Evidence
+Artifact manifest, hashes, renderer/export metadata, local production record and execution binding.
+
+## 8. Interface I05 — Output Revision → Verification
+
+### Producer
+Factory verification layer or a capability-specific verifier.
+
+### Consumer
+Factory acceptance boundary.
+
+### Input
+Exact `output_revision_id` + acceptance criteria + verification policy + evidence references.
+
+### Output
+`VerificationResult`:
+
+```text
+verification_id
+output_revision_id
+passed
+checks[]
+evidence_refs[]
+verifier_id
+verifier_version
+verified_at
+contract_version
+```
+
+### Authority
+Verification establishes conformity to defined checks. It does not grant acceptance or publication authority.
+
+The current Factory runtime already enforces exact output-revision binding for verification. fileciteturn495file0
+
+### Evidence
+Individual check results plus references to the exact evidence used.
+
+## 9. Interface I06 — Verification → Human Acceptance
+
+### Producer
+Factory verification layer.
+
+### Consumer
+Authorized human/decision actor.
+
+### Input
+Exact verification result + output revision + acceptance policy.
+
+### Output
+`AcceptanceDecision`:
+
+```text
+acceptance_id
+output_revision_id
+verification_id
+decision
+authority
+reason
+decided_by
+decided_at
+contract_version
+```
+
+### Authority
+Only the configured acceptance authority may produce the semantic acceptance decision.
+
+The current Factory runtime requires a non-empty authority and separately transitions from VERIFIED to ACCEPTED. fileciteturn495file0
+
+### Evidence
+Signed/identified decision event, actor, reason and exact revision binding.
+
+## 10. Interface I07 — Acceptance → Release
+
+### Producer
+Factory authority boundary.
+
+### Consumer
+Publisher adapter / external-effect boundary.
+
+### Input
+Accepted `output_revision_id` + `acceptance_id` + release requirements + explicit release authority.
+
+### Output
+`ReleaseAuthorization`:
+
+```text
+release_id
+output_revision_id
+acceptance_id
+target
+release_authority
+release_constraints
+contract_version
+```
+
+Acceptance does not imply release. Release does not imply publication. The distinction is intentional.
+
+### Evidence
+Release authorization event and target-specific authorization evidence.
+
+## 11. Interface I08 — Release → Publication
+
+### Producer
+Publisher adapter.
+
+### Consumer
+External channel.
+
+### Input
+`ReleaseAuthorization` + exact output revision.
+
+### Output
+`PublicationResult`:
+
+```text
+publication_id
+release_id
+output_revision_id
+target
+external_reference
+submitted_at
+accepted_by_target
+externally_observable
+evidence_refs[]
+contract_version
+```
+
+### Authority
+Publisher may perform only the target effect explicitly authorized by the release boundary.
+
+### Evidence
+Target response, external reference where available, request/response metadata and publication reconciliation state.
+
+A local `publish()` return is not sufficient evidence of external outcome. The system must preserve the distinction between an attempted activity and an externally observed result. This is consistent with provenance models that distinguish activities, generated entities and observed relationships rather than collapsing them into one record. citeturn0search1turn0search6
+
+## 12. Interface I09 — Publication → Observation
+
+### Producer
+Observation/measurement adapter.
+
+### Consumer
+Factory learning layer.
+
+### Input
+`publication_id` + target reference + observation window/policy.
+
+### Output
+`ObservationRecord`:
+
+```text
+observation_id
+publication_id
+observed_at
+source
+metrics[]
+external_reference
+observation_confidence
+evidence_refs[]
+contract_version
+```
+
+### Authority
+Observation reports what was observed. It does not itself decide what the result means strategically.
+
+### Evidence
+Source snapshot/API response/measurement artifact and observation timestamp.
+
+## 13. Interface I10 — Observation → Learning
+
+### Producer
+Factory learning process.
+
+### Consumer
+Factory planning/knowledge layer.
+
+### Input
+Observation records + relevant prior knowledge/context.
+
+### Output
+`LearningCandidate` or `Decision`.
+
+This interface must remain explicit because observation, interpretation and strategy are different semantic operations.
+
+## 14. Provenance rule
+
+The system should be able to reconstruct at minimum:
+
+```text
+WorkItem
+  was used by / informed
+WorkOrder
+  was associated with
+Agent / authority
+  performed
+Execution
+  generated
+OutputRevision
+  was verified by
+Verification
+  informed
+AcceptanceDecision
+  authorized
+Release
+  caused/attempted
+Publication
+  produced/was observed as
+ExternalEffect
+  informed
+Observation
+  informed
+LearningCandidate
+```
+
+W3C PROV provides a useful external reference for this separation: Entity, Activity and Agent are distinct concepts, with explicit generation, usage, derivation and responsibility relations. This supports our decision to avoid one generic `event` relation as the semantic model. citeturn0search1turn0search6
+
+## 15. Failure and recovery boundaries
+
+Each interface must define whether the outcome is:
+
+- `SUCCEEDED`
+- `REJECTED`
+- `FAILED`
+- `UNKNOWN`
+- `REPLAYED`
+- `CONFLICT`
+
+`UNKNOWN` is mandatory where an external effect may have occurred but confirmation was lost.
+
+The most important recovery boundary is:
+
+```text
+before external effect
+    -> retry may be safe if idempotency is proven
+
+external effect attempted but outcome unknown
+    -> do NOT blindly retry
+    -> reconcile first
+```
+
+This prevents a local retry from becoming a duplicate external publication.
+
+## 16. What is deliberately NOT part of v0
+
+- a global event bus;
+- a shared database across repositories;
+- a global ontology implementation;
+- OpenTelemetry as a runtime dependency;
+- automatic provider routing;
+- autonomous scheduling;
+- automatic publication;
+- automatic learning-to-strategy promotion.
+
+The contract can be implemented with direct adapters and durable records first.
+
+## 17. Acceptance test for the contract
+
+The contract is ready for implementation only when one real vertical slice can demonstrate:
+
+1. one immutable WorkItem revision;
+2. one Atlas WorkOrder bound to it;
+3. one capability request with explicit authority;
+4. one execution identity;
+5. one exact output revision;
+6. one verification bound to that revision;
+7. one human acceptance bound to the verification/output;
+8. one release authorization;
+9. one publication attempt or explicitly simulated external boundary;
+10. one observation record;
+11. reconstruction of the complete chain from WorkItem to Observation;
+12. a deliberately injected failure showing that the chain does not silently skip an authority boundary.
+
+## 18. Status
+
+`CANDIDATE — READY FOR REVIEW`
+
+This document defines the smallest sufficient cross-repository contract. It does not authorize implementation changes in the participating repositories. Implementation requires a separate decision after interface review.
