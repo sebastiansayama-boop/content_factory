@@ -1,4 +1,4 @@
-version: 2
+version: 3
 status: current_navigation_projection
 source_of_truth: docs/29_project_direction_map.md
 
@@ -120,18 +120,23 @@ directions:
 
   - id: learning-loop
     goal: connect external effects and feedback to interpretation, learning, knowledge and explicit future decisions
-    status: PARKED
-    current_checkpoint: learning semantics exist; no real external production loop has been demonstrated
+    status: ACTIVE
+    current_checkpoint: Program 1 external research is complete; bounded Q19-Q21 learning path is project-demonstrated; real external proof remains pending
     proven:
       - separation of observation, interpretation, learning and promotion
+      - project-demonstrated reusable memory consumption and decision change
     unproven:
-      - real production feedback loop
+      - memory changing execution
+      - real external outcome from memory-informed execution
+      - outcome evaluating memory
+      - contradiction-driven revision in a real external case
+      - successful cross-context transfer
       - measurable learning quality
-    research_needed: concrete learning mechanisms and measurement questions
+    research_needed: concrete external outcome, attribution, contradiction and transfer cases
     dependencies: [real-external-effect]
     blocked_by: absence of real external proof
-    next_legitimate_step: after first real external effect, capture observation -> interpretation -> learning candidate -> explicit decision
-    return_point: 09_learning/
+    next_legitimate_step: complete the first bounded real external case and capture expected state, actual state, outcome, attribution confidence and memory effect
+    return_point: 09_learning/ and 10_records/2026-09-13-learning-loop-program-1-research-synthesis.md
 
 map_requirements:
   direction_fields:
