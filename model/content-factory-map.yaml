@@ -1,5 +1,5 @@
-version: 7
-status: candidate_with_executable_runtime_v0_and_external_boundary
+version: 8
+status: candidate_with_executable_runtime_and_durable_control_state
 name: content_factory
 parent_system: content_ecosystem
 
@@ -86,15 +86,23 @@ runtime_v0:
   scope: one_work_item_one_capability_one_publisher
   implementation:
     - src/content_factory/runtime.py
+    - src/content_factory/runtime_store.py
   tests:
     - tests/test_runtime.py
+  durable_control_state:
+    status: implemented_phase_1
+    store: sqlite
+    transaction_boundary: state_transition_plus_event
+    journal: append_only_events
+    recovery: runtime_reconstructs_states_and_events_on_restart
+    durability_mode: WAL_plus_synchronous_FULL
   known_limits:
-    - in_memory_state
-    - in_memory_event_journal
     - single_capability
     - injected_publisher
-    - no_crash_recovery
+    - no_external_effect_idempotency
+    - no_queue_workers_or_leases
     - no_production_provider_adapter
+    - execution_payloads_are_not_rehydrated_into_runtime_state
 
 external_integration_boundary:
   status: designed
@@ -127,6 +135,34 @@ external_integration_boundary:
     - additional_providers_and_n8n
   n8n_boundary: external_service_orchestration_only
   external_effect_requires_explicit_boundary: true
+
+phase_sequence:
+  - phase: 1
+    name: durable_runtime
+    status: completed
+    proof:
+      - sqlite_control_state
+      - atomic_state_and_event_transaction
+      - restart_recovery_test
+      - ci_pass
+  - phase: 2
+    name: real_execution
+    status: next
+  - phase: 3
+    name: real_external_effect
+    status: not_started
+  - phase: 4
+    name: reliability_and_control
+    status: not_started
+  - phase: 5
+    name: factory_control_plane
+    status: not_started
+  - phase: 6
+    name: operations_and_governance
+    status: not_started
+  - phase: 7
+    name: learning_loop
+    status: not_started
 
 external_proof:
   minimum_case:
