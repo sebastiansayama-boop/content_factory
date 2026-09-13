@@ -4,9 +4,9 @@ Status: `IMPLEMENTED / LOCAL EXECUTION CORE`
 
 ## Purpose
 
-Factory Runtime v0 is the first executable implementation of the Content Factory's execution boundary. It is intentionally small: one bounded Work Item, one selected capability, one executor, one verification step, one acceptance decision, one explicit release authority, and one injected publisher.
+Factory Runtime v0 is the first executable implementation of the Content Factory execution boundary. It is intentionally small: one bounded Work Item, one selected capability, one executor, one verification step, one acceptance decision, one explicit release authority, and one injected publisher.
 
-It does not attempt to implement the complete Content Factory.
+It does not claim to implement the complete production Content Factory.
 
 ## Runtime contract
 
@@ -34,36 +34,37 @@ DELIVERED
 OBSERVED
 ```
 
-Any failure enters `FAILED` and is retained in the event journal.
+Any failure enters `FAILED` and is retained in the runtime event journal and, when configured, the workspace artifact store.
 
 ## Implemented primitives
 
-- `WorkItem` — canonical bounded work request for v0.
+- `WorkItem` — bounded work request for v0.
 - `Capability` — abstract capability bound to an executor.
 - `ExecutionResult` — execution identity and exact output revision.
 - `VerificationResult` — revision-bound verification.
 - `AcceptanceDecision` — revision-bound acceptance with explicit authority.
 - `PublicationResult` — publication identity, target, exact output revision and external observability.
 - `FactoryRuntime` — deterministic state transition/orchestration kernel.
-- append-only in-memory `Event` journal for provenance reconstruction.
+- append-only in-memory `Event` journal for the active runtime instance.
+- `ArtifactStore` — durable workspace projections of runtime evidence.
 - injected `Publisher` boundary; no publisher means no external effect.
+- `HttpJsonAdapter` and `IntegrationConfig` — provider-neutral HTTP integration boundary with environment-based secret lookup.
 
 ## Explicit non-features
 
-v0 does not yet provide:
+The bounded v0 intentionally does not provide:
 
-- durable database storage;
-- queue workers or leases;
-- retry/recovery after process crash;
-- multiple capabilities per work item;
-- capability routing or provider selection;
-- production provider adapters;
-- real external publication;
-- persistent provenance storage;
-- observation ingestion from an external channel;
-- authorization service or policy engine.
+- durable runtime control state or crash recovery;
+- queue workers, leases or scheduling;
+- multi-capability orchestration;
+- provider routing or fallback policy;
+- production credential provisioning;
+- a built-in CMS/social/channel publisher;
+- external observation ingestion;
+- a general authorization/policy service;
+- a claim that a publication equals an audience or business outcome.
 
-These are deliberately deferred. The first implementation should prove the execution boundary before adding infrastructure around it.
+These are deployment/production-control concerns and must be introduced only with a concrete case that requires them.
 
 ## Safety invariants
 
@@ -77,28 +78,59 @@ These are deliberately deferred. The first implementation should prove the execu
 8. External observation is represented separately from delivery.
 9. Every transition is recorded as an event.
 10. A failed operation cannot silently return to a successful state.
+11. Simulated publication cannot create an external observation record.
 
-These invariants implement the repository's existing state model: revision-bound review, no silent promotion, explicit external effects, append-only history and separate object lifecycles. fileciteturn63file0
+## Evidence materialization
+
+When an `ArtifactStore` is configured, the runtime projects evidence into the corresponding repository workspace zones:
+
+```text
+03_working_context → work item projection
+06_production      → execution result
+07_verification    → verification result
+05_decision        → acceptance decision
+08_effects_feedback→ publication/effect record
+01_observation    → only for externally observable publication
+10_records        → complete runtime event journal
+```
+
+Workspace materialization is not the same operation as committing the artifacts to Git history. Repository synchronization remains an explicit boundary.
 
 ## Test status
 
-The repository now contains unit tests for:
+The repository test workflow runs `pytest` on pushes to `main` and pull requests. The v0 suite covers:
 
-- complete v0 traversal to `OBSERVED`;
+- complete traversal to `OBSERVED`;
 - refusal to publish without a publisher;
 - verification revision mismatch;
-- acceptance without authority.
+- acceptance without authority;
+- durable artifact materialization;
+- refusal to create an observation for simulated publication.
 
-The test suite is not yet CI-verified because the repository previously had no executable workflow. The source and tests have been written, but local execution remains a separate verification step.
+A successful CI run verifies the repository implementation and tests. It does not constitute an external-world proof.
 
-## Relation to first external proof
+## First external proof
 
-A fake publisher can prove that the runtime's external-effect boundary is exercised, but it cannot satisfy the first external proof criterion. The actual proof still requires a real external destination and an independently inspectable external effect. fileciteturn67file0
+A fake or simulated publisher proves only the internal boundary. The first external proof requires a real destination, real authorization, an independently inspectable external reference/effect, and a reconstructable provenance and authority chain.
 
-## Research reconciliation
+## Completion boundary
 
-`SUPPORTS_CURRENT_MODEL`: W3C PROV models provenance around entities, activities and agents and provides constraints/representations for reconstructing provenance. The v0 event journal follows the same basic separation without claiming conformance to PROV. citeturn0search0turn0search3
+`Factory Runtime v0` is considered repository-complete when the executable boundary, tests, evidence projections, integration boundary, zone contracts and operating-model documentation are mutually consistent.
 
-`EXTENDS_CURRENT_MODEL`: the repository previously defined the execution boundary conceptually; this document and implementation make the minimum runtime transition path concrete without changing the value-flow architecture. fileciteturn66file0
+Production deployment is a separate phase. Its minimum sequence is:
 
-`NOT_PROVEN`: durable recovery, provider independence in production, and a real external effect remain unproven.
+```text
+compute environment
+→ secret mechanism
+→ one real provider adapter
+→ real capability execution
+→ verification
+→ release authority
+→ one real publisher
+→ external observation
+→ durable runtime state
+→ recovery/idempotency
+→ broader provider/channel coverage
+```
+
+No step in that sequence is marked complete by documentation alone.
