@@ -11,12 +11,39 @@
 ```text
 SYSTEM SPACE
   ↓
+ONTOLOGY
+  ↓
 FUNCTIONAL NETWORK
   ↓
 OBJECT / STATE / DEPENDENCY / AUTHORITY
   ↓
 FOLDERS / RECORDS / CASES
 ```
+
+### Ontology
+
+Ontology отвечает на вопрос:
+
+```text
+Что существует в предметной области,
+как эти вещи различаются,
+какие отношения между ними имеют смысл?
+```
+
+Она не является state machine, workflow или схемой папок.
+
+Текущий ontology layer:
+
+- `ontology/00_requirements.md` — scope, requirements и границы.
+- `ontology/01_competency_questions.md` — вопросы, которыми проверяется достаточность ontology.
+- `ontology/02_term_inventory.md` — inventory терминов и candidate classifications.
+- `ontology/03_identity_and_dependence.md` — identity и виды зависимости.
+- `ontology/04_relation_analysis.md` — семантика отношений.
+- `ontology/05_candidate_model.md` — текущая candidate conceptual ontology.
+- `ontology/06_constraints.md` — ограничения и formalization gate.
+- `ontology/ontology-map.yaml` — machine-readable candidate map.
+
+Статус ontology: `candidate`. Это сознательно не оформлено как OWL/RDF implementation; сначала модель должна пройти реальные editorial cases и competency-question tests.
 
 ### System space
 
@@ -142,6 +169,8 @@ OBJECT
 + OWNER / AUTHORITY
 ```
 
+Ontology не определяет lifecycle states; она определяет семантические виды сущностей и отношений, на которые state model накладывается.
+
 ## Важные разделения
 
 Knowledge — не публикация.
@@ -195,7 +224,7 @@ Production result не должен становиться новым факто
 
 Новый вопрос сначала рассматривается как research question или case.
 
-Новая папка, primitive или state не добавляются только потому, что они красиво описывают один пример.
+Новая папка, primitive, state или ontology class не добавляются только потому, что они красиво описывают один пример.
 
 Каждый material case должен позволять восстановить:
 
@@ -216,4 +245,4 @@ world input
 
 ## Статус
 
-Это **working model**. System-level model, functional repository map, object-specific state machines, dependency semantics и operational space map являются текущими гипотезами, предназначенными для проверки на реальных editorial cases. Это ещё не окончательная БД или runtime architecture.
+Это **working model**. System-level model, ontology candidate model, functional repository map, object-specific state machines, dependency semantics и operational space map являются текущими гипотезами, предназначенными для проверки на реальных editorial cases. Это ещё не окончательная БД или runtime architecture.
