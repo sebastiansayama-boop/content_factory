@@ -318,8 +318,12 @@ Each requires an explicit transition and appropriate evidence/authority.
                                           ↺
 ```
 
-## 16. Status
+## 16. Implementation status
 
-`candidate / integrated working model`
+`IMPLEMENTED BOUNDED V0 / PRODUCTION INFRASTRUCTURE NOT CLAIMED`
 
-This is the current top-level operating model. It must be challenged with real cases before implementation decisions are made.
+The repository now contains a coherent executable bounded runtime, explicit zone operating contracts, a capability/integration boundary, durable workspace artifact materialization, and CI verification for the repository test suite.
+
+The following remain intentionally outside the completed bounded v0: durable runtime recovery, queue/lease control, production provider credentials, a real external publication destination, and independently verified external effect. These require an operational environment and are not represented as completed merely by repository structure.
+
+The repository is therefore complete as a bounded v0 implementation and design baseline. Production deployment is a separate next phase, not a hidden part of this repository state.
