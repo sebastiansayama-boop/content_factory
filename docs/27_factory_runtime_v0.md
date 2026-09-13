@@ -1,6 +1,6 @@
 # 27 — Factory Runtime v0
 
-Status: `IMPLEMENTED / LOCAL EXECUTION CORE`
+Status: `PHASE 1 COMPLETE / DURABLE CONTROL STATE`
 
 ## Purpose
 
@@ -45,16 +45,39 @@ Any failure enters `FAILED` and is retained in the runtime event journal and, wh
 - `AcceptanceDecision` — revision-bound acceptance with explicit authority.
 - `PublicationResult` — publication identity, target, exact output revision and external observability.
 - `FactoryRuntime` — deterministic state transition/orchestration kernel.
-- append-only in-memory `Event` journal for the active runtime instance.
+- append-only event journal for the active runtime instance.
+- `RuntimeStore` — durable SQLite control state and event journal.
+- atomic persistence of each state transition together with its event.
+- restart reconstruction of persisted states and events.
 - `ArtifactStore` — durable workspace projections of runtime evidence.
 - injected `Publisher` boundary; no publisher means no external effect.
 - `HttpJsonAdapter` and `IntegrationConfig` — provider-neutral HTTP integration boundary with environment-based secret lookup.
 
+## Durable runtime boundary
+
+`RuntimeStore` is intentionally separate from `ArtifactStore`.
+
+```text
+RuntimeStore
+  → recovery/control state
+  → current work-item state
+  → append-only runtime events
+
+ArtifactStore
+  → repository evidence projection
+  → working context / production / verification /
+    decision / effects / observation / records
+```
+
+The runtime uses SQLite WAL with `synchronous=FULL` for this bounded single-node phase. SQLite provides transactional atomicity and durable transactions; WAL is a local-host mechanism and does not solve distributed coordination. citeturn0search0turn0search1turn0search4
+
+The phase proof is intentionally limited to application/runtime restart recovery. It does not claim external-effect recovery or idempotency.
+
 ## Explicit non-features
 
-The bounded v0 intentionally does not provide:
+The bounded phase intentionally does not provide:
 
-- durable runtime control state or crash recovery;
+- external-operation idempotency or reconciliation;
 - queue workers, leases or scheduling;
 - multi-capability orchestration;
 - provider routing or fallback policy;
@@ -64,7 +87,7 @@ The bounded v0 intentionally does not provide:
 - a general authorization/policy service;
 - a claim that a publication equals an audience or business outcome.
 
-These are deployment/production-control concerns and must be introduced only with a concrete case that requires them.
+These are later operational phases and must not be implied by durable local state.
 
 ## Safety invariants
 
@@ -77,8 +100,9 @@ These are deployment/production-control concerns and must be introduced only wit
 7. Publication must bind to the exact output revision.
 8. External observation is represented separately from delivery.
 9. Every transition is recorded as an event.
-10. A failed operation cannot silently return to a successful state.
-11. Simulated publication cannot create an external observation record.
+10. State transition and its event are committed together when `RuntimeStore` is configured.
+11. A failed operation cannot silently return to a successful state.
+12. Simulated publication cannot create an external observation record.
 
 ## Evidence materialization
 
@@ -98,39 +122,37 @@ Workspace materialization is not the same operation as committing the artifacts 
 
 ## Test status
 
-The repository test workflow runs `pytest` on pushes to `main` and pull requests. The v0 suite covers:
+The repository test workflow runs `pytest` on pushes to `main` and pull requests. The Phase 1 suite covers:
 
 - complete traversal to `OBSERVED`;
 - refusal to publish without a publisher;
 - verification revision mismatch;
 - acceptance without authority;
 - durable artifact materialization;
-- refusal to create an observation for simulated publication.
+- refusal to create an observation for simulated publication;
+- runtime state and event-journal recovery after restart;
+- atomic persistence of state transition plus event.
 
-A successful CI run verifies the repository implementation and tests. It does not constitute an external-world proof.
+CI run `34741686623` for the durable-runtime implementation completed the `pytest -q` step successfully. The workflow was still finalizing its post-job cleanup when inspected; the test step itself is the relevant verification result.
 
 ## First external proof
 
 A fake or simulated publisher proves only the internal boundary. The first external proof requires a real destination, real authorization, an independently inspectable external reference/effect, and a reconstructable provenance and authority chain.
 
-## Completion boundary
+## Phase boundary
 
-`Factory Runtime v0` is considered repository-complete when the executable boundary, tests, evidence projections, integration boundary, zone contracts and operating-model documentation are mutually consistent.
+Phase 1 is complete when durable runtime control state, atomic state/event persistence, restart reconstruction, tests and the model/documentation layers are mutually consistent.
 
-Production deployment is a separate phase. Its minimum sequence is:
+The next phase is Phase 2 — Real Execution:
 
 ```text
 compute environment
 → secret mechanism
 → one real provider adapter
+→ provider credentials
+→ connectivity test
 → real capability execution
 → verification
-→ release authority
-→ one real publisher
-→ external observation
-→ durable runtime state
-→ recovery/idempotency
-→ broader provider/channel coverage
 ```
 
-No step in that sequence is marked complete by documentation alone.
+No external provider, credential or real-world execution is marked complete by documentation alone.
