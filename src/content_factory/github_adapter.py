@@ -108,7 +108,7 @@ def verify_github_change(evidence: GitHubChangeEvidence) -> FactoryChangeVerific
     if evidence.merged:
         reason = "GitHub change mechanics verified; semantic acceptance remains external"
     else:
-        reason = "GitHub change mechanics verified for an open pull request"
+        reason = "GitHub change mechanics verified for an open pull request; semantic acceptance remains external"
 
     return FactoryChangeVerification(
         verified=True,
