@@ -1,6 +1,7 @@
 """Executable Content Factory v0."""
 
 from .artifacts import ArtifactStore
+from .openai_capability import openai_text_capability
 from .runtime import (
     AcceptanceDecision,
     Capability,
@@ -20,4 +21,5 @@ __all__ = [
     "PublicationResult",
     "RuntimeStore",
     "WorkItem",
+    "openai_text_capability",
 ]
