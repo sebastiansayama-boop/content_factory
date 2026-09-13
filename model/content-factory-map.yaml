@@ -1,4 +1,4 @@
-version: 4
+version: 5
 status: candidate
 name: content_factory
 parent_system: content_ecosystem
@@ -98,6 +98,28 @@ execution_boundary:
   - provider_adapter -> tool_model_service_provider
   - tool_model_service_provider -> execution_result_or_external_effect
   - execution_result_or_external_effect -> verification_or_observation
+
+external_proof:
+  minimum_case:
+    - bounded_work_item
+    - explicit_requested_outcome
+    - identifiable_knowledge_basis
+    - editorial_decision_and_specification
+    - concrete_capability_execution
+    - identifiable_output_revision
+    - revision_bound_verification
+    - explicit_acceptance_and_authority
+    - authorized_release
+    - external_delivery_or_public_access
+    - externally_observable_effect
+    - reconstructable_provenance_chain
+    - reconstructable_authority_chain
+    - no_silent_boundary_skipped
+  terminal_conditions:
+    external_effect_observed: true
+    provenance_reconstructable: true
+    authority_chain_reconstructable: true
+    no_silent_boundary_skipped: true
 
 control_plane_relations:
   - control -> input
