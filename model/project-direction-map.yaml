@@ -1,4 +1,4 @@
-version: 1
+version: 2
 status: current_navigation_projection
 source_of_truth: docs/29_project_direction_map.md
 
@@ -11,26 +11,126 @@ statuses:
 
 directions:
   - id: durable-runtime
+    goal: durable control state, atomic state/event transitions and restart reconstruction
     status: COMPLETED
+    current_checkpoint: Phase 1 runtime implementation and restart-state tests are present
+    proven:
+      - SQLite control state
+      - append-only event journal
+      - atomic transition+event transaction
+      - restart reconstruction of control state and event history
+      - CI verification
+    unproven:
+      - distributed reliability
+      - multi-worker coordination
+      - external-effect idempotency
+    research_needed: reliability research only when a new boundary is justified
+    dependencies: [runtime contracts, runtime tests]
+    blocked_by: []
+    next_legitimate_step: return only if later phases expose a durable-runtime gap
     return_point: Phase 1 runtime tests and docs/23_content_factory_operating_model.md
+
   - id: real-execution
+    goal: prove a factory capability crosses a real provider boundary and produces a revision-bound execution result that can be verified
     status: ACTIVE
-    current_checkpoint: provider boundary implemented; real credential, connectivity, execution and revision-bound verification pending observation
+    current_checkpoint: provider boundary and opt-in proof command exist; real credential, connectivity and end-to-end observation remain pending
+    proven:
+      - provider adapter contract
+      - capability binding
+      - secret environment boundary
+      - unit mapping tests
+      - bounded external proof command
+    unproven:
+      - real provider call in the restored execution environment
+      - real response capture
+      - complete Phase 2 external proof
+    research_needed: unresolved provider/tool boundary questions only
+    dependencies: [compute environment, secret mechanism, OPENAI_API_KEY, network access, provider availability]
+    blocked_by: physical execution-environment setup after system reset, if not already restored
+    next_legitimate_step: run the bounded OpenAI proof with the credential kept out of chat and repository, then record only proof output/error
     return_point: scripts/prove_openai_execution.py
+
   - id: real-external-effect
+    goal: prove one authorized publication to a real external destination and distinguish delivery from observable outcome
     status: PARKED
+    current_checkpoint: injected publisher boundary exists; synthetic publication is not external proof
+    proven:
+      - publication/effect/observation semantic separation
+      - explicit publication authority boundary
+    unproven:
+      - real destination
+      - authorization chain in production
+      - external-effect idempotency
+      - externally observable outcome
+    research_needed: destination-specific integration and effect semantics
+    dependencies: [real-execution, explicit release authority, real external destination]
+    blocked_by: real-execution closure and destination selection
+    next_legitimate_step: select one bounded destination and define its effect proof boundary
     return_point: docs/26_first_external_proof.md
+
   - id: reliability-and-control
+    goal: add reliability mechanisms only where a demonstrated failure or bounded proof case requires them
     status: PARKED
+    current_checkpoint: bounded single-node durable runtime is the proven scope
+    proven:
+      - bounded durable runtime
+      - atomic control-state/event transition
+    unproven:
+      - worker concurrency
+      - retries
+      - idempotency
+      - crash recovery across external effects
+    research_needed: mechanism comparison before adding queues, leases, retries or idempotency primitives
+    dependencies: [real-execution, real-external-effect]
+    blocked_by: no concrete reliability failure case yet
+    next_legitimate_step: derive the first reliability requirement from a real failure or explicitly bounded failure test
     return_point: model/content-factory-map.yaml known limits
+
   - id: factory-control-plane
+    goal: control priority, routing, WIP, queues, capacity, scheduling, ownership and bottlenecks
     status: PARKED
+    current_checkpoint: conceptual boundary only; no dedicated control-plane implementation is claimed
+    proven:
+      - separation of factory control from content truth
+    unproven:
+      - operational control mechanisms
+      - measurable service behavior
+    research_needed: proven production-control mechanisms after a concrete flow-control problem appears
+    dependencies: [sufficient production flow]
+    blocked_by: current bounded runtime scope
+    next_legitimate_step: observe a concrete flow-control problem and compare proven mechanisms
     return_point: README.md Factory Control section
+
   - id: operations-and-governance
+    goal: make repository, integrations, authority and operational procedures reliable for sustained use
     status: PARKED
-    return_point: RULES.md and docs/25_chat_repository_operating_protocol.md
+    current_checkpoint: governance protocol is explicit and repository diagnostics are recorded
+    proven:
+      - repository operating rules
+      - explicit authority boundaries
+      - project operating memory model
+    unproven:
+      - sustained real-world operational maturity
+      - integration operations under load
+    research_needed: concrete operational boundary questions
+    dependencies: [real integrations, observed operating load]
+    blocked_by: lack of sustained external operation
+    next_legitimate_step: convert a demonstrated operational failure or recurring burden into a bounded mechanism proposal
+    return_point: RULES.md
+
   - id: learning-loop
+    goal: connect external effects and feedback to interpretation, learning, knowledge and explicit future decisions
     status: PARKED
+    current_checkpoint: learning semantics exist; no real external production loop has been demonstrated
+    proven:
+      - separation of observation, interpretation, learning and promotion
+    unproven:
+      - real production feedback loop
+      - measurable learning quality
+    research_needed: concrete learning mechanisms and measurement questions
+    dependencies: [real-external-effect]
+    blocked_by: absence of real external proof
+    next_legitimate_step: after first real external effect, capture observation -> interpretation -> learning candidate -> explicit decision
     return_point: 09_learning/
 
 map_requirements:
