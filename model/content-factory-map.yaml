@@ -1,0 +1,119 @@
+version: 2
+status: candidate
+name: content_factory
+
+architecture:
+  strategic_intent:
+    - strategy
+    - portfolio
+    - objectives
+    - audience
+    - initiatives
+
+  value_flow:
+    - input
+    - knowledge
+    - editorial
+    - production
+    - quality
+    - distribution
+    - learning
+
+  control_plane:
+    - prioritization
+    - intake
+    - routing
+    - wip
+    - queues
+    - capacity
+    - scheduling
+    - ownership
+    - service_expectations
+    - orchestration
+    - bottleneck_management
+
+  semantic_substrate:
+    - structured_content
+    - knowledge_graph
+    - identity
+    - revisions
+    - provenance
+    - dependencies
+    - evidence
+    - claims
+    - reusable_components
+    - taxonomy
+
+flow:
+  - strategy -> input
+  - input -> knowledge
+  - knowledge -> editorial
+  - editorial -> production
+  - production -> quality
+  - quality -> distribution
+  - distribution -> learning
+  - learning -> knowledge
+  - learning -> editorial
+  - learning -> production
+
+control_plane_relations:
+  - control -> input
+  - control -> knowledge
+  - control -> editorial
+  - control -> production
+  - control -> quality
+  - control -> distribution
+  - control -> learning
+
+substrate_relations:
+  - substrate <-> input
+  - substrate <-> knowledge
+  - substrate <-> editorial
+  - substrate <-> production
+  - substrate <-> quality
+  - substrate <-> distribution
+  - substrate <-> learning
+
+work_item:
+  identity:
+    - work_item_id
+    - revision_id
+  required_fields:
+    - objective
+    - audience
+    - requested_outcome
+    - inputs
+    - knowledge_basis
+    - dependencies
+    - required_capabilities
+    - owner
+    - priority
+    - constraints
+    - acceptance_criteria
+    - release_requirements
+    - success_signals
+
+release:
+  may_bundle: true
+  readiness_boundary: explicit
+
+quality:
+  verification_revision_bound: true
+  acceptance_distinct_from_verification: true
+  acceptance_distinct_from_publication: true
+
+learning:
+  metric_is_not_learning: true
+  learning_requires_interpretation: true
+  knowledge_update_requires_explicit_promotion: true
+
+factory_principles:
+  - pull_over_unbounded_push
+  - control_wip
+  - route_by_capability_and_risk
+  - reuse_semantic_content
+  - preserve_provenance
+  - preserve_dependencies
+  - automate_repeatable_work
+  - escalate_consequential_decisions
+  - manage_bottlenecks_continuously
