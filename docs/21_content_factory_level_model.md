@@ -1,270 +1,210 @@
 # 21 — Content Factory Level Model
 
-This document evolves the previous eight-system graph into a multi-plane model of a Content Factory.
+This document defines the current candidate architecture of the `Content Factory` as a functional production subsystem inside a larger `Content Ecosystem`.
 
-The purpose is not to add boxes for completeness. The purpose is to distinguish:
-
-- value creation;
-- factory control;
-- shared semantic/data substrate;
-- external outcomes.
-
-## 1. The evolved model
+## 1. Boundary
 
 ```text
-                                      CONTENT FACTORY
-                                             │
-                    ┌────────────────────────┼────────────────────────┐
-                    │                        │                        │
-                    ▼                        ▼                        ▼
-             VALUE / FLOW PLANE       FACTORY CONTROL          SHARED SUBSTRATE
-                    │                        │                        │
-                    │                portfolio / priority       content graph
-                    │                intake / routing           provenance
-                    │                WIP / queues              identity / revisions
-                    │                capacity / scheduling     dependencies
-                    │                ownership / SLA           policy metadata
-                    │                orchestration             reusable components
-                    │                bottleneck mgmt           evidence / claims
-                    │                        │                        │
-                    └────────────────────────┼────────────────────────┘
-                                             │
-                                             ▼
-                               STRATEGY / PORTFOLIO INTENT
-                                             │
-                                             ▼
-                                       INPUT SYSTEM
-                                             │
-                                             ▼
-                                     KNOWLEDGE SYSTEM
-                                             │
-                                             ▼
-                                     EDITORIAL SYSTEM
-                                             │
-                                             ▼
-                                     PRODUCTION SYSTEM
-                                             │
-                                             ▼
-                                      QUALITY SYSTEM
-                                             │
-                                             ▼
-                                   DISTRIBUTION SYSTEM
-                                             │
-                                             ▼
-                                      EXTERNAL EFFECT
-                                             │
-                                             ▼
-                                      LEARNING SYSTEM
-                                             │
-                          ┌──────────────────┼──────────────────┐
-                          ▼                  ▼                  ▼
-                      KNOWLEDGE          EDITORIAL          PRODUCTION
-                          │                  │                  │
-                          └──────────────────┴──────────────────┘
-                                             │
-                                             ▼
-                                      NEXT FACTORY CYCLE
+CONTENT ECOSYSTEM
+│
+├── STRATEGY / INTENT
+├── AUDIENCE / MARKET
+├── PRODUCT / BUSINESS
+│
+└── CONTENT FACTORY
+    │
+    ├── VALUE FLOW
+    ├── FACTORY CONTROL
+    └── SHARED SEMANTIC SUBSTRATE
 ```
 
-The previous seven production-flow systems remain. `Factory Control` is not a sequential eighth stage; it is the control plane over the flow.
+Strategy / Portfolio Intent is therefore **upstream of the factory**, not a sequential factory stage.
 
-A new strategic layer is added above intake because current content-supply-chain practice explicitly links planning to business objectives, KPIs, budget and prioritization rather than beginning with raw requests alone.
-
-A shared semantic substrate is also made explicit because structured content systems rely on reusable, linked, channel-neutral content, versions, metadata and provenance rather than isolated files.
-
-## 2. Strategy / Portfolio Intent
-
-This layer answers:
+## 2. Factory architecture
 
 ```text
-What outcomes are we trying to create?
-For whom?
-Why now?
-Which content bets are worth capacity?
-What constraints or policies apply?
+                         CONTENT FACTORY
+                                │
+        ┌───────────────────────┼────────────────────────┐
+        │                       │                        │
+        ▼                       ▼                        ▼
+   VALUE / FLOW          FACTORY CONTROL          SHARED SUBSTRATE
+        │                       │                        │
+        │                priority / routing       content graph
+        │                WIP / queues             provenance
+        │                capacity / scheduling    identity / revisions
+        │                ownership / SLA          dependencies
+        │                orchestration            reusable components
+        │                bottleneck management    evidence / claims
+        │                       │                        │
+        └───────────────────────┼────────────────────────┘
+                                │
+                                ▼
+                             INPUT
+                                ↓
+                           KNOWLEDGE
+                                ↓
+                           EDITORIAL
+                                ↓
+                           PRODUCTION
+                                ↓
+                            QUALITY
+                                ↓
+                         DISTRIBUTION
+                                ↓
+                         EXTERNAL EFFECT
+                                ↓
+                           LEARNING
+                                ↺
 ```
 
-It produces portfolio-level intent rather than individual assets.
+The seven systems are the value-flow backbone. Factory Control is a cross-cutting control plane. Shared Semantic Substrate is a cross-cutting meaning/provenance layer.
 
-Typical objects:
+## 3. Factory input boundary
+
+The factory accepts bounded inputs from the ecosystem:
 
 ```text
-business objective
-content objective
-audience
-initiative
-campaign / program
-portfolio priority
-budget / capacity envelope
-success hypothesis
+strategic demand
++
+audience / market context
++
+source / evidence-backed knowledge
++
+requests / signals / observations
 ```
 
-Editorial decisions must be traceable to this layer when the work is strategic rather than purely reactive.
+The factory does not automatically accept every incoming signal as production demand.
 
-## 3. Input System
-
-Input is not an inbox. It is the controlled entry point for demand and signals.
+## 4. Input System
 
 ```text
-signal
-source
-request
-observation
-external event
+signal / source / request / observation
         ↓
- capture
-        ↓
- classify
-        ↓
- normalize
-        ↓
- triage
-        ↓
- route
+ capture → classify → normalize → triage → route
 ```
 
-Input produces work candidates, research needs, or editorial opportunities. It does not create production work merely because an item arrived.
+Output may be:
 
-## 4. Knowledge System
+```text
+work candidate
+research need
+editorial opportunity
+hold / reject
+```
 
-Knowledge is the factory's reusable evidence-bearing memory.
+## 5. Knowledge System
 
 ```text
 research
-  ↓
-source
-  ↓
-evidence
-  ↓
-claim
-  ↓
-context / relation
-  ↓
-knowledge revision
+→ source
+→ evidence
+→ claim
+→ context / relation
+→ knowledge revision
 ```
 
-The key property is reuse. The same knowledge revision may inform multiple content products while maintaining provenance to the underlying evidence.
+The Knowledge System provides reusable evidence-bearing memory for multiple work items.
 
-## 5. Editorial System
-
-Editorial transforms opportunity plus knowledge plus strategy into a bounded production intention.
+## 6. Editorial System
 
 ```text
 opportunity
-  ↓
-audience + objective
-  ↓
-priority
-  ↓
-editorial decision
-  ↓
-content specification
+→ audience + objective
+→ priority
+→ editorial decision
+→ content specification
 ```
 
-The specification is a production contract. It should state intended audience, objective, required claims, constraints, format/capability needs, channel assumptions and acceptance criteria.
+The specification is a bounded production contract.
 
-## 6. Production System
+## 7. Production System
 
-Production is a capability network rather than four isolated media departments.
+Production is a capability network:
 
 ```text
 content specification
-        ↓
-capability selection
-        ↓
-production work
-        ↓
-asset revision
-        ↓
-channel adaptation
+→ capability selection
+→ production
+→ asset revision
+→ channel adaptation
 ```
 
-Capabilities may include:
+Capabilities may include text, image, video, audio, localization, design, research assistance and data visualization.
 
-```text
-text
-image
-video
-audio
-translation / localization
-layout / design
-research assistance
-data visualization
-```
-
-The reusable content model should remain channel-neutral where possible. Channel-specific presentation should be added as context rather than copied into the semantic source.
-
-## 7. Quality System
-
-Quality is a control system at the point where representations are allowed to advance.
+## 8. Quality System
 
 ```text
 production result
-        ↓
-verification
-        ↓
-review / revision
-        ↓
-acceptance
-        ↓
-release eligibility
+→ verification
+→ review / revision
+→ acceptance
+→ release eligibility
 ```
 
-Verification evaluates conformity against exact inputs and criteria. Acceptance is an authority-bearing decision. Release eligibility is not publication.
+Verification is a conformity assessment. Acceptance is an authority-bearing decision.
 
-Review depth should be risk- and dependency-sensitive rather than identical for every content type.
-
-## 8. Distribution System
-
-Distribution converts accepted material into an externally delivered release.
+## 9. Distribution System
 
 ```text
 accepted revisions
-        ↓
-release bundle
-        ↓
-channel adaptation / configuration
-        ↓
-authorization
-        ↓
-publish / deliver
-        ↓
-external effect
+→ release bundle
+→ channel configuration / adaptation
+→ authorization
+→ publish / deliver
+→ external effect
 ```
 
-A release may contain multiple dependent artifacts or channel variants that must reach a common readiness point.
+A release may bundle multiple dependent revisions.
 
-## 9. Learning System
-
-Learning closes the factory loop.
+## 10. Learning System
 
 ```text
 external effect
-        ↓
-observation
-        ↓
-measurement
-        ↓
-interpretation
-        ↓
-experiment / decision
-        ↓
-learning
-        ↓
-knowledge / editorial / production update
+→ observation
+→ measurement
+→ interpretation
+→ experiment / decision
+→ learning
+→ knowledge / editorial / production update
 ```
 
-A metric is not automatically a learning. A learning is not automatically truth. Evidence from experiments and observations should be evaluated before it changes reusable knowledge or policy.
+Learning is not automatically truth.
 
-## 10. Factory Control Plane
+## 11. Work item
 
-Factory Control operates across all value-flow stages.
+The primary flow unit is a bounded `Content Work Item` / `Work Package`.
 
 ```text
-portfolio / priority
+WORK ITEM
+├── work_item_id
+├── strategic_intent_ref
+├── audience_context_ref
+├── objective
+├── requested_outcome
+├── inputs
+├── knowledge_basis
+├── dependencies
+├── required_capabilities
+├── risk / review class
+├── owner
+├── priority
+├── constraints
+├── acceptance criteria
+├── release requirements
+└── success signals
+```
+
+One work item can produce multiple asset revisions. One release can contain multiple work-item outputs.
+
+## 12. Factory Control
+
+Factory Control operates across the whole value flow:
+
+```text
+priority
 intake / routing
-WIP limits
-queues
+WIP / queues
 capacity
 scheduling
 ownership
@@ -278,188 +218,99 @@ Its core question is:
 
 > Given current demand, state, dependencies and available capacity, what work should move next, through which capability, under which policy?
 
-Factory Control must not become the source of content truth. It controls flow around content objects.
+Factory Control does not determine content truth.
 
-## 11. Shared semantic substrate
-
-The factory needs a common substrate used by all systems.
+## 13. Shared Semantic Substrate
 
 ```text
-content / knowledge graph
-├── identity
-├── revisions
-├── structured content
-├── claims / evidence
-├── provenance
-├── dependencies
-├── reusable components
-├── audience / taxonomy metadata
-└── lifecycle references
+structured content
+knowledge graph
+identity
+revisions
+claims / evidence
+provenance
+dependencies
+audience / taxonomy metadata
+reusable components
 ```
 
-This substrate is not another workflow stage. It is the semantic layer through which systems share state without copying meaning between them.
+This layer lets systems share meaning without uncontrolled copies.
 
-## 12. The atomic unit of factory flow
+## 14. Flow geometry
 
-The factory should not treat a file as its primary unit of work.
-
-The more useful unit is a bounded `Work Package` or `Content Work Item`:
+The factory is not a single linear pipeline.
 
 ```text
-WORK ITEM
-├── intent / objective
-├── audience
-├── requested outcome
-├── inputs
-├── knowledge basis
-├── dependencies
-├── required capabilities
-├── owner
-├── priority
-├── constraints
-├── acceptance criteria
-├── release requirements
-└── success signals
+KNOWLEDGE
+   ↙   ↓   ↘
+product-A product-B product-C
+    ↘  ↓  ↙
+   shared learning
+
+REQUESTS → WORK ITEMS → CAPABILITIES → RELEASES → EFFECTS
+                 ↑             │
+                 │             └── dependencies
+                 │
+           FACTORY CONTROL
 ```
 
-One work item may produce many asset revisions and one release may contain many work-item outputs.
+## 15. Factory metrics
 
-## 13. Flow geometry
-
-The system is not a single linear pipeline.
-
-```text
-                         KNOWLEDGE
-                       ↙     ↓      ↘
-                  product-A  product-B  product-C
-                       ↘     ↓      ↙
-                      shared learning
-
-REQUESTS ─→ WORK ITEMS ─→ CAPABILITIES ─→ RELEASES ─→ EFFECTS
-                    ↑          │               │
-                    │          └─ dependencies ┘
-                    │
-             FACTORY CONTROL
-```
-
-One input can lead to multiple outputs.
-One knowledge revision can serve multiple products.
-One production job can create multiple assets.
-One release can bundle multiple assets.
-One observation can affect many future work items.
-
-## 14. Control principles
-
-1. Pull work through the factory from real demand and available capacity.
-2. Limit WIP at the constraining stages instead of maximizing local utilization everywhere.
-3. Route work by required capability, risk and constraints.
-4. Prefer reusable semantic content over duplicated channel-specific copies.
-5. Bind review and acceptance to exact revisions.
-6. Bundle related changes into releases when they share a readiness boundary.
-7. Automate repeatable work; escalate uncertain or consequential choices to the appropriate authority.
-8. Use measurement to improve decisions, not to create dashboard volume.
-9. Treat bottleneck management as a continuous activity.
-10. Preserve provenance and dependencies across every transformation.
-
-## 15. Metrics of the factory
-
-The factory needs three metric families.
-
-### Flow metrics
+### Flow
 
 ```text
 lead time
 cycle time
-WIP
-throughput
 queue time
 blocked time
+WIP
+throughput
 first-pass yield
-rework rate
+rework
 approval latency
+release latency
 ```
 
-### Quality / governance metrics
+### Quality / governance
 
 ```text
-verification failure rate
+verification failures
 revision count
 acceptance rate
-factual correction rate
+factual corrections
 policy exceptions
-dependency failures
+dependency invalidations
 publication incidents
 ```
 
-### Outcome metrics
+### Outcomes
 
 ```text
 audience response
-engagement / retention where meaningful
-conversion / business outcome
-experiment lift
+retention / engagement where meaningful
+conversion / product outcome
+experiment results
 reuse rate
-content decay / retirement signals
+content decay / retirement
 ```
 
-A factory metric must be tied to a management question. Raw volume is not success.
+Metrics must answer management questions. Volume is not inherently success.
 
-## 16. New top-level model
+## 16. Control principles
 
-The resulting architecture is therefore:
+1. Pull work through the factory from real demand and available capacity.
+2. Limit WIP at constraining stages.
+3. Route by capability, risk, dependencies and constraints.
+4. Reuse semantic content where meanings are shared.
+5. Bind verification and acceptance to exact revisions.
+6. Use release bundles where a common readiness boundary exists.
+7. Automate repeatable bounded work; escalate ambiguous or consequential decisions.
+8. Treat bottleneck management as continuous.
+9. Preserve provenance and dependencies through every transformation.
+10. Do not optimize local utilization at the expense of overall flow.
 
-```text
-CONTENT FACTORY
-│
-├── STRATEGY / PORTFOLIO INTENT
-│
-├── VALUE FLOW
-│   ├── INPUT
-│   ├── KNOWLEDGE
-│   ├── EDITORIAL
-│   ├── PRODUCTION
-│   ├── QUALITY
-│   ├── DISTRIBUTION
-│   └── LEARNING
-│
-├── FACTORY CONTROL
-│   ├── priority
-│   ├── routing
-│   ├── WIP
-│   ├── capacity
-│   ├── scheduling
-│   ├── orchestration
-│   └── bottleneck management
-│
-└── SHARED SEMANTIC SUBSTRATE
-    ├── structured content
-    ├── knowledge graph
-    ├── provenance
-    ├── revisions
-    ├── dependencies
-    └── reusable components
-```
-
-The seven original production-flow systems remain intact. The model is elevated by making explicit the strategic intent above them, the control plane around them, and the semantic substrate beneath them.
-
-## 17. Evidence basis
-
-The model was evolved against current content-operations and content-supply-chain practice, structured-content architectures, provenance standards, flow-management methods, and experimentation/measurement practice.
-
-Primary references include:
-
-- Adobe, Content Supply Chain: workflow, planning, metadata, capacity, objectives, KPIs and bottlenecks.
-- Contentful, Content Operations and Content Lifecycle: strategy, planning, creation, review, reuse, experimentation, retirement and optimization.
-- Sanity, Content Operations and Editorial Workflows: structured content, governance, automation, shared process state, ownership, dependencies and agent participation.
-- Sanity, Content Releases: multi-document release bundles, preview, validation and coordinated publication.
-- W3C PROV: entities, activities, agents, derivation and provenance validation.
-- Kanban Guide: WIP, flow, service expectations and flow metrics.
-- Lean Enterprise Institute / Theory of Constraints: constraint identification, exploit, subordinate, elevate and continuous reassessment.
-- Team Topologies: flow-oriented boundaries, capabilities and service interaction models.
-- Google / Contentful experimentation guidance: hypothesis, experiment, measurement and validated learning.
-
-## Status
+## 17. Status
 
 `candidate / research-derived`
 
-This document is a system-level hypothesis. It should be validated against real Content Factory cases before being treated as a final operating model or implementation architecture.
+The factory architecture must be validated against real work items and cases before implementation hardening.
