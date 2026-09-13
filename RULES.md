@@ -12,7 +12,7 @@ The repository is a research environment for an editorial knowledge and producti
 8. Verification does not imply acceptance; acceptance does not imply publication.
 9. Record provenance, dependency and impact as separate relations.
 10. Keep unknowns explicit.
-11. Use real cases and experiments to challenge the model before adding new primitives or states.
+11. Use real cases and experiments to challenge the model before adding new primitives, states, or ontology classes.
 12. Research external references and inspect relevant repositories before inventing a solution to an unresolved structural question.
 13. Do not import Atlas execution machinery (leases, worker recovery, process isolation, token controls) into the editorial model unless a concrete case demonstrates the need.
 14. Do not treat the brain analogy as a literal ontology. It is a functional design heuristic.
@@ -22,5 +22,10 @@ The repository is a research environment for an editorial knowledge and producti
 18. The highest-level loop is `WORLD → OBSERVATION → MODEL → WORK → DECISION → ACTION → CONSEQUENCE → LEARNING → MODEL`.
 19. Folders are projections of system functions, not independent departments.
 20. Every material case must preserve enough information to reconstruct its path across sensing, modelling, decision, action, verification, effect and learning.
+21. Treat ontology as a semantic domain model, not as a workflow, state machine, folder map, or implementation schema.
+22. Do not promote a repository term to an ontology class without a semantic job and at least one competency question.
+23. Distinguish entity, event/activity, role, state, artifact, description and record when their identity or behavior differs.
+24. Do not collapse support, contradiction, derivation, production, dependency, impact, invalidation and supersession into one generic relation.
+25. Treat authority as contextual and scoped; do not make it an intrinsic consequence of ontology membership.
 
-See `docs/14_repository_rules.md` for detailed operating rules, `docs/15_system_level_model.md` for the system ontology, and `docs/16_system_map.md` for the highest-level map.
+See `ontology/00_requirements.md` through `ontology/06_constraints.md` for the ontology working model, and `ontology/ontology-map.yaml` for its machine-readable candidate map. See `docs/14_repository_rules.md` for detailed operating rules, `docs/15_system_level_model.md` for the system model, and `docs/16_system_map.md` for the highest-level map.
