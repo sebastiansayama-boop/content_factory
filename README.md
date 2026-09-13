@@ -113,6 +113,10 @@ OBSERVED
 
 Runtime v0 намеренно ограничен одним capability и injected publisher. Без publisher внешний эффект невозможен. Execution result не становится accepted content автоматически.
 
+Runtime materializes evidence into a workspace filesystem through `ArtifactStore`. Это ещё не означает запись в Git history. Синхронизация workspace evidence с репозиторием выполняется отдельной, явно запускаемой GitHub Actions workflow: `.github/workflows/materialize-runtime.yml`. Эта операция имеет собственную repository-write authority и проверяет scope изменённых файлов перед commit.
+
+Синтетический demo runtime не создаёт `01_observation`: он моделирует publication, но не доказывает внешний эффект.
+
 ## 5. Capability and Engineering boundary
 
 ```text
@@ -178,64 +182,3 @@ structured content
 knowledge graph
 claims / evidence
 provenance
-dependencies
-audience / taxonomy metadata
-reusable components
-```
-
-Он используется всеми системами и не является отдельной стадией workflow.
-
-## 9. Work Item
-
-Основная единица производственного потока — `Content Work Item` / `Work Package`.
-
-```text
-WORK ITEM
-├── strategic intent
-├── audience context
-├── objective
-├── requested outcome
-├── inputs
-├── knowledge basis
-├── dependencies
-├── capabilities
-├── owner
-├── priority
-├── constraints
-├── acceptance criteria
-├── release requirements
-└── success signals
-```
-
-Основные различия:
-
-```text
-WORK ITEM ≠ REQUEST
-WORK ITEM ≠ ASSET
-WORK ITEM ≠ RELEASE
-WORK ITEM ≠ PUBLICATION
-CAPABILITY ≠ TOOL
-EXECUTION RESULT ≠ ACCEPTED CONTENT
-```
-
-## 10. Research / state / authority foundation
-
-Репозиторий также содержит отдельные модели:
-
-- state model;
-- transition matrix;
-- dependency and provenance model;
-- effect and authority boundaries;
-- object lifecycles;
-- ontology candidate;
-- system map / space map;
-- operator navigation;
-- repository rules.
-
-Эти модели не должны смешиваться в одну workflow-схему.
-
-## 11. Status
-
-`candidate architecture + implemented Factory Runtime v0`
-
-Runtime v0 является исполняемым, но production readiness и первый реальный external proof пока не доказаны.
