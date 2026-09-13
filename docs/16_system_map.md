@@ -2,149 +2,158 @@
 
 This is the highest-level working map for `content_factory`.
 
-## 1. System map
+## 1. Ecosystem map
 
 ```text
-                              EXTERNAL WORLD
+                              CONTENT ECOSYSTEM
                                      │
-                    ┌────────────────┴────────────────┐
-                    ↓                                 ↑
-              SIGNALS / SOURCES                 EFFECTS / RESPONSE
-                    │                                 │
-                    ↓                                 │
-               [ SENSING ]                            │
-                    │                                 │
-                    ↓                                 │
-          00_inbox → 01_observation                   │
-                    │                                 │
-                    ↓                                 │
-               [ ATTENTION ]                          │
-                    │                                 │
-                    ↓                                 │
-           candidate / research need                  │
-                    │                                 │
-                    ├──────────────┐                  │
-                    ↓              ↓                  │
-              [ MEMORY ]      [ REASONING ]           │
-                    │              │                  │
-                    │              ↓                  │
-                    │       [ WORKING CONTEXT ]       │
-                    │              │                  │
-                    └──────────────┤                  │
-                                   ↓                  │
-                              [ DECISION ]            │
-                                   │                  │
-                                   ↓                  │
-                              [ ACTION ]              │
-                                   │                  │
-                             production              │
-                                   ↓                  │
-                              [ VERIFY ]              │
-                                   │                  │
-                                   ↓                  │
-                              [ EFFECT ] ─────────────┘
-                                   │
-                                   ↓
-                              OBSERVATION
-                                   │
-                                   ↓
-                              [ LEARNING ]
-                                ↙       ↘
-                         MEMORY UPDATE  NEW QUESTION
+             ┌───────────────────────┼────────────────────────┐
+             ▼                       ▼                        ▼
+      STRATEGY / INTENT       AUDIENCE / MARKET        PRODUCT / BUSINESS
+             │                       │                        │
+             └───────────────┬───────┴───────────────┬────────┘
+                             ▼                       ▼
+                       CONTENT DEMAND          PRODUCT CONTEXT
+                             │                       │
+                             └───────────┬───────────┘
+                                         ▼
+                                  CONTENT FACTORY
+                                         │
+                                         ▼
+                                  CONTENT PRODUCTS
+                                         │
+                                         ▼
+                                EXPERIENCE / CHANNEL
+                                         │
+                                         ▼
+                                   RESPONSE / OUTCOME
+                                         │
+                                         ▼
+                                   STRATEGY UPDATE
+                                         ↺
 ```
 
-## 2. Repository projection
+## 2. Factory map
 
 ```text
-SYSTEM FUNCTION        REPOSITORY ZONES
-
-SENSING                00_inbox/
-                       01_observation/
-
-MEMORY                 02_memory/
-
-WORK                   03_working_context/
-
-REASONING              04_reasoning/
-
-DECISION               05_decision/
-
-ACTION                 06_production/
-
-VERIFICATION           07_verification/
-
-EFFECT / FEEDBACK      08_effects_feedback/
-
-LEARNING               09_learning/
-
-CONTINUITY             10_records/
-
-CURRENT MODEL          model/
-EXPLANATION            docs/
-CAPTURE CONTRACTS      templates/
-INACTIVE HISTORY       archive/
+                         CONTENT FACTORY
+                                │
+            ┌───────────────────┼────────────────────┐
+            ▼                   ▼                    ▼
+       STRATEGIC          FACTORY CONTROL      SEMANTIC SUBSTRATE
+        INTENT               CONTROL PLANE
+            │                   │                    │
+            └───────────────────┼────────────────────┘
+                                ▼
+                           VALUE FLOW
+                                │
+             INPUT → KNOWLEDGE → EDITORIAL
+                                ↓
+                         PRODUCTION → QUALITY
+                                ↓
+                        DISTRIBUTION → EFFECT
+                                ↓
+                           LEARNING ↺
 ```
 
-## 3. Three planes
-
-The repository can also be understood as three intersecting planes.
-
-### Plane A — Information
+## 3. Factory value flow
 
 ```text
-observation
-→ evidence
-→ claim
-→ knowledge
-→ specification
-→ asset
-→ publication
-→ observation
+INPUT
+  ↓
+KNOWLEDGE
+  ↓
+EDITORIAL
+  ↓
+PRODUCTION
+  ↓
+QUALITY
+  ↓
+DISTRIBUTION
+  ↓
+EXTERNAL EFFECT
+  ↓
+LEARNING
+  ├──→ KNOWLEDGE
+  ├──→ EDITORIAL
+  └──→ PRODUCTION
 ```
 
-### Plane B — Control
+The sequence is a value-flow projection, not a single global object lifecycle.
+
+## 4. Factory control plane
+
+Factory Control cuts across every value-flow stage:
+
+```text
+portfolio priority
+intake
+routing
+WIP / queues
+capacity
+scheduling
+ownership
+service expectations
+resource allocation
+orchestration
+bottleneck management
+```
+
+It controls flow around content work items. It does not become the source of content truth.
+
+## 5. Shared semantic substrate
+
+Every factory system can use the same semantic substrate:
 
 ```text
 identity
-→ state
-→ authority
-→ review
-→ decision
-→ effect
+revisions
+structured content
+knowledge graph
+claims / evidence
+provenance
+dependencies
+taxonomy / audience metadata
+reusable components
 ```
 
-### Plane C — Time
+This layer prevents each system from maintaining incompatible copies of meaning.
+
+## 6. Repository projection
 
 ```text
-past/history
-→ current state
-→ expected/future state
-→ consequence
-→ learning
+REPOSITORY ZONE              SYSTEM FUNCTION
+
+00_inbox/                    input / intake
+01_observation/              observations and external signals
+02_memory/                   reusable knowledge
+03_working_context/          active work item context
+04_reasoning/                interpretation and comparison
+05_decision/                 editorial / authority decisions
+06_production/               production work and asset revisions
+07_verification/             quality assessment
+08_effects_feedback/         external effects and immediate feedback
+09_learning/                 learning candidates and adaptation proposals
+10_records/                  durable history
+model/                       current working model
+ontology/                    semantic domain model
+docs/                        explanations and research
+templates/                   capture contracts
+archive/                     inactive historical material
 ```
 
-A valid design must survive all three planes simultaneously.
+## 7. Control loops
 
-## 4. Core feedback loops
-
-The system has multiple loops, not one loop.
-
-### Perception loop
+### Ecosystem loop
 
 ```text
-WORLD → SIGNAL → OBSERVATION → MODEL
+STRATEGY → DEMAND → FACTORY → EXPERIENCE → OUTCOME → STRATEGY
 ```
 
-### Production loop
+### Factory loop
 
 ```text
-MODEL → DECISION → ACTION → VERIFICATION → EFFECT
-```
-
-### Learning loop
-
-```text
-EFFECT → OBSERVATION → INTERPRETATION → LEARNING → MODEL
+INPUT → KNOWLEDGE → EDITORIAL → PRODUCTION → QUALITY → DISTRIBUTION → LEARNING
 ```
 
 ### Governance loop
@@ -153,70 +162,60 @@ EFFECT → OBSERVATION → INTERPRETATION → LEARNING → MODEL
 STATE → REVIEW → DECISION → AUTHORIZED TRANSITION → STATE
 ```
 
-### Memory loop
+### Semantic loop
 
 ```text
-CURRENT STATE → RECORD → REVISION → CURRENT STATE
+OBJECT → REVISION → PROVENANCE / DEPENDENCY → RESULT
 ```
 
-## 5. The repository as a cognitive environment
+## 8. Highest-level questions
 
-No folder owns the whole system.
-
-A function is complete only when its downstream and feedback relationships are preserved.
-
-For example:
+For ecosystem questions:
 
 ```text
-production without verification
-    = action without error feedback
-
-memory without current-state projection
-    = history without usable present state
-
-reasoning without decision boundary
-    = interpretation without controlled action
-
-learning without evidence
-    = adaptation without grounding
-
-observation without provenance
-    = signal without recoverable meaning
+What outcome are we trying to create?
+For whom?
+Why does content matter to that outcome?
 ```
 
-## 6. System-level invariant
-
-The repository should always permit a reader to answer:
+For factory questions:
 
 ```text
-What entered the system?
-What did we believe or know at the time?
-What changed internally?
-Who or what authorized the change?
-What exact effect occurred?
-What happened afterward?
-What was learned?
-What changed in the model as a result?
+What work should enter?
+What knowledge is needed?
+What should we produce?
+Can it advance?
+How should it be released?
+What did we learn?
 ```
 
-If the repository cannot answer one of these questions for a material case, the structure is incomplete.
-
-## 7. Boundary rule
-
-The system boundary is not `content_factory/` versus the Internet.
-
-The meaningful boundary is:
+For repository questions:
 
 ```text
-uncontrolled external world
-        ↓
-observed information
-        ↓
-controlled internal representation
-        ↓
-authorized action
-        ↓
-observable external effect
+Where is the object?
+What is its identity and revision?
+What evidence supports it?
+What does it depend on?
+Who has authority?
+What is the next legitimate transition?
 ```
 
-This is the central architectural boundary for future cases.
+## 9. Integrity condition
+
+The system is coherent when a material case can be traced:
+
+```text
+strategic context
+→ input
+→ knowledge
+→ editorial decision
+→ work item
+→ production
+→ verification
+→ acceptance
+→ release
+→ external effect
+→ observation
+→ learning
+→ updated decision / knowledge / strategy
+```
