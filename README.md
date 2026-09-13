@@ -52,7 +52,7 @@ OBJECT
 + OWNER / AUTHORITY
 ```
 
-Поэтому `VERIFIED`, `ACCEPTED` и `PUBLISHED` — разные состояния, а material change создаёт новую revision.
+Объекты имеют отдельные lifecycle. `Observation` не является состоянием `Publication`, а `Learning` не является состоянием `Observation`. Case-level pipeline — это projection над несколькими object lifecycles.
 
 ## Важные разделения
 
@@ -106,11 +106,12 @@ SOURCE → EVIDENCE → CLAIM → KNOWLEDGE → EDITORIAL INTENT → ASSET → P
 - `docs/04_decision_points.md` — точки, в которых поток может продолжаться, остановиться или вернуться назад.
 - `docs/05_roles.md` — роли как следствие информационного потока.
 - `docs/06_unified_state_dependency_map.md` — synthesis с девятью существующими репозиториями и классификация универсальных/специализированных паттернов.
-- `docs/07_state_model.md` — operational state families, invariants и state cards.
+- `docs/07_state_model.md` — state semantics, invariants и state cards.
 - `docs/08_transition_matrix.md` — допустимые state transitions и authority boundaries.
 - `docs/09_dependency_and_provenance.md` — provenance, dependency и invalidation/impact semantics.
 - `docs/10_effect_and_authority_boundaries.md` — разделение production, review, acceptance и external effect.
-- `model/state-machine.yaml` — машинно-читаемая рабочая версия state machine.
+- `docs/11_object_lifecycles.md` — отдельные lifecycle для каждого значимого object type.
+- `model/state-machine.yaml` — машинно-читаемая рабочая версия object-specific state machines.
 - `templates/case.md` — шаблон реального editorial case.
 - `templates/decision.md` — шаблон durable decision record.
 
@@ -136,4 +137,4 @@ input
 
 ## Статус
 
-Это **working model**. State machine и dependency semantics являются текущей гипотезой, предназначенной для проверки на реальных editorial cases. Никакая из этих моделей пока не является окончательной БД или runtime architecture.
+Это **working model**. Object-specific state machines и dependency semantics являются текущей гипотезой, предназначенной для проверки на реальных editorial cases. Никакая из этих моделей пока не является окончательной БД или runtime architecture.
