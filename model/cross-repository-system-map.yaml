@@ -1,0 +1,139 @@
+version: 1
+as_of: 2026-09-13
+status: CURRENT_WORKING_MODEL
+system:
+  name: content-factory-system
+  hypothesis: >-
+    Content Factory provides the system-level value model; Atlas provides reasoning
+    and orchestration; Controlled Agent Executor provides bounded execution;
+    concrete repositories provide capabilities such as media production.
+  runtime_integration_proven: false
+repositories:
+  content_factory:
+    role: system_operating_model
+    status: active
+    placement: L0-L4_system
+  -atlas-agent:
+    role: reasoning_orchestration
+    status: active
+    placement: orchestration
+  controlled-agent-executor:
+    role: controlled_execution
+    status: stable_feature_frozen
+    placement: execution_substrate
+  whisper-studio:
+    role: media_production_capability
+    status: active_prototype
+    placement: production_capability
+  ai-research-radar:
+    role: research_intake_candidate
+    status: paused
+    placement: intelligence_candidate
+  atlas-records:
+    role: historical_evidence
+    status: historical_read_only
+    placement: evidence_history
+  atlas-workspace:
+    role: historical_reproducibility_proof
+    status: retired
+    placement: evidence_history
+  ai-creative-os:
+    role: archived_creative_experiments
+    status: archived
+    placement: history
+  thai-mythology-content-generator:
+    role: archived_content_prototype
+    status: archived
+    placement: history
+  telegram_bot:
+    role: independent_rental_bot
+    status: parked_independent
+    placement: outside_system
+capabilities:
+  - id: C01
+    name: system_sensing_research_intake
+    repository: ai-research-radar
+    status: candidate_paused
+  - id: C02
+    name: demand_work_control
+    repository: content_factory
+    status: partial
+  - id: C03
+    name: reasoning_orchestration
+    repository: -atlas-agent
+    status: exists_bounded
+  - id: C04
+    name: controlled_execution
+    repository: controlled-agent-executor
+    status: exists_bounded
+  - id: C05
+    name: content_production
+    repository: whisper-studio
+    status: exists_bounded
+  - id: C06
+    name: verification_acceptance_release
+    repository: content_factory
+    status: partial
+  - id: C07
+    name: external_publication_distribution
+    repository: null
+    status: partial
+  - id: C08
+    name: measurement_learning
+    repository: content_factory
+    status: missing_partial
+shared_semantic_chain_candidate:
+  - signal_or_demand
+  - intent_or_work_item
+  - knowledge_or_evidence
+  - brief_or_specification
+  - capability_request
+  - execution
+  - output_revision
+  - verification_evidence
+  - acceptance_decision
+  - release_or_publication
+  - external_effect
+  - observation
+  - learning
+identity_chain_candidate:
+  - work_item_id
+  - execution_id
+  - artifact_revision_id
+  - acceptance_id
+  - publication_id
+  - observation_id
+authority_boundaries:
+  reasoning_not_equal_execution: true
+  execution_not_equal_verification: true
+  verification_not_equal_acceptance: true
+  acceptance_not_equal_release: true
+  release_not_equal_publication: true
+  publication_not_equal_external_outcome: true
+  observation_not_equal_learning_truth: true
+  learning_not_equal_strategy_authority: true
+gaps:
+  - G01_system_level_work_item_admission_control
+  - G02_cross_system_capability_registry_binding
+  - G03_cross_system_identity_provenance
+  - G04_external_effect_reconciliation
+  - G05_measurement_learning_loop
+  - G06_system_deployment_runtime_boundary
+  - G07_cross_repository_evidence_model
+next_proof:
+  status: candidate
+  slice:
+    - bounded_demand
+    - content_factory_work_item
+    - atlas_orchestration
+    - controlled_execution
+    - whisper_studio_production
+    - verification
+    - human_acceptance
+    - release_boundary
+    - observation
+confidence:
+  verified: repository_statuses_and_local_capabilities
+  derived: four_component_system_arrangement
+  candidate: shared_semantic_chain_and_cross_repository_proof
+  unknown: complete_runtime_integration_and_closed_external_learning_loop
