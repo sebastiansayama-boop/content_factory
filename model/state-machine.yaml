@@ -1,227 +1,119 @@
-version: 1
+version: 2
 status: working_model
-purpose: conceptual editorial state machine for case-based validation
+purpose: object-specific editorial state machines linked by explicit relations
 
-state_families:
-  intake:
-    - SIGNAL
-    - QUESTION
-    - CANDIDATE
+principle: one_object_one_lifecycle
+
+objects:
+  candidate:
+    states: [SIGNAL, QUESTION, CANDIDATE, ADMITTED, HELD, REJECTED]
+    transitions:
+      - {from: SIGNAL, to: QUESTION, operation: frame_question, authority: Discovery}
+      - {from: QUESTION, to: CANDIDATE, operation: formulate_candidate, authority: Discovery}
+      - {from: CANDIDATE, to: ADMITTED, operation: admit, authority: CandidateAuthority}
+      - {from: CANDIDATE, to: HELD, operation: hold, authority: CandidateAuthority}
+      - {from: CANDIDATE, to: REJECTED, operation: reject, authority: CandidateAuthority}
+
   research:
-    - RESEARCH_REQUIREMENT
-    - RESEARCH_ACTIVE
-    - KNOWLEDGE_DRAFT
-    - KNOWLEDGE_SUFFICIENT
-    - KNOWLEDGE_INCONCLUSIVE
-    - KNOWLEDGE_AFFECTED
-  editorial:
-    - EDITORIAL_PENDING
-    - EDITORIAL_PROCEED
-    - EDITORIAL_HOLD
-    - EDITORIAL_REJECT
-    - EDITORIAL_UPDATE
-  production:
-    - SPEC_DRAFT
-    - SPEC_READY
-    - ASSET_DRAFT
-    - ASSET_READY_FOR_VERIFICATION
-    - ASSET_REVISION_REQUIRED
-  verification_effect:
-    - VERIFICATION_PENDING
-    - VERIFIED
-    - VERIFICATION_FAILED
-    - ACCEPTED
-    - REJECTED
-    - RELEASE_CANDIDATE
-    - PUBLISHED
-    - PUBLICATION_HELD
-    - RETIRED
-  learning:
-    - OBSERVED
-    - INTERPRETED
-    - LEARNING_CANDIDATE
-    - LEARNING_ACCEPTED
-    - NEW_EVIDENCE
-    - KNOWLEDGE_UPDATE_REQUIRED
+    states: [RESEARCH_REQUIREMENT, RESEARCH_ACTIVE, SUFFICIENT, INCONCLUSIVE, AFFECTED, CLOSED]
+    transitions:
+      - {from: RESEARCH_REQUIREMENT, to: RESEARCH_ACTIVE, operation: begin, authority: Research}
+      - {from: RESEARCH_ACTIVE, to: SUFFICIENT, operation: assess_sufficiency, authority: Research}
+      - {from: RESEARCH_ACTIVE, to: INCONCLUSIVE, operation: declare_inconclusive, authority: Research}
+      - {from: RESEARCH_ACTIVE, to: RESEARCH_ACTIVE, operation: continue, authority: Research}
+      - {from: SUFFICIENT, to: AFFECTED, operation: upstream_change, authority: Research}
+      - {from: AFFECTED, to: RESEARCH_ACTIVE, operation: reopen, authority: Research}
+      - {from: SUFFICIENT, to: CLOSED, operation: close, authority: Research}
 
-transitions:
-  - id: T01
-    from: SIGNAL
-    to: QUESTION
-    operation: frame_question
-    authority: Discovery
-  - id: T02
-    from: QUESTION
-    to: CANDIDATE
-    operation: formulate_candidate
-    authority: Discovery
-  - id: T03
-    from: CANDIDATE
-    to: RESEARCH_REQUIREMENT
-    operation: admit
-    authority: CandidateAuthority
-  - id: T04
-    from: RESEARCH_REQUIREMENT
-    to: RESEARCH_ACTIVE
-    operation: begin_research
-    authority: Research
-  - id: T05
-    from: RESEARCH_ACTIVE
-    to: KNOWLEDGE_DRAFT
-    operation: add_findings
-    authority: Research
-  - id: T06
-    from: KNOWLEDGE_DRAFT
-    to: KNOWLEDGE_SUFFICIENT
-    operation: assess_sufficiency
-    authority: Research
-  - id: T07
-    from: KNOWLEDGE_DRAFT
-    to: RESEARCH_ACTIVE
-    operation: continue_research
-    authority: Research
-  - id: T08
-    from: KNOWLEDGE_DRAFT
-    to: KNOWLEDGE_INCONCLUSIVE
-    operation: declare_inconclusive
-    authority: Research
-  - id: T09
-    from: KNOWLEDGE_SUFFICIENT
-    to: EDITORIAL_PENDING
-    operation: submit_for_editorial_decision
-    authority: Editorial
-  - id: T10
-    from: EDITORIAL_PENDING
-    to: EDITORIAL_PROCEED
-    operation: proceed
-    authority: Editorial
-  - id: T11
-    from: EDITORIAL_PENDING
-    to: EDITORIAL_HOLD
-    operation: hold
-    authority: Editorial
-  - id: T12
-    from: EDITORIAL_PENDING
-    to: EDITORIAL_REJECT
-    operation: reject
-    authority: Editorial
-  - id: T13
-    from: EDITORIAL_PENDING
-    to: EDITORIAL_UPDATE
-    operation: update_existing
-    authority: Editorial
-  - id: T14
-    from: EDITORIAL_PROCEED
-    to: SPEC_DRAFT
-    operation: create_spec
-    authority: ContentDesign
-  - id: T15
-    from: SPEC_DRAFT
-    to: SPEC_READY
-    operation: satisfy_spec_contract
-    authority: ContentDesign
-  - id: T16
-    from: SPEC_READY
-    to: ASSET_DRAFT
-    operation: produce
-    authority: Production
-  - id: T17
-    from: ASSET_DRAFT
-    to: ASSET_READY_FOR_VERIFICATION
-    operation: submit_for_verification
-    authority: Production
-  - id: T18
-    from: ASSET_READY_FOR_VERIFICATION
-    to: VERIFICATION_PENDING
-    operation: open_verification
-    authority: Verification
-  - id: T19
-    from: VERIFICATION_PENDING
-    to: VERIFIED
-    operation: pass
-    authority: Verification
-  - id: T20
-    from: VERIFICATION_PENDING
-    to: VERIFICATION_FAILED
-    operation: fail
-    authority: Verification
-  - id: T21
-    from: VERIFICATION_FAILED
-    to: ASSET_REVISION_REQUIRED
-    operation: request_revision
-    authority: Verification
-  - id: T22
-    from: ASSET_REVISION_REQUIRED
-    to: ASSET_DRAFT
-    operation: revise
-    authority: Production
-  - id: T23
-    from: VERIFIED
-    to: ACCEPTED
-    operation: accept_exact_revision
-    authority: AcceptanceAuthority
-  - id: T24
-    from: VERIFIED
-    to: REJECTED
-    operation: reject_exact_revision
-    authority: AcceptanceAuthority
-  - id: T25
-    from: ACCEPTED
-    to: RELEASE_CANDIDATE
-    operation: assemble_release
-    authority: Publication
-  - id: T26
-    from: RELEASE_CANDIDATE
-    to: PUBLISHED
-    operation: publish
-    authority: Publication
-  - id: T27
-    from: PUBLISHED
-    to: RETIRED
-    operation: retire
-    authority: Publication
-  - id: T28
-    from: PUBLISHED
-    to: OBSERVED
-    operation: record_observation
-    authority: Observation
-  - id: T29
-    from: OBSERVED
-    to: INTERPRETED
-    operation: interpret
-    authority: Learning
-  - id: T30
-    from: INTERPRETED
-    to: LEARNING_CANDIDATE
-    operation: propose_learning
-    authority: Learning
-  - id: T31
-    from: LEARNING_CANDIDATE
-    to: LEARNING_ACCEPTED
-    operation: accept_learning
-    authority: EditorialLearning
-  - id: T32
-    from: OBSERVED
-    to: NEW_EVIDENCE
-    operation: register_new_evidence
-    authority: Research
-  - id: T33
-    from: NEW_EVIDENCE
-    to: KNOWLEDGE_UPDATE_REQUIRED
-    operation: assess_impact
-    authority: Research
-  - id: T34
-    from: KNOWLEDGE_UPDATE_REQUIRED
-    to: KNOWLEDGE_AFFECTED
-    operation: mark_knowledge_affected
-    authority: Research
-  - id: T35
-    from: KNOWLEDGE_AFFECTED
-    to: EDITORIAL_PENDING
-    operation: reopen_affected_decision
-    authority: Editorial
+  knowledge_revision:
+    states: [DRAFT, SUFFICIENT, AFFECTED, SUPERSEDED]
+    transitions:
+      - {from: DRAFT, to: SUFFICIENT, operation: establish_sufficiency, authority: Research}
+      - {from: SUFFICIENT, to: AFFECTED, operation: dependency_change, authority: Research}
+      - {from: AFFECTED, to: SUFFICIENT, operation: revalidate, authority: Research}
+      - {from: SUFFICIENT, to: SUPERSEDED, operation: create_new_revision, authority: Research}
+
+  editorial_decision:
+    states: [PENDING, PROCEED, HOLD, REJECT, UPDATE_EXISTING, SUPERSEDED]
+    transitions:
+      - {from: PENDING, to: PROCEED, operation: proceed, authority: Editorial}
+      - {from: PENDING, to: HOLD, operation: hold, authority: Editorial}
+      - {from: PENDING, to: REJECT, operation: reject, authority: Editorial}
+      - {from: PENDING, to: UPDATE_EXISTING, operation: update_existing, authority: Editorial}
+      - {from: PROCEED, to: SUPERSEDED, operation: replace_decision, authority: Editorial}
+
+  content_spec_revision:
+    states: [DRAFT, READY, AFFECTED, SUPERSEDED]
+    transitions:
+      - {from: DRAFT, to: READY, operation: satisfy_contract, authority: ContentDesign}
+      - {from: READY, to: AFFECTED, operation: upstream_change, authority: ContentDesign}
+      - {from: AFFECTED, to: DRAFT, operation: revise, authority: ContentDesign}
+      - {from: READY, to: SUPERSEDED, operation: create_new_revision, authority: ContentDesign}
+
+  asset_revision:
+    states: [DRAFT, READY_FOR_VERIFICATION, REVISION_REQUIRED, ACCEPTED, REJECTED, SUPERSEDED]
+    transitions:
+      - {from: DRAFT, to: READY_FOR_VERIFICATION, operation: submit, authority: Production}
+      - {from: READY_FOR_VERIFICATION, to: REVISION_REQUIRED, operation: fail_verification, authority: Verification}
+      - {from: REVISION_REQUIRED, to: DRAFT, operation: revise, authority: Production}
+      - {from: READY_FOR_VERIFICATION, to: ACCEPTED, operation: accept_exact_revision, authority: AcceptanceAuthority}
+      - {from: READY_FOR_VERIFICATION, to: REJECTED, operation: reject_exact_revision, authority: AcceptanceAuthority}
+      - {from: ACCEPTED, to: SUPERSEDED, operation: create_new_revision, authority: Production}
+
+  verification_result:
+    states: [PENDING, PASSED, FAILED, SUPERSEDED]
+    transitions:
+      - {from: PENDING, to: PASSED, operation: pass, authority: Verification}
+      - {from: PENDING, to: FAILED, operation: fail, authority: Verification}
+      - {from: PASSED, to: SUPERSEDED, operation: newer_revision_verified, authority: Verification}
+      - {from: FAILED, to: SUPERSEDED, operation: newer_revision_verified, authority: Verification}
+
+  release:
+    states: [DRAFT, READY, HELD, PUBLISHED, RETIRED, SUPERSEDED]
+    transitions:
+      - {from: DRAFT, to: READY, operation: assemble_from_accepted_revisions, authority: Publication}
+      - {from: READY, to: HELD, operation: hold, authority: Publication}
+      - {from: READY, to: PUBLISHED, operation: publish, authority: Publication}
+      - {from: HELD, to: PUBLISHED, operation: publish, authority: Publication}
+      - {from: PUBLISHED, to: RETIRED, operation: retire, authority: Publication}
+      - {from: PUBLISHED, to: SUPERSEDED, operation: replace_with_new_release, authority: Publication}
+
+  observation:
+    states: [RECORDED, INTERPRETED, CLOSED]
+    transitions:
+      - {from: RECORDED, to: INTERPRETED, operation: interpret, authority: Learning}
+      - {from: INTERPRETED, to: CLOSED, operation: close, authority: Learning}
+
+  learning:
+    states: [CANDIDATE, ACCEPTED, REJECTED, SUPERSEDED]
+    transitions:
+      - {from: CANDIDATE, to: ACCEPTED, operation: accept_for_reuse, authority: EditorialLearning}
+      - {from: CANDIDATE, to: REJECTED, operation: reject, authority: EditorialLearning}
+      - {from: ACCEPTED, to: SUPERSEDED, operation: replace_learning, authority: EditorialLearning}
+
+  evidence:
+    states: [OBSERVED, RELEVANT, AFFECTED, INVALID, SUPERSEDED]
+    transitions:
+      - {from: OBSERVED, to: RELEVANT, operation: assess_relevance, authority: Research}
+      - {from: RELEVANT, to: AFFECTED, operation: source_change, authority: Research}
+      - {from: AFFECTED, to: INVALID, operation: invalidate, authority: Research}
+      - {from: RELEVANT, to: SUPERSEDED, operation: replace_evidence, authority: Research}
+
+relations:
+  - produced_from
+  - supports
+  - contradicts
+  - depends_on
+  - verified_against
+  - accepted_against
+  - assembled_into
+  - published_as
+  - supersedes
+  - invalidates
+  - impacts
 
 invariants:
+  - one_object_one_lifecycle
   - revision_bound_review
   - no_silent_factual_expansion
   - explicit_unknowns
@@ -229,13 +121,4 @@ invariants:
   - external_effect_is_explicit
   - learning_is_not_knowledge_truth
   - no_implicit_authority_inheritance
-
-relations:
-  - produced_from
-  - depends_on
-  - verified_against
-  - accepted_against
-  - published_as
-  - supersedes
-  - invalidates
-  - impacts
+  - observation_is_not_publication_state
