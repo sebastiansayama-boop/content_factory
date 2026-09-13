@@ -1,50 +1,75 @@
 # Repository Map
 
-The repository is a functional cognitive environment, not a literal brain simulation.
+The repository is the working model and evidence environment for a Content Ecosystem with a Content Factory inside it.
+
+```text
+CONTENT ECOSYSTEM
+       │
+       ▼
+CONTENT FACTORY
+       │
+       ├── VALUE FLOW
+       │     ├── Input
+       │     ├── Knowledge
+       │     ├── Editorial
+       │     ├── Production
+       │     ├── Quality
+       │     ├── Distribution
+       │     └── Learning
+       │
+       ├── FACTORY CONTROL
+       │     └── priority / routing / WIP / capacity / scheduling /
+       │         ownership / orchestration / bottlenecks
+       │
+       └── SHARED SEMANTIC SUBSTRATE
+             └── identity / revisions / provenance / dependencies /
+                 evidence / claims / structured content / reusable components
+```
+
+## Repository projection
 
 ```text
 00_inbox
-   ↓ classify
+   ↓ capture / classify / route
 01_observation
-   ↓ attend / select
-02_memory ←──────────────┐
-   ↕                     │
-04_reasoning             │
-   ↕                     │
-03_working_context       │
-   ↓                     │
-05_decision              │
-   ↓                     │
-06_production            │
-   ↓                     │
-07_verification ─────────┘
-   ↓
-05_decision
-   ↓
-08_effects_feedback
-   ↓
-01_observation
-   ↓
-09_learning
-   ├──→ 02_memory
-   └──→ 04_reasoning
+   ↓ observe external signals and effects
+02_memory ←──────────────────────────┐
+   ↕                                  │
+03_working_context                    │
+   ↕                                  │
+04_reasoning                           │
+   ↓                                  │
+05_decision                            │
+   ↓                                  │
+06_production                          │
+   ↓                                  │
+07_verification                        │
+   ↓                                  │
+05_decision                            │
+   ↓                                  │
+08_effects_feedback                    │
+   ↓                                  │
+09_learning ───────────────────────────┘
 
-10_records observes and preserves the evolution of every zone.
-model/ describes the current system.
-docs/ explains and researches the system.
-templates/ standardizes capture.
-archive/ preserves superseded material without current authority.
+10_records = durable history across the whole system
+ontology/  = semantic domain model
+model/     = current system model and machine-readable maps
+docs/      = explanation, synthesis and external research
+templates/ = capture contracts
+archive/   = superseded/inactive material without current authority
 ```
 
 ## Control rules encoded by the map
 
-1. Inbox is not truth.
-2. Observation is not interpretation.
-3. Working context is not durable memory.
-4. Reasoning does not directly change the model.
-5. Decisions authorize transitions; processes do not inherit authority implicitly.
+1. Folder location does not confer authority.
+2. Input is not truth.
+3. Observation is not interpretation.
+4. Working context is not durable memory.
+5. Reasoning does not directly authorize external effects.
 6. Production creates revisions; verification evaluates them.
-7. Acceptance and external effects are separate.
-8. Effects return observations, not automatic knowledge updates.
-9. Learning can propose changes to memory or reasoning, but promotion is explicit.
-10. Records preserve history across the whole system.
+7. Acceptance and publication remain distinct.
+8. Effects return observations before learning is promoted.
+9. Learning may propose changes to memory, editorial decisions, production policy or ecosystem strategy, but promotion is explicit.
+10. Records preserve history; they do not become an alternate current state.
+11. Ontology defines meaning, not lifecycle.
+12. Factory Control manages flow, not epistemic truth.
