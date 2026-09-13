@@ -1,5 +1,5 @@
-version: 10
-status: candidate_with_durable_runtime_and_real_provider_boundary
+version: 11
+status: candidate_with_durable_runtime_real_provider_boundary_and_learning_model_evolution
 name: content_factory
 parent_system: content_ecosystem
 
@@ -143,8 +143,6 @@ external_integration_boundary:
     - durable_storage
     - recovery_and_idempotency
     - additional_providers_and_n8n
-  n8n_boundary: external_service_orchestration_only
-  external_effect_requires_explicit_boundary: true
 
 phase_sequence:
   - phase: 1
@@ -183,7 +181,24 @@ phase_sequence:
     status: not_started
   - phase: 7
     name: learning_loop
-    status: not_started
+    status: research_complete_real_external_proof_pending
+    research_record: 10_records/2026-09-13-learning-loop-program-1-research-synthesis.md
+    decision_record: 05_decision/2026-09-13-program-1-learning-loop-model-evolution.md
+    proven_scope:
+      - observation_evidence_interpretation_separation_is_externally_supported
+      - explicit_promotion_and_reusable_memory_were_project_demonstrated
+      - bounded_memory_consumption_and_decision_change_were_project_demonstrated
+      - retrieval_and_application_are_distinct_external_research_findings
+      - knowledge_can_become_stale_and_requires_revision_or_unlearning
+      - memory_is_a_security_boundary
+    unproven_scope:
+      - memory_changes_execution
+      - real_external_outcome_from_memory_informed_execution
+      - outcome_evaluates_memory
+      - contradiction_revises_memory_in_real_external_case
+      - successful_cross_context_transfer
+      - product_or_business_outcome_improvement
+    next_proof_boundary: memory_informed_decision -> changed_execution -> real_external_outcome -> evaluation -> memory_revision
 
 external_proof:
   minimum_case:
@@ -269,4 +284,20 @@ learning:
   metric_is_not_learning: true
   learning_requires_interpretation: true
   knowledge_update_requires_explicit_promotion: true
-  ecosystem_strategy_update_requires_explicit_promotion: true
+  knowledge_validity_distinct_from_applicability: true
+  applicability_distinct_from_retrieval: true
+  retrieval_distinct_from_use: true
+  use_distinct_from_decision_impact: true
+  decision_impact_distinct_from_execution_impact: true
+  execution_impact_distinct_from_external_outcome: true
+  outcome_is_evidence_about_knowledge_not_automatic_proof_of_causality: true
+  contradiction_requires_evaluation_before_revision: true
+  knowledge_can_be_stale_or_superseded: true
+  deliberate_challenge_and_unlearning_are_supported_requirements: true
+  memory_admission_is_security_boundary: true
+  automatic_promotion_not_authorized: true
+  automatic_memory_authority_not_authorized: true
+  self_modifying_learning_policy_not_authorized: true
+  research_basis: 10_records/2026-09-13-learning-loop-program-1-research-synthesis.md
+  decision_basis: 05_decision/2026-09-13-program-1-learning-loop-model-evolution.md
+  next_empirical_boundary: memory_informed_decision -> changed_execution -> real_external_outcome -> evaluation -> memory_revision
