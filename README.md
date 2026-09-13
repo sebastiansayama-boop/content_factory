@@ -6,39 +6,40 @@
 
 ## Уровни модели
 
-Репозиторий теперь рассматривается на трёх уровнях:
+Репозиторий теперь рассматривается на нескольких уровнях:
 
 ```text
-SYSTEM
+SYSTEM SPACE
   ↓
 FUNCTIONAL NETWORK
   ↓
-OBJECT / STATE / DEPENDENCY MODEL
+OBJECT / STATE / DEPENDENCY / AUTHORITY
   ↓
 FOLDERS / RECORDS / CASES
 ```
 
-### System level
+### System space
 
 ```text
 WORLD
   ↓
-SENSE
+PERCEPTION
   ↓
-ATTEND
+REPRESENTATION
   ↓
 MODEL
   ↓
-WORK
+POSSIBILITIES
   ↓
-DECIDE
+DECISION
   ↓
-ACT
+ACTION
   ↓
-OBSERVE CONSEQUENCE
+CONSEQUENCE
   ↓
-LEARN
-  ↺
+OBSERVATION
+  ↓
+MODEL UPDATE
 ```
 
 ### Functional repository level
@@ -73,7 +74,29 @@ templates/ = capture contracts.
 archive/ = superseded material.
 ```
 
-Neuroscience is used here only as a functional analogy. Human cognition is supported by interacting distributed networks, not isolated modules. citeturn349193search1turn349193search3turn349193search8
+Neuroscience is used here only as a functional analogy. Human cognition is supported by interacting distributed networks, not isolated modules.
+
+## Space Map
+
+The operational navigation map is `SPACE_MAP.md`.
+
+Before deciding what to edit, locate the situation by:
+
+```text
+SPACE
+→ OBJECT
+→ STATE / REVISION
+→ EVIDENCE
+→ DEPENDENCIES
+→ AUTHORITY
+→ NEXT LEGITIMATE TRANSITION
+```
+
+The full navigation procedure is in `docs/19_operator_navigation.md`.
+
+## System space model
+
+`docs/20_system_space.md` defines the repository as a bounded state space with both a state space and an action space. It separates observed reality, represented reality, intended future, committed history and unknown space.
 
 ## Editorial trajectory
 
@@ -139,6 +162,9 @@ Production result не должен становиться новым факто
 
 ## Основные карты и правила
 
+- `SPACE_MAP.md` — основная карта пространства для навигации и принятия решений.
+- `docs/19_operator_navigation.md` — операционный протокол навигации.
+- `docs/20_system_space.md` — state space, action space, constraints, opportunities и system boundary.
 - `docs/15_system_level_model.md` — система как bounded cognitive-production loop.
 - `docs/16_system_map.md` — highest-level functional map и три пересекающиеся плоскости: information, control, time.
 - `docs/17_system_rules.md` — правила системы, расположенные выше отдельных folder rules.
@@ -190,4 +216,4 @@ world input
 
 ## Статус
 
-Это **working model**. System-level model, functional repository map, object-specific state machines и dependency semantics являются текущими гипотезами, предназначенными для проверки на реальных editorial cases. Это ещё не окончательная БД или runtime architecture.
+Это **working model**. System-level model, functional repository map, object-specific state machines, dependency semantics и operational space map являются текущими гипотезами, предназначенными для проверки на реальных editorial cases. Это ещё не окончательная БД или runtime architecture.
