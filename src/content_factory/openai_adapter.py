@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from typing import Any
 
 from .integrations import ExternalCallResult, HttpJsonAdapter, IntegrationConfig
-from .runtime import ExecutionResult, WorkItem
 
 
 @dataclass(frozen=True)
@@ -56,18 +55,3 @@ class OpenAIResponsesAdapter:
         if not chunks:
             raise ValueError("OpenAI response contains no text output")
         return "".join(chunks)
-
-    def execute(self, work_item: WorkItem, execution_id: str) -> ExecutionResult:
-        result = self.generate(work_item.requested_outcome)
-        if result.status_code < 200 or result.status_code >= 300:
-            raise RuntimeError(f"OpenAI execution failed with HTTP {result.status_code}")
-        if not result.response_id:
-            raise RuntimeError("OpenAI execution returned no response id")
-        text = self.response_text(result)
-        return ExecutionResult(
-            execution_id=execution_id,
-            capability_id="openai.responses.text_generation",
-            output_revision_id=f"{result.response_id}:output",
-            payload=text,
-            evidence_refs=(f"provider:{result.response_id}",),
-        )
