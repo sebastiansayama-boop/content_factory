@@ -1,89 +1,93 @@
 # 19 — Operator Navigation Protocol
 
-This document defines how an operator or agent should navigate `content_factory` before making a decision or changing the repository.
+This protocol defines how an operator or agent navigates `content_factory` before making a decision or changing the repository.
 
-## 1. The repository is a navigable state space
+## 1. Start at the correct system level
 
-Do not begin with the question:
+Do not begin with:
 
 > Which file should I edit?
 
 Begin with:
 
-> What situation are we in, what exists, what is known, what is uncertain, what authority exists, and which transitions are legitimate?
+```text
+Is this an ecosystem question?
+Is this a Content Factory question?
+Is this a repository/model question?
+```
 
-The correct file or folder is a consequence of that answer.
+Then locate the function involved.
 
 ## 2. Entry procedure
 
-Before meaningful work, establish:
+Establish:
 
 ```text
-SYSTEM STATE
-ACTIVE CASE
+SYSTEM LEVEL
+ACTIVE CASE / WORK ITEM
 ACTIVE OBJECTS
 CURRENT REVISIONS
 KNOWN EVIDENCE
 KNOWN DEPENDENCIES
 OPEN DECISIONS
 CURRENT UNKNOWNS
+AVAILABLE CAPABILITIES
 AVAILABLE ACTIONS
 RECENT CHANGES
+CURRENT BOTTLENECKS if known
 ```
 
-Read the smallest set of repository material needed to establish those facts. Do not reread the entire repository by default.
-
-## 3. Locate the question
-
-Classify the request first.
+## 3. Classify the request
 
 ```text
-FACTUAL QUESTION
-→ observation / research / memory
+STRATEGY / ECOSYSTEM
+→ intent / audience / portfolio / outcome
 
-STRUCTURAL QUESTION
-→ reasoning + model comparison
+INPUT / DEMAND
+→ intake / triage / routing
 
-PROCESS QUESTION
-→ processes / transition matrix
+KNOWLEDGE
+→ research / evidence / claims / reuse
 
-AUTHORITY QUESTION
-→ decision / rules
+EDITORIAL
+→ objective / priority / decision / specification
 
-PRODUCTION QUESTION
-→ specification / production
+PRODUCTION
+→ capability / asset / adaptation
 
-QUALITY QUESTION
-→ verification
+QUALITY
+→ verification / review / acceptance
 
-CHANGE-IMPACT QUESTION
-→ dependency / provenance / records
+DISTRIBUTION
+→ release / channel / publication / effect
 
-POST-EFFECT QUESTION
-→ effects / observation / learning
+LEARNING
+→ observation / measurement / interpretation / experiment
 
-REPOSITORY-MODEL QUESTION
-→ model + records + recent decisions
+FACTORY CONTROL
+→ WIP / capacity / scheduling / bottleneck / ownership
+
+SEMANTIC / MODEL
+→ ontology / identity / revision / dependency / provenance
 ```
 
-## 4. Establish object and revision
+## 4. Establish work item and object identity
 
-Never make a significant decision about an unnamed or unversioned mutable object.
-
-Minimum locator:
+For material work, identify both:
 
 ```text
+WORK ITEM
 OBJECT TYPE
 OBJECT ID
 REVISION
 CURRENT STATE
 ```
 
-If any component is unknown, the next operation should normally be identification, not modification.
+A work item is the bounded unit of flow. An asset, decision, knowledge revision or release may be a product of that work item rather than the work item itself.
 
 ## 5. Establish epistemic position
 
-Determine whether the relevant statement is:
+Classify relevant statements as:
 
 ```text
 OBSERVED
@@ -95,242 +99,164 @@ DECIDED
 UNKNOWN
 ```
 
-Do not use a stronger category than the evidence supports.
+Do not use stronger language than the evidence permits.
 
 ## 6. Establish authority
 
-Determine what can legitimately happen next.
-
 ```text
 NO AUTHORITY
-→ may inspect or propose
+→ inspect / propose
 
 WORK AUTHORITY
-→ may transform bounded inputs
+→ transform bounded inputs
 
 REVIEW AUTHORITY
-→ may assess conformity
+→ assess conformity
 
 ACCEPTANCE AUTHORITY
-→ may accept exact revision
+→ accept exact revision
 
 EFFECT AUTHORITY
-→ may cause external change
+→ cause external change
+
+STRATEGIC AUTHORITY
+→ change portfolio / objectives / priorities
 ```
 
-Do not infer authority from file ownership, folder location, previous approvals or process completion.
+Authority does not come from folder ownership or previous process completion.
 
 ## 7. Choose the smallest legitimate transition
 
-Prefer the narrowest transition that answers the actual question.
+Prefer the narrowest operation that answers the actual question.
 
-Examples:
+Do not redesign the factory when an input triage issue is sufficient.
+Do not alter ontology when a process rule is sufficient.
+Do not add a new subsystem when an existing capability can represent the requirement safely.
 
-```text
-Need evidence?
-→ research only
+## 8. Before changing factory flow
 
-Need to compare interpretations?
-→ reasoning only
-
-Need to choose whether to proceed?
-→ decision
-
-Need a concrete artifact?
-→ production
-
-Need to know whether it conforms?
-→ verification
-
-Need to change the external world?
-→ explicit effect transition
-```
-
-Avoid broad restructuring when a local evidence-gathering or model update is sufficient.
-
-## 8. Use the space map as a routing table
+Confirm:
 
 ```text
-00_inbox
-  → unclassified input
-
-01_observation
-  → observed facts/events/signals
-
-02_memory
-  → reusable source/evidence/claim/knowledge
-
-03_working_context
-  → temporary task state
-
-04_reasoning
-  → interpretation, comparison, hypothesis
-
-05_decision
-  → authority-bearing choice
-
-06_production
-  → concrete representation
-
-07_verification
-  → conformity/error assessment
-
-08_effects_feedback
-  → external effects and immediate consequences
-
-09_learning
-  → interpretation of consequences and adaptation proposals
-
-10_records
-  → durable history
-
-model/
-  → current system belief
-
-docs/
-  → explanation and synthesis
-
-templates/
-  → capture contracts
-
-archive/
-  → inactive historical material
+work item exists
+objective is known
+audience context is known
+required knowledge is identified
+required capabilities are known
+priority is justified
+dependencies are known
+acceptance criteria exist
 ```
 
-## 9. Before changing `model/`
+## 9. Before changing factory control
 
-Do not update the current model merely because an idea is plausible.
-
-Require at least one traceable basis:
+Confirm:
 
 ```text
-external research finding
-experiment result
-real-case failure or repeated ambiguity
-explicit decision
+actual demand exists
+current WIP is known
+capacity constraint is known or explicitly unknown
+routing decision is bounded
+ownership is explicit
+change targets flow rather than content truth
 ```
 
-For structural changes, prefer multiple independent observations when available.
-
-## 10. Before creating a new folder or object type
-
-Ask:
-
-```text
-Is the information recurring?
-Does it have a distinct lifecycle?
-Does it have a different authority boundary?
-Would storing it in an existing zone erase an important distinction?
-```
-
-If not, do not create a new top-level zone.
-
-## 11. Before production
+## 10. Before production
 
 Confirm:
 
 ```text
 editorial decision exists
-knowledge revision is identified
-specification revision is ready
+content specification revision is ready
+knowledge basis is identified
 unknowns are explicit
-factual claims have an evidence path
+required capability is available
 ```
 
-## 12. Before verification
+## 11. Before quality / acceptance
 
-Confirm that the verification target is exact:
+Confirm:
 
 ```text
-asset revision
-specification revision
-knowledge revision
+exact asset revision
+exact specification revision
 verification criteria
+knowledge basis
+verification result
+acceptance authority
 ```
 
-A verification result belongs to the exact target it checked.
-
-## 13. Before acceptance
+## 12. Before distribution
 
 Confirm:
 
 ```text
-verification result exists
-verification target matches the candidate revision
-evidence binding is recoverable
-acceptance authority is explicit
-scope of acceptance is explicit
+exact accepted revision(s)
+release composition
+channel / target
+adaptation status
+explicit authorization
+blocking invalidations absent or explicitly handled
 ```
 
-## 14. Before external effect
+## 13. After external effect
 
-Confirm:
-
-```text
-exact accepted revision or release
-external target
-explicit publication/effect authorization
-no unresolved blocking invalidation
-```
-
-## 15. After external effect
-
-Record separately:
+Record:
 
 ```text
-what was sent/published
-which exact revision
+what was published / delivered
+which revision(s)
 where
 when
 whether delivery succeeded
-what was observed afterward
+what was observed
 ```
 
-Do not rewrite the accepted artifact to match what happened externally.
+Do not rewrite the accepted artifact to match the external outcome.
 
-## 16. When something upstream changes
+## 14. Learning and ecosystem feedback
 
-Trace forward through dependencies:
+Separate:
 
 ```text
-changed source/evidence
-→ affected claim
-→ affected knowledge revision
-→ affected decision/spec
-→ affected asset/release
-→ affected publication
+FACTORY LEARNING
+→ knowledge / editorial / production adaptation
+
+ECOSYSTEM LEARNING
+→ audience assumptions / product strategy / portfolio / investment
 ```
 
-Use explicit `depends_on`, `invalidates`, and `impacts` relations.
+Promotion across this boundary requires an explicit decision.
 
-Do not automatically rewrite downstream outputs. Mark them for review first.
+## 15. When something upstream changes
 
-## 17. When uncertain
-
-Prefer explicit unknown over invented certainty.
-
-If the question is structural and unresolved:
+Trace forward:
 
 ```text
-RESEARCH
-→ COMPARE
-→ EXPERIMENT / CASE
-→ DECISION
-→ MODEL UPDATE
+source / evidence
+→ claim
+→ knowledge revision
+→ editorial decision / specification
+→ work item
+→ asset revision
+→ release
+→ publication
+→ effect
 ```
 
-## 18. End-of-task check
+Use `depends_on`, `invalidates`, and `impacts` rather than silent rewriting.
 
-Before declaring a meaningful task complete, verify:
+## 16. End-of-task check
 
 ```text
 Did the intended state actually change?
 Is the exact revision identifiable?
-Is the reason for the change recorded?
+Is the work item recoverable?
 Are affected dependencies known?
 Did authority stop at the intended boundary?
-Are unknowns still explicit?
-Can another operator recover the path?
+Are unknowns explicit?
+Is flow impact understood?
+Can another operator reconstruct the path?
 ```
 
-A proposed edit without a state change is not a completed system change.
+A file edit without a meaningful system state change is not a completed task.
