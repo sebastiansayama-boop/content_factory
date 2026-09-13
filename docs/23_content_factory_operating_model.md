@@ -320,10 +320,24 @@ Each requires an explicit transition and appropriate evidence/authority.
 
 ## 16. Implementation status
 
-`IMPLEMENTED BOUNDED V0 / PRODUCTION INFRASTRUCTURE NOT CLAIMED`
+`PHASE 1 COMPLETE / PHASE 2 NEXT`
 
-The repository now contains a coherent executable bounded runtime, explicit zone operating contracts, a capability/integration boundary, durable workspace artifact materialization, and CI verification for the repository test suite.
+The repository contains a coherent executable bounded runtime, explicit zone operating contracts, a capability/integration boundary, durable workspace artifact materialization, and CI verification for the repository test suite.
 
-The following remain intentionally outside the completed bounded v0: durable runtime recovery, queue/lease control, production provider credentials, a real external publication destination, and independently verified external effect. These require an operational environment and are not represented as completed merely by repository structure.
+Phase 1 adds durable runtime control state: SQLite-backed work-item state and an append-only event journal are committed atomically, and a new runtime instance reconstructs the persisted state and event history after restart. This is distinct from `ArtifactStore`: runtime persistence is recovery/control state, while artifact materialization is repository evidence projection.
 
-The repository is therefore complete as a bounded v0 implementation and design baseline. Production deployment is a separate next phase, not a hidden part of this repository state.
+The following remain outside the completed phases: real provider credentials and provider execution, a real external publication destination, independently verified external effect, external-operation idempotency/reconciliation, queues/leases, broader control-plane operations, and the learning loop.
+
+Phase sequence:
+
+```text
+1 durable runtime                COMPLETE
+2 real execution                 NEXT
+3 real external effect           NOT STARTED
+4 reliability and control        NOT STARTED
+5 factory control plane          NOT STARTED
+6 operations and governance      NOT STARTED
+7 learning loop                  NOT STARTED
+```
+
+Completion of a phase requires executable evidence and CI verification where code changes are involved; documentation alone does not advance phase status.
