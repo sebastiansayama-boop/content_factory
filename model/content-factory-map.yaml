@@ -1,5 +1,5 @@
-version: 6
-status: candidate_with_executable_runtime_v0
+version: 7
+status: candidate_with_executable_runtime_v0_and_external_boundary
 name: content_factory
 parent_system: content_ecosystem
 
@@ -26,7 +26,6 @@ architecture:
     - quality
     - distribution
     - learning
-
   control_plane:
     - prioritization
     - intake
@@ -39,7 +38,6 @@ architecture:
     - service_expectations
     - orchestration
     - bottleneck_management
-
   semantic_substrate:
     - structured_content
     - knowledge_graph
@@ -51,7 +49,6 @@ architecture:
     - claims
     - reusable_components
     - taxonomy
-
   capability_system:
     - discover
     - research
@@ -67,7 +64,6 @@ architecture:
     - publish
     - measure
     - learn
-
   engineering_system:
     - domain_model
     - execution
@@ -76,20 +72,6 @@ architecture:
     - governance
     - observability
     - infrastructure
-
-flow:
-  - ecosystem_context -> input
-  - input -> knowledge
-  - knowledge -> editorial
-  - editorial -> production
-  - production -> quality
-  - quality -> distribution
-  - distribution -> external_effect
-  - external_effect -> learning
-  - learning -> knowledge
-  - learning -> editorial
-  - learning -> production
-  - learning -> ecosystem_context_review
 
 execution_boundary:
   - work_item -> capability_request
@@ -102,28 +84,6 @@ execution_boundary:
 runtime_v0:
   status: implemented
   scope: one_work_item_one_capability_one_publisher
-  states:
-    - RECEIVED
-    - ADMITTED
-    - PRODUCED
-    - VERIFIED
-    - ACCEPTED
-    - RELEASE_READY
-    - RELEASED
-    - DELIVERED
-    - OBSERVED
-    - FAILED
-  transitions:
-    - submit
-    - admit
-    - execute
-    - verify
-    - accept
-    - release_ready
-    - release
-    - deliver
-    - observe
-    - fail
   implementation:
     - src/content_factory/runtime.py
   tests:
@@ -135,6 +95,38 @@ runtime_v0:
     - injected_publisher
     - no_crash_recovery
     - no_production_provider_adapter
+
+external_integration_boundary:
+  status: designed
+  implementation:
+    - src/content_factory/integrations.py
+  tests:
+    - tests/test_integrations.py
+  boundary:
+    - factory_runtime -> capability_executor -> external_adapter -> provider
+  secret_policy:
+    raw_values_never_enter_repository: true
+    raw_values_never_enter_provenance: true
+    raw_values_never_enter_logs: true
+  integration_sequence:
+    - runtime_contract
+    - local_tests
+    - ci_execution
+    - compute_environment
+    - secret_mechanism
+    - one_provider_adapter
+    - provider_credentials
+    - connectivity_test
+    - real_capability_execution
+    - verification
+    - release_authority
+    - one_external_publisher
+    - external_effect_observation
+    - durable_storage
+    - recovery_and_idempotency
+    - additional_providers_and_n8n
+  n8n_boundary: external_service_orchestration_only
+  external_effect_requires_explicit_boundary: true
 
 external_proof:
   minimum_case:
@@ -157,26 +149,6 @@ external_proof:
     provenance_reconstructable: true
     authority_chain_reconstructable: true
     no_silent_boundary_skipped: true
-
-control_plane_relations:
-  - control -> input
-  - control -> knowledge
-  - control -> editorial
-  - control -> production
-  - control -> quality
-  - control -> distribution
-  - control -> learning
-
-substrate_relations:
-  - substrate <-> input
-  - substrate <-> knowledge
-  - substrate <-> editorial
-  - substrate <-> production
-  - substrate <-> quality
-  - substrate <-> distribution
-  - substrate <-> learning
-  - substrate <-> capability_system
-  - substrate <-> engineering_system
 
 work_item:
   identity:
@@ -241,17 +213,3 @@ learning:
   learning_requires_interpretation: true
   knowledge_update_requires_explicit_promotion: true
   ecosystem_strategy_update_requires_explicit_promotion: true
-
-factory_principles:
-  - pull_over_unbounded_push
-  - control_wip
-  - route_by_capability_and_risk
-  - reuse_semantic_content
-  - preserve_provenance
-  - preserve_dependencies
-  - automate_repeatable_work
-  - escalate_consequential_decisions
-  - manage_bottlenecks_continuously
-  - optimize_system_flow_over_local_utilization
-  - decouple_factory_from_provider_implementations
-  - preserve_replaceable_execution_mechanisms
