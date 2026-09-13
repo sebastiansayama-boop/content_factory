@@ -1,4 +1,4 @@
-version: 11
+version: 12
 status: candidate_with_durable_runtime_real_provider_boundary_and_learning_model_evolution
 name: content_factory
 parent_system: content_ecosystem
@@ -184,13 +184,16 @@ phase_sequence:
     status: research_complete_real_external_proof_pending
     research_record: 10_records/2026-09-13-learning-loop-program-1-research-synthesis.md
     decision_record: 05_decision/2026-09-13-program-1-learning-loop-model-evolution.md
-    proven_scope:
-      - observation_evidence_interpretation_separation_is_externally_supported
-      - explicit_promotion_and_reusable_memory_were_project_demonstrated
-      - bounded_memory_consumption_and_decision_change_were_project_demonstrated
-      - retrieval_and_application_are_distinct_external_research_findings
+    externally_supported_scope:
+      - observation_evidence_interpretation_separation
+      - validity_and_generalizability_limits
+      - retrieval_and_application_are_distinct
+      - contradiction_requires_evaluation
       - knowledge_can_become_stale_and_requires_revision_or_unlearning
       - memory_is_a_security_boundary
+    project_demonstrated_scope:
+      - explicit_promotion_and_reusable_memory
+      - bounded_memory_consumption_and_decision_change
     unproven_scope:
       - memory_changes_execution
       - real_external_outcome_from_memory_informed_execution
@@ -300,4 +303,5 @@ learning:
   self_modifying_learning_policy_not_authorized: true
   research_basis: 10_records/2026-09-13-learning-loop-program-1-research-synthesis.md
   decision_basis: 05_decision/2026-09-13-program-1-learning-loop-model-evolution.md
+  audit_basis: 10_records/2026-09-13-repository-external-evidence-audit.md
   next_empirical_boundary: memory_informed_decision -> changed_execution -> real_external_outcome -> evaluation -> memory_revision
