@@ -1,0 +1,62 @@
+name: materialize runtime evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "Reason for explicitly materializing the current runtime experiment"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run deterministic factory experiment
+        env:
+          PYTHONPATH: src
+          CONTENT_FACTORY_ROOT: .
+        run: python -m content_factory
+
+      - name: Verify repository write scope
+        shell: bash
+        run: |
+          set -euo pipefail
+          allowed='^(03_working_context|05_decision|06_production|07_verification|08_effects_feedback|10_records)/'
+          while IFS= read -r path; do
+            if [[ -n "$path" && ! "$path" =~ $allowed ]]; then
+              echo "Unexpected repository change: $path" >&2
+              exit 1
+            fi
+          done < <(git status --porcelain=v1 | sed -E 's/^.. //')
+          if git status --porcelain=v1 | grep -q '^.. 01_observation/'; then
+            echo "Synthetic runtime must not create observation records." >&2
+            exit 1
+          fi
+
+      - name: Commit materialized evidence
+        shell: bash
+        env:
+          REASON: ${{ inputs.reason }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add 03_working_context 05_decision 06_production 07_verification 08_effects_feedback 10_records
+          if git diff --cached --quiet; then
+            echo "No repository evidence changes; no commit required."
+            exit 0
+          fi
+          git commit -m "record(runtime): materialize evidence experiment"
+          git push
