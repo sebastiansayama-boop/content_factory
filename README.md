@@ -2,7 +2,7 @@
 
 Исследовательская и частично исполняемая среда для проектирования `Content Ecosystem` и `Content Factory`.
 
-Репозиторий завершил bounded v0 и первую эксплуатационную фазу: модель системы, операционные контракты зон, executable runtime, evidence materialization, durable runtime control state, integration boundary и CI-проверки согласованы между собой. Это не утверждение о production readiness или реальном внешнем эффекте.
+Репозиторий завершил bounded v0 и первую эксплуатационную фазу: модель системы, операционные контракты зон, executable runtime, evidence materialization, durable runtime control state, integration boundary и CI-проверки согласованы между собой. Phase 2 — Real Execution — сейчас реализуется через реальный provider boundary; production readiness и реальный внешний эффект по-прежнему не заявляются.
 
 ## 1. Current system hierarchy
 
@@ -137,7 +137,33 @@ state + event history reconstruction
 
 Phase 1 проверена тестами на restart recovery и атомарную фиксацию перехода вместе с событием. Используется SQLite WAL с `synchronous=FULL` для bounded single-node runtime.
 
-## 6. Capability and Engineering boundary
+## 6. Real Execution — Phase 2
+
+Первый реальный provider boundary реализован для OpenAI Responses API:
+
+```text
+WORK ITEM
+    ↓
+OpenAIResponsesAdapter
+    ↓
+https://api.openai.com/v1/responses
+    ↓
+provider response id
+    ↓
+ExecutionResult
+    ↓
+output revision
+```
+
+Реализация: `src/content_factory/openai_adapter.py`.
+
+Секретная граница: `OPENAI_API_KEY`; raw key не входит в repository, provenance или logs. Для модели по умолчанию используется `gpt-5.6-luna`.
+
+Unit-тесты проверяют provider boundary и mapping ответа в `ExecutionResult`. Есть отдельный opt-in external test: `tests/test_external_openai.py`.
+
+Phase 2 пока не завершена: требуется реальный credential в execution environment, connectivity test, реальный capability execution и revision-bound verification. Эти шаги нельзя считать выполненными по unit-тестам.
+
+## 7. Capability and Engineering boundary
 
 ```text
 FACTORY WORK ITEM
@@ -165,7 +191,7 @@ CAN EXECUTE
 ≠ CAN PUBLISH
 ```
 
-## 7. First external proof
+## 8. First external proof
 
 Минимальное доказательство работы фабрики — один завершённый `Content Work Item`, который проходит от bounded input до авторизованной публикации/доставки, создаёт реально наблюдаемый внешний эффект, а вся цепочка provenance и authority восстанавливаема.
 
@@ -173,7 +199,7 @@ CAN EXECUTE
 
 Runtime v0 может пройти эту цепочку с fake publisher в тесте, но это не является external proof. Для external proof нужен реальный внешний destination.
 
-## 8. Factory Control
+## 9. Factory Control
 
 Factory Control — control plane над семью системами потока:
 
@@ -191,7 +217,7 @@ bottleneck management
 
 Она управляет движением работы, но не является источником истины контента.
 
-## 9. Shared Semantic Substrate
+## 10. Shared Semantic Substrate
 
 Общий смысловой слой:
 
@@ -209,7 +235,7 @@ reusable components
 
 Он используется всеми системами и не является отдельной стадией workflow.
 
-## 10. Work Item
+## 11. Work Item
 
 Основная единица производственного потока — `Content Work Item` / `Work Package`.
 
@@ -242,7 +268,7 @@ CAPABILITY ≠ TOOL
 EXECUTION RESULT ≠ ACCEPTED CONTENT
 ```
 
-## 11. Research / state / authority foundation
+## 12. Research / state / authority foundation
 
 Репозиторий содержит отдельные модели:
 
@@ -258,12 +284,24 @@ EXECUTION RESULT ≠ ACCEPTED CONTENT
 
 Эти модели не смешиваются в одну workflow-схему.
 
-## 12. Status
+## 13. Status
 
-`PHASE 1 COMPLETE / PHASE 2 NEXT / PRODUCTION NOT CLAIMED`
+`PHASE 1 COMPLETE / PHASE 2 IN PROGRESS / PRODUCTION NOT CLAIMED`
 
 Завершены bounded v0 и Phase 1 durable runtime: Work Item → execution → revision-bound verification → explicit acceptance → release authority → injected publication → optional external observation; evidence materialization; SQLite control-state persistence; append-only event journal; restart reconstruction; CI verification.
 
-Следующая фаза — `Real Execution`: compute environment, secret mechanism, один реальный provider adapter, credentials, connectivity test и реальное выполнение capability. После неё идут real external effect, reliability/control, factory control plane, operations/governance и learning loop.
+Phase 2 имеет реализованный provider boundary для OpenAI Responses API и opt-in real-execution test, но её внешний proof ещё не завершён.
 
-Не завершены и намеренно не объявлены завершёнными: реальный provider/channel, реальный внешний effect, idempotency/reconciliation внешних операций, queues/leases, production operations и learning loop. Ни одна из этих границ не считается выполненной документацией или fake publisher.
+Последовательность следующих фаз:
+
+```text
+1 durable runtime                COMPLETE
+2 real execution                 IN PROGRESS
+3 real external effect           NOT STARTED
+4 reliability and control        NOT STARTED
+5 factory control plane          NOT STARTED
+6 operations and governance      NOT STARTED
+7 learning loop                  NOT STARTED
+```
+
+Ни одна последующая граница не считается выполненной документацией или fake publisher.
