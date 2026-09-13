@@ -1,5 +1,5 @@
-version: 8
-status: candidate_with_executable_runtime_and_durable_control_state
+version: 9
+status: candidate_with_durable_runtime_and_real_provider_boundary
 name: content_factory
 parent_system: content_ecosystem
 
@@ -101,15 +101,22 @@ runtime_v0:
     - injected_publisher
     - no_external_effect_idempotency
     - no_queue_workers_or_leases
-    - no_production_provider_adapter
     - execution_payloads_are_not_rehydrated_into_runtime_state
 
 external_integration_boundary:
-  status: designed
+  status: implemented_provider_boundary_phase_2_in_progress
   implementation:
     - src/content_factory/integrations.py
+    - src/content_factory/openai_adapter.py
   tests:
     - tests/test_integrations.py
+    - tests/test_external_openai.py
+  provider:
+    name: openai_responses_api
+    endpoint: https://api.openai.com/v1/responses
+    default_model: gpt-5.6-luna
+    secret_env: OPENAI_API_KEY
+    real_execution_proof: pending
   boundary:
     - factory_runtime -> capability_executor -> external_adapter -> provider
   secret_policy:
@@ -147,7 +154,16 @@ phase_sequence:
       - ci_pass
   - phase: 2
     name: real_execution
-    status: next
+    status: in_progress_external_proof_pending
+    implementation:
+      - openai_responses_adapter
+      - opt_in_external_execution_test
+      - secret_environment_boundary
+    remaining_proof:
+      - provider_credentials_available_in_execution_environment
+      - connectivity_test
+      - real_capability_execution
+      - revision_bound_verification
   - phase: 3
     name: real_external_effect
     status: not_started
