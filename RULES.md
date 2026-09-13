@@ -18,5 +18,9 @@ The repository is a research environment for an editorial knowledge and producti
 14. Do not treat the brain analogy as a literal ontology. It is a functional design heuristic.
 15. A new top-level folder requires a recurring information type or control boundary that cannot be represented safely by an existing zone.
 16. Any current model change must be traceable to evidence, an experiment, a case failure or an explicit decision.
+17. The repository is a bounded system interacting with an external world; the world is not part of the repository model.
+18. The highest-level loop is `WORLD → OBSERVATION → MODEL → WORK → DECISION → ACTION → CONSEQUENCE → LEARNING → MODEL`.
+19. Folders are projections of system functions, not independent departments.
+20. Every material case must preserve enough information to reconstruct its path across sensing, modelling, decision, action, verification, effect and learning.
 
-See `docs/14_repository_rules.md` for the expanded rule set and `model/repository-map.md` for the functional map.
+See `docs/14_repository_rules.md` for detailed operating rules, `docs/15_system_level_model.md` for the system ontology, and `docs/16_system_map.md` for the highest-level map.
