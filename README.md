@@ -2,16 +2,18 @@
 
 Экспериментальная среда для исследования editorial knowledge system и production system.
 
-Репозиторий не является реализацией контентного продукта. Его задача — сделать наблюдаемой модель того, как информация возникает, изменяется, принимается, превращается в производный материал и возвращается в следующий цикл.
+Репозиторий не является реализацией контентного продукта. Его задача — сделать наблюдаемой модель того, как информация возникает, исследуется, принимается, превращается в производный материал, выпускается и возвращается в следующий производственный цикл.
 
 ## Уровни модели
 
-Репозиторий теперь рассматривается на нескольких уровнях:
+Репозиторий рассматривается на нескольких уровнях:
 
 ```text
 SYSTEM SPACE
   ↓
 ONTOLOGY
+  ↓
+CONTENT FACTORY SYSTEM MODEL
   ↓
 FUNCTIONAL NETWORK
   ↓
@@ -20,7 +22,56 @@ OBJECT / STATE / DEPENDENCY / AUTHORITY
 FOLDERS / RECORDS / CASES
 ```
 
-### Ontology
+### Content Factory system model
+
+Текущая кандидатная архитектура:
+
+```text
+CONTENT FACTORY
+│
+├── STRATEGY / PORTFOLIO INTENT
+│
+├── VALUE FLOW
+│   ├── INPUT
+│   ├── KNOWLEDGE
+│   ├── EDITORIAL
+│   ├── PRODUCTION
+│   ├── QUALITY
+│   ├── DISTRIBUTION
+│   └── LEARNING
+│
+├── FACTORY CONTROL
+│   ├── prioritization
+│   ├── intake / routing
+│   ├── WIP / queues
+│   ├── capacity / scheduling
+│   ├── ownership / service expectations
+│   ├── orchestration
+│   └── bottleneck management
+│
+└── SHARED SEMANTIC SUBSTRATE
+    ├── structured content
+    ├── knowledge graph
+    ├── provenance
+    ├── revisions
+    ├── dependencies
+    └── reusable components
+```
+
+`docs/21_content_factory_level_model.md` содержит исследовательское обоснование этой модели. `model/content-factory-map.yaml` — машинно-читаемая кандидатная карта.
+
+Главный сдвиг относительно старой восьмисистемной схемы:
+
+```text
+семь систем = value flow
+Factory Control = control plane
+Shared Semantic Substrate = common meaning/state substrate
+Strategy / Portfolio = upstream intent
+```
+
+Factory Control не является восьмым последовательным этапом.
+
+## Ontology
 
 Ontology отвечает на вопрос:
 
@@ -128,13 +179,11 @@ The full navigation procedure is in `docs/19_operator_navigation.md`.
 ## Editorial trajectory
 
 ```text
-SIGNAL
+STRATEGY / PORTFOLIO INTENT
   ↓
-CANDIDATE
+SIGNAL / REQUEST / OPPORTUNITY
   ↓
-RESEARCH
-  ↓
-KNOWLEDGE
+RESEARCH / KNOWLEDGE
   ↓
 EDITORIAL DECISION
   ↓
@@ -142,15 +191,17 @@ CONTENT SPECIFICATION
   ↓
 PRODUCTION
   ↓
-VERIFICATION
+VERIFICATION / REVIEW
   ↓
 ACCEPTANCE
   ↓
 RELEASE / PUBLICATION
   ↓
-OBSERVATION
+EXTERNAL EFFECT
   ↓
-LEARNING / NEW EVIDENCE
+OBSERVATION / MEASUREMENT
+  ↓
+LEARNING / EXPERIMENT
   ↺
 ```
 
@@ -177,20 +228,26 @@ Knowledge — не публикация.
 
 Asset — не source of truth.
 
+Work item — не asset.
+
 History — не current state.
 
 Review — не acceptance.
 
 Acceptance — не publication.
 
+Release — не отдельный asset; он может быть bundle зависимых revisions.
+
 Observation — не learning.
 
 Learning — не автоматически knowledge truth.
 
-Production result не должен становиться новым фактом только потому, что он хорошо написан или визуализирован.
+Factory Control — не source of truth контента; он управляет потоком работы вокруг content objects.
 
 ## Основные карты и правила
 
+- `docs/21_content_factory_level_model.md` — текущая системная эволюция Content Factory на основе внешнего research.
+- `model/content-factory-map.yaml` — machine-readable candidate factory map.
 - `SPACE_MAP.md` — основная карта пространства для навигации и принятия решений.
 - `docs/19_operator_navigation.md` — операционный протокол навигации.
 - `docs/20_system_space.md` — state space, action space, constraints, opportunities и system boundary.
@@ -224,25 +281,25 @@ Production result не должен становиться новым факто
 
 Новый вопрос сначала рассматривается как research question или case.
 
-Новая папка, primitive, state или ontology class не добавляются только потому, что они красиво описывают один пример.
+Новая папка, primitive, state, ontology class или factory subsystem не добавляются только потому, что они красиво описывают один пример.
 
 Каждый material case должен позволять восстановить:
 
 ```text
-world input
-→ observation
-→ internal model
-→ working context
-→ reasoning
-→ decision
-→ action
+strategy / external demand
+→ input
+→ knowledge
+→ editorial decision
+→ specification
+→ production
 → verification
+→ acceptance
+→ release
 → external effect
-→ consequence
 → learning
 → model update
 ```
 
 ## Статус
 
-Это **working model**. System-level model, ontology candidate model, functional repository map, object-specific state machines, dependency semantics и operational space map являются текущими гипотезами, предназначенными для проверки на реальных editorial cases. Это ещё не окончательная БД или runtime architecture.
+Это **working model**. System-level model, ontology candidate model, Content Factory level model, functional repository map, object-specific state machines, dependency semantics и operational space map являются текущими гипотезами, предназначенными для проверки на реальных editorial cases. Это ещё не окончательная БД, runtime architecture или организационная структура.
