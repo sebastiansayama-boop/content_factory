@@ -1,0 +1,54 @@
+version: 1
+status: current_navigation_projection
+source_of_truth: docs/29_project_direction_map.md
+
+statuses:
+  - ACTIVE
+  - PARKED
+  - COMPLETED
+  - BLOCKED
+  - SUPERSEDED
+
+directions:
+  - id: durable-runtime
+    status: COMPLETED
+    return_point: Phase 1 runtime tests and docs/23_content_factory_operating_model.md
+  - id: real-execution
+    status: ACTIVE
+    current_checkpoint: provider boundary implemented; real credential, connectivity, execution and revision-bound verification pending observation
+    return_point: scripts/prove_openai_execution.py
+  - id: real-external-effect
+    status: PARKED
+    return_point: docs/26_first_external_proof.md
+  - id: reliability-and-control
+    status: PARKED
+    return_point: model/content-factory-map.yaml known limits
+  - id: factory-control-plane
+    status: PARKED
+    return_point: README.md Factory Control section
+  - id: operations-and-governance
+    status: PARKED
+    return_point: RULES.md and docs/25_chat_repository_operating_protocol.md
+  - id: learning-loop
+    status: PARKED
+    return_point: 09_learning/
+
+map_requirements:
+  direction_fields:
+    - goal
+    - status
+    - current_checkpoint
+    - proven
+    - unproven
+    - research_needed
+    - dependencies
+    - blocked_by
+    - next_legitimate_step
+    - return_point
+  update_trigger:
+    - material_status_change
+    - checkpoint_change
+    - proven_state_change
+    - unresolved_state_change
+    - dependency_change
+    - return_point_change
