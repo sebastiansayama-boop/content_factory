@@ -6,7 +6,9 @@
 
 ## Исходный принцип
 
-Сначала проектируется **information flow**, затем процессы и decision points, затем ownership и роли. После synthesis state/dependency model становится отдельным слоем. Техническая реализация появляется только тогда, когда модель достаточно определена и выдерживает реальные cases.
+Сначала проектируется **information flow**, затем процессы и decision points, затем ownership и роли. После synthesis state/dependency model становится отдельным слоем. Теперь repository structure также организована по функциональным контурам информации: intake, observation, memory, working context, reasoning, decision, production, verification, effects/feedback, learning и records.
+
+Техническая реализация появляется только тогда, когда модель достаточно определена и выдерживает реальные cases.
 
 ## Базовый цикл
 
@@ -38,6 +40,42 @@ OBSERVATION
 LEARNING / NEW EVIDENCE
   ↺
 ```
+
+## Functional repository map
+
+```text
+00_inbox
+   ↓
+01_observation
+   ↓
+02_memory ←→ 04_reasoning
+   ↑             ↓
+03_working_context
+   ↓             
+05_decision
+   ↓
+06_production
+   ↓
+07_verification
+   ↓
+05_decision
+   ↓
+08_effects_feedback
+   ↓
+01_observation
+   ↓
+09_learning
+   ├──→ 02_memory
+   └──→ 04_reasoning
+
+10_records observes the whole system.
+model/ = current model.
+docs/ = explanation and synthesis.
+templates/ = reusable capture contracts.
+archive/ = superseded material without current authority.
+```
+
+This structure uses neuroscience as a functional analogy, not as a literal software copy of the brain. Human cognition is supported by interacting distributed networks rather than isolated modules.
 
 ## State model
 
@@ -100,6 +138,11 @@ SOURCE → EVIDENCE → CLAIM → KNOWLEDGE → EDITORIAL INTENT → ASSET → P
 
 ## Документы
 
+- `RULES.md` — краткие binding rules репозитория.
+- `docs/14_repository_rules.md` — расширенные правила использования.
+- `docs/12_brain_functional_analogy.md` — функциональная аналогия с мозгом и её ограничения.
+- `docs/13_repository_structure_and_map.md` — предназначение папок и связи между ними.
+- `model/repository-map.md` — компактная карта системы.
 - `docs/01_information_flow.md` — как информация должна перемещаться и преобразовываться.
 - `docs/02_primitives.md` — минимальные сущности и их границы.
 - `docs/03_processes.md` — процессы, входы, операции, выходы и ownership.
@@ -137,4 +180,4 @@ input
 
 ## Статус
 
-Это **working model**. Object-specific state machines и dependency semantics являются текущей гипотезой, предназначенной для проверки на реальных editorial cases. Никакая из этих моделей пока не является окончательной БД или runtime architecture.
+Это **working model**. Object-specific state machines, dependency semantics и функциональная repository map являются текущими гипотезами, предназначенными для проверки на реальных editorial cases. Никакая из этих моделей пока не является окончательной БД или runtime architecture.
