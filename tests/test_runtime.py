@@ -9,6 +9,7 @@ from content_factory.runtime import (
     VerificationResult,
     WorkItem,
 )
+from content_factory.runtime_store import RuntimeStore
 
 
 class FakePublisher:
@@ -33,9 +34,9 @@ class SimulatedPublisher:
         )
 
 
-def make_work_item():
+def make_work_item(work_item_id="wi-1"):
     return WorkItem(
-        work_item_id="wi-1",
+        work_item_id=work_item_id,
         revision_id="spec-r1",
         objective="produce bounded content",
         requested_outcome="one externally delivered content item",
@@ -48,10 +49,11 @@ def make_work_item():
     )
 
 
-def make_runtime(artifact_store=None, publisher=None):
+def make_runtime(artifact_store=None, publisher=None, runtime_store=None):
     runtime = FactoryRuntime(
         publisher=publisher or FakePublisher(),
         artifact_store=artifact_store,
+        runtime_store=runtime_store,
     )
 
     def validate(item):
@@ -194,3 +196,47 @@ def test_simulated_publication_does_not_create_observation(tmp_path):
     effects = (tmp_path / "08_effects_feedback/wi-1.json").read_text(encoding="utf-8")
     assert '"type": "publication_record"' in effects
     assert '"externally_observable": false' in effects
+
+
+def test_runtime_state_and_event_journal_survive_restart(tmp_path):
+    database = tmp_path / "runtime.sqlite3"
+    item = make_work_item("wi-restart")
+
+    with RuntimeStore(database) as store:
+        first = make_runtime(runtime_store=store)
+        first.submit(item, actor="owner")
+        assert first.states[item.work_item_id] == FactoryState.RECEIVED
+
+    with RuntimeStore(database) as store:
+        second = FactoryRuntime(runtime_store=store)
+        assert second.states[item.work_item_id] == FactoryState.RECEIVED
+        assert [event.operation for event in second.provenance(item.work_item_id)] == ["submit"]
+
+        second._transition(item, FactoryState.ADMITTED, "admit", "factory")
+        assert second.states[item.work_item_id] == FactoryState.ADMITTED
+
+    with RuntimeStore(database) as store:
+        recovered = FactoryRuntime(runtime_store=store)
+        assert recovered.states[item.work_item_id] == FactoryState.ADMITTED
+        assert [event.state for event in recovered.provenance(item.work_item_id)] == [
+            "RECEIVED",
+            "ADMITTED",
+        ]
+
+
+def test_state_transition_and_event_are_committed_together(tmp_path):
+    database = tmp_path / "runtime.sqlite3"
+    item = make_work_item("wi-atomic")
+
+    with RuntimeStore(database) as store:
+        runtime = make_runtime(runtime_store=store)
+        runtime.submit(item)
+        runtime._transition(item, FactoryState.ADMITTED, "admit", "factory")
+
+    with RuntimeStore(database) as store:
+        rows = store.load_events(item.work_item_id)
+        assert [(row["state"], row["operation"]) for row in rows] == [
+            ("RECEIVED", "submit"),
+            ("ADMITTED", "admit"),
+        ]
+        assert store.load_work_items()[0].state == "ADMITTED"
