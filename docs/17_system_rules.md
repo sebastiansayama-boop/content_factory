@@ -1,85 +1,91 @@
 # 17 — System-Level Rules
 
-These rules sit above individual folder rules. They define how the repository behaves as one system.
+These rules sit above individual folder and process rules.
 
-## A. Boundary rules
+## A. System boundaries
 
-1. The repository is a model of an information-producing system, not the external world.
-2. External facts, observations, and outcomes must enter through an explicit observation boundary.
-3. Internal interpretation must never be presented as direct observation.
-4. An external effect is not complete merely because the system intended or prepared it.
+1. `Content Ecosystem` is broader than `Content Factory`.
+2. `Content Factory` is a functional production subsystem, not the whole business system.
+3. External world, market, audience and business outcomes remain outside the factory boundary unless explicitly modeled as inputs or effects.
+4. Do not solve an ecosystem problem merely by expanding the factory.
 
-## B. State rules
+## B. Factory architecture
 
-5. Every material mutable object has an identity and revision.
-6. Every object has its own lifecycle; do not create one global lifecycle for unrelated objects.
-7. Current state is a projection over history, not a replacement for history.
-8. Material changes create a new revision rather than rewriting accepted or published history.
-9. State is explicit; never infer it from filenames, folder location, timestamps or prose tone.
+5. The factory has four layers: strategic intent, value flow, factory control, and shared semantic substrate.
+6. The seven value-flow systems are Input, Knowledge, Editorial, Production, Quality, Distribution and Learning.
+7. Factory Control is a control plane, not a sequential eighth stage.
+8. Shared semantic substrate is not a workflow stage.
+9. Strategy/portfolio intent supplies direction and demand; Editorial translates it into bounded production intention.
 
-## C. Knowledge rules
+## C. Work and flow
 
-10. Evidence, interpretation, decision and effect are separate information classes.
-11. Unknown is a valid state and must remain explicit.
-12. A claim is not stronger than its supporting evidence.
-13. A production artifact is not a source of truth merely because it is polished.
-14. Learning is a candidate for adaptation, not automatically a new fact.
-15. Model changes require an explicit reason: research, experiment, case failure or decision.
+10. The primary unit of flow is a bounded Content Work Item / Work Package, not a file.
+11. One work item may produce multiple asset revisions.
+12. One release may bundle multiple work-item outputs.
+13. Pull work from real demand and available capacity.
+14. Limit WIP at constraining stages rather than maximizing local utilization.
+15. Route work by required capability, risk, dependencies and constraints.
+16. Treat bottleneck identification and management as a continuous factory function.
 
-## D. Control rules
+## D. Knowledge and semantics
 
-16. Processes produce information; authority decides state transitions.
-17. Review is not acceptance.
-18. Acceptance is not publication.
-19. Publication is not outcome.
-20. Authority does not propagate implicitly from one transition to the next.
-21. Every significant decision identifies target object, exact revision, evidence, authority and authorization scope.
+17. Keep source, evidence, claim, knowledge, specification, asset and publication semantically distinct.
+18. Provenance, dependency and impact are different relations.
+19. Identity and revision remain explicit for mutable objects.
+20. Structured content should remain channel-neutral where semantics permit.
+21. Channel adaptation that changes meaning requires a new bounded revision and appropriate re-verification.
+22. Production output is not automatically a source of truth.
 
-## E. Feedback rules
+## E. Quality and effects
 
-22. Consequences return as observations before becoming learning.
-23. Learning may update memory, reasoning or future questions, but promotion is explicit.
-24. Upstream changes must be able to mark downstream dependencies as affected.
-25. Dependency, provenance and impact are distinct relations.
+23. Verification is not acceptance.
+24. Acceptance is not publication.
+25. Publication is not outcome.
+26. Release is a coordinated readiness/effect boundary, not simply another asset state.
+27. External effects return as observations before interpretation becomes learning.
+28. Learning is not automatically truth and does not silently rewrite reusable knowledge.
 
-## F. Repository rules
+## F. Control and authority
 
-26. `model/` contains the current working model only.
-27. `10_records/` preserves durable history and provenance.
-28. `archive/` is inert unless explicitly reactivated.
-29. `docs/` explains and synthesizes; it is not a dumping ground for raw case material.
-30. `templates/` defines capture contracts; templates are not evidence.
-31. A new top-level folder requires a recurring information function or control boundary that cannot be represented safely by an existing zone.
+29. Factory Control manages flow; it does not inherit epistemic authority over content.
+30. Automation may perform repeatable bounded operations but does not implicitly inherit consequential authority.
+31. Every consequential transition identifies target object, exact revision, evidence basis, authority and scope.
+32. Authority is contextual and scoped.
 
-## G. Brain analogy rule
+## G. Repository and model
 
-32. Use the brain only as a functional analogy: sensing, salience, memory, working context, control, action, error monitoring and learning.
-33. Do not map a folder to a literal brain structure.
-34. When biological analogy conflicts with information-flow evidence, preserve the information-flow model.
+33. `model/` contains the current working model; it is not raw evidence or history.
+34. `10_records/` preserves durable history.
+35. `ontology/` defines semantic domain concepts and relations; it is not the workflow or state machine.
+36. `SPACE_MAP.md` and `docs/16_system_map.md` are navigation maps, not sources of truth about external reality.
+37. `archive/` is inert unless explicit reactivation is recorded.
+38. Any current model change must be traceable to research, experiment, case failure or explicit decision.
 
-## H. Research rule
+## H. Research and evolution
 
-35. Structural uncertainty is a research question.
-36. Before inventing a new primitive, state or folder, inspect external references and relevant existing repositories.
-37. A rule becomes stable only after surviving real cases or repeated supporting evidence.
+39. Structural uncertainty is a research question.
+40. Before adding a subsystem, capability, primitive, state or ontology class, establish the missing function and its boundary.
+41. Use external references and existing repositories before inventing a structural solution.
+42. Validate the integrated model against real cases before implementation hardening.
 
-## I. Highest-level invariant
+## I. Highest-level case invariant
 
-For every material case, the repository should make it possible to reconstruct:
+A material case should be reconstructable as:
 
 ```text
-WORLD INPUT
-→ OBSERVATION
-→ INTERNAL MODEL
-→ WORKING CONTEXT
-→ REASONING
-→ DECISION
-→ ACTION
+STRATEGIC CONTEXT
+→ INPUT
+→ KNOWLEDGE
+→ EDITORIAL DECISION
+→ WORK ITEM
+→ PRODUCTION
 → VERIFICATION
+→ ACCEPTANCE
+→ RELEASE
 → EXTERNAL EFFECT
-→ CONSEQUENCE
+→ OBSERVATION
 → LEARNING
-→ MODEL UPDATE
+→ KNOWLEDGE / EDITORIAL / STRATEGY UPDATE
 ```
 
-If a material transition cannot be reconstructed, either the case record or the system model is incomplete.
+If a transition or boundary cannot be reconstructed, either the case record or the system model is incomplete.
