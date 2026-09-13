@@ -67,14 +67,15 @@ class ArtifactStore:
                 "externally_observable": publication.externally_observable,
                 "evidence_refs": list(publication.evidence_refs),
             })
-            self._write("01_observation", work_id, {
-                "type": "runtime_observation",
-                "work_item_id": work_id,
-                "revision_id": publication.output_revision_id,
-                "state": runtime.states[work_id].value,
-                "publication_id": publication.publication_id,
-                "evidence_refs": list(publication.evidence_refs),
-            })
+            if publication.externally_observable:
+                self._write("01_observation", work_id, {
+                    "type": "runtime_observation",
+                    "work_item_id": work_id,
+                    "revision_id": publication.output_revision_id,
+                    "state": runtime.states[work_id].value,
+                    "publication_id": publication.publication_id,
+                    "evidence_refs": list(publication.evidence_refs),
+                })
 
         self._write("10_records", work_id, {
             "type": "runtime_case_record",
