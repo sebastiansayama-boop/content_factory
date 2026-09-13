@@ -9,6 +9,7 @@ from .runtime import (
     PublicationResult,
     WorkItem,
 )
+from .runtime_store import RuntimeStore
 
 __all__ = [
     "AcceptanceDecision",
@@ -17,5 +18,6 @@ __all__ = [
     "ExecutionResult",
     "FactoryRuntime",
     "PublicationResult",
+    "RuntimeStore",
     "WorkItem",
 ]
