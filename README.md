@@ -1,8 +1,8 @@
 # Content Factory
 
-Исследовательская и теперь частично исполняемая среда для проектирования `Content Ecosystem` и `Content Factory`.
+Исследовательская и частично исполняемая среда для проектирования `Content Ecosystem` и `Content Factory`.
 
-Репозиторий содержит модель системы и первый минимальный executable runtime. Runtime пока не является полной production-фабрикой: он предназначен для доказательства контролируемого execution boundary на одном bounded Work Item.
+Репозиторий завершён как bounded v0: модель системы, операционные контракты зон, минимальный executable runtime, evidence materialization, integration boundary и CI-проверки согласованы между собой. Это не утверждение о production readiness или реальном внешнем эффекте.
 
 ## 1. Current system hierarchy
 
@@ -113,7 +113,7 @@ OBSERVED
 
 Runtime v0 намеренно ограничен одним capability и injected publisher. Без publisher внешний эффект невозможен. Execution result не становится accepted content автоматически.
 
-Runtime materializes evidence into a workspace filesystem through `ArtifactStore`. Это ещё не означает запись в Git history. Синхронизация workspace evidence с репозиторием выполняется отдельной, явно запускаемой GitHub Actions workflow: `.github/workflows/materialize-runtime.yml`. Эта операция имеет собственную repository-write authority и проверяет scope изменённых файлов перед commit.
+Runtime materializes evidence into a workspace filesystem through `ArtifactStore`. Это не означает запись в Git history. Синхронизация workspace evidence с репозиторием выполняется отдельной workflow: `.github/workflows/materialize-runtime.yml`.
 
 Синтетический demo runtime не создаёт `01_observation`: он моделирует publication, но не доказывает внешний эффект.
 
@@ -224,7 +224,7 @@ EXECUTION RESULT ≠ ACCEPTED CONTENT
 
 ## 10. Research / state / authority foundation
 
-Репозиторий также содержит отдельные модели:
+Репозиторий содержит отдельные модели:
 
 - state model;
 - transition matrix;
@@ -236,10 +236,12 @@ EXECUTION RESULT ≠ ACCEPTED CONTENT
 - operator navigation;
 - repository rules.
 
-Эти модели не должны смешиваться в одну workflow-схему.
+Эти модели не смешиваются в одну workflow-схему.
 
 ## 11. Status
 
-`candidate architecture + implemented Factory Runtime v0`
+`BOUNDED V0 COMPLETE / PRODUCTION DEPLOYMENT NOT CLAIMED`
 
-Runtime v0 является исполняемым, но production readiness и первый реальный external proof пока не доказаны.
+Внутри репозитория завершены согласование модели и минимальный executable boundary. Проверяемая граница проходит через Work Item → execution → revision-bound verification → explicit acceptance → release authority → injected publication → optional external observation, с материализацией evidence и CI.
+
+Не завершены и намеренно не объявлены завершёнными: durable runtime recovery, queues/leases, production credentials, реальный provider/channel, реальный внешний effect и recovery/idempotency для внешних операций. Это следующая эксплуатационная фаза, требующая конкретной среды и авторизации.
