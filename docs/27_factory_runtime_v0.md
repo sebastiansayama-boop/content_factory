@@ -69,7 +69,7 @@ ArtifactStore
     decision / effects / observation / records
 ```
 
-The runtime uses SQLite WAL with `synchronous=FULL` for this bounded single-node phase. SQLite provides transactional atomicity and durable transactions; WAL is a local-host mechanism and does not solve distributed coordination. citeturn0search0turn0search1turn0search4
+The runtime uses SQLite WAL with `synchronous=FULL` for this bounded single-node phase. The SQLite documentation establishes transactional atomicity and durability guarantees for committed transactions, while WAL is explicitly a same-host mechanism and does not solve distributed coordination.
 
 The phase proof is intentionally limited to application/runtime restart recovery. It does not claim external-effect recovery or idempotency.
 
