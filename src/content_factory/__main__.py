@@ -20,9 +20,9 @@ class DemoPublisher:
         return PublicationResult(
             publication_id="demo-publication",
             output_revision_id=execution.output_revision_id,
-            target="demo://external",
-            externally_observable=True,
-            evidence_refs=("demo-external-effect",),
+            target="demo://simulated",
+            externally_observable=False,
+            evidence_refs=("demo-simulation",),
         )
 
 
@@ -48,7 +48,7 @@ def main() -> None:
         work_item_id="demo-work-item",
         revision_id="spec-r1",
         objective="exercise runtime",
-        requested_outcome="one observable delivery",
+        requested_outcome="one simulated delivery",
         inputs=("demo-input",),
         knowledge_basis=("demo-knowledge",),
         required_capabilities=("write",),
