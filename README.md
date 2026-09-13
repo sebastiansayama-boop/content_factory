@@ -46,6 +46,8 @@ CONTENT ECOSYSTEM
 
 Модель Capability / Engineering layers: `docs/24_capability_and_engineering_layer.md`.
 
+Критерий первого внешнего доказательства работы: `docs/26_first_external_proof.md`.
+
 Верхнеуровневая модель экосистемы: `docs/22_content_ecosystem_model.md`.
 
 Исследовательски выведенная модель фабрики: `docs/21_content_factory_level_model.md`.
@@ -105,7 +107,13 @@ CAN EXECUTE
 ≠ CAN PUBLISH
 ```
 
-## 5. Factory Control
+## 5. First external proof
+
+Минимальное доказательство работы фабрики — один завершённый `Content Work Item`, который проходит от bounded input до авторизованной публикации/доставки, создаёт реально наблюдаемый внешний эффект, а вся цепочка provenance и authority восстанавливаема.
+
+Публикация сама по себе не считается достаточным доказательством: `publication ≠ outcome`.
+
+## 6. Factory Control
 
 Factory Control — control plane над семью системами потока:
 
@@ -123,7 +131,7 @@ bottleneck management
 
 Она управляет движением работы, но не является источником истины контента.
 
-## 6. Shared Semantic Substrate
+## 7. Shared Semantic Substrate
 
 Общий смысловой слой:
 
@@ -141,7 +149,7 @@ reusable components
 
 Он используется всеми системами и не является отдельной стадией workflow.
 
-## 7. Work Item
+## 8. Work Item
 
 Основная единица производственного потока — `Content Work Item` / `Work Package`.
 
@@ -174,7 +182,7 @@ CAPABILITY ≠ TOOL
 EXECUTION RESULT ≠ ACCEPTED CONTENT
 ```
 
-## 8. Research / state / authority foundation
+## 9. Research / state / authority foundation
 
 Репозиторий также содержит отдельные модели:
 
@@ -190,7 +198,7 @@ EXECUTION RESULT ≠ ACCEPTED CONTENT
 
 Эти модели не должны смешиваться в одну workflow-схему.
 
-## 9. Status
+## 10. Status
 
 `candidate / integrated working model`
 
