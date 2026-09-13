@@ -1,15 +1,23 @@
-version: 2
+version: 3
 status: candidate
 name: content_factory
+parent_system: content_ecosystem
 
-architecture:
-  strategic_intent:
+boundaries:
+  upstream_context:
     - strategy
     - portfolio
-    - objectives
-    - audience
-    - initiatives
+    - audience_market_context
+    - product_business_context
+  factory_output:
+    - verified_content_release
+    - publication_effect_record
+  downstream_context:
+    - audience_experience
+    - market_response
+    - business_outcome
 
+architecture:
   value_flow:
     - input
     - knowledge
@@ -45,16 +53,18 @@ architecture:
     - taxonomy
 
 flow:
-  - strategy -> input
+  - ecosystem_context -> input
   - input -> knowledge
   - knowledge -> editorial
   - editorial -> production
   - production -> quality
   - quality -> distribution
-  - distribution -> learning
+  - distribution -> external_effect
+  - external_effect -> learning
   - learning -> knowledge
   - learning -> editorial
   - learning -> production
+  - learning -> ecosystem_context_review
 
 control_plane_relations:
   - control -> input
@@ -79,8 +89,9 @@ work_item:
     - work_item_id
     - revision_id
   required_fields:
+    - strategic_intent_ref
+    - audience_context_ref
     - objective
-    - audience
     - requested_outcome
     - inputs
     - knowledge_basis
@@ -101,11 +112,13 @@ quality:
   verification_revision_bound: true
   acceptance_distinct_from_verification: true
   acceptance_distinct_from_publication: true
+  publication_distinct_from_outcome: true
 
 learning:
   metric_is_not_learning: true
   learning_requires_interpretation: true
   knowledge_update_requires_explicit_promotion: true
+  ecosystem_strategy_update_requires_explicit_promotion: true
 
 factory_principles:
   - pull_over_unbounded_push
@@ -117,3 +130,4 @@ factory_principles:
   - automate_repeatable_work
   - escalate_consequential_decisions
   - manage_bottlenecks_continuously
+  - optimize_system_flow_over_local_utilization
