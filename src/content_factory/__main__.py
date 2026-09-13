@@ -1,3 +1,9 @@
+from __future__ import annotations
+
+import os
+from pathlib import Path
+
+from .artifacts import ArtifactStore
 from .runtime import (
     AcceptanceDecision,
     Capability,
@@ -21,7 +27,11 @@ class DemoPublisher:
 
 
 def main() -> None:
-    runtime = FactoryRuntime(publisher=DemoPublisher())
+    repository_root = Path(os.getenv("CONTENT_FACTORY_ROOT", "."))
+    runtime = FactoryRuntime(
+        publisher=DemoPublisher(),
+        artifact_store=ArtifactStore(repository_root),
+    )
     runtime.register_capability(
         Capability(
             capability_id="write",
