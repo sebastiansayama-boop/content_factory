@@ -1,6 +1,6 @@
 # Experiment-004 — GitHub semantic adapter research and execution record
 
-Status: `IN PROGRESS`
+Status: `COMPLETED / BOUNDED PROOF`
 
 ## Research question
 
@@ -70,31 +70,73 @@ PR merge = publication authority
 repository history = external outcome
 ```
 
-## Implementation decision
+## Implementation
 
-Implement the smallest typed adapter boundary in `src/content_factory/github_adapter.py`.
+Implemented `src/content_factory/github_adapter.py` with a small typed boundary:
 
-The adapter provides:
+- `GitHubWorkContext` binds Factory `work_item_id` to GitHub issue, branch and repository identity;
+- `GitHubChangeEvidence` represents normalized repository observations;
+- `FactoryChangeVerification` separates verification evidence from semantic acceptance and preserves unknowns;
+- `verify_github_change()` rejects failed CI and closed-unmerged changes while never granting acceptance authority.
 
-- explicit binding of Factory `work_item_id` to GitHub issue/branch/repository identity;
-- normalized GitHub change evidence;
-- Factory-side verification result with evidence references and explicit unknowns;
-- no acceptance or publication authority grant.
+Tests were added in `tests/test_github_adapter.py` covering identity binding, passing CI, failed CI, missing review evidence and closed-unmerged changes.
 
-The corresponding tests verify the boundary without requiring live GitHub credentials or network calls from application code.
+## Live GitHub proof
 
-## Live GitHub proof target
+Issue: #27.
 
-The same experiment is executed through the repository itself using Issue #27 and branch `experiment/004-github-semantic-adapter`, followed by a pull request and repository CI. The live result must be recorded separately from the adapter's unit tests.
+Initial PR #28 was closed because its first Actions run evaluated an earlier merge revision before the narrow acceptance-boundary fix. No production merge occurred.
 
-## Remaining unknowns
+Replacement PR: #29.
+
+Head revision: `21a79fc2a5ecf06dd53b537e320995dadc532b60`.
+
+GitHub Actions check: `pytest`, check run `103713827095`, workflow run `34753482893`.
+
+Observed result: `COMPLETED / SUCCESS` on the exact head revision. The run executed the repository's existing `.github/workflows/test.yml` and passed the full test suite after the adapter fix.
+
+Review observation: no independent human review was observed. The PR discussion contains a Codex connector comment reporting that its code-review usage limit had been reached; this is not an approval and is therefore not treated as one.
+
+Factory interpretation:
+
+```text
+GitHub change mechanics: VERIFIED
+CI evidence: VERIFIED
+Independent review: UNKNOWN / NOT OBSERVED
+Semantic acceptance: NOT GRANTED BY GITHUB EVIDENCE
+Publication authority: NOT GRANTED
+External outcome: NOT CLAIMED
+```
+
+## What the experiment proves
+
+The repository can support an explicit adapter boundary in which GitHub-native mechanics become normalized Factory evidence without becoming Factory semantic authority.
+
+The proven path is:
+
+```text
+Factory identity
+→ GitHub issue/branch/PR
+→ Actions verification
+→ exact head revision
+→ normalized Factory verification evidence
+```
+
+## What remains unproven
 
 - whether interactive connector operations are sufficient for sustained operation;
 - whether event-driven webhooks become necessary once autonomous execution exists;
 - whether a GitHub App is required for durable non-user-bound integration;
 - whether GraphQL materially reduces integration complexity for actual Factory projections;
-- whether GitHub Projects solve a demonstrated Factory Control problem.
+- whether GitHub Projects solve a demonstrated Factory Control problem;
+- independent-review availability in the current repository configuration;
+- autonomous Factory ↔ GitHub reconciliation;
+- external publication or business outcome.
 
-## Decision status
+## Decision
 
-`SUPPORTED / EXTENDED / GAP IDENTIFIED — bounded implementation authorized`
+`ACCEPTED AS A BOUNDED INTEGRATION PROOF WITH EXPLICIT LIMITATIONS`
+
+The experiment does not justify replacing Factory runtime state, semantic acceptance, authority, publication semantics, or external outcome tracking with GitHub state.
+
+The implementation should remain the smallest adapter boundary until a demonstrated operational problem justifies additional mechanisms such as webhooks, a GitHub App, GraphQL or Projects.
