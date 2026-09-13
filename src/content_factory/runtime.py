@@ -6,6 +6,8 @@ from enum import Enum
 from typing import Any, Callable, Protocol
 from uuid import uuid4
 
+from .artifacts import ArtifactStore
+
 
 class RuntimeErrorBase(Exception):
     """Base error for deterministic factory failures."""
@@ -116,7 +118,8 @@ class Publisher(Protocol):
 class FactoryRuntime:
     """Small deterministic orchestration kernel for one bounded work item.
 
-    v0 intentionally uses in-memory state and an append-only event journal.
+    v0 keeps execution state in memory, while an explicit ArtifactStore can
+    materialize the resulting evidence into durable repository artifacts.
     External publication is injected and therefore never implied by execution.
     """
 
@@ -133,8 +136,9 @@ class FactoryRuntime:
         FactoryState.FAILED: set(),
     }
 
-    def __init__(self, publisher: Publisher | None = None) -> None:
+    def __init__(self, publisher: Publisher | None = None, artifact_store: ArtifactStore | None = None) -> None:
         self.publisher = publisher
+        self.artifact_store = artifact_store
         self.capabilities: dict[str, Capability] = {}
         self.states: dict[str, FactoryState] = {}
         self.events: list[Event] = []
@@ -155,6 +159,7 @@ class FactoryRuntime:
             raise ValueError("work item requires at least one capability")
         self.states[work_item.work_item_id] = FactoryState.RECEIVED
         self._record(work_item, FactoryState.RECEIVED, "submit", actor)
+        self._materialize(work_item)
 
     def run(
         self,
@@ -212,6 +217,7 @@ class FactoryRuntime:
 
             if publication.externally_observable:
                 self._transition(work_item, FactoryState.OBSERVED, "observe", "observation")
+            self._materialize(work_item)
             return publication
         except Exception as exc:
             return self._fail(work_item, str(exc))
@@ -235,7 +241,12 @@ class FactoryRuntime:
         current = self.states[work_item.work_item_id]
         if FactoryState.FAILED in self._allowed[current]:
             self._transition(work_item, FactoryState.FAILED, "fail", "factory", reason=reason)
+        self._materialize(work_item)
         return None
+
+    def _materialize(self, work_item: WorkItem) -> None:
+        if self.artifact_store is not None:
+            self.artifact_store.record(work_item, self)
 
     def _record(self, work_item: WorkItem, state: FactoryState, operation: str, actor: str, **data: Any) -> None:
         self.events.append(
