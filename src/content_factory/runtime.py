@@ -7,6 +7,7 @@ from typing import Any, Callable, Protocol
 from uuid import uuid4
 
 from .artifacts import ArtifactStore
+from .runtime_store import RuntimeStore
 
 
 class RuntimeErrorBase(Exception):
@@ -118,8 +119,8 @@ class Publisher(Protocol):
 class FactoryRuntime:
     """Small deterministic orchestration kernel for one bounded work item.
 
-    v0 keeps execution state in memory, while an explicit ArtifactStore can
-    materialize the resulting evidence into durable repository artifacts.
+    With RuntimeStore configured, control state and the event journal survive
+    runtime restart. ArtifactStore remains a separate evidence projection.
     External publication is injected and therefore never implied by execution.
     """
 
@@ -136,9 +137,15 @@ class FactoryRuntime:
         FactoryState.FAILED: set(),
     }
 
-    def __init__(self, publisher: Publisher | None = None, artifact_store: ArtifactStore | None = None) -> None:
+    def __init__(
+        self,
+        publisher: Publisher | None = None,
+        artifact_store: ArtifactStore | None = None,
+        runtime_store: RuntimeStore | None = None,
+    ) -> None:
         self.publisher = publisher
         self.artifact_store = artifact_store
+        self.runtime_store = runtime_store
         self.capabilities: dict[str, Capability] = {}
         self.states: dict[str, FactoryState] = {}
         self.events: list[Event] = []
@@ -146,6 +153,14 @@ class FactoryRuntime:
         self.verifications: dict[str, VerificationResult] = {}
         self.acceptances: dict[str, AcceptanceDecision] = {}
         self.publications: dict[str, PublicationResult] = {}
+        self._recover()
+
+    def _recover(self) -> None:
+        if self.runtime_store is None:
+            return
+        for item in self.runtime_store.load_work_items():
+            self.states[item.work_item_id] = FactoryState(item.state)
+        self.events = [Event(**event) for event in self.runtime_store.load_events()]
 
     def register_capability(self, capability: Capability) -> None:
         if capability.capability_id in self.capabilities:
@@ -157,8 +172,17 @@ class FactoryRuntime:
             raise ValueError(f"work item already exists: {work_item.work_item_id}")
         if not work_item.required_capabilities:
             raise ValueError("work item requires at least one capability")
+        event = self._new_event(work_item, FactoryState.RECEIVED, "submit", actor)
+        if self.runtime_store is not None:
+            self.runtime_store.create_work_item(
+                work_item_id=work_item.work_item_id,
+                revision_id=work_item.revision_id,
+                state=FactoryState.RECEIVED.value,
+                updated_at=event.timestamp,
+                event=event.__dict__,
+            )
         self.states[work_item.work_item_id] = FactoryState.RECEIVED
-        self._record(work_item, FactoryState.RECEIVED, "submit", actor)
+        self.events.append(event)
         self._materialize(work_item)
 
     def run(
@@ -234,8 +258,36 @@ class FactoryRuntime:
         current = self.states[work_item.work_item_id]
         if target not in self._allowed[current]:
             raise InvalidTransition(f"{current} -> {target} is not allowed")
+        event = self._new_event(work_item, target, operation, actor, **data)
+        if self.runtime_store is not None:
+            self.runtime_store.transition(
+                work_item_id=work_item.work_item_id,
+                revision_id=work_item.revision_id,
+                state=target.value,
+                updated_at=event.timestamp,
+                event=event.__dict__,
+            )
         self.states[work_item.work_item_id] = target
-        self._record(work_item, target, operation, actor, **data)
+        self.events.append(event)
+
+    def _new_event(
+        self,
+        work_item: WorkItem,
+        state: FactoryState,
+        operation: str,
+        actor: str,
+        **data: Any,
+    ) -> Event:
+        return Event(
+            event_id=str(uuid4()),
+            timestamp=datetime.now(timezone.utc).isoformat(),
+            work_item_id=work_item.work_item_id,
+            revision_id=work_item.revision_id,
+            state=state.value,
+            operation=operation,
+            actor=actor,
+            data=data,
+        )
 
     def _fail(self, work_item: WorkItem, reason: str) -> None:
         current = self.states[work_item.work_item_id]
@@ -247,17 +299,3 @@ class FactoryRuntime:
     def _materialize(self, work_item: WorkItem) -> None:
         if self.artifact_store is not None:
             self.artifact_store.record(work_item, self)
-
-    def _record(self, work_item: WorkItem, state: FactoryState, operation: str, actor: str, **data: Any) -> None:
-        self.events.append(
-            Event(
-                event_id=str(uuid4()),
-                timestamp=datetime.now(timezone.utc).isoformat(),
-                work_item_id=work_item.work_item_id,
-                revision_id=work_item.revision_id,
-                state=state.value,
-                operation=operation,
-                actor=actor,
-                data=data,
-            )
-        )
