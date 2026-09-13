@@ -21,9 +21,38 @@ The intent is an adapter instruction, not proof of execution.
 
 ## Live operation
 
-The connected GitHub integration executed the `update_file` operation above on the experiment branch.
+The connected GitHub integration executed the `update_file` operation above.
 
-The operation result commit must be fetched independently before it can be treated as observed evidence.
+Returned commit: `4b143b3cfb5dcbe574db8cb483e4dc9f0178dda4`.
+
+## Independent observation
+
+The returned commit was fetched independently from GitHub. The fetched commit exists and contains the intended record path on the experiment branch.
+
+Observed commit evidence:
+
+```text
+repository: sebastiansayama-boop/content_factory
+commit_sha: 4b143b3cfb5dcbe574db8cb483e4dc9f0178dda4
+path: 10_records/2026-09-13-experiment-005-github-reconciliation.md
+```
+
+The observation is evidence of repository state, not semantic acceptance.
+
+## Reconciliation target
+
+The adapter will reconcile the operation intent against the independent observation using:
+
+```text
+operation_id = op-005-live-record
+operation = update_file
+repository = sebastiansayama-boop/content_factory
+branch = experiment/005-github-reconciliation-proof
+path = 10_records/2026-09-13-experiment-005-github-reconciliation.md
+expected_commit_sha = 4b143b3cfb5dcbe574db8cb483e4dc9f0178dda4
+```
+
+Expected result: `reconciled = true`.
 
 ## Boundary
 
@@ -60,4 +89,4 @@ Added tests for successful reconciliation, missing observation, mismatched ident
 
 ## Verification status
 
-Pending independent fetch of the live operation result and CI.
+Implementation and live observation are present. Repository CI remains pending.
