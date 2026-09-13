@@ -1,8 +1,8 @@
 # Content Factory
 
-Исследовательская среда для проектирования `Content Ecosystem` и `Content Factory`.
+Исследовательская и теперь частично исполняемая среда для проектирования `Content Ecosystem` и `Content Factory`.
 
-Репозиторий не является реализацией контентного продукта. Его задача — сделать наблюдаемой и проверяемой модель системы, которая связывает стратегический контекст, аудиторию/рынок, производство контента, выпуск, внешние эффекты и обучение.
+Репозиторий содержит модель системы и первый минимальный executable runtime. Runtime пока не является полной production-фабрикой: он предназначен для доказательства контролируемого execution boundary на одном bounded Work Item.
 
 ## 1. Current system hierarchy
 
@@ -46,6 +46,8 @@ CONTENT ECOSYSTEM
 
 Модель Capability / Engineering layers: `docs/24_capability_and_engineering_layer.md`.
 
+Исполняемый Runtime v0: `docs/27_factory_runtime_v0.md`.
+
 Критерий первого внешнего доказательства работы: `docs/26_first_external_proof.md`.
 
 Верхнеуровневая модель экосистемы: `docs/22_content_ecosystem_model.md`.
@@ -79,7 +81,39 @@ STRATEGIC DEMAND + EXTERNAL CONTEXT
 
 Это projection потока ценности, а не единая state machine.
 
-## 4. Capability and Engineering boundary
+## 4. Executable Runtime v0
+
+Минимальный runtime реализует один контролируемый execution path:
+
+```text
+WORK ITEM
+   ↓
+RECEIVED
+   ↓ ADMIT
+ADMITTED
+   ↓ EXECUTE CAPABILITY
+PRODUCED
+   ↓ VERIFY EXACT REVISION
+VERIFIED
+   ↓ ACCEPT + AUTHORITY
+ACCEPTED
+   ↓ RELEASE AUTHORITY
+RELEASE_READY
+   ↓ RELEASE
+RELEASED
+   ↓ PUBLISHER
+DELIVERED
+   ↓ OBSERVABLE EFFECT
+OBSERVED
+```
+
+Реализация: `src/content_factory/runtime.py`.
+
+Тесты: `tests/test_runtime.py`.
+
+Runtime v0 намеренно ограничен одним capability и injected publisher. Без publisher внешний эффект невозможен. Execution result не становится accepted content автоматически.
+
+## 5. Capability and Engineering boundary
 
 ```text
 FACTORY WORK ITEM
@@ -107,13 +141,15 @@ CAN EXECUTE
 ≠ CAN PUBLISH
 ```
 
-## 5. First external proof
+## 6. First external proof
 
 Минимальное доказательство работы фабрики — один завершённый `Content Work Item`, который проходит от bounded input до авторизованной публикации/доставки, создаёт реально наблюдаемый внешний эффект, а вся цепочка provenance и authority восстанавливаема.
 
 Публикация сама по себе не считается достаточным доказательством: `publication ≠ outcome`.
 
-## 6. Factory Control
+Runtime v0 может пройти эту цепочку с fake publisher в тесте, но это не является external proof. Для external proof нужен реальный внешний destination.
+
+## 7. Factory Control
 
 Factory Control — control plane над семью системами потока:
 
@@ -131,7 +167,7 @@ bottleneck management
 
 Она управляет движением работы, но не является источником истины контента.
 
-## 7. Shared Semantic Substrate
+## 8. Shared Semantic Substrate
 
 Общий смысловой слой:
 
@@ -149,7 +185,7 @@ reusable components
 
 Он используется всеми системами и не является отдельной стадией workflow.
 
-## 8. Work Item
+## 9. Work Item
 
 Основная единица производственного потока — `Content Work Item` / `Work Package`.
 
@@ -182,7 +218,7 @@ CAPABILITY ≠ TOOL
 EXECUTION RESULT ≠ ACCEPTED CONTENT
 ```
 
-## 9. Research / state / authority foundation
+## 10. Research / state / authority foundation
 
 Репозиторий также содержит отдельные модели:
 
@@ -198,8 +234,8 @@ EXECUTION RESULT ≠ ACCEPTED CONTENT
 
 Эти модели не должны смешиваться в одну workflow-схему.
 
-## 10. Status
+## 11. Status
 
-`candidate / integrated working model`
+`candidate architecture + implemented Factory Runtime v0`
 
-Текущая модель должна быть проверена на реальных production cases до выбора конкретной implementation architecture.
+Runtime v0 является исполняемым, но production readiness и первый реальный external proof пока не доказаны.
