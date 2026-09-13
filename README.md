@@ -2,7 +2,7 @@
 
 Исследовательская и частично исполняемая среда для проектирования `Content Ecosystem` и `Content Factory`.
 
-Репозиторий завершён как bounded v0: модель системы, операционные контракты зон, минимальный executable runtime, evidence materialization, integration boundary и CI-проверки согласованы между собой. Это не утверждение о production readiness или реальном внешнем эффекте.
+Репозиторий завершил bounded v0 и первую эксплуатационную фазу: модель системы, операционные контракты зон, executable runtime, evidence materialization, durable runtime control state, integration boundary и CI-проверки согласованы между собой. Это не утверждение о production readiness или реальном внешнем эффекте.
 
 ## 1. Current system hierarchy
 
@@ -117,7 +117,27 @@ Runtime materializes evidence into a workspace filesystem through `ArtifactStore
 
 Синтетический demo runtime не создаёт `01_observation`: он моделирует publication, но не доказывает внешний эффект.
 
-## 5. Capability and Engineering boundary
+## 5. Durable runtime — Phase 1
+
+`RuntimeStore` добавляет отдельный слой durable control state:
+
+```text
+RuntimeStore
+    ↓
+work-item state + append-only event journal
+    ↓
+atomic state/event transaction
+    ↓
+process restart
+    ↓
+state + event history reconstruction
+```
+
+Это не замена `ArtifactStore`. `RuntimeStore` нужен для восстановления управляющего состояния; `ArtifactStore` остаётся projection доказательств в workspace.
+
+Phase 1 проверена тестами на restart recovery и атомарную фиксацию перехода вместе с событием. Используется SQLite WAL с `synchronous=FULL` для bounded single-node runtime.
+
+## 6. Capability and Engineering boundary
 
 ```text
 FACTORY WORK ITEM
@@ -145,7 +165,7 @@ CAN EXECUTE
 ≠ CAN PUBLISH
 ```
 
-## 6. First external proof
+## 7. First external proof
 
 Минимальное доказательство работы фабрики — один завершённый `Content Work Item`, который проходит от bounded input до авторизованной публикации/доставки, создаёт реально наблюдаемый внешний эффект, а вся цепочка provenance и authority восстанавливаема.
 
@@ -153,7 +173,7 @@ CAN EXECUTE
 
 Runtime v0 может пройти эту цепочку с fake publisher в тесте, но это не является external proof. Для external proof нужен реальный внешний destination.
 
-## 7. Factory Control
+## 8. Factory Control
 
 Factory Control — control plane над семью системами потока:
 
@@ -171,7 +191,7 @@ bottleneck management
 
 Она управляет движением работы, но не является источником истины контента.
 
-## 8. Shared Semantic Substrate
+## 9. Shared Semantic Substrate
 
 Общий смысловой слой:
 
@@ -189,7 +209,7 @@ reusable components
 
 Он используется всеми системами и не является отдельной стадией workflow.
 
-## 9. Work Item
+## 10. Work Item
 
 Основная единица производственного потока — `Content Work Item` / `Work Package`.
 
@@ -222,7 +242,7 @@ CAPABILITY ≠ TOOL
 EXECUTION RESULT ≠ ACCEPTED CONTENT
 ```
 
-## 10. Research / state / authority foundation
+## 11. Research / state / authority foundation
 
 Репозиторий содержит отдельные модели:
 
@@ -238,10 +258,12 @@ EXECUTION RESULT ≠ ACCEPTED CONTENT
 
 Эти модели не смешиваются в одну workflow-схему.
 
-## 11. Status
+## 12. Status
 
-`BOUNDED V0 COMPLETE / PRODUCTION DEPLOYMENT NOT CLAIMED`
+`PHASE 1 COMPLETE / PHASE 2 NEXT / PRODUCTION NOT CLAIMED`
 
-Внутри репозитория завершены согласование модели и минимальный executable boundary. Проверяемая граница проходит через Work Item → execution → revision-bound verification → explicit acceptance → release authority → injected publication → optional external observation, с материализацией evidence и CI.
+Завершены bounded v0 и Phase 1 durable runtime: Work Item → execution → revision-bound verification → explicit acceptance → release authority → injected publication → optional external observation; evidence materialization; SQLite control-state persistence; append-only event journal; restart reconstruction; CI verification.
 
-Не завершены и намеренно не объявлены завершёнными: durable runtime recovery, queues/leases, production credentials, реальный provider/channel, реальный внешний effect и recovery/idempotency для внешних операций. Это следующая эксплуатационная фаза, требующая конкретной среды и авторизации.
+Следующая фаза — `Real Execution`: compute environment, secret mechanism, один реальный provider adapter, credentials, connectivity test и реальное выполнение capability. После неё идут real external effect, reliability/control, factory control plane, operations/governance и learning loop.
+
+Не завершены и намеренно не объявлены завершёнными: реальный provider/channel, реальный внешний effect, idempotency/reconciliation внешних операций, queues/leases, production operations и learning loop. Ни одна из этих границ не считается выполненной документацией или fake publisher.
