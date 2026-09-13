@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import os
-import sys
 
 from content_factory.openai_capability import openai_text_capability
-from content_factory.runtime import WorkItem
+from content_factory.runtime import VerificationResult, WorkItem
 
 
 def main() -> int:
@@ -26,11 +25,24 @@ def main() -> int:
         release_requirements=(),
     )
 
+    capability.input_contract(item)
     execution = capability.executor(item, "phase2-execution-proof")
+    verification = VerificationResult(
+        output_revision_id=execution.output_revision_id,
+        passed=bool(str(execution.payload).strip()),
+        evidence_refs=execution.evidence_refs,
+        reason="real provider returned non-empty text",
+    )
+    if not verification.passed:
+        print("PHASE 2 PROOF FAILED: verification rejected provider output.")
+        return 1
+
+    print("PHASE 2 PROOF PASSED")
     print(f"execution_id={execution.execution_id}")
     print(f"capability_id={execution.capability_id}")
     print(f"output_revision_id={execution.output_revision_id}")
-    print(f"evidence_refs={execution.evidence_refs}")
+    print(f"verification_revision_id={verification.output_revision_id}")
+    print(f"evidence_refs={verification.evidence_refs}")
     print("payload=")
     print(execution.payload)
     return 0
