@@ -1,5 +1,5 @@
-version: 5
-status: candidate
+version: 6
+status: candidate_with_executable_runtime_v0
 name: content_factory
 parent_system: content_ecosystem
 
@@ -98,6 +98,43 @@ execution_boundary:
   - provider_adapter -> tool_model_service_provider
   - tool_model_service_provider -> execution_result_or_external_effect
   - execution_result_or_external_effect -> verification_or_observation
+
+runtime_v0:
+  status: implemented
+  scope: one_work_item_one_capability_one_publisher
+  states:
+    - RECEIVED
+    - ADMITTED
+    - PRODUCED
+    - VERIFIED
+    - ACCEPTED
+    - RELEASE_READY
+    - RELEASED
+    - DELIVERED
+    - OBSERVED
+    - FAILED
+  transitions:
+    - submit
+    - admit
+    - execute
+    - verify
+    - accept
+    - release_ready
+    - release
+    - deliver
+    - observe
+    - fail
+  implementation:
+    - src/content_factory/runtime.py
+  tests:
+    - tests/test_runtime.py
+  known_limits:
+    - in_memory_state
+    - in_memory_event_journal
+    - single_capability
+    - injected_publisher
+    - no_crash_recovery
+    - no_production_provider_adapter
 
 external_proof:
   minimum_case:
