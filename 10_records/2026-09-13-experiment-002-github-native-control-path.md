@@ -1,7 +1,7 @@
 # EXPERIMENT-002 — GitHub-Native Control Path
 
 Date: 2026-09-13
-Status: `EXECUTION / BOUNDED`
+Status: `COMPLETE / BOUNDED LOCAL PROOF`
 
 ## Objective
 Test whether a bounded repository work item can use GitHub as the repository-centric control plane without adding a bespoke factory control mechanism.
@@ -22,22 +22,51 @@ One durable evidence record only. No runtime change, no ontology change, no exte
 5. The resulting repository state is reconstructable from GitHub history.
 6. The experiment can identify which repository-centric controls were supplied by GitHub rather than by Content Factory code.
 
-## Control requirements being tested
+## Observed lifecycle
 
-- work intake;
-- work identity;
-- implementation linkage;
-- review boundary;
-- verification boundary;
-- acceptance/merge boundary;
-- repository evidence/audit trail.
+- The bounded work item was represented by the experiment Issue.
+- A dedicated branch `experiment/002-github-native-control` carried the implementation.
+- PR #12 represented that branch and proposed only the bounded evidence-record change.
+- The PR-triggered Actions run `34751548950` completed successfully; the `pytest` job passed.
+- The PR was merged with squash as commit `b3bc93998fb8f441c8eef62ce57fd1f7ab83beee`.
+- The resulting repository state and change history are reconstructable from the Issue/PR/commit/Actions chain.
 
-## Non-goals
+## Control observations
 
-GitHub capability is not evidence that GitHub improves factory outcomes. This experiment only tests local applicability of the repository-centric control path.
+GitHub supplied the repository-centric mechanisms for:
 
-The following remain outside this experiment: semantic correctness, evidence interpretation, knowledge promotion, external-effect semantics, idempotency, reconciliation, causal attribution, and business outcomes.
+- work intake via Issue;
+- work isolation and implementation identity via branch;
+- change container and implementation linkage via Pull Request;
+- automated verification execution via Actions;
+- review boundary as a distinct PR mechanism;
+- merge/repository-state transition;
+- durable repository audit trail through PR and Git history.
 
-## Result placeholder
+The review boundary was observable, but independent approval was not available under the current GitHub identity. A review/comment therefore must not be interpreted as independent acceptance. The experiment does not establish that an independent-review ruleset is currently enforced; that configuration remains an explicit repository-level unknown.
 
-Result is intentionally completed only after the PR/CI/merge lifecycle has been observed. No claim of success is made by the existence of this record alone.
+## Result
+
+The tested path is locally applicable as a repository-centric control path. For this bounded work item, adding a separate Content Factory mechanism for intake, branch/change linkage, CI verification, merge transition, or repository audit would duplicate controls already supplied by GitHub.
+
+This is a local applicability result, not a general proof that GitHub improves factory outcomes.
+
+The result supports delegation/reduction analysis for repository-centric controls. It does not authorize deleting existing architecture until the reduction matrix is recorded and accepted under EXPERIMENT-003.
+
+## Non-goals / non-claims
+
+This experiment does not establish:
+
+- semantic correctness;
+- evidence interpretation;
+- knowledge promotion;
+- external-effect semantics;
+- idempotency or reconciliation;
+- causal attribution;
+- business outcomes;
+- learning effectiveness;
+- general superiority of GitHub over a bespoke mechanism.
+
+## Next decision
+
+Use the existing canonical EXPERIMENT-003 Issue to produce a reduction matrix: Content Factory function → GitHub-native mechanism → FULL / PARTIAL / NONE → local evidence → remaining own mechanism → candidate for delegation/deletion. Do not delete architecture before that matrix is reviewed and accepted.
