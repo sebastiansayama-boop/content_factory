@@ -28,6 +28,39 @@ CONTENT ECOSYSTEM
 
 `Content Factory` — функциональная система внутри `Content Ecosystem`. Capability и Engineering являются execution layers, позволяющими фабрике использовать абстрактные способности без прямой зависимости от конкретных инструментов и провайдеров.
 
+## End-user Content Workspace
+
+Первый пользовательский vertical slice теперь доступен непосредственно из HTTP service:
+
+```text
+SOURCE
+  ↓
+EXPLORE
+  ├── summary
+  ├── themes
+  ├── stories + evidence
+  └── moments
+  ↓
+SELECT STORY
+  ↓
+PRODUCE
+  ├── long video
+  ├── shorts
+  ├── article
+  └── social posts
+  ↓
+REVIEW
+```
+
+Implementation:
+
+- `src/content_factory/workspace.py` — product orchestration and strict JSON contracts.
+- `src/content_factory/product_http.py` — product HTTP surface while preserving `/health` and `/run`.
+- `src/content_factory/static/index.html` — single-workspace browser UI.
+- `tests/test_workspace.py` — product-layer contract tests.
+
+The first product deliberately accepts pasted source material rather than pretending that media ingestion/transcription already exists. The semantic boundary is already the intended one: the user selects a story before production, rather than asking the model to blindly repurpose a finished asset.
+
 ## Executable Runtime
 
 Контролируемый execution path:
@@ -100,7 +133,17 @@ GET  /health
 POST /run   (Bearer FACTORY_API_TOKEN required)
 ```
 
-`POST /run` выполняет реальную capability execution через OpenAI, revision-bound verification, explicit acceptance authority и explicit release authority. Если `PUBLISH_URL` не задан, публикация невозможна и runtime fail-closed.
+`src/content_factory/product_http.py` расширяет его пользовательским интерфейсом:
+
+```text
+GET  /
+POST /api/analyze
+POST /api/produce
+```
+
+Все product endpoints используют тот же `FACTORY_API_TOKEN`.
+
+`POST /run` выполняет реальную capability execution через configured provider, revision-bound verification, explicit acceptance authority и explicit release authority. Если `PUBLISH_URL` не задан, runtime использует внутреннюю release-запись без внешнего эффекта.
 
 `PUBLISH_URL` должен быть HTTPS webhook. Только успешный HTTP 2xx от webhook считается `externally_observable=True`. Это доказывает доставку к webhook, но не доказывает audience/business outcome.
 
@@ -113,6 +156,8 @@ Deployment files:
 - `Dockerfile`
 - `render.yaml`
 - `.github/workflows/ci.yml`
+
+The default container command now starts `content_factory.product_http`, so the deployed service exposes both the existing runtime API and the end-user workspace.
 
 The Render Blueprint defines a Docker web service, `/health` HTTP health check, persistent `/data` disk and secret environment variables. Render supports Blueprint-based Docker services and HTTP health checks; secrets marked `sync: false` are supplied during deployment rather than committed to Git. urlRender Blueprint specificationhttps://render.com/docs/blueprint-spec urlRender health checkshttps://render.com/docs/health-checks
 
@@ -171,6 +216,7 @@ factory runtime                 COMPLETE
 persistent runtime state        COMPLETE
 real provider boundary          IMPLEMENTED
 HTTP deployment surface         IMPLEMENTED
+end-user workspace              IMPLEMENTED (text-source vertical slice)
 container                        IMPLEMENTED
 CI / container verification      IMPLEMENTED
 live hosted instance             NOT YET DEPLOYED
