@@ -18,7 +18,7 @@ The finished scope is:
 - machine-model inspection from `model/content-factory-map.yaml`;
 - deterministic demo path that persists runtime projections into `data/runtime.sqlite3`;
 - automated HTTP/control-plane tests;
-- repository CI test and container build passing on the final checkpoint commit.
+- repository CI test and container build passing on the checkpoint implementation.
 
 ## Definition of done
 
@@ -30,11 +30,11 @@ while the runtime-backed portions are derived from durable repository state rath
 
 ## Evidence
 
-Final checkpoint commit:
+Checkpoint implementation commit:
 
 `3554c4d5ef8e6d0d11f5891073242689f59d9837`
 
-Observed CI results on that commit:
+Observed on that implementation commit:
 
 - `tests` workflow: success
 - `CI` workflow: success
@@ -42,6 +42,8 @@ Observed CI results on that commit:
 - CI `container` job: success
 
 The deterministic demo now opens a real `RuntimeStore` and passes it into `FactoryRuntime`, so execution/verification/acceptance/publication projections are persisted and can be read by the Control Plane after the process exits.
+
+This checkpoint document is documentation-only and does not change runtime behavior.
 
 ## Explicit non-goals
 
