@@ -1,0 +1,54 @@
+{
+  "name": "Content Factory - External Execution Proof",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "factory-execution",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "2f0b8b2f-78e6-4d30-8a9d-9f65c0e4d7a1",
+      "name": "Factory Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        260,
+        300
+      ],
+      "webhookId": "factory-execution-proof-v0"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body ?? {};\n\nconst operationId = body.operation_id;\nconst workItemId = body.work_item_id;\nconst revisionId = body.revision_id;\n\nif (!operationId || !workItemId || !revisionId) {\n  throw new Error('Content Factory envelope missing operation_id, work_item_id, or revision_id');\n}\n\nconst executionId = `n8n-proof-${operationId}`;\nconst outputRevisionId = `n8n-output:${operationId}:${revisionId}`;\n\nreturn [\n  {\n    json: {\n      contract_version: 'n8n.execution.v0',\n      operation_id: operationId,\n      work_item_id: workItemId,\n      revision_id: revisionId,\n      execution: {\n        runtime_execution_id: executionId,\n        status: 'SUCCEEDED',\n        started_at: new Date().toISOString(),\n        completed_at: new Date().toISOString()\n      },\n      output: {\n        output_revision_id: outputRevisionId,\n        payload: {\n          message: 'Content Factory external execution boundary reached through local n8n.',\n          received_requested_outcome: body.requested_outcome ?? null,\n          received_inputs: body.inputs ?? [],\n          process_id: body.process_id ?? null,\n          capability_id: body.capability_id ?? null\n        },\n        evidence_refs: [\n          `n8n-execution:${executionId}`\n        ]\n      },\n      provider_refs: [],\n      tool_calls: [],\n      agent_runs: []\n    }\n  }\n];"
+      },
+      "id": "a7d91c2e-873b-4f8a-b1ac-0c2c9b4d6e51",
+      "name": "Build Factory Execution Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        560,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Factory Webhook": {
+      "main": [
+        [
+          {
+            "node": "Build Factory Execution Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": []
+}
