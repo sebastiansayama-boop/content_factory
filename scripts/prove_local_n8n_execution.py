@@ -66,12 +66,12 @@ def main() -> int:
             event=received,
         )
         store.transition(
-            work_item.work_item_id,
-            work_item.operation_id,
-            work_item.revision_id,
-            FactoryState.ADMITTED.value,
-            "proof",
-            _event(work_item, FactoryState.ADMITTED, "admit", "external-proof"),
+            work_item_id=work_item.work_item_id,
+            operation_id=work_item.operation_id,
+            revision_id=work_item.revision_id,
+            state=FactoryState.ADMITTED.value,
+            updated_at="proof",
+            event=_event(work_item, FactoryState.ADMITTED, "admit", "external-proof"),
         )
 
         execution_id = f"n8n-proof-execution-{uuid4().hex[:8]}"
@@ -116,12 +116,12 @@ def main() -> int:
                 },
             )
             store.transition(
-                work_item.work_item_id,
-                work_item.operation_id,
-                work_item.revision_id,
-                FactoryState.PRODUCED.value,
-                "proof",
-                _event(work_item, FactoryState.PRODUCED, "execute", "external-proof"),
+                work_item_id=work_item.work_item_id,
+                operation_id=work_item.operation_id,
+                revision_id=work_item.revision_id,
+                state=FactoryState.PRODUCED.value,
+                updated_at="proof",
+                event=_event(work_item, FactoryState.PRODUCED, "execute", "external-proof"),
             )
             store.save_record(
                 work_item.work_item_id,
@@ -134,12 +134,12 @@ def main() -> int:
                 },
             )
             store.transition(
-                work_item.work_item_id,
-                work_item.operation_id,
-                work_item.revision_id,
-                FactoryState.VERIFIED.value,
-                "proof",
-                _event(work_item, FactoryState.VERIFIED, "verify", "external-proof"),
+                work_item_id=work_item.work_item_id,
+                operation_id=work_item.operation_id,
+                revision_id=work_item.revision_id,
+                state=FactoryState.VERIFIED.value,
+                updated_at="proof",
+                event=_event(work_item, FactoryState.VERIFIED, "verify", "external-proof"),
             )
         except Exception as exc:
             store.finish_attempt(attempt_id, status="FAILED", completed_at="proof", error=str(exc))
