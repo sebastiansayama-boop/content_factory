@@ -1,6 +1,6 @@
 # 2026-09-14 — Discovery → Content Demand and Rules Consistency Audit
 
-Status: `SUPPORTED / ARCHITECTURE REVIEW / OPENALEX ADAPTER PROOF ADDED`
+Status: `SUPPORTED / ARCHITECTURE REVIEW / OPENALEX LIVE BOUNDARY PARTIALLY PROVEN`
 
 ## Question
 
@@ -48,7 +48,7 @@ This is an intake contract, not an end-to-end Discovery implementation. No upstr
 
 ## External Source Adapter proof
 
-`src/content_factory/external_source.py` now defines the minimal provider-neutral `ExternalSourceAdapter` seam and a read-only `OpenAlexAdapter` implementation. The adapter normalizes OpenAlex works into `Source`, retrieves an evidence representation, and derives a claim that explicitly references that evidence.
+`src/content_factory/external_source.py` defines the minimal provider-neutral `ExternalSourceAdapter` seam and a read-only `OpenAlexAdapter` implementation. The adapter normalizes OpenAlex works into `Source`, retrieves an evidence representation, and derives a claim that explicitly references that evidence.
 
 `src/content_factory/openalex_demand.py` maps that source/evidence/claim chain into the already-existing `ContentDemand`; it does not introduce a second production primitive.
 
@@ -56,9 +56,13 @@ This is an intake contract, not an end-to-end Discovery implementation. No upstr
 
 `OpenAlex → Source → Evidence → Claim → ContentDemand`
 
-The fixture proves identifier/provenance propagation and the existing AUTHORIZED intake gate. It does not prove a live network call from the repository because the available GitHub connector cannot execute the test suite.
+The fixture proves identifier/provenance propagation and the existing AUTHORIZED intake gate.
 
-The external source choice is technically justified: current OpenAlex documentation describes a free REST API over its connected graph of works, authors, sources, institutions and topics, with work records exposing DOI, abstract, open-access, authorship, topic and citation-related fields. citeturn0search0turn0search3
+A live CI proof was attempted on 2026-09-14. The first live run successfully reached OpenAlex and progressed through the real network-backed source/evidence/claim/demand/work-item path; it stopped on a test assertion that incorrectly expected the WorkItem `inputs` to contain the source identity. The source identity is intentionally carried in `knowledge_basis`, while `inputs` carries the opportunity and evidence references. That assertion was corrected.
+
+The next live attempt reached OpenAlex but received HTTP `429 Too Many Requests` before completing the chain. Current OpenAlex documentation states that anonymous use has a limited budget, API keys increase the daily budget, and 429 should be handled with backoff. The adapter was therefore hardened to accept `OPENALEX_API_KEY` and retry 429/5xx responses with bounded backoff. citeturn2search1turn2search2
+
+The live proof remains opt-in rather than part of baseline CI. Baseline CI subsequently passed with `52 passed, 1 skipped` on the corrected repository state.
 
 ## Open unknowns
 
@@ -67,23 +71,22 @@ The external source choice is technically justified: current OpenAlex documentat
 - What authority model should approve a Content Demand across repositories.
 - Whether the evidence representation needs spans/chunks rather than an excerpt for long-form sources.
 - Whether Source identity needs stronger cross-provider resolution (DOI/OpenAlex/other identifiers).
-- Which real case should be used as the first live network-backed Discovery → Demand proof.
-- Whether the existing WorkItem mapping is sufficient once a real producer case is exercised.
+- Whether the OpenAlex adapter should require an API key in production rather than permit anonymous access.
+- Whether the existing WorkItem mapping is sufficient once the live network proof completes without rate limiting.
 
 ## Verification status
 
-The new adapter, bridge and tests were fetched from `main` after writing and are present. The adapter was inspected against the current `ContentDemand` and `WorkItem` shapes.
-
-The GitHub connector available in this cycle does not execute the repository test suite, so the tests are written but **not independently executed here**. Therefore this change proves contract presence and source-level consistency plus deterministic fixture coverage, not passing CI or live network execution.
+The adapter, bridge, tests, live proof script and CI changes were fetched from `main` after writing and are present. Baseline CI verified `52 passed, 1 skipped` on the corrected state. A live OpenAlex request was demonstrably reached from GitHub Actions, and the first attempt progressed through the real ingestion chain before a local assertion failure; a subsequent attempt was rate-limited with HTTP 429. Therefore the current status is **partial live-provider proof, not full live-provider PASS**.
 
 ## External research reconciliation
 
 - Continuous discovery / opportunity mapping: `SUPPORTS_CURRENT_MODEL`.
 - Provenance across transformations: `SUPPORTS_CURRENT_MODEL`.
 - OpenAlex as a machine-accessible research graph: `SUPPORTS_ADAPTER_CHOICE`.
+- OpenAlex current authentication/rate-limit model: `SUPPORTS_RETRY_AND_KEY_DESIGN`. citeturn2search1turn2search2
 - Specific repository ownership of Discovery: `UNCERTAIN`.
 - Existing ecosystem implementation of the proposed bridge: `REVEALS_GAP`.
 
 ## Next legitimate step
 
-Run the repository test suite/CI and one live OpenAlex-backed bounded case. If that passes, generalize only the provider-neutral seam: add the next source adapter (likely Wikidata or GitHub) without changing the ContentDemand or runtime primitives unless the real case demonstrates a gap.
+Do not add Wikidata or GitHub yet. First complete one live OpenAlex proof with an authenticated key or after the anonymous rate limit resets, and capture the resulting source/evidence identifiers in a durable proof record. Only after that passes should the provider-neutral seam be generalized to the next source adapter.
