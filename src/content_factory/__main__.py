@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import os
 from pathlib import Path
+from uuid import uuid4
 
 from .artifacts import ArtifactStore
 from .control_plane import serve
@@ -52,7 +53,7 @@ def demo() -> None:
             )
         )
         item = WorkItem(
-            work_item_id="demo-work-item",
+            work_item_id=f"demo-work-item-{uuid4().hex[:8]}",
             revision_id="spec-r1",
             objective="exercise runtime",
             requested_outcome="one simulated delivery",
@@ -63,23 +64,7 @@ def demo() -> None:
             acceptance_criteria=("passes demo verification",),
             release_requirements=("demo authority",),
         )
-        existing = runtime.operation_ids.get(item.work_item_id)
-        if existing is None:
-            runtime.submit(item)
-        else:
-            item = WorkItem(
-                work_item_id=item.work_item_id,
-                operation_id=existing,
-                revision_id=item.revision_id,
-                objective=item.objective,
-                requested_outcome=item.requested_outcome,
-                inputs=item.inputs,
-                knowledge_basis=item.knowledge_basis,
-                required_capabilities=item.required_capabilities,
-                owner=item.owner,
-                acceptance_criteria=item.acceptance_criteria,
-                release_requirements=item.release_requirements,
-            )
+        runtime.submit(item)
         publication = runtime.run(
             item,
             verification=lambda _, execution: VerificationResult(execution.output_revision_id, True),
@@ -88,6 +73,8 @@ def demo() -> None:
         )
         print(runtime.states[item.work_item_id].value)
         print(publication.publication_id if publication else "FAILED")
+        print(f"work_item_id={item.work_item_id}")
+        print(f"operation_id={item.operation_id}")
 
 
 def main() -> None:
