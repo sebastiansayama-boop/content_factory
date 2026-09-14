@@ -265,6 +265,7 @@ def test_non_idempotent_unknown_blocks_automatic_reexecution(tmp_path):
     with RuntimeStore(database) as store:
         runtime = make_runtime(runtime_store=store)
         runtime.submit(item)
+        runtime._transition(item, FactoryState.ADMITTED, "admit", "factory")
         store.start_attempt(
             attempt_id="attempt-1",
             work_item_id=item.work_item_id,
