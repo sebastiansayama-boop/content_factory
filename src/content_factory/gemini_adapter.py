@@ -8,7 +8,7 @@ from .integrations import ExternalCallResult, HttpJsonAdapter, IntegrationConfig
 
 @dataclass(frozen=True)
 class GeminiConfig:
-    model: str = "gemini-2.5-flash-lite"
+    model: str = "gemini-3.5-flash-lite"
     endpoint: str = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
     secret_env: str = "GEMINI_API_KEY"
 
