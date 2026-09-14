@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import json
+import os
+import time
 from dataclasses import dataclass
 from typing import Any, Mapping, Protocol
-from urllib.parse import quote
+from urllib.error import HTTPError
+from urllib.parse import quote, urlencode
 from urllib.request import Request, urlopen
 
 
@@ -63,17 +66,46 @@ class OpenAlexAdapter:
     provider = "openalex"
     base_url = "https://api.openalex.org"
 
-    def __init__(self, *, opener=urlopen, retrieved_at: str = "") -> None:
+    def __init__(
+        self,
+        *,
+        opener=urlopen,
+        retrieved_at: str = "",
+        api_key: str | None = None,
+        max_retries: int = 3,
+    ) -> None:
         self._opener = opener
         self._retrieved_at = retrieved_at
+        self._api_key = api_key or os.getenv("OPENALEX_API_KEY")
+        self._max_retries = max_retries
+        if self._max_retries < 0:
+            raise ValueError("max_retries must be >= 0")
 
     def _get(self, path: str) -> dict[str, Any]:
+        separator = "&" if "?" in path else "?"
+        auth = urlencode({"api_key": self._api_key}) if self._api_key else ""
+        url = f"{self.base_url}{path}{separator}{auth}" if auth else f"{self.base_url}{path}"
         request = Request(
-            f"{self.base_url}{path}",
-            headers={"Accept": "application/json", "User-Agent": "content-factory/0"},
+            url,
+            headers={
+                "Accept": "application/json",
+                "User-Agent": "content-factory/0",
+            },
         )
-        with self._opener(request, timeout=20) as response:
-            return json.loads(response.read().decode("utf-8"))
+        for attempt in range(self._max_retries + 1):
+            try:
+                with self._opener(request, timeout=20) as response:
+                    return json.loads(response.read().decode("utf-8"))
+            except HTTPError as exc:
+                if exc.code not in (429, 500, 502, 503, 504) or attempt >= self._max_retries:
+                    raise
+                retry_after = exc.headers.get("Retry-After")
+                try:
+                    delay = max(1.0, float(retry_after)) if retry_after else 2.0**attempt
+                except ValueError:
+                    delay = 2.0**attempt
+                time.sleep(delay)
+        raise RuntimeError("OpenAlex request exhausted retry budget")
 
     def search(self, query: str) -> list[Source]:
         if not query.strip():
