@@ -1,126 +1,49 @@
 # 2026-09-14 — Discovery → Content Demand and Rules Consistency Audit
 
-Status: `SUPPORTED / ARCHITECTURE REVIEW`
+Status: `SUPPORTED / ARCHITECTURE REVIEW / INTAKE CONTRACT IMPLEMENTED`
 
 ## Question
 
 After scanning the ten-project ecosystem, determine whether the previously identified capability ownership matrix still reflects the current repositories, whether a Discovery → Content Demand bridge exists, and whether Content Factory governing rules or navigation artifacts have become stale.
 
-## Evidence inspected
-
-Current `content_factory` state at commit `c21be3d2b445b17bd940a9c7971aae67cbd35ffa`, including:
-
-- `RULES.md`
-- `docs/14_repository_rules.md`
-- `docs/23_content_factory_operating_model.md`
-- `docs/24_capability_and_engineering_layer.md`
-- `docs/25_chat_repository_operating_protocol.md`
-- `docs/29_project_direction_map.md`
-- `model/content-factory-map.yaml`
-
-Adjacent repositories inspected for current ownership:
-
-- `ai-creative-os/README.md`
-- `whisper-studio/README.md`
-- `ai-research-radar/README.md`
-
-External research was also checked for current discovery practice and provenance requirements.
-
 ## Findings
 
-### 1. The earlier capability matrix contains one material stale assignment
+The earlier capability matrix contained one material stale assignment: `ai-creative-os` is archived and must not be treated as an active Discovery owner. `whisper-studio` is an active local-first renderer rather than a general Discovery system, and `ai-research-radar` is paused with review outcomes that do not trigger product decisions. No currently inspected active repository proves canonical ownership of the upstream Discovery decision lifecycle.
 
-`ai-creative-os` is archived as of 2026-08-02 and explicitly has no active production path. It must not be treated as an active Discovery owner. Its historical research remains useful evidence but not a current capability provider.
-
-Classification: `CONTRADICTS_PREVIOUS_MATRIX`
-
-### 2. The active discovery surface is fragmented and bounded
-
-`whisper-studio` is an active local-first renderer, but its current route does not implement brief-to-video generation, publishing or analytics. It contains historical research material but its active product contract is rendering, not a general Discovery system.
-
-`ai-research-radar` is currently `PAUSED`. Its retained scope is local research-radar intake, scoring and human review. Its review outcomes explicitly do not trigger product decisions, builds or roadmap changes.
-
-Therefore neither repository currently proves ownership of a canonical cross-project Discovery decision system.
-
-Classification: `REVEALS_GAP`
-
-### 3. The missing architecture is a bridge, not a new content primitive
-
-The Content Factory already models `CONTENT DEMAND` upstream of the factory and `WORK ITEM` as the operational unit. The missing boundary is the normalized transition:
+The missing architecture is therefore the normalized transition:
 
 `Discovery evidence → interpreted opportunity/problem → explicit decision → Content Demand`
 
-This should remain outside the factory's production lifecycle. Content Factory should consume an authorized Content Demand; it should not silently infer demand from research, metrics or observations.
+This remains outside the factory production lifecycle. Content Factory consumes an authorized Content Demand and must not silently infer demand from research, metrics, observations or candidate opportunities.
 
-Classification: `EXTENDS_CURRENT_MODEL`
-
-### 4. Current external discovery practice supports a continuous, evidence-backed decision boundary
-
-Current 2026 discovery guidance consistently emphasizes connecting outcomes to customer opportunities, candidate solutions and assumption tests, while keeping customer evidence continuously refreshed. This supports an explicit decision layer rather than a one-time persona/CJM documentation phase.
-
-The evidence supports the mechanism, but does not prove that any particular repository in this ecosystem implements it.
-
-Classification: `SUPPORTS_CURRENT_MODEL`
-
-### 5. Provenance remains a cross-boundary requirement
-
-Current provenance practice emphasizes preserving origin and transformation information across systems. This supports carrying evidence references and decision provenance into Content Demand rather than passing an untraceable brief string.
-
-Classification: `SUPPORTS_CURRENT_MODEL`
+Current external discovery practice supports a continuous, evidence-backed decision boundary rather than treating persona/CJM documentation as the end of Discovery. Provenance practice supports carrying evidence and decision references across the system boundary. These findings support the mechanism but do not prove local implementation.
 
 ## Rules audit
 
-The governing rules remain substantively useful, but one description is stale:
+The governing rules remain substantively useful. One stale project-description sentence was corrected in `RULES.md`: the repository is now described as a research-and-development environment for an executable editorial knowledge and production system.
 
-- `RULES.md` describes the repository as a "research environment". The repository now contains an executable durable runtime, provider boundary, product workspace and control-plane implementation. The repository is better described as a research-and-development environment for an executable editorial production system.
+The evidence-before-model rule, identity/revision requirements, separation of verification/acceptance/publication, authority boundaries, research gate, smallest sufficient layer, no-silent-promotion rules, post-write verification and project operating memory remain valid.
 
-The following rules remain valid and should be retained:
-
-- evidence before model;
-- explicit identity/revision;
-- separation of verification, acceptance and publication;
-- explicit authority boundaries;
-- research before unresolved structural changes;
-- smallest sufficient layer;
-- no silent promotion of evidence or authority;
-- post-write verification;
-- explicit project operating memory.
-
-The protocol itself is not obsolete, but it has become more important to distinguish governance rules from project-state assertions. Project-state assertions belong in model/navigation artifacts and should not be frozen into governing rules.
+Project-state assertions should remain in model/navigation artifacts rather than becoming frozen governing rules.
 
 ## Decision
 
 1. Do not create a new Discovery repository.
 2. Do not reactivate `ai-creative-os` as an active owner.
 3. Do not make `whisper-studio` or `ai-research-radar` the canonical owner of the Discovery → Demand boundary without further evidence.
-4. Define the Discovery → Content Demand boundary as an explicit cross-system contract owned at the receiving boundary by Content Factory, while preserving discovery evidence and decision authority in their source systems.
-5. Treat the producer side of the contract as unresolved until an active system demonstrates the required decision lifecycle.
-6. Correct stale repository-state language and navigation statuses without changing unrelated execution architecture.
+4. Define the Discovery → Content Demand boundary as an explicit receiving-side contract in Content Factory while preserving discovery evidence and decision authority in source systems.
+5. Keep producer ownership unresolved until an active system demonstrates the required decision lifecycle.
+6. Change no unrelated execution architecture.
 
-## Candidate bridge contract
+## Implemented receiving contract
 
-A `ContentDemand` consumed by Content Factory should carry at minimum:
+`contracts/content-demand-v1.json` defines the machine-readable receiving contract.
 
-```text
-demand_id
-revision_id
-strategic_intent_ref
-opportunity_or_problem_ref
-audience_context_ref
-requested_outcome
-content_job_or_product_intent
-knowledge_basis_refs
-evidence_refs
-decision_ref
-decision_status
-authority_ref
-constraints
-acceptance_criteria
-release_requirements
-success_signals
-```
+`src/content_factory/content_demand.py` provides the executable `ContentDemand` boundary. It requires an `AUTHORIZED` decision, evidence references, knowledge basis references and acceptance criteria, and preserves decision/authority references when mapping the demand into the existing `WorkItem` model.
 
-The contract is a candidate consumer boundary, not proof that an upstream producer currently emits all fields.
+`tests/test_content_demand.py` covers authorized round-trip/mapping and rejection of unauthorized or incomplete demands.
+
+This is an intake contract, not an end-to-end Discovery implementation. No upstream repository is declared its canonical producer.
 
 ## Open unknowns
 
@@ -128,6 +51,13 @@ The contract is a candidate consumer boundary, not proof that an upstream produc
 - Whether Discovery needs one normalized repository or can remain federated behind the contract.
 - What authority model should approve a Content Demand across repositories.
 - Which real case should be used as the first end-to-end Discovery → Demand proof.
+- Whether the existing WorkItem mapping is sufficient once a real producer case is exercised.
+
+## Verification status
+
+The new contract, executable boundary and tests were fetched from `main` after writing and are present. The executable boundary was inspected against the current `WorkItem` runtime shape.
+
+The GitHub connector available in this cycle does not execute the repository test suite, so the tests are written but **not independently executed here**. Therefore this change proves contract presence and source-level consistency, not CI/test execution.
 
 ## External research reconciliation
 
@@ -138,4 +68,4 @@ The contract is a candidate consumer boundary, not proof that an upstream produc
 
 ## Next legitimate step
 
-Implement and test the smallest `ContentDemand` contract at the Content Factory intake boundary using one real bounded case. Do not build a general Discovery platform before that case demonstrates the need.
+Run one real bounded Discovery → Content Demand case through the receiving contract. Use that case to determine whether the contract is sufficient and whether an active upstream system can legitimately produce it. Do not create a general Discovery platform before that proof.
