@@ -1,8 +1,6 @@
 # Content Factory
 
-Исследовательская и частично исполняемая среда для проектирования `Content Ecosystem` и `Content Factory`.
-
-Репозиторий завершил bounded v0 и Phase 1 durable runtime. Phase 2 — Real Execution — реализуется через реальный provider boundary; production readiness и реальный внешний эффект не заявляются.
+Исследовательская и исполняемая среда для проектирования и запуска `Content Factory`.
 
 ## Current system hierarchy
 
@@ -30,22 +28,9 @@ CONTENT ECOSYSTEM
 
 `Content Factory` — функциональная система внутри `Content Ecosystem`. Capability и Engineering являются execution layers, позволяющими фабрике использовать абстрактные способности без прямой зависимости от конкретных инструментов и провайдеров.
 
-## Integrated operating model
+## Executable Runtime
 
-Основные документы:
-
-- `docs/23_content_factory_operating_model.md`
-- `docs/24_capability_and_engineering_layer.md`
-- `docs/26_first_external_proof.md`
-- `docs/27_factory_runtime_v0.md`
-- `docs/28_project_operating_memory.md`
-- `docs/29_project_direction_map.md`
-- `model/content-factory-map.yaml`
-- `model/project-direction-map.yaml`
-
-## Executable Runtime v0
-
-Минимальный runtime реализует контролируемый execution path:
+Контролируемый execution path:
 
 ```text
 WORK ITEM
@@ -68,134 +53,129 @@ OBSERVABLE EFFECT
 ```
 
 Реализация: `src/content_factory/runtime.py`.
-Тесты: `tests/test_runtime.py`.
+Durable control state: `src/content_factory/runtime_store.py`.
+Evidence projection: `src/content_factory/artifacts.py`.
 
-Runtime v0 ограничен одним capability и injected publisher. Без publisher внешний эффект невозможен. Execution result не становится accepted content автоматически. Synthetic/demo publication не считается доказательством внешнего эффекта.
+Runtime сохраняет состояние Work Item и append-only event journal в SQLite WAL. State transition и соответствующее событие фиксируются атомарно. Restart recovery проверен тестами.
 
-## Durable runtime — Phase 1
-
-`RuntimeStore` предоставляет bounded single-node durable control state:
+Ключевые инварианты:
 
 ```text
-work-item state + append-only event journal
-        ↓
-atomic state/event transaction
-        ↓
-process restart
-        ↓
-state + event history reconstruction
+CAN EXECUTE
+≠ CAN AUTHORIZE
+≠ CAN PUBLISH
+
+execution ≠ acceptance
+publication ≠ outcome
 ```
 
-Phase 1 проверена runtime-тестами на restart recovery и атомарную фиксацию перехода вместе с событием. Используется SQLite WAL с `synchronous=FULL`.
+## Real execution boundary
 
-## Real Execution — Phase 2
-
-Первый provider boundary реализован для OpenAI Responses API:
+Первый provider boundary — OpenAI Responses API:
 
 ```text
 WORK ITEM
     ↓
 OpenAIResponsesAdapter
     ↓
-https://api.openai.com/v1/responses
+OpenAI Responses API
     ↓
 provider response id
     ↓
 ExecutionResult
     ↓
-output revision
+revision-bound verification
 ```
 
-Реализация: `src/content_factory/openai_adapter.py`.
-Секретная граница: `OPENAI_API_KEY`; raw key не входит в repository, provenance или logs. Default model: `gpt-5.6-luna`.
+Реализация: `src/content_factory/openai_adapter.py` и `src/content_factory/openai_capability.py`.
 
-Unit-тесты проверяют provider boundary и mapping ответа в `ExecutionResult`. Есть opt-in external test: `tests/test_external_openai.py`.
+`OPENAI_API_KEY` читается только из environment. Секрет не хранится в repository или runtime event data.
 
-Phase 2 не завершена: требуется реальный credential в execution environment, connectivity test, реальный capability execution и revision-bound verification. Unit-тесты эти шаги не заменяют.
+## Deployable HTTP service
 
-## Capability and Engineering boundary
+`src/content_factory/service.py` предоставляет минимальный внешний runtime API:
 
 ```text
-FACTORY WORK ITEM
-        ↓
-CAPABILITY REQUEST
-        ↓
-EXECUTOR
-        ↓
-PROVIDER ADAPTER
-        ↓
-TOOL / MODEL / SERVICE / PROVIDER
-        ↓
-RESULT / EXTERNAL EFFECT
-        ↓
-VERIFICATION / OBSERVATION
+GET  /health
+POST /run   (Bearer FACTORY_API_TOKEN required)
 ```
 
-Ключевое правило:
+`POST /run` выполняет реальную capability execution через OpenAI, revision-bound verification, explicit acceptance authority и explicit release authority. Если `PUBLISH_URL` не задан, публикация невозможна и runtime fail-closed.
+
+`PUBLISH_URL` должен быть HTTPS webhook. Только успешный HTTP 2xx от webhook считается `externally_observable=True`. Это доказывает доставку к webhook, но не доказывает audience/business outcome.
+
+Persistent state and evidence are stored under `FACTORY_DATA_DIR`.
+
+## Container / deployment
+
+Deployment files:
+
+- `Dockerfile`
+- `render.yaml`
+- `.github/workflows/ci.yml`
+
+The Render Blueprint defines a Docker web service, `/health` HTTP health check, persistent `/data` disk and secret environment variables. Render supports Blueprint-based Docker services and HTTP health checks; secrets marked `sync: false` are supplied during deployment rather than committed to Git. urlRender Blueprint specificationhttps://render.com/docs/blueprint-spec urlRender health checkshttps://render.com/docs/health-checks
+
+Required deployment secrets:
 
 ```text
-CAN EXECUTE
-≠ CAN AUTHORIZE
-≠ CAN PUBLISH
+OPENAI_API_KEY
+FACTORY_API_TOKEN
+PUBLISH_URL
+PUBLISH_AUTH_TOKEN   # optional, if the destination requires it
 ```
 
-## First external proof
+No secret value belongs in Git.
 
-Минимальное внешнее доказательство — завершённый bounded `Content Work Item`, который проходит через авторизованную публикацию/доставку к реальному внешнему destination, создаёт реально наблюдаемый внешний эффект, а provenance и authority chain восстанавливаемы.
+## API example
 
-`publication ≠ outcome`.
+```json
+{
+  "work_item_id": "wi-demo-001",
+  "revision_id": "request-r1",
+  "objective": "produce a bounded explanatory text",
+  "requested_outcome": "Write a 120-word scientifically cautious explanation of convergent evolution.",
+  "knowledge_basis": ["claim:C4", "claim:C6", "source:Motani-2002"],
+  "acceptance_authority": "human:owner",
+  "release_authority": "human:owner"
+}
+```
 
-Fake/synthetic publisher не является external proof.
+The response exposes the Work Item state, execution identity, exact output revision, event chain and publication record when delivery succeeds. This makes the runtime inspectable from outside the chat.
 
-## Project operating memory
+## Evidence and research layers
 
-Основной цикл:
+The repository keeps the semantic production chain separate from execution:
 
 ```text
-QUESTION
-→ RESEARCH / EXPERIMENT / IMPLEMENTATION
-→ EVIDENCE
-→ INTERPRETATION
-→ LESSON
-→ KNOWLEDGE CANDIDATE
-→ DECISION
-→ WORK / OUTCOME
-→ PROJECT MAP UPDATE
+external evidence
+→ claim graph
+→ editorial specification
+→ production specification
+→ shot pack
+→ assets
+→ execution
+→ verification
+→ acceptance
+→ publication
+→ observation
 ```
 
-`PROJECT MAP` и `CURRENT CHECKPOINT` различаются. Правила: `docs/28_project_operating_memory.md`. Chat ↔ repository protocol: `docs/25_chat_repository_operating_protocol.md`.
+Research and production documents must not be treated as proof of execution. External scientific claims require external evidence; repository text is the state of the work, not the source of truth for science.
 
-## Learning Loop — current state
-
-Program 1 external research produced a bounded model evolution. Q19–Q21 demonstrated a project-level path from research to learning candidate, explicit promotion, reusable memory consumption and decision change.
-
-Externally supported principles include provenance, explicit derivation, measurement/validity limits, retrieval/application distinction, contradiction evaluation, stale-knowledge concerns and memory-security concerns. These are external support, not proof that Content Factory is effective in production.
-
-Still unproven:
-
-- memory changing execution;
-- real external outcome from memory-informed execution;
-- outcome evaluating memory;
-- contradiction-driven revision in a real external case;
-- successful cross-context transfer;
-- product/business improvement.
-
-Research: `10_records/2026-09-13-learning-loop-program-1-research-synthesis.md`.
-Audit: `10_records/2026-09-13-repository-external-evidence-audit.md`.
-Decision: `05_decision/2026-09-13-program-1-learning-loop-model-evolution.md`.
-
-## Status
-
-`PHASE 1 COMPLETE / PHASE 2 IN PROGRESS / PHASE 3 NOT STARTED / LEARNING LOOP ACTIVE RESEARCH / PRODUCTION NOT CLAIMED`
+## Current status
 
 ```text
-1 durable runtime                COMPLETE
-2 real execution                 IN PROGRESS
-3 real external effect           NOT STARTED
-4 reliability and control        NOT STARTED
-5 factory control plane          NOT STARTED
-6 operations and governance      NOT STARTED
-7 learning loop                  ACTIVE RESEARCH / EXTERNAL PROOF PENDING
+semantic / research chain       COMPLETE FOR BOUNDED V0
+factory runtime                 COMPLETE
+persistent runtime state        COMPLETE
+real provider boundary          IMPLEMENTED
+HTTP deployment surface         IMPLEMENTED
+container                        IMPLEMENTED
+CI / container verification      IMPLEMENTED
+live hosted instance             NOT YET DEPLOYED
+real external destination        NOT YET CONFIGURED
+real external proof              PENDING DEPLOYMENT + DESTINATION
 ```
 
-No subsequent boundary is considered complete merely because it exists in documentation or uses a fake publisher.
+The repository is now deployable, but it is not truthful to call it live until a hosting account actually creates the service, the secrets are provisioned, `/health` passes, and one real authorized Work Item reaches a real destination.
