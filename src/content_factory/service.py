@@ -11,15 +11,18 @@ from typing import Any
 from uuid import uuid4
 
 from .artifacts import ArtifactStore
+from .gemini_adapter import GeminiOpenAICompatibleAdapter
 from .openai_capability import openai_text_capability
 from .runtime import (
     AcceptanceDecision,
+    Capability,
     FactoryRuntime,
     PublicationResult,
     VerificationResult,
     WorkItem,
 )
 from .runtime_store import RuntimeStore
+from .text_capability import text_generation_capability
 
 
 class WebhookPublisher:
@@ -82,16 +85,38 @@ class FactoryService:
             else None
         )
         self._publisher = publisher
+        self._provider, self._capability = self._build_provider()
         self._lock = threading.Lock()
+
+    @staticmethod
+    def _build_provider() -> tuple[str, Capability]:
+        provider = os.environ.get("FACTORY_PROVIDER", "gemini").strip().lower()
+        if provider == "gemini":
+            adapter = GeminiOpenAICompatibleAdapter()
+            capability = text_generation_capability(
+                capability_id="gemini.text.generate",
+                provider=adapter,
+                generate=adapter.generate,
+                response_text=adapter.response_text,
+            )
+            return provider, capability
+        if provider == "openai":
+            return provider, openai_text_capability()
+        raise ValueError("FACTORY_PROVIDER must be 'gemini' or 'openai'")
 
     def close(self) -> None:
         self._store.close()
 
     def health(self) -> dict[str, Any]:
+        if self._provider == "gemini":
+            key_configured = bool(os.environ.get("GEMINI_API_KEY"))
+        else:
+            key_configured = bool(os.environ.get("OPENAI_API_KEY"))
         return {
             "status": "ok",
+            "provider": self._provider,
+            "provider_key_configured": key_configured,
             "publisher_configured": self._publisher is not None,
-            "openai_key_configured": bool(os.environ.get("OPENAI_API_KEY")),
             "api_auth_configured": bool(os.environ.get("FACTORY_API_TOKEN")),
         }
 
@@ -109,6 +134,7 @@ class FactoryService:
         if not release_authority:
             raise ValueError("release_authority is required")
 
+        capability_id = self._capability.capability_id
         item = WorkItem(
             work_item_id=work_item_id,
             revision_id=revision_id,
@@ -116,7 +142,7 @@ class FactoryService:
             requested_outcome=requested_outcome,
             inputs=tuple(map(str, payload.get("inputs", []))),
             knowledge_basis=tuple(map(str, payload.get("knowledge_basis", []))),
-            required_capabilities=("openai.text.generate",),
+            required_capabilities=(capability_id,),
             owner=str(payload.get("owner") or "api"),
             acceptance_criteria=tuple(map(str, payload.get("acceptance_criteria", ["non-empty provider output"]))),
             release_requirements=tuple(map(str, payload.get("release_requirements", ["explicit release authority"]))),
@@ -132,7 +158,7 @@ class FactoryService:
                 artifact_store=self._artifacts,
                 runtime_store=self._store,
             )
-            runtime.register_capability(openai_text_capability())
+            runtime.register_capability(self._capability)
             if work_item_id not in runtime.states:
                 runtime.submit(item, actor="api")
             else:
@@ -154,6 +180,7 @@ class FactoryService:
             result = {
                 "work_item_id": work_item_id,
                 "operation_id": operation_id,
+                "provider": self._provider,
                 "state": state,
                 "events": [event.__dict__ for event in runtime.provenance(work_item_id)],
             }
