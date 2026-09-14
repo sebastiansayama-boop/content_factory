@@ -57,10 +57,13 @@ def test_openai_response_text_rejects_missing_text():
 
 
 def test_http_error_preserves_provider_error_code_and_message(monkeypatch):
+    from urllib.error import HTTPError
+
     from content_factory import integrations
 
-    class FakeHttpError:
-        code = 429
+    class FakeHttpError(HTTPError):
+        def __init__(self):
+            super().__init__("https://example.invalid", 429, "Too Many Requests", {}, None)
 
         def read(self):
             return b'{"error":{"type":"insufficient_quota","code":"credit_balance_exhausted","message":"No credits remain"}}'
