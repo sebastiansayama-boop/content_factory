@@ -7,6 +7,7 @@ This document integrates the current system, flow, control and semantic models i
 ```text
 CONTENT ECOSYSTEM
 │
+├── DISCOVERY / DECISION
 ├── STRATEGIC INTENT
 ├── AUDIENCE / MARKET CONTEXT
 ├── CONTENT FACTORY
@@ -45,16 +46,40 @@ CONTENT FACTORY
     └── reusable components
 ```
 
+Discovery / Decision is an upstream ecosystem function. It is not a Content Factory production stage. It converts external observations and research into explicit, bounded decisions that may authorize creation of Content Demand.
+
 ## 2. Factory purpose
 
 The Content Factory converts bounded demand and evidence-backed knowledge into verified, authorized and externally releasable content products while preserving provenance and reusable meaning.
 
-It does not own the entire ecosystem outcome.
+It does not own the entire ecosystem outcome or the upstream decision about whether a content demand should exist.
 
-## 3. Factory flow
+## 3. Discovery → Demand boundary
+
+The canonical conceptual bridge is:
 
 ```text
-STRATEGIC DEMAND + EXTERNAL CONTEXT
+OBSERVATION / RESEARCH
+        ↓
+EVIDENCE
+        ↓
+INTERPRETATION / OPPORTUNITY
+        ↓
+DECISION
+        ↓
+AUTHORIZED CONTENT DEMAND
+        ↓
+CONTENT FACTORY
+```
+
+Content Factory consumes `ContentDemand`; it must not silently infer a demand from a research record, metric, observation or candidate opportunity.
+
+A candidate consumer contract is documented in `10_records/2026-09-14-discovery-demand-and-rules-audit.md`. The producer side remains unresolved because no currently inspected active repository proves ownership of a canonical Discovery decision lifecycle.
+
+## 4. Factory flow
+
+```text
+AUTHORIZED CONTENT DEMAND + EXTERNAL CONTEXT
                 ↓
              INPUT
                 ↓
@@ -78,7 +103,7 @@ STRATEGIC DEMAND + EXTERNAL CONTEXT
 
 This is a value-flow projection, not one global object lifecycle.
 
-## 4. Work package
+## 5. Work package
 
 The operational unit is a bounded `Content Work Item` / `Work Package`.
 
@@ -104,7 +129,7 @@ WORK ITEM
 
 A work item is not an asset, release, request, or publication.
 
-## 5. Control-plane function
+## 6. Control-plane function
 
 Factory Control acts on work items and flow, not on the truth of content.
 
@@ -123,7 +148,7 @@ should it enter?
 
 Factory Control must not silently change claims, knowledge or accepted content.
 
-## 6. Semantic substrate function
+## 7. Semantic substrate function
 
 The semantic substrate ensures that systems share identity and meaning rather than copying uncontrolled text.
 
@@ -139,9 +164,12 @@ ENTITY
 
 The current ontology candidate, state model, dependency/provenance model and authority model are separate representations over this substrate.
 
-## 7. Decision boundaries
+## 8. Decision boundaries
 
 ```text
+Discovery / Decision
+  → decision candidate / approved Content Demand
+
 Strategy
   → strategic intent
 
@@ -169,7 +197,7 @@ Learning
 
 Authority is not inherited from process completion.
 
-## 8. Flow metrics
+## 9. Flow metrics
 
 The factory should be observable at the flow level:
 
@@ -188,7 +216,7 @@ release latency
 
 Flow metrics must be interpreted with quality and outcome metrics.
 
-## 9. Quality / governance metrics
+## 10. Quality / governance metrics
 
 ```text
 verification failures
@@ -200,7 +228,7 @@ dependency invalidations
 publication incidents
 ```
 
-## 10. Outcome metrics
+## 11. Outcome metrics
 
 ```text
 audience response
@@ -213,7 +241,7 @@ content decay / retirement
 
 No metric is a goal merely because it is easy to measure.
 
-## 11. Bottleneck principle
+## 12. Bottleneck principle
 
 The factory's throughput is constrained by the current system bottleneck.
 
@@ -230,7 +258,7 @@ identify constraint
 
 Local utilization is not the primary optimization target.
 
-## 12. Automation principle
+## 13. Automation principle
 
 Automation should be matched to task characteristics.
 
@@ -245,7 +273,7 @@ consequential / externally irreversible
     → explicit authority boundary
 ```
 
-## 13. Ecosystem feedback
+## 14. Ecosystem feedback
 
 Factory Learning is not the same as ecosystem strategy learning.
 
@@ -260,7 +288,7 @@ ECOSYSTEM LEARNING
 
 The second path crosses the factory boundary explicitly.
 
-## 14. No silent cross-boundary promotion
+## 15. No silent cross-boundary promotion
 
 The following are invalid by default:
 
@@ -272,18 +300,20 @@ learning → strategy
 observation → accepted claim
 verification → publication
 history → current authority
+research → content demand
+candidate opportunity → authorized demand
 ```
 
 Each requires an explicit transition and appropriate evidence/authority.
 
-## 15. Integrated map
+## 16. Integrated map
 
 ```text
                                CONTENT ECOSYSTEM
                                       │
               ┌───────────────────────┼─────────────────────────┐
               ▼                       ▼                         ▼
-       STRATEGY / INTENT      AUDIENCE / MARKET          PRODUCT / BUSINESS
+       DISCOVERY / DECISION   STRATEGY / INTENT      AUDIENCE / MARKET
               │                       │                         │
               └───────────────┬───────┴───────────────┬─────────┘
                               ▼                       ▼
@@ -318,17 +348,19 @@ Each requires an explicit transition and appropriate evidence/authority.
                                           ↺
 ```
 
-## 16. Implementation status
+## 17. Implementation status
 
-`PHASE 1 COMPLETE / PHASE 2 IN PROGRESS`
+`PHASE 1 COMPLETE / PHASE 2 IN PROGRESS / PHASE 5 V0 IMPLEMENTED`
 
-The repository contains a coherent executable bounded runtime, explicit zone operating contracts, a capability/integration boundary, durable workspace artifact materialization, durable runtime control state, and CI verification for the repository test suite.
+The repository contains a coherent executable bounded runtime, explicit zone operating contracts, a capability/integration boundary, durable workspace artifact materialization, durable runtime control state, a read-only factory control-plane surface, and CI verification for the repository test suite.
 
 Phase 1 adds durable runtime control state: SQLite-backed work-item state and an append-only event journal are committed atomically, and a new runtime instance reconstructs the persisted state and event history after restart. This is distinct from `ArtifactStore`: runtime persistence is recovery/control state, while artifact materialization is repository evidence projection.
 
 Phase 2 now has a concrete OpenAI Responses provider adapter, a capability binding that maps a provider response into `ExecutionResult`, an explicit `OPENAI_API_KEY` secret boundary, and an operator proof command. Unit tests verify the provider boundary and capability mapping. Phase 2 is not complete until a real credential is available in an execution environment and a real provider call, connectivity result and revision-bound verification are observed. The credential itself must never enter the repository, provenance or logs.
 
-The following remain outside the completed phases: real external publication destination, independently verified external effect, external-operation idempotency/reconciliation, queues/leases, broader control-plane operations, operations/governance and the learning loop.
+Phase 5 has a bounded read-only control-plane v0 implemented in `src/content_factory/control_plane.py` with tests covering local HTTP navigation across repository zones, system layers, runtime store state and the machine model. This is a surface for inspection, not proof of full operational control-plane behavior.
+
+The following remain outside the completed phases: real external publication destination, independently verified external effect, external-operation idempotency/reconciliation, queues/leases, broader control-plane operations, operations/governance and the real external learning loop.
 
 Phase sequence:
 
@@ -337,9 +369,9 @@ Phase sequence:
 2 real execution                 IN PROGRESS
 3 real external effect           NOT STARTED
 4 reliability and control        NOT STARTED
-5 factory control plane          NOT STARTED
+5 factory control plane          IMPLEMENTED V0
 6 operations and governance      NOT STARTED
-7 learning loop                  NOT STARTED
+7 learning loop                  RESEARCH COMPLETE / EXTERNAL PROOF PENDING
 ```
 
 Completion of a phase requires executable evidence and CI verification where code changes are involved; documentation alone does not advance phase status.
