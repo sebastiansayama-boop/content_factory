@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: content-factory
+    runtime: docker
+    plan: 1c-2g
+    region: singapore
+    autoDeployTrigger: checksPass
+    healthCheckPath: /health
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    envVars:
+      - key: PORT
+        value: "8080"
+      - key: FACTORY_DATA_DIR
+        value: /data
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: PUBLISH_URL
+        sync: false
+      - key: PUBLISH_AUTH_TOKEN
+        sync: false
+    disk:
+      name: factory-data
+      mountPath: /data
+      sizeGB: 1
