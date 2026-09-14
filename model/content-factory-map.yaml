@@ -1,5 +1,5 @@
-version: 12
-status: candidate_with_durable_runtime_real_provider_boundary_and_learning_model_evolution
+version: 13
+status: candidate_with_durable_runtime_real_provider_boundary_control_plane_v0_and_learning_model_evolution
 name: content_factory
 parent_system: content_ecosystem
 
@@ -152,7 +152,6 @@ phase_sequence:
       - sqlite_control_state
       - atomic_state_and_event_transaction
       - restart_recovery_test
-      - ci_pass
   - phase: 2
     name: real_execution
     status: in_progress_external_proof_pending
@@ -175,7 +174,21 @@ phase_sequence:
     status: not_started
   - phase: 5
     name: factory_control_plane
-    status: not_started
+    status: implemented_v0
+    implementation:
+      - src/content_factory/control_plane.py
+      - src/content_factory/__main__.py
+      - tests/test_control_plane.py
+    proof:
+      - local_http_server
+      - repository_zone_navigation
+      - system_layer_navigation
+      - runtime_store_view
+      - machine_model_view
+    known_limits:
+      - local_only
+      - read_only
+      - runtime_view_is_empty_until_runtime_store_is_populated
   - phase: 6
     name: operations_and_governance
     status: not_started
