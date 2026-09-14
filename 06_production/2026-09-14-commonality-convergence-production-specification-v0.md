@@ -156,4 +156,12 @@ Execution remains blocked until the production input pack, concrete renderer par
 - Editorial specification: `SPEC-2026-09-14-001`
 - Claim graph: `RG-2026-09-14-001`
 - Renderer reference: `sebastiansayama-boop/whisper-studio`
-- External evidence checked for this synchronization: Nature Ecology & Evolution 2025; BMC Ecology and Evolution 2011; Molecular Evidence for Convergence and Parallelism 2015. citeturn0search0turn0search4turn0search5
+- External evidence checked for this synchronization:
+  - Motani 2002, *Scaling effects in caudal fin propulsion and the speed of ichthyosaurs*, Nature 415:309–312.
+  - Donley et al. 2004, *Convergent evolution in mechanical design of lamnid sharks and tunas*, Nature 429:61–65.
+  - Motani & Shimada 2023, *Skeletal convergence in thunniform sharks, ichthyosaurs, whales, and tunas*, Scientific Reports 13:16664.
+  - Yoshida & Ogura 2011, *Genetic mechanisms involved in the evolution of the cephalopod camera eye*, BMC Evolutionary Biology 11:180.
+  - Kröger et al. 2023, *Cephalopod versus vertebrate eyes*, Current Biology 33:R1100–R1105.
+  - Allard & Kumar 2026, *The genetic foundations of convergent traits*, Nature Reviews Genetics 27:563–578.
+
+The camera-eye production assertions are bounded by the evidence represented in C7–C8; the 2026 Nature Reviews Genetics review is included specifically to support the boundary that genetic convergence has multiple forms and does not map one-to-one from phenotype to a single genetic mechanism.
