@@ -99,6 +99,17 @@ The roadmap is directional, not proof. Completion status is supported by executa
 - Next legitimate step: complete the first bounded real external case and capture expected state, actual state, outcome, attribution confidence and memory effect.
 - Return point: `09_learning/`, `08_effects_feedback/`, and the learning-loop research record.
 
+## Digital Product Development Lifecycle
+
+- Goal: define the canonical gated process for developing a digital product across the ecosystem before implementing unresolved cross-system bridges.
+- Status: `MODELLED / ACCEPTANCE PENDING`.
+- Current checkpoint: `docs/30_product_development_lifecycle.md` defines nine stages from Product Brief through Learning/Evolution/Retirement; `model/product-development-lifecycle.yaml` provides the machine-readable projection.
+- Proven: lifecycle is reconciled with current repository boundaries and external authoritative practice; Content Factory remains bounded at demand/production rather than absorbing Discovery.
+- Unproven: the lifecycle has not yet been exercised against a complete real product case; ownership of the upstream Discovery → Decision producer remains unresolved.
+- Research record: `10_records/2026-09-14-product-lifecycle-research-and-decision.md`.
+- Next legitimate step: validate the lifecycle against one bounded real product case without implementing the Discovery/Demand bridge yet.
+- Return point: `docs/30_product_development_lifecycle.md`.
+
 ## Discovery / Demand Bridge
 
 - Goal: establish an explicit boundary from discovery evidence and decision to authorized `ContentDemand` consumed by the factory.
@@ -106,8 +117,8 @@ The roadmap is directional, not proof. Completion status is supported by executa
 - Proven: Content Factory already has a `CONTENT DEMAND` boundary and work-item model; current ecosystem scans show no active repository that proves canonical ownership of the upstream Discovery decision lifecycle.
 - Unproven: canonical producer, shared decision authority, cross-repository identity semantics and a real end-to-end demand handoff.
 - Research basis: `10_records/2026-09-14-discovery-demand-and-rules-audit.md`.
-- Next legitimate step: implement the smallest intake contract and test it against one real bounded case. Do not build a general Discovery platform first.
-- Return point: `docs/23_content_factory_operating_model.md` and the discovery-demand audit record.
+- Next legitimate step: **do not implement yet**. First validate the canonical lifecycle against one bounded real product case; then return here for the smallest required bridge contract.
+- Return point: `docs/23_content_factory_operating_model.md`, `docs/30_product_development_lifecycle.md` and the discovery-demand audit record.
 
 ## Open questions
 
@@ -123,6 +134,7 @@ The roadmap is directional, not proof. Completion status is supported by executa
 10. What measurable bottleneck would justify new retrieval or memory infrastructure?
 11. Which active system should own canonical Discovery decisions, if any?
 12. Which real case should be used as the first Discovery → Content Demand proof?
+13. Which bounded real product case should validate the canonical lifecycle before the Discovery/Demand bridge is implemented?
 
 ## Return points
 
@@ -134,7 +146,8 @@ The roadmap is directional, not proof. Completion status is supported by executa
 | Factory Control Plane | `src/content_factory/control_plane.py` + `tests/test_control_plane.py` |
 | Operations & Governance | `RULES.md` + `docs/25_chat_repository_operating_protocol.md` |
 | Learning Loop | `09_learning/` + `08_effects_feedback/` |
-| Discovery / Demand Bridge | `docs/23_content_factory_operating_model.md` + discovery-demand audit record |
+| Digital Product Lifecycle | `docs/30_product_development_lifecycle.md` + `model/product-development-lifecycle.yaml` |
+| Discovery / Demand Bridge | `docs/23_content_factory_operating_model.md` + `docs/30_product_development_lifecycle.md` + discovery-demand audit record |
 
 ## Map invariant
 
