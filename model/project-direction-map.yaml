@@ -1,4 +1,4 @@
-version: 3
+version: 4
 status: current_navigation_projection
 source_of_truth: docs/29_project_direction_map.md
 
@@ -137,6 +137,42 @@ directions:
     blocked_by: absence of real external proof
     next_legitimate_step: complete the first bounded real external case and capture expected state, actual state, outcome, attribution confidence and memory effect
     return_point: 09_learning/ and 10_records/2026-09-13-learning-loop-program-1-research-synthesis.md
+
+  - id: digital-product-development-lifecycle
+    goal: define the canonical gated process for developing a digital product across the ecosystem before implementing unresolved cross-system bridges
+    status: ACTIVE
+    current_checkpoint: Stage 0 Product Brief passed for the bounded Content Factory Workspace case; Stage 1 Discovery is active; production-wide lifecycle acceptance remains pending
+    proven:
+      - lifecycle reconciled with authoritative external practice
+      - bounded Stage 0 Product Brief gate passed
+      - no Discovery/Demand implementation authorized by Stage 0
+    unproven:
+      - Stage 1-8 validation for the case
+      - production-wide lifecycle acceptance
+      - upstream Discovery decision ownership
+    research_needed: Stage 1 user/problem discovery and later gate evidence
+    dependencies: [bounded product case, discovery evidence]
+    blocked_by: insufficient Stage 1-8 evidence
+    next_legitimate_step: execute Stage 1 Discovery for the same bounded case; do not implement the Discovery/Demand bridge yet
+    return_point: docs/30_product_development_lifecycle.md
+
+  - id: discovery-demand-bridge
+    goal: establish an explicit boundary from discovery evidence and decision to authorized ContentDemand consumed by the factory
+    status: ACTIVE
+    current_checkpoint: bridge is modelled but producer and authority remain unresolved; implementation is intentionally deferred
+    proven:
+      - Content Factory has a ContentDemand boundary and WorkItem model
+      - current ecosystem scan does not prove canonical ownership of upstream Discovery decisions
+    unproven:
+      - canonical producer
+      - shared decision authority
+      - cross-repository identity semantics
+      - real end-to-end demand handoff
+    research_needed: Stage 1 Discovery evidence and subsequent product decision evidence
+    dependencies: [digital-product-development-lifecycle]
+    blocked_by: lifecycle gates not yet exercised; producer unresolved
+    next_legitimate_step: complete Stage 1 Discovery for the bounded product case, then return for the smallest required bridge contract if later gates justify it
+    return_point: docs/23_content_factory_operating_model.md, docs/30_product_development_lifecycle.md
 
 map_requirements:
   direction_fields:
