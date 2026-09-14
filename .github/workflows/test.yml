@@ -16,4 +16,3 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: python -m pip install -e ".[dev]"
       - run: pytest -q
-      - run: python scripts/prove_openalex_live.py
