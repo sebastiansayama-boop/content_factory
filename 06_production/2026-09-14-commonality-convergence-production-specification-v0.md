@@ -59,18 +59,20 @@ The pack must not introduce claims outside `C1–C9` without a new research pass
 
 The rendered video must preserve the narrative spine of `SPEC-2026-09-14-001`:
 
-1. inherited biological toolkit;
-2. recurring functional/environmental problems;
-3. qualified role of constraints;
-4. recurring locomotion solution;
-5. camera-eye convergence;
-6. reuse of ancient biological components;
-7. similarity classified at the level being compared.
+1. shared/inherited biological machinery from common ancestry;
+2. recurring functional and environmental problems;
+3. qualified role of physical, ecological, developmental and historical constraints;
+4. recurring locomotion solution as a documented example of phenotypic convergence;
+5. camera-eye convergence at the organ level;
+6. mosaic molecular/developmental basis of that convergence, including conserved/shared components alongside lineage-specific recruitment and modification;
+7. similarity classified at the biological level being compared.
 
 Required examples:
 
 - thunniform locomotion across distantly related large aquatic vertebrates;
 - vertebrate and cephalopod camera eyes.
+
+The camera-eye example must not be narrated as either "the same genes made the same eye" or "every component evolved independently". Current evidence supports a mixed picture: the camera eyes are convergent at the organ level, while some molecular components/gene families are shared or ancient and other components, expression patterns, duplications and recruitments are lineage-specific. citeturn0search0turn0search4turn0search5
 
 ## 6. Epistemic constraints
 
@@ -78,10 +80,11 @@ The production must preserve:
 
 - C5 as `QUALIFIED`;
 - C10 as `UNKNOWN`;
-- organ/phenotype-level convergence versus component/gene-level homology or reuse;
-- direct evidence versus bounded synthesis.
+- organ/phenotype-level convergence versus component/gene-level conservation, homology, reuse, recruitment or divergence;
+- direct evidence versus bounded synthesis;
+- the distinction between anatomical/phenotypic convergence and the evolutionary history of underlying molecular components.
 
-The asset must not assert that constraints force one solution, that similar phenotypes imply common ancestry, that convergent phenotypes generally imply convergent genes, or that physics alone explains convergence.
+The asset must not assert that constraints force one solution, that similar phenotypes imply common ancestry, that convergent phenotypes generally imply convergent genes, that all underlying components of a convergent structure evolved independently, or that physics alone explains convergence.
 
 ## 7. Output requirements
 
@@ -122,6 +125,7 @@ A produced asset can proceed to verification only if:
 - C5 remains qualified;
 - C10 remains unknown;
 - the organ/phenotype versus component/gene distinction is preserved;
+- the camera-eye example preserves the documented mosaic basis rather than reducing it to a single genetic mechanism;
 - no forbidden deterministic or universal claim is introduced;
 - the rendered artifact is identifiable by asset/revision metadata;
 - renderer result and integrity metadata are preserved;
@@ -135,7 +139,8 @@ The production attempt must stop or enter rework if:
 - a required input cannot be traced to the approved specification;
 - the renderer cannot produce a reconstructable output;
 - execution status is uncertain;
-- the requested representation requires a capability not currently implemented.
+- the requested representation requires a capability not currently implemented;
+- the visual or narration asset implies a stronger molecular claim than the evidence supports.
 
 Production success does not imply editorial acceptance and does not authorize publication.
 
@@ -151,3 +156,4 @@ Execution remains blocked until the production input pack, concrete renderer par
 - Editorial specification: `SPEC-2026-09-14-001`
 - Claim graph: `RG-2026-09-14-001`
 - Renderer reference: `sebastiansayama-boop/whisper-studio`
+- External evidence checked for this synchronization: Nature Ecology & Evolution 2025; BMC Ecology and Evolution 2011; Molecular Evidence for Convergence and Parallelism 2015. citeturn0search0turn0search4turn0search5
