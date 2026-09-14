@@ -68,12 +68,12 @@ The roadmap is directional, not proof. Completion status is supported by executa
 ## 05 — Factory Control Plane
 
 - Goal: control priority, routing, WIP, queues, capacity, scheduling, ownership, orchestration and bottlenecks.
-- Status: `PARKED / NOT STARTED`.
-- Current checkpoint: conceptual control-plane boundary exists; no dedicated control-plane implementation is claimed.
-- Proven: separation of factory control from content truth.
-- Unproven: operational control mechanisms and measurable service behavior.
-- Next legitimate step: observe a concrete flow-control problem and research proven mechanisms for it.
-- Return point: `README.md` Factory Control section and `model/content-factory-map.yaml`.
+- Status: `IMPLEMENTED V0 / BOUNDED`.
+- Current checkpoint: a read-only control-plane surface exists in `src/content_factory/control_plane.py` and exposes repository-zone navigation, system-layer navigation, runtime-store state and the machine model.
+- Proven: local HTTP control-plane navigation and bounded inspection surface with tests.
+- Unproven: operational control mechanisms, queues, scheduling, capacity management, ownership enforcement, orchestration and measurable service behavior.
+- Next legitimate step: do not expand the control plane until a concrete flow-control problem or real operating case requires a write/coordination mechanism.
+- Return point: `src/content_factory/control_plane.py`, `tests/test_control_plane.py`, `model/content-factory-map.yaml`.
 
 ## 06 — Operations & Governance
 
@@ -99,6 +99,16 @@ The roadmap is directional, not proof. Completion status is supported by executa
 - Next legitimate step: complete the first bounded real external case and capture expected state, actual state, outcome, attribution confidence and memory effect.
 - Return point: `09_learning/`, `08_effects_feedback/`, and the learning-loop research record.
 
+## Discovery / Demand Bridge
+
+- Goal: establish an explicit boundary from discovery evidence and decision to authorized `ContentDemand` consumed by the factory.
+- Status: `MODELLED / PRODUCER UNRESOLVED`.
+- Proven: Content Factory already has a `CONTENT DEMAND` boundary and work-item model; current ecosystem scans show no active repository that proves canonical ownership of the upstream Discovery decision lifecycle.
+- Unproven: canonical producer, shared decision authority, cross-repository identity semantics and a real end-to-end demand handoff.
+- Research basis: `10_records/2026-09-14-discovery-demand-and-rules-audit.md`.
+- Next legitimate step: implement the smallest intake contract and test it against one real bounded case. Do not build a general Discovery platform first.
+- Return point: `docs/23_content_factory_operating_model.md` and the discovery-demand audit record.
+
 ## Open questions
 
 1. Which bounded real external destination should close the first end-to-end proof?
@@ -111,6 +121,8 @@ The roadmap is directional, not proof. Completion status is supported by executa
 8. What evidence is required before knowledge transfers across providers, workflows or projects?
 9. Which learning controls can be automated without granting automatic authority?
 10. What measurable bottleneck would justify new retrieval or memory infrastructure?
+11. Which active system should own canonical Discovery decisions, if any?
+12. Which real case should be used as the first Discovery → Content Demand proof?
 
 ## Return points
 
@@ -119,9 +131,10 @@ The roadmap is directional, not proof. Completion status is supported by executa
 | Real Execution | `scripts/prove_openai_execution.py` |
 | Real External Effect | `docs/26_first_external_proof.md` |
 | Reliability & Control | `model/content-factory-map.yaml` known limits |
-| Factory Control Plane | `README.md` Factory Control |
+| Factory Control Plane | `src/content_factory/control_plane.py` + `tests/test_control_plane.py` |
 | Operations & Governance | `RULES.md` + `docs/25_chat_repository_operating_protocol.md` |
 | Learning Loop | `09_learning/` + `08_effects_feedback/` |
+| Discovery / Demand Bridge | `docs/23_content_factory_operating_model.md` + discovery-demand audit record |
 
 ## Map invariant
 
