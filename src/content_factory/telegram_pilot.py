@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import os
 import time
-import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -29,6 +28,9 @@ class TelegramBot:
         if not body.get("ok"):
             raise RuntimeError(f"Telegram {method} failed: {body}")
         return body["result"]
+
+    def delete_webhook(self) -> None:
+        self._call("deleteWebhook", {"drop_pending_updates": False})
 
     def send_message(self, text: str, reply_markup: dict | None = None) -> dict:
         payload = {"chat_id": self.chat_id, "text": text}
