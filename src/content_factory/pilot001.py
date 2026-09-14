@@ -88,6 +88,26 @@ class OllamaClient:
         self.model = model or os.getenv("OLLAMA_MODEL", "qwen3:8b")
         self.timeout = timeout
 
+    def check_available(self) -> None:
+        """Fail early with an actionable message when Ollama is not reachable."""
+        request = urllib.request.Request(f"{self.base_url}/api/tags", headers={"Accept": "application/json"})
+        try:
+            with urllib.request.urlopen(request, timeout=10) as response:
+                body = json.loads(response.read().decode("utf-8"))
+        except urllib.error.URLError as exc:
+            raise RuntimeError(
+                "Ollama is not reachable. Install/start Ollama for Windows and make sure "
+                f"its local API is available at {self.base_url}. Original error: {exc}"
+            ) from exc
+        except json.JSONDecodeError as exc:
+            raise RuntimeError("Ollama returned an invalid /api/tags response") from exc
+
+        models = {str(item.get("name")) for item in body.get("models", []) if isinstance(item, dict)}
+        if self.model not in models:
+            raise RuntimeError(
+                f"Ollama model {self.model!r} is not installed. Run: ollama pull {self.model}"
+            )
+
     def generate(self, *, direction: str, research: list[ResearchItem], revision: int = 1, edit_instruction: str = "") -> Draft:
         research_text = "\n".join(
             f"[{i}] {item.title} | {item.source} | {item.published}\n{item.summary}\nURL: {item.link}"
