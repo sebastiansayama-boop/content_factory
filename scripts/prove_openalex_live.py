@@ -45,7 +45,7 @@ def main() -> int:
         raise RuntimeError("live proof did not satisfy the explicit intake authorization gate")
     if work_item.knowledge_basis != (source.source_id,):
         raise RuntimeError("WorkItem lost source identity")
-    if work_item.inputs != (source.source_id, evidence.evidence_id):
+    if work_item.inputs != ("opportunity:openalex-provider-proof", evidence.evidence_id):
         raise RuntimeError("WorkItem lost opportunity/evidence references")
 
     print("OPENALEX LIVE PROOF PASSED")
