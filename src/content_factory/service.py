@@ -72,6 +72,19 @@ class WebhookPublisher:
         )
 
 
+class LocalReleasePublisher:
+    """Record a release locally without claiming an external effect."""
+
+    def publish(self, work_item: WorkItem, execution, publication_id: str | None = None) -> PublicationResult:
+        return PublicationResult(
+            publication_id=publication_id or str(uuid4()),
+            output_revision_id=execution.output_revision_id,
+            target="internal://content-factory/release",
+            externally_observable=False,
+            evidence_refs=("local-release",),
+        )
+
+
 class FactoryService:
     def __init__(self) -> None:
         root = Path(os.environ.get("FACTORY_DATA_DIR", "./data"))
@@ -79,11 +92,8 @@ class FactoryService:
         self._store = RuntimeStore(root / "runtime.sqlite3")
         self._artifacts = ArtifactStore(root / "artifacts")
         publisher_url = os.environ.get("PUBLISH_URL", "").strip()
-        publisher = (
-            WebhookPublisher(publisher_url, os.environ.get("PUBLISH_AUTH_TOKEN"))
-            if publisher_url
-            else None
-        )
+        self._external_publisher_configured = bool(publisher_url)
+        publisher = WebhookPublisher(publisher_url, os.environ.get("PUBLISH_AUTH_TOKEN")) if publisher_url else LocalReleasePublisher()
         self._publisher = publisher
         self._provider, self._capability = self._build_provider()
         self._lock = threading.Lock()
@@ -119,7 +129,7 @@ class FactoryService:
             ),
             "gemini_key_configured": bool(os.environ.get("GEMINI_API_KEY")),
             "openai_key_configured": bool(os.environ.get("OPENAI_API_KEY")),
-            "publisher_configured": self._publisher is not None,
+            "publisher_configured": self._external_publisher_configured,
             "api_auth_configured": bool(os.environ.get("FACTORY_API_TOKEN")),
         }
 
@@ -262,7 +272,7 @@ def main() -> None:
     Handler.service = service
     host = os.environ.get("HOST", "0.0.0.0")
     port = int(os.environ.get("PORT", "8080"))
-    server = ThreadingHTTPServer((host, port), Handler)
+    server = ThreadingHTTPServer((host, port))
     try:
         server.serve_forever()
     finally:
