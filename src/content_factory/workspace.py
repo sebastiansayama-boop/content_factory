@@ -5,6 +5,9 @@ import json
 import re
 from typing import Any
 
+from .runtime import AcceptanceDecision, FactoryRuntime, VerificationResult, WorkItem
+from .service import LocalReleasePublisher
+
 
 MAX_SOURCE_CHARS = 60_000
 
@@ -48,16 +51,52 @@ def _require_source(source: str) -> str:
 
 
 class ContentWorkspace:
-    """Thin product layer over the existing executable factory runtime.
+    """Product layer over the executable factory, with an external-effect boundary.
 
-    The product deliberately keeps the first vertical slice narrow:
-    source material -> content map -> selected story -> production package.
-    Provider output is parsed into explicit JSON so the UI never depends on
-    prose formatting or model-specific markup.
+    Product analysis and production are deliberately released only to an
+    internal sink. Configuring PUBLISH_URL must never cause a draft generated
+    by the workspace to be sent to an external destination.
     """
 
     def __init__(self, factory_service: Any) -> None:
         self.factory = factory_service
+
+    def _run_product_work_item(self, item: WorkItem) -> dict[str, Any]:
+        runtime = FactoryRuntime(
+            publisher=LocalReleasePublisher(),
+            artifact_store=self.factory._artifacts,
+            runtime_store=self.factory._store,
+        )
+        runtime.register_capability(self.factory._capability)
+        if item.work_item_id not in runtime.states:
+            runtime.submit(item, actor="workspace")
+        elif runtime.operation_ids.get(item.work_item_id) != item.operation_id:
+            raise WorkspaceError("product work item operation_id conflicts with durable state")
+        runtime.run(
+            item,
+            verification=self.factory._verify,
+            acceptance=lambda _, verified: AcceptanceDecision(
+                output_revision_id=verified.output_revision_id,
+                accepted=True,
+                authority="system:workspace-internal",
+                reason="workspace draft generation",
+            ),
+            release_authority="system:workspace-internal",
+            actor="workspace",
+        )
+        execution = runtime.executions.get(item.work_item_id)
+        if execution is None:
+            raise WorkspaceError(f"product work item did not produce an execution: {runtime.states[item.work_item_id].value}")
+        return {
+            "work_item_id": item.work_item_id,
+            "operation_id": item.operation_id,
+            "state": runtime.states[item.work_item_id].value,
+            "execution": {
+                "execution_id": execution.execution_id,
+                "output_revision_id": execution.output_revision_id,
+                "output": execution.payload,
+            },
+        }
 
     def analyze(self, *, source: str, title: str = "Untitled source") -> dict[str, Any]:
         source = _require_source(source)
@@ -88,28 +127,29 @@ Source title: {title}
 SOURCE MATERIAL:
 {source}
 """
-        result = self.factory.run(
-            {
-                "work_item_id": f"workspace-analyze-{_source_id(source)}",
-                "revision_id": "workspace-analysis-v1",
-                "objective": "map source material into reusable editorial objects",
-                "requested_outcome": prompt,
-                "owner": "workspace",
-                "acceptance_authority": "system:workspace-analysis",
-                "release_authority": "system:workspace-analysis",
-                "acceptance_criteria": ["valid editorial JSON", "source-grounded stories"],
-            }
+        item = WorkItem(
+            work_item_id=f"workspace-analyze-{_source_id(source)}",
+            revision_id="workspace-analysis-v1",
+            objective="map source material into reusable editorial objects",
+            requested_outcome=prompt,
+            inputs=(f"source:{_source_id(source)}",),
+            knowledge_basis=(),
+            required_capabilities=(self.factory._capability.capability_id,),
+            owner="workspace",
+            acceptance_criteria=("valid editorial JSON", "source-grounded stories"),
+            release_requirements=("internal draft only",),
+            operation_id=f"op-workspace-analyze-{_source_id(source)}",
         )
-        payload = result.get("execution", {}).get("output", "")
-        analysis = _json_from_text(payload)
+        result = self._run_product_work_item(item)
+        analysis = _json_from_text(result["execution"]["output"])
         analysis["source_id"] = _source_id(source)
         analysis["title"] = title.strip() or "Untitled source"
         analysis["runtime"] = {
-            "work_item_id": result.get("work_item_id"),
-            "operation_id": result.get("operation_id"),
-            "execution_id": result.get("execution", {}).get("execution_id"),
-            "output_revision_id": result.get("execution", {}).get("output_revision_id"),
-            "state": result.get("state"),
+            "work_item_id": result["work_item_id"],
+            "operation_id": result["operation_id"],
+            "execution_id": result["execution"]["execution_id"],
+            "output_revision_id": result["execution"]["output_revision_id"],
+            "state": result["state"],
         }
         return analysis
 
@@ -148,28 +188,29 @@ Selected story:
 ORIGINAL SOURCE:
 {source}
 """
-        result = self.factory.run(
-            {
-                "work_item_id": f"workspace-produce-{_source_id(source)}-{story['id']}",
-                "revision_id": "workspace-production-v1",
-                "objective": "materialize a selected story into a multi-format content package",
-                "requested_outcome": prompt,
-                "owner": "workspace",
-                "knowledge_basis": [f"source:{_source_id(source)}", f"story:{story['id']}"],
-                "acceptance_authority": "system:workspace-production",
-                "release_authority": "system:workspace-production",
-                "acceptance_criteria": ["valid production JSON", "all requested formats represented"],
-            }
+        source_key = _source_id(source)
+        item = WorkItem(
+            work_item_id=f"workspace-produce-{source_key}-{story['id']}",
+            revision_id="workspace-production-v1",
+            objective="materialize a selected story into a multi-format content package",
+            requested_outcome=prompt,
+            inputs=(f"source:{source_key}", f"story:{story['id']}"),
+            knowledge_basis=(f"source:{source_key}", f"story:{story['id']}"),
+            required_capabilities=(self.factory._capability.capability_id,),
+            owner="workspace",
+            acceptance_criteria=("valid production JSON", "all requested formats represented"),
+            release_requirements=("internal draft only",),
+            operation_id=f"op-workspace-produce-{source_key}-{story['id']}",
         )
-        payload = result.get("execution", {}).get("output", "")
-        package = _json_from_text(payload)
-        package["source_id"] = _source_id(source)
+        result = self._run_product_work_item(item)
+        package = _json_from_text(result["execution"]["output"])
+        package["source_id"] = source_key
         package["story_id"] = story["id"]
         package["runtime"] = {
-            "work_item_id": result.get("work_item_id"),
-            "operation_id": result.get("operation_id"),
-            "execution_id": result.get("execution", {}).get("execution_id"),
-            "output_revision_id": result.get("execution", {}).get("output_revision_id"),
-            "state": result.get("state"),
+            "work_item_id": result["work_item_id"],
+            "operation_id": result["operation_id"],
+            "execution_id": result["execution"]["execution_id"],
+            "output_revision_id": result["execution"]["output_revision_id"],
+            "state": result["state"],
         }
         return package
