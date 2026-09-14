@@ -103,11 +103,12 @@ The roadmap is directional, not proof. Completion status is supported by executa
 
 - Goal: define the canonical gated process for developing a digital product across the ecosystem before implementing unresolved cross-system bridges.
 - Status: `MODELLED / ACCEPTANCE PENDING`.
-- Current checkpoint: `docs/30_product_development_lifecycle.md` defines nine stages from Product Brief through Learning/Evolution/Retirement; `model/product-development-lifecycle.yaml` provides the machine-readable projection.
-- Proven: lifecycle is reconciled with current repository boundaries and external authoritative practice; Content Factory remains bounded at demand/production rather than absorbing Discovery.
-- Unproven: the lifecycle has not yet been exercised against a complete real product case; ownership of the upstream Discovery → Decision producer remains unresolved.
+- Current checkpoint: Stage 0 Product Brief has now passed for the bounded `Content Factory — End-user Content Workspace / text-source vertical slice` case. The lifecycle remains pending production-wide acceptance because the complete lifecycle has not yet been exercised through the later gates.
+- Proven: lifecycle is reconciled with current repository boundaries and external authoritative practice; the bounded case satisfies the Stage 0 gate; Content Factory remains bounded at demand/production rather than absorbing Discovery.
+- Unproven: Stage 1–8 validation for the case; production-wide acceptance of the lifecycle; ownership of the upstream Discovery → Decision producer.
 - Research record: `10_records/2026-09-14-product-lifecycle-research-and-decision.md`.
-- Next legitimate step: validate the lifecycle against one bounded real product case without implementing the Discovery/Demand bridge yet.
+- Gate record: `10_records/2026-09-14-stage-0-product-brief-gate.md`.
+- Next legitimate step: execute Stage 1 Discovery for the same bounded case; do not implement the Discovery/Demand bridge as part of this step.
 - Return point: `docs/30_product_development_lifecycle.md`.
 
 ## Discovery / Demand Bridge
@@ -117,7 +118,7 @@ The roadmap is directional, not proof. Completion status is supported by executa
 - Proven: Content Factory already has a `CONTENT DEMAND` boundary and work-item model; current ecosystem scans show no active repository that proves canonical ownership of the upstream Discovery decision lifecycle.
 - Unproven: canonical producer, shared decision authority, cross-repository identity semantics and a real end-to-end demand handoff.
 - Research basis: `10_records/2026-09-14-discovery-demand-and-rules-audit.md`.
-- Next legitimate step: **do not implement yet**. First validate the canonical lifecycle against one bounded real product case; then return here for the smallest required bridge contract.
+- Next legitimate step: **do not implement yet**. Complete Stage 1 Discovery for the bounded product case first; then return here for the smallest required bridge contract if the later lifecycle gates justify it.
 - Return point: `docs/23_content_factory_operating_model.md`, `docs/30_product_development_lifecycle.md` and the discovery-demand audit record.
 
 ## Open questions
