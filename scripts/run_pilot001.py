@@ -4,7 +4,15 @@ import json
 import os
 import time
 
+import truststore
+
+from content_factory.pilot001 import OllamaClient
 from content_factory.telegram_pilot import Pilot001Controller, TelegramBot, keyboard, preview_text
+
+
+# Pilot001 is an application entrypoint. Use the native OS trust store so
+# Python HTTPS verification follows Windows' configured certificate roots.
+truststore.inject_into_ssl()
 
 
 def _required(name: str) -> str:
@@ -21,10 +29,15 @@ def _set_status(controller: Pilot001Controller, draft_id: str, status: str) -> N
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def _check_local_model(controller: Pilot001Controller) -> None:
+    controller.model.check_available()
+
+
 def main() -> int:
     token = _required("TELEGRAM_BOT_TOKEN")
     chat_id = _required("TELEGRAM_CHAT_ID")
     controller = Pilot001Controller()
+    _check_local_model(controller)
     bot = TelegramBot(token, chat_id)
     # getUpdates cannot be used while a Telegram webhook is configured.
     bot.delete_webhook()
