@@ -2,9 +2,9 @@
 
 Reasoning ID: RG-2026-09-14-001
 Work item ID: WI-2026-09-13-002
-Revision basis: WI-2026-09-13-002-r3
+Revision basis: WI-2026-09-13-002-r4
+External evidence review: 2026-09-14
 Status: SYNTHESIS
-Date: 2026-09-14
 
 ## Question
 
@@ -12,30 +12,30 @@ Which minimal claims can support the story about similarities across species wit
 
 ## Epistemic statuses
 
-- `SUPPORTED` — current evidence directly supports the bounded claim.
-- `QUALIFIED` — the core observation is supported, but the claim requires an explicit boundary or causal qualification.
-- `UNKNOWN` — current evidence in this work item is insufficient to support the claim.
+- `SUPPORTED` — current external evidence directly supports the bounded claim.
+- `QUALIFIED` — the core observation is supported, but the claim requires an explicit causal or scope boundary.
+- `UNKNOWN` — current evidence is insufficient to support the claim.
 
-## Minimal claim graph
+## Updated claim graph
 
 ```text
 C1 Shared ancestry explains many similarities
         |
-        +--> C2 Extant cellular life retains deeply conserved biological machinery
+        +--> C2 Many core cellular systems are deeply conserved
         |
-        +--> C3 Inherited architecture supplies an available biological toolkit
+        +--> C3 Lineages inherit molecular/developmental/structural components
                                       |
-C4 Recurring functional/environmental problems create recurring selection pressures
+C4 Recurring functional/environmental problems create selection pressures
         |
-        +--> C5 Physical, ecological and developmental constraints filter viable trajectories
+        +--> C5 Physical, ecological and developmental constraints can restrict or bias trajectories
                                       |
-                                      +--> C6 Similar problems can produce recurrent phenotypic solutions
+                                      +--> C6 Similar problems can sometimes produce recurrent phenotypic solutions
                                                               |
-                                                              +--> C7 Recurrent phenotype does not imply identical genetic/developmental mechanism
+                                                              +--> C7 Phenotypic convergence does not imply identical genetic/developmental mechanisms
 
-C3 + C5 + accessible variation
+C3 + C5 + available variation
         |
-        +--> C8 Independent complex structures can reuse ancient components
+        +--> C8 Independently evolved phenotypes can incorporate ancient or shared biological components
 
 C6 + C7 + C8
         |
@@ -52,61 +52,59 @@ C6/C7/C8
 
 Status: `SUPPORTED`
 
-Claim: Similarities shared across distantly related species can be explained by inheritance from common ancestry, although the exact ancestral state may require model-dependent reconstruction.
+Claim: Similarities shared across distantly related species can be explained by inheritance from common ancestry, although the exact ancestral state may require phylogenetic or model-dependent reconstruction.
 
-Evidence refs: initial common-ancestry evidence recorded in WI-2026-09-13-002-r3.
+Boundary: Superficial similarity alone does not establish homology.
 
-Boundary: Do not infer that every shared trait or sequence is homologous solely from superficial similarity.
+External evidence basis: broad comparative-evolutionary framework; this claim is not used to classify every similarity as homologous.
 
-### C2 — Deep biological machinery can be conserved across extant cellular life
-
-Status: `SUPPORTED`
-
-Claim: Major components of cellular information processing and energy metabolism are deeply conserved across cellular life and are consistent with inheritance from ancient common ancestry.
-
-Evidence refs: initial universal-cellular-foundations evidence recorded in WI-2026-09-13-002-r3.
-
-Boundary: The work item has not yet synthesized a complete universal-cellular inventory or reconstructed every component to LUCA.
-
-### C3 — Ancestry supplies an inherited biological toolkit
+### C2 — Many core cellular systems are deeply conserved
 
 Status: `SUPPORTED`
 
-Claim: Evolution does not begin from an empty design space; lineages inherit molecular, developmental and structural components that affect which subsequent modifications are accessible.
+Claim: Major components of cellular information processing and other core cellular systems are deeply conserved across diverse cellular life and are consistent with inheritance from ancient common ancestry.
 
-Evidence refs: WI-2026-09-13-002-r3, Finding 4 and Finding 8.
+Boundary: This does not constitute a complete inventory of LUCA or prove that every conserved component was already present in exactly its modern form in LUCA.
 
-Boundary: The existence of an inherited toolkit does not imply that a particular later phenotype was predetermined.
+External evidence basis: comparative genomics / LUCA literature; exact ancestral reconstruction remains model-dependent.
 
-### C4 — Recurring functional/environmental problems create recurring selection pressures
+### C3 — Lineages inherit an available biological toolkit
 
 Status: `SUPPORTED`
 
-Claim: Organisms repeatedly encounter functional requirements and environmental conditions that impose selection pressures on viable phenotypes.
+Claim: Evolution does not begin from an empty design space; lineages inherit molecular, developmental and structural components that can affect which later modifications are accessible.
 
-Evidence refs: locomotion and visual-system convergence evidence in WI-2026-09-13-002-r3.
+Boundary: An inherited component does not imply that a particular later phenotype was predetermined.
 
-Boundary: Similar selection pressures do not guarantee convergence; contingency, variation, development and historical context remain relevant.
+### C4 — Recurring functional/environmental problems create selection pressures
 
-### C5 — Constraints filter viable evolutionary trajectories
+Status: `SUPPORTED`
+
+Claim: Organisms repeatedly encounter functional requirements and environmental conditions that can impose recurring selection pressures.
+
+Boundary: Similar pressures do not guarantee the same evolutionary outcome; variation, development, ecology and history remain relevant.
+
+External evidence basis: thunniform locomotor convergence and comparative visual-system evidence.
+
+### C5 — Constraints can restrict or bias evolutionary trajectories
 
 Status: `QUALIFIED`
 
 Claim: Physical laws, ecological relationships and genetic/developmental architecture can restrict or bias the set of viable or accessible evolutionary trajectories.
 
-Evidence refs: WI-2026-09-13-002-r3, Findings 1–4 and 7.
+Qualification: The relative contribution of each constraint is trait- and lineage-dependent. A restricted observed trait space does not by itself identify one universal causal mechanism.
 
-Qualification: The relative contribution of each constraint is trait- and lineage-dependent. Restricted observed trait space does not identify one universal causal mechanism.
+External evidence basis: Motani 2002 models physical/hydrodynamic constraints in thunniform swimming; Donley et al. 2004 links hydromechanical demands to selection on locomotor design. These are strong examples of constraint contributing to convergence, not evidence that physics universally determines morphology.
 
 ### C6 — Similar problems can produce recurrent phenotypic solutions
 
 Status: `SUPPORTED`
 
-Claim: Under recurring functional problems and constraints, similar phenotypic solutions can evolve independently in different lineages.
+Claim: Under recurring functional problems and relevant constraints, similar phenotypic solutions can evolve independently in different lineages.
 
-Evidence refs: thunniform locomotor convergence and vertebrate/cephalopod camera-eye convergence in WI-2026-09-13-002-r3.
+Qualification: Use `can`, `may`, or similarly bounded language. Do not state that the same problem necessarily produces the same solution.
 
-Qualification: "Can" and "elevated probability" are appropriate. "Will" or "must" is not supported.
+External evidence basis: thunniform body-plan convergence across tunas, lamnid sharks, whales and ichthyosaurs; vertebrate/cephalopod camera-eye similarity.
 
 ### C7 — Phenotypic convergence does not imply identical underlying mechanisms
 
@@ -114,31 +112,29 @@ Status: `SUPPORTED`
 
 Claim: Independently recurring phenotypes may be produced through different genetic, developmental or anatomical routes.
 
-Evidence refs: WI-2026-09-13-002-r3, Finding 5 and visual-system evidence.
+Boundary: The converse is also important: genetic convergence can occur in multiple forms, so different-looking implementations do not justify a blanket claim of completely unrelated molecular mechanisms.
 
-Boundary: Molecular convergence can also recur independently, so the converse claim that genetic differences necessarily imply different adaptive mechanisms is invalid.
+External evidence basis: 2026 Nature Reviews Genetics review identifies multiple forms of genetic convergence; cephalopod-eye studies show a mixture of shared genes, lineage-specific changes and gene recruitment.
 
-### C8 — Independent complex structures can reuse ancient biological components
+### C8 — Independently evolved phenotypes can incorporate ancient or shared biological components
 
 Status: `SUPPORTED`
 
-Claim: A phenotype can evolve independently at the organ or system level while incorporating homologous genes, regulatory machinery or other ancient components.
+Claim: A phenotype can evolve independently at the organ or system level while incorporating ancient or shared genes, regulatory machinery or other biological components.
 
-Evidence refs: WI-2026-09-13-002-r3, Finding 8.
+Qualification: Component-level homology/reuse does not by itself establish homology of the whole phenotype. In the camera-eye case, the evidence supports a mosaic rather than a simple "all independent" or "all inherited" explanation.
 
-Qualification: Component homology does not by itself establish homology of the whole phenotype.
+External evidence basis: vertebrate/cephalopod eye studies identify conserved developmental genes and shared expression alongside lineage-specific recruitment and structural differences.
 
 ### C9 — Similarity must be classified at the level being compared
 
-Status: `SUPPORTED`
+Status: `SUPPORTED AS BOUNDED SYNTHESIS`
 
-Claim: Homology, phenotypic convergence and component reuse can coexist at different analytical levels; therefore similarity should be explained at the level of organ, anatomy, development, gene, protein, function or other relevant unit rather than assigned one global label.
+Claim: Homology, phenotypic convergence, parallelism and component reuse can coexist at different analytical levels; therefore similarity should be explained at the level of organ, anatomy, development, gene, protein, function or other relevant unit rather than assigned one global label.
 
 Derivation: C1 + C3 + C6 + C7 + C8.
 
-Evidence class: `SUPPORTED AS BOUNDED SYNTHESIS`.
-
-This is a reasoning conclusion, not a direct single-source observation.
+Boundary: This is a synthesis conclusion, not a claim that every level can always be cleanly classified with current evidence.
 
 ### C10 — Evolution has a globally small, fixed universal solution space
 
@@ -148,35 +144,43 @@ Claim under test: Biological evolution is confined to a small, universal and lar
 
 Current evidence: insufficient.
 
-Reason: The reviewed cases support restricted/biaised trajectories and recurrent solutions, but they also show multiple implementations, historical contingency and different genetic/developmental routes. These observations do not establish a universal fixed solution set.
+Reason: The reviewed cases support recurrent solutions under particular conditions but also show different implementations, component reuse, lineage-specific recruitment and historical/developmental dependence. They do not establish a universal fixed solution set.
 
 ## Evidence-to-claim mapping
 
-| Evidence pattern | Claims supported | Status | Interpretation boundary |
+| External evidence | Claims supported | Status | Boundary |
 |---|---|---|---|
-| Deeply conserved cellular machinery | C1, C2, C3 | SUPPORTED | Exact ancestral reconstruction remains model-dependent |
-| Tuna/shark/whale/ichthyosaur locomotor convergence | C4, C5, C6 | SUPPORTED | Strong case for physical constraint; not a universal rule |
-| Quantitative hydromechanical analysis | C5, C6 | SUPPORTED | Supports mechanism, not inevitability |
-| 9,963-bird trait/niche analysis | C4, C5, C6 | QUALIFIED | Trait-space recurrence does not isolate one causal factor |
-| Restricted mammal/bird strategy space | C5 | QUALIFIED | Restricted occupancy is not a single-mechanism explanation |
-| Genetic/developmental constraint synthesis | C3, C5, C7 | SUPPORTED | Strength varies by trait |
-| Vertebrate/cephalopod camera eyes | C4, C5, C6, C7 | SUPPORTED | Same broad function, different architecture |
-| Ancient visual-development components | C3, C8, C9 | SUPPORTED | Component reuse does not make the whole organ homologous |
+| Deep conservation of core cellular systems / LUCA research | C1, C2, C3 | SUPPORTED | Does not reconstruct every LUCA component or exact ancestral state |
+| Motani 2002 thunniform convergence | C4, C5, C6 | SUPPORTED | Strong physical-constraint example; not a universal law |
+| Donley et al. 2004 tuna/lamnid mechanical convergence | C5, C6 | SUPPORTED | Supports hydromechanical selection pressures and deeper functional convergence |
+| Motani & Shimada 2023 skeletal convergence | C5, C6 | SUPPORTED | Multiple shared mechanical features; ecological links remain context-dependent |
+| Vertebrate/cephalopod camera eyes | C6, C7, C8, C9 | SUPPORTED | Organ-level similarity coexists with major implementation differences |
+| Cephalopod eye developmental/transcriptomic studies | C7, C8, C9 | SUPPORTED | Shared genes and independent recruitment form a mosaic |
+| Nature Reviews Genetics 2026 | C7 | SUPPORTED | Genetic convergence has multiple forms; phenotype does not map one-to-one to genotype |
+
+## External source register
+
+1. Motani, R. (2002), *Scaling effects in caudal fin propulsion and the speed of ichthyosaurs*, Nature 415, 309–312. https://www.nature.com/articles/415309a
+2. Donley, J.M. et al. (2004), *Convergent evolution in mechanical design of lamnid sharks and tunas*, Nature 429, 61–65. https://www.nature.com/articles/nature02435
+3. Motani, R. & Shimada, K. (2023), *Skeletal convergence in thunniform sharks, ichthyosaurs, whales, and tunas*, Scientific Reports 13, 16664. https://www.nature.com/articles/s41598-023-41812-z
+4. Yoshida, M. & Ogura, A. (2011), *Genetic mechanisms involved in the evolution of the cephalopod camera eye*, BMC Evolutionary Biology 11, 180. https://pmc.ncbi.nlm.nih.gov/articles/PMC3141435/
+5. Kröger, R.H.H. et al. (2023), *Cephalopod versus vertebrate eyes*, Current Biology 33, R1100–R1105. https://pubmed.ncbi.nlm.nih.gov/37875092/
+6. Allard, J.B. & Kumar, S. (2026), *The genetic foundations of convergent traits*, Nature Reviews Genetics 27, 563–578. https://www.nature.com/articles/s41576-026-00933-7
 
 ## Story spine that survives the evidence boundary
 
 ```text
-Life inherits a biological toolkit.
+Life inherits biological components from earlier lineages.
         ↓
-Organisms repeatedly face functional and environmental problems.
+Organisms repeatedly encounter functional and environmental problems.
         ↓
-Physics, ecology, development and inherited architecture filter what is viable or accessible.
+Physics, ecology, development and inherited architecture can restrict or bias accessible trajectories.
         ↓
 Some solutions therefore recur independently.
         ↓
-But recurrence does not mean identical construction: different lineages can reach similar outcomes by different routes while reusing ancient components.
+But recurrence does not mean identical construction: different lineages can reach similar phenotypes through different routes while also reusing ancient components.
         ↓
-Therefore biological similarity has to be explained at the correct level rather than treated as one phenomenon.
+Therefore biological similarity has to be explained at the correct analytical level.
 ```
 
 ## Claims that must not be promoted
@@ -187,21 +191,18 @@ Therefore biological similarity has to be explained at the correct level rather 
 4. `Convergent phenotype implies convergent genes.` — NOT SUPPORTED as a general rule.
 5. `Evolution searches a globally small fixed set of designs.` — UNKNOWN.
 6. `Physics is the sole explanation for convergence.` — NOT SUPPORTED.
+7. `All similarities between vertebrate and cephalopod eyes are either wholly homologous or wholly convergent.` — NOT SUPPORTED; the evidence is multi-level/mosaic.
 
 ## Research closure condition
 
-The current research question can be closed at the bounded synthesis level if the final content only claims:
+The current research question can be closed at the bounded synthesis level if final content only claims:
 
-`inherited toolkit + recurring problems + constraints + accessible variation → some probability of recurrent solutions`
+`inherited components + recurring problems + relevant constraints + available variation → some probability of recurrent solutions`
 
 and explicitly distinguishes this from a universal law of evolutionary design.
 
-The remaining unresolved question is not whether convergence exists. It is how far this explanatory model generalizes across additional biological domains and how quantitatively the relative contributions of constraint, variation, development, ecology and historical contingency can be estimated.
+If a production assertion requires a stronger causal statement, a quantitative generalization, or a new biological example, reopen external research for that specific assertion before production.
 
 ## Conclusion
 
-The two stress tests—locomotion and vision—support the same bounded explanatory structure. The claim graph therefore provides a sufficient intermediate representation for editorial work without promoting the broader universal-solution-space hypothesis.
-
-Confidence: moderate-to-high for C1, C2, C6, C7 and C8; moderate for the multi-factorial formulation of C5; insufficient for C10.
-
-Next legitimate step: use this graph as the epistemic boundary for the content story and only reopen broad biological research if an editorial claim exposes a specific unsupported edge.
+The external evidence review strengthens the locomotion and camera-eye cases but also makes the camera-eye claim more nuanced: organ-level convergence can coexist with conserved developmental machinery and lineage-specific recruitment. The claim graph therefore remains suitable for editorial work, but the specification must preserve this mosaic rather than describe component reuse as a simple exception.
