@@ -2,7 +2,7 @@
 
 Date: 2026-09-13
 Work item ID: WI-2026-09-13-002
-Revision ID: WI-2026-09-13-002-r3
+Revision ID: WI-2026-09-13-002-r4
 Status: IN_PROGRESS
 
 ## Objective
@@ -190,9 +190,25 @@ This model explains why two species can be similar in three different senses:
 
 These categories can overlap at different levels of analysis. A trait may be convergent at the organ level while using homologous genes or developmental modules.
 
+## Claim graph synthesis — revision r4
+
+The research has now been compressed into a minimal claim graph at:
+
+`04_reasoning/2026-09-14-claim-graph-commonality-convergence.md`
+
+Reasoning ID: `RG-2026-09-14-001`.
+
+The graph separates ten claims into three epistemic outcomes:
+
+- `SUPPORTED`: common ancestry as an explanation for many shared features; conserved cellular machinery; inherited biological toolkit; recurring functional problems; recurrent phenotypic solutions; non-identity of underlying mechanisms; reuse of ancient components; level-specific classification of similarity as a bounded synthesis.
+- `QUALIFIED`: constraints filter/bias viable trajectories, because physical, ecological, developmental and genetic contributions are real but trait-specific and multi-factorial.
+- `UNKNOWN`: the stronger claim that evolution is confined to a small, globally fixed universal solution space.
+
+The synthesis also records claims that must not be promoted, including "constraints force the same solution", "similar phenotype means common ancestry", and "independent phenotype means independent origin of every component".
+
 ## Decision from the research sequence
 
-The non-locomotion test strengthens the bounded story spine. We no longer need the stronger universal claim that evolution has one globally narrow solution space.
+The non-locomotion test strengthens the bounded story spine. The claim graph now provides an explicit epistemic boundary for editorial work.
 
 The defensible claim is:
 
@@ -212,7 +228,7 @@ This is a synthesis, not a single experimental result, and should be presented a
 | Ecological constraints | Can ecological functions correspond to recurring trait combinations? | SUPPORTED; broad causality bounded |
 | Genetic/developmental constraints | Can architecture bias accessible trajectories? | SUPPORTED as a mechanism class |
 | Ancient toolkit reuse | Can independently evolved structures reuse homologous components? | SUPPORTED |
-| Globally narrow universal solution space | Is biological design space universally constrained to a small fixed set? | NOT ESTABLISHED |
+| Globally narrow universal solution space | Is biological design space universally constrained to a small fixed set? | NOT ESTABLISHED / UNKNOWN |
 | Story-level synthesis | Can recurring solutions be explained by ancestry + constraints + accessible variation? | SUPPORTED as bounded synthesis; not a universal law |
 
 ## Acceptance criteria
@@ -238,4 +254,4 @@ KNOWLEDGE / RESEARCH
 
 ## Current research decision
 
-The research has now passed two contrasting convergence tests: locomotion and vision. The bounded explanatory model is sufficiently supported to serve as the research backbone. The next step should no longer be another broad search for more examples. It should be synthesis: convert the evidence into a minimal claim graph and identify exactly which claims are strong enough for the eventual story, which require qualification, and which remain outside the evidence boundary.
+The research has passed two contrasting convergence tests: locomotion and vision. The bounded explanatory model is sufficiently supported to serve as the research backbone. The claim graph is now the epistemic boundary for the next editorial stage; broad additional biological searching is not required unless a specific future claim exceeds that boundary.
