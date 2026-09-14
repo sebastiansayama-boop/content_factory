@@ -1,6 +1,6 @@
 # Product Brief — Content Factory End-user Content Workspace
 
-Status: `CANDIDATE / STAGE 0 GATE PENDING`
+Status: `ACCEPTED / STAGE 0 PASS`
 
 ## Product
 
@@ -70,8 +70,18 @@ These are hypotheses to be tested during Discovery and Solution Validation, not 
 - what users currently do instead and where the current workflow fails;
 - which product outcome should ultimately determine investment beyond successful draft generation.
 
-## Stage 0 decision boundary
+## Stage 0 gate decision
 
-This brief defines the product hypothesis and its current bounds. It does not claim that the problem is validated, that demand exists, or that the solution is the correct one.
+`PROCEED → STAGE 1 DISCOVERY`
 
-The next permitted stage is `Discovery`: test the critical unknowns using user/context research and relevant alternative/market evidence. No implementation change is authorized by this brief alone.
+The brief satisfies the lifecycle Stage 0 exit gate: it states why the initiative exists, who/what is in scope, the sought outcome, material constraints, explicit non-goals, and the material questions that must be answered in Discovery. fileciteturn230file0
+
+External practice is consistent with this boundary. GOV.UK guidance treats Discovery as the phase for understanding users, current behaviour, problems, needs, constraints and alternatives before planning/design/build, and recommends turning assumptions into explicit research questions. citeturn0search0turn0search3turn0search8
+
+This gate decision does not validate the problem, demand, solution or success signals. It only authorizes movement from Product Brief to Discovery.
+
+## Stage 1 boundary
+
+The next permitted work is Discovery. Discovery must investigate the critical unknowns above using evidence from users/context, existing workflows, relevant alternatives/market/domain research and available data. No Discovery finding becomes a product decision or build authorization without an explicit later gate.
+
+No implementation change is authorized by this gate decision.
