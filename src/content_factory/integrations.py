@@ -78,6 +78,23 @@ class HttpJsonAdapter:
                     payload=body,
                 )
         except HTTPError as exc:
-            raise IntegrationError(f"provider HTTP error: {exc.code}") from exc
+            raw = exc.read().decode("utf-8", errors="replace")
+            try:
+                body: Any = json.loads(raw) if raw else {}
+            except json.JSONDecodeError:
+                body = {"raw_response": raw}
+
+            details: list[str] = [f"provider HTTP error: {exc.code}"]
+            if isinstance(body, dict):
+                error = body.get("error")
+                if isinstance(error, dict):
+                    for field in ("type", "code"):
+                        value = error.get(field)
+                        if isinstance(value, str) and value:
+                            details.append(f"{field}={value}")
+                    message = error.get("message")
+                    if isinstance(message, str) and message:
+                        details.append(f"message={message}")
+            raise IntegrationError("; ".join(details)) from exc
         except URLError as exc:
             raise IntegrationError("provider connectivity error") from exc
