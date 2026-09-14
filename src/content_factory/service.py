@@ -32,11 +32,12 @@ class WebhookPublisher:
         self.token = token
         self.timeout = timeout
 
-    def publish(self, work_item: WorkItem, execution) -> PublicationResult:
-        publication_id = str(uuid4())
+    def publish(self, work_item: WorkItem, execution, publication_id: str | None = None) -> PublicationResult:
+        publication_id = publication_id or str(uuid4())
         body = json.dumps(
             {
                 "publication_id": publication_id,
+                "operation_id": work_item.operation_id,
                 "work_item_id": work_item.work_item_id,
                 "work_item_revision_id": work_item.revision_id,
                 "output_revision_id": execution.output_revision_id,
@@ -45,7 +46,7 @@ class WebhookPublisher:
             },
             ensure_ascii=False,
         ).encode("utf-8")
-        headers = {"Content-Type": "application/json"}
+        headers = {"Content-Type": "application/json", "Idempotency-Key": publication_id}
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
         request = urllib.request.Request(self.url, data=body, headers=headers, method="POST")
@@ -97,6 +98,7 @@ class FactoryService:
     def run(self, payload: dict[str, Any]) -> dict[str, Any]:
         work_item_id = str(payload.get("work_item_id") or f"wi-{uuid4()}")
         revision_id = str(payload.get("revision_id") or "request-r1")
+        operation_id = str(payload.get("operation_id") or f"op-{uuid4()}")
         requested_outcome = str(payload.get("requested_outcome") or "").strip()
         if not requested_outcome:
             raise ValueError("requested_outcome is required")
@@ -121,6 +123,7 @@ class FactoryService:
             constraints=tuple(map(str, payload.get("constraints", []))),
             dependencies=tuple(map(str, payload.get("dependencies", []))),
             success_signals=tuple(map(str, payload.get("success_signals", []))),
+            operation_id=operation_id,
         )
 
         with self._lock:
@@ -130,7 +133,11 @@ class FactoryService:
                 runtime_store=self._store,
             )
             runtime.register_capability(openai_text_capability())
-            runtime.submit(item, actor="api")
+            if work_item_id not in runtime.states:
+                runtime.submit(item, actor="api")
+            else:
+                if runtime.operation_ids.get(work_item_id) != operation_id:
+                    raise ValueError("operation_id conflicts with existing work item")
             publication = runtime.run(
                 item,
                 verification=self._verify,
@@ -146,6 +153,7 @@ class FactoryService:
             state = runtime.states[item.work_item_id].value
             result = {
                 "work_item_id": work_item_id,
+                "operation_id": operation_id,
                 "state": state,
                 "events": [event.__dict__ for event in runtime.provenance(work_item_id)],
             }
@@ -160,6 +168,7 @@ class FactoryService:
                     "evidence_refs": execution.evidence_refs,
                     "output": execution.payload,
                 }
+            result["attempts"] = runtime.attempts.get(work_item_id, [])
             return result
 
     @staticmethod

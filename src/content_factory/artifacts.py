@@ -28,6 +28,7 @@ class ArtifactStore:
             self._write("06_production", work_id, {
                 "type": "production_execution",
                 "work_item_id": work_id,
+                "operation_id": work_item.operation_id,
                 "revision_id": execution.output_revision_id,
                 "execution_id": execution.execution_id,
                 "capability_id": execution.capability_id,
@@ -39,6 +40,7 @@ class ArtifactStore:
             self._write("07_verification", work_id, {
                 "type": "verification_result",
                 "work_item_id": work_id,
+                "operation_id": work_item.operation_id,
                 "revision_id": verification.output_revision_id,
                 "passed": verification.passed,
                 "reason": verification.reason,
@@ -50,6 +52,7 @@ class ArtifactStore:
             self._write("05_decision", work_id, {
                 "type": "acceptance_decision",
                 "work_item_id": work_id,
+                "operation_id": work_item.operation_id,
                 "revision_id": acceptance.output_revision_id,
                 "accepted": acceptance.accepted,
                 "authority": acceptance.authority,
@@ -61,6 +64,7 @@ class ArtifactStore:
             self._write("08_effects_feedback", work_id, {
                 "type": "publication_record",
                 "work_item_id": work_id,
+                "operation_id": work_item.operation_id,
                 "revision_id": publication.output_revision_id,
                 "publication_id": publication.publication_id,
                 "target": publication.target,
@@ -71,6 +75,7 @@ class ArtifactStore:
                 self._write("01_observation", work_id, {
                     "type": "runtime_observation",
                     "work_item_id": work_id,
+                    "operation_id": work_item.operation_id,
                     "revision_id": publication.output_revision_id,
                     "state": runtime.states[work_id].value,
                     "publication_id": publication.publication_id,
@@ -80,8 +85,10 @@ class ArtifactStore:
         self._write("10_records", work_id, {
             "type": "runtime_case_record",
             "work_item_id": work_id,
+            "operation_id": work_item.operation_id,
             "revision_id": work_item.revision_id,
             "state": runtime.states[work_id].value,
+            "attempts": runtime.attempts.get(work_id, []),
             "events": [
                 {
                     "event_id": event.event_id,
@@ -109,6 +116,7 @@ class ArtifactStore:
     def _work_item(item: Any) -> dict[str, Any]:
         return {
             "work_item_id": item.work_item_id,
+            "operation_id": item.operation_id,
             "revision_id": item.revision_id,
             "objective": item.objective,
             "requested_outcome": item.requested_outcome,

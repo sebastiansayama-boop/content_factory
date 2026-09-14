@@ -6,8 +6,12 @@ from .runtime import (
     AcceptanceDecision,
     Capability,
     ExecutionResult,
+    ExecutionUnknown,
     FactoryRuntime,
+    FactoryState,
     PublicationResult,
+    RuntimePolicy,
+    VerificationResult,
     WorkItem,
 )
 from .runtime_store import RuntimeStore
@@ -17,9 +21,13 @@ __all__ = [
     "ArtifactStore",
     "Capability",
     "ExecutionResult",
+    "ExecutionUnknown",
     "FactoryRuntime",
+    "FactoryState",
     "PublicationResult",
+    "RuntimePolicy",
     "RuntimeStore",
+    "VerificationResult",
     "WorkItem",
     "openai_text_capability",
 ]

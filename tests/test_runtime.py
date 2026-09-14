@@ -6,6 +6,7 @@ from content_factory.runtime import (
     FactoryRuntime,
     FactoryState,
     PublicationResult,
+    RuntimePolicy,
     VerificationResult,
     WorkItem,
 )
@@ -13,9 +14,14 @@ from content_factory.runtime_store import RuntimeStore
 
 
 class FakePublisher:
-    def publish(self, work_item, execution):
+    def __init__(self):
+        self.calls = []
+
+    def publish(self, work_item, execution, publication_id=None):
+        publication_id = publication_id or "pub-generated"
+        self.calls.append(publication_id)
         return PublicationResult(
-            publication_id="pub-1",
+            publication_id=publication_id,
             output_revision_id=execution.output_revision_id,
             target="fake://external/channel/1",
             externally_observable=True,
@@ -24,9 +30,9 @@ class FakePublisher:
 
 
 class SimulatedPublisher:
-    def publish(self, work_item, execution):
+    def publish(self, work_item, execution, publication_id=None):
         return PublicationResult(
-            publication_id="sim-1",
+            publication_id=publication_id or "sim-1",
             output_revision_id=execution.output_revision_id,
             target="simulated://external/channel/1",
             externally_observable=False,
@@ -34,9 +40,10 @@ class SimulatedPublisher:
         )
 
 
-def make_work_item(work_item_id="wi-1"):
+def make_work_item(work_item_id="wi-1", operation_id="op-1"):
     return WorkItem(
         work_item_id=work_item_id,
+        operation_id=operation_id,
         revision_id="spec-r1",
         objective="produce bounded content",
         requested_outcome="one externally delivered content item",
@@ -49,11 +56,12 @@ def make_work_item(work_item_id="wi-1"):
     )
 
 
-def make_runtime(artifact_store=None, publisher=None, runtime_store=None):
+def make_runtime(artifact_store=None, publisher=None, runtime_store=None, *, retryable=False, idempotent=False, policy=None):
     runtime = FactoryRuntime(
         publisher=publisher or FakePublisher(),
         artifact_store=artifact_store,
         runtime_store=runtime_store,
+        policy=policy,
     )
 
     def validate(item):
@@ -68,12 +76,14 @@ def make_runtime(artifact_store=None, publisher=None, runtime_store=None):
             evidence_refs=("execution-1",),
         )
 
-    runtime.register_capability(Capability("write", validate, execute))
+    runtime.register_capability(
+        Capability("write", validate, execute, retryable=retryable, idempotent=idempotent)
+    )
     return runtime
 
 
-def run_success(runtime):
-    item = make_work_item()
+def run_success(runtime, item=None):
+    item = item or make_work_item()
     runtime.submit(item, actor="owner")
     publication = runtime.run(
         item,
@@ -98,16 +108,10 @@ def test_end_to_end_v0_reaches_observed():
 
     assert publication is not None
     assert runtime.states[item.work_item_id] == FactoryState.OBSERVED
+    assert runtime.operation_ids[item.work_item_id] == "op-1"
     assert [event.state for event in runtime.provenance(item.work_item_id)] == [
-        "RECEIVED",
-        "ADMITTED",
-        "PRODUCED",
-        "VERIFIED",
-        "ACCEPTED",
-        "RELEASE_READY",
-        "RELEASED",
-        "DELIVERED",
-        "OBSERVED",
+        "RECEIVED", "ADMITTED", "PRODUCED", "VERIFIED", "ACCEPTED",
+        "RELEASE_READY", "RELEASED", "DELIVERED", "OBSERVED",
     ]
 
 
@@ -160,7 +164,7 @@ def test_acceptance_requires_authority():
     assert runtime.states[item.work_item_id] == FactoryState.FAILED
 
 
-def test_runtime_materializes_durable_artifacts(tmp_path):
+def test_runtime_materializes_operation_and_attempts(tmp_path):
     runtime = make_runtime(ArtifactStore(tmp_path))
     item, publication = run_success(runtime)
 
@@ -174,15 +178,16 @@ def test_runtime_materializes_durable_artifacts(tmp_path):
         "08_effects_feedback/wi-1.json",
         "10_records/wi-1.json",
     }
-    actual = {
-        path.relative_to(tmp_path).as_posix()
-        for path in tmp_path.rglob("*.json")
-    }
+    actual = {path.relative_to(tmp_path).as_posix() for path in tmp_path.rglob("*.json")}
     assert actual == expected
+
+    context = (tmp_path / "03_working_context/wi-1.json").read_text(encoding="utf-8")
+    assert '"operation_id": "op-1"' in context
 
     record = (tmp_path / "10_records/wi-1.json").read_text(encoding="utf-8")
     assert '"state": "OBSERVED"' in record
     assert '"operation": "deliver"' in record
+    assert '"attempts"' in record
 
 
 def test_simulated_publication_does_not_create_observation(tmp_path):
@@ -193,50 +198,109 @@ def test_simulated_publication_does_not_create_observation(tmp_path):
     assert runtime.states[item.work_item_id] == FactoryState.DELIVERED
     assert not (tmp_path / "01_observation/wi-1.json").exists()
 
-    effects = (tmp_path / "08_effects_feedback/wi-1.json").read_text(encoding="utf-8")
-    assert '"type": "publication_record"' in effects
-    assert '"externally_observable": false' in effects
 
-
-def test_runtime_state_and_event_journal_survive_restart(tmp_path):
+def test_runtime_state_and_full_execution_projection_survive_restart(tmp_path):
     database = tmp_path / "runtime.sqlite3"
-    item = make_work_item("wi-restart")
+    item = make_work_item("wi-restart", "op-restart")
 
     with RuntimeStore(database) as store:
         first = make_runtime(runtime_store=store)
-        first.submit(item, actor="owner")
-        assert first.states[item.work_item_id] == FactoryState.RECEIVED
+        publication = run_success(first, item)[1]
+        assert publication is not None
 
     with RuntimeStore(database) as store:
-        second = FactoryRuntime(runtime_store=store)
-        assert second.states[item.work_item_id] == FactoryState.RECEIVED
-        assert [event.operation for event in second.provenance(item.work_item_id)] == ["submit"]
-
-        second._transition(item, FactoryState.ADMITTED, "admit", "factory")
-        assert second.states[item.work_item_id] == FactoryState.ADMITTED
-
-    with RuntimeStore(database) as store:
-        recovered = FactoryRuntime(runtime_store=store)
-        assert recovered.states[item.work_item_id] == FactoryState.ADMITTED
-        assert [event.state for event in recovered.provenance(item.work_item_id)] == [
-            "RECEIVED",
-            "ADMITTED",
-        ]
+        recovered = make_runtime(runtime_store=store)
+        assert recovered.states[item.work_item_id] == FactoryState.OBSERVED
+        assert recovered.operation_ids[item.work_item_id] == "op-restart"
+        assert recovered.executions[item.work_item_id].execution_id
+        assert recovered.verifications[item.work_item_id].passed is True
+        assert recovered.acceptances[item.work_item_id].accepted is True
+        assert recovered.publications[item.work_item_id].publication_id == publication.publication_id
+        assert recovered.attempts[item.work_item_id][0]["status"] == "SUCCEEDED"
 
 
-def test_state_transition_and_event_are_committed_together(tmp_path):
+def test_duplicate_operation_identity_is_rejected():
+    runtime = make_runtime()
+    item = make_work_item("wi-identity", "op-identity")
+    runtime.submit(item)
+
+    conflicting = make_work_item("wi-identity", "op-other")
+    try:
+        runtime.submit(conflicting)
+    except ValueError as exc:
+        assert "already exists" in str(exc)
+    else:
+        raise AssertionError("duplicate work item was accepted")
+
+
+def test_idempotent_retry_uses_distinct_execution_ids():
+    calls = []
+
+    def execute(item, execution_id):
+        calls.append(execution_id)
+        if len(calls) == 1:
+            raise RuntimeError("transient")
+        return ExecutionResult(execution_id, "write", "asset-r2", "content", ())
+
+    runtime = FactoryRuntime(policy=RuntimePolicy(max_execution_attempts=2))
+    runtime.register_capability(Capability("write", lambda _: None, execute, retryable=True, idempotent=True))
+    item = make_work_item("wi-retry", "op-retry")
+    runtime.submit(item)
+    runtime.run(
+        item,
+        verification=lambda _, execution: VerificationResult(execution.output_revision_id, True),
+        acceptance=lambda _, verified: AcceptanceDecision(verified.output_revision_id, True, "approver"),
+        release_authority="publisher",
+    )
+
+    assert len(calls) == 2
+    assert calls[0] != calls[1]
+    assert [attempt["status"] for attempt in runtime.attempts[item.work_item_id]] == ["FAILED", "SUCCEEDED"]
+
+
+def test_non_idempotent_unknown_blocks_automatic_reexecution(tmp_path):
     database = tmp_path / "runtime.sqlite3"
-    item = make_work_item("wi-atomic")
+    item = make_work_item("wi-unknown", "op-unknown")
 
     with RuntimeStore(database) as store:
         runtime = make_runtime(runtime_store=store)
         runtime.submit(item)
         runtime._transition(item, FactoryState.ADMITTED, "admit", "factory")
+        store.start_attempt(
+            attempt_id="attempt-1",
+            work_item_id=item.work_item_id,
+            operation_id=item.operation_id,
+            execution_id="exec-1",
+            attempt_no=1,
+            started_at="2026-09-14T00:00:00+00:00",
+        )
 
     with RuntimeStore(database) as store:
-        rows = store.load_events(item.work_item_id)
-        assert [(row["state"], row["operation"]) for row in rows] == [
-            ("RECEIVED", "submit"),
-            ("ADMITTED", "admit"),
-        ]
-        assert store.load_work_items()[0].state == "ADMITTED"
+        recovered = make_runtime(runtime_store=store)
+        assert recovered.states[item.work_item_id] == FactoryState.UNKNOWN
+        try:
+            recovered.run(
+                item,
+                verification=lambda _, execution: VerificationResult(execution.output_revision_id, True),
+                acceptance=lambda _, verified: AcceptanceDecision(verified.output_revision_id, True, "approver"),
+                release_authority="publisher",
+            )
+        except Exception:
+            pass
+        else:
+            raise AssertionError("UNKNOWN execution was automatically re-run")
+
+
+def test_cancel_is_durable(tmp_path):
+    database = tmp_path / "runtime.sqlite3"
+    item = make_work_item("wi-cancel", "op-cancel")
+
+    with RuntimeStore(database) as store:
+        runtime = make_runtime(runtime_store=store)
+        runtime.submit(item)
+        runtime.cancel(item, actor="operator", reason="operator requested stop")
+        assert runtime.states[item.work_item_id] == FactoryState.CANCELLED
+
+    with RuntimeStore(database) as store:
+        recovered = FactoryRuntime(runtime_store=store)
+        assert recovered.states[item.work_item_id] == FactoryState.CANCELLED

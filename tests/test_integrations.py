@@ -1,6 +1,7 @@
 import os
 
 import pytest
+from urllib.error import HTTPError, URLError
 
 from content_factory.integrations import ExternalCallResult, IntegrationConfig, IntegrationError
 from content_factory.openai_adapter import OpenAIResponsesAdapter, OpenAIResponsesConfig
@@ -54,3 +55,50 @@ def test_openai_response_text_rejects_missing_text():
     )
     with pytest.raises(ValueError, match="no text output"):
         OpenAIResponsesAdapter.response_text(result)
+
+
+def test_http_error_preserves_provider_error_code_and_message(monkeypatch):
+    from urllib.error import HTTPError
+
+    from content_factory import integrations
+
+    class FakeHttpError(HTTPError):
+        def __init__(self):
+            super().__init__("https://example.invalid", 429, "Too Many Requests", {}, None)
+
+        def read(self):
+            return b'{"error":{"type":"insufficient_quota","code":"credit_balance_exhausted","message":"No credits remain"}}'
+
+    def raise_http_error(*args, **kwargs):
+        raise FakeHttpError()
+
+    monkeypatch.setenv("CF_TEST_SECRET", "test-secret")
+    monkeypatch.setattr(integrations, "urlopen", raise_http_error)
+    adapter = integrations.HttpJsonAdapter(
+        IntegrationConfig("test", "https://example.invalid", "CF_TEST_SECRET")
+    )
+
+    with pytest.raises(
+        IntegrationError,
+        match=r"provider HTTP error: 429; type=insufficient_quota; code=credit_balance_exhausted; message=No credits remain",
+    ):
+        adapter.call({"input": "test"})
+
+
+def test_url_error_preserves_safe_connectivity_reason(monkeypatch):
+    from content_factory import integrations
+
+    def raise_url_error(*args, **kwargs):
+        raise URLError("temporary DNS failure")
+
+    monkeypatch.setenv("CF_TEST_SECRET", "test-secret")
+    monkeypatch.setattr(integrations, "urlopen", raise_url_error)
+    adapter = integrations.HttpJsonAdapter(
+        IntegrationConfig("test", "https://example.invalid", "CF_TEST_SECRET")
+    )
+
+    with pytest.raises(
+        IntegrationError,
+        match=r"provider connectivity error; reason_type=str; reason=temporary DNS failure",
+    ):
+        adapter.call({"input": "test"})
