@@ -201,49 +201,102 @@ class FactoryRuntime:
             return
         restarted_at = self._now()
         self.runtime_store.mark_running_attempts_unknown(restarted_at)
-        for item in self.runtime_store.load_work_items():
+        persisted_items = self.runtime_store.load_work_items()
+        persisted_by_id = {item.work_item_id: item for item in persisted_items}
+        for item in persisted_items:
             self.states[item.work_item_id] = FactoryState(item.state)
             self.operation_ids[item.work_item_id] = item.operation_id
         self.events = [Event(**event) for event in self.runtime_store.load_events()]
-        for work_item_id in list(self.states):
+
+        for work_item_id, persisted in persisted_by_id.items():
             attempts = self.runtime_store.load_attempts(work_item_id)
             self.attempts[work_item_id] = attempts
             execution = self.runtime_store.load_record(work_item_id, "execution")
             if execution:
-                self.executions[work_item_id] = ExecutionResult(**execution)
+                self.executions[work_item_id] = ExecutionResult(
+                    execution_id=execution["execution_id"],
+                    capability_id=execution["capability_id"],
+                    output_revision_id=execution["output_revision_id"],
+                    payload=execution["payload"],
+                    evidence_refs=tuple(execution.get("evidence_refs", [])),
+                )
             verification = self.runtime_store.load_record(work_item_id, "verification")
             if verification:
-                self.verifications[work_item_id] = VerificationResult(**verification)
+                self.verifications[work_item_id] = VerificationResult(
+                    output_revision_id=verification["output_revision_id"],
+                    passed=verification["passed"],
+                    evidence_refs=tuple(verification.get("evidence_refs", [])),
+                    reason=verification.get("reason", ""),
+                )
             acceptance = self.runtime_store.load_record(work_item_id, "acceptance")
             if acceptance:
                 self.acceptances[work_item_id] = AcceptanceDecision(**acceptance)
             publication = self.runtime_store.load_record(work_item_id, "publication")
             if publication:
-                self.publications[work_item_id] = PublicationResult(**publication)
+                self.publications[work_item_id] = PublicationResult(
+                    publication_id=publication["publication_id"],
+                    output_revision_id=publication["output_revision_id"],
+                    target=publication["target"],
+                    externally_observable=publication["externally_observable"],
+                    evidence_refs=tuple(publication.get("evidence_refs", [])),
+                )
+
             if self.states[work_item_id] == FactoryState.ADMITTED and any(
                 attempt["status"] == "UNKNOWN" for attempt in attempts
             ) and work_item_id not in self.executions:
-                persisted = next(item for item in self.runtime_store.load_work_items() if item.work_item_id == work_item_id)
-                event = Event(
-                    event_id=str(uuid4()),
-                    timestamp=restarted_at,
-                    work_item_id=work_item_id,
-                    revision_id=persisted.revision_id,
-                    state=FactoryState.UNKNOWN.value,
-                    operation="recover_unknown",
-                    actor="recovery",
-                    data={"operation_id": persisted.operation_id},
+                self._recover_transition(
+                    persisted,
+                    FactoryState.UNKNOWN,
+                    "recover_unknown",
+                    {"reason": "runtime restarted while execution attempt was RUNNING"},
+                    restarted_at,
                 )
-                self.runtime_store.transition(
-                    work_item_id=work_item_id,
-                    operation_id=persisted.operation_id,
-                    revision_id=persisted.revision_id,
-                    state=FactoryState.UNKNOWN.value,
-                    updated_at=restarted_at,
-                    event=event.__dict__,
-                )
-                self.states[work_item_id] = FactoryState.UNKNOWN
-                self.events.append(event)
+                continue
+
+            if self.states[work_item_id] == FactoryState.ADMITTED and work_item_id in self.executions:
+                self._recover_transition(persisted, FactoryState.PRODUCED, "recover_execution", {}, restarted_at)
+            if self.states[work_item_id] == FactoryState.PRODUCED and work_item_id in self.verifications:
+                self._recover_transition(persisted, FactoryState.VERIFIED, "recover_verification", {}, restarted_at)
+            if self.states[work_item_id] == FactoryState.VERIFIED and work_item_id in self.acceptances:
+                if self.acceptances[work_item_id].accepted:
+                    self._recover_transition(persisted, FactoryState.ACCEPTED, "recover_acceptance", {}, restarted_at)
+            if self.states[work_item_id] == FactoryState.RELEASED and work_item_id in self.publications:
+                self._recover_transition(persisted, FactoryState.DELIVERED, "recover_publication", {}, restarted_at)
+            if (
+                self.states[work_item_id] == FactoryState.DELIVERED
+                and work_item_id in self.publications
+                and self.publications[work_item_id].externally_observable
+            ):
+                self._recover_transition(persisted, FactoryState.OBSERVED, "recover_observation", {}, restarted_at)
+
+    def _recover_transition(
+        self,
+        persisted: Any,
+        target: FactoryState,
+        operation: str,
+        data: dict[str, Any],
+        timestamp: str,
+    ) -> None:
+        event = Event(
+            event_id=str(uuid4()),
+            timestamp=timestamp,
+            work_item_id=persisted.work_item_id,
+            revision_id=persisted.revision_id,
+            state=target.value,
+            operation=operation,
+            actor="recovery",
+            data={"operation_id": persisted.operation_id, **data},
+        )
+        self.runtime_store.transition(
+            work_item_id=persisted.work_item_id,
+            operation_id=persisted.operation_id,
+            revision_id=persisted.revision_id,
+            state=target.value,
+            updated_at=timestamp,
+            event=event.__dict__,
+        )
+        self.states[persisted.work_item_id] = target
+        self.events.append(event)
 
     def register_capability(self, capability: Capability) -> None:
         if capability.capability_id in self.capabilities:
@@ -298,20 +351,19 @@ class FactoryRuntime:
 
         try:
             if work_item.work_item_id not in self.executions:
-                if not capability.idempotent and self._has_unknown_attempt(work_item.work_item_id):
-                    raise ExecutionUnknown("prior execution attempt is UNKNOWN; explicit recovery resolution required")
                 execution = self._execute_with_attempts(work_item, capability)
                 if execution is None:
                     return None
                 self.executions[work_item.work_item_id] = execution
                 self._save_execution(work_item, execution)
+
+            if self.states[work_item.work_item_id] == FactoryState.ADMITTED:
                 self._transition(
                     work_item,
                     FactoryState.PRODUCED,
-                    "execute",
+                    "execute" if not any(event.operation == "recover_execution" for event in self.provenance(work_item.work_item_id)) else "resume_execute",
                     actor,
-                    execution_id=execution.execution_id,
-                    operation_id=work_item.operation_id,
+                    execution_id=self.executions[work_item.work_item_id].execution_id,
                 )
 
             if work_item.work_item_id not in self.verifications:
@@ -323,6 +375,8 @@ class FactoryRuntime:
                 self._save_verification(work_item, verified)
                 if not verified.passed:
                     return self._fail(work_item, "verification failed")
+
+            if self.states[work_item.work_item_id] == FactoryState.PRODUCED:
                 self._transition(work_item, FactoryState.VERIFIED, "verify", actor)
 
             if work_item.work_item_id not in self.acceptances:
@@ -334,7 +388,9 @@ class FactoryRuntime:
                 self._save_acceptance(work_item, decision)
                 if not decision.accepted or not decision.authority:
                     return self._fail(work_item, "acceptance denied or missing authority")
-                self._transition(work_item, FactoryState.ACCEPTED, "accept", decision.authority)
+
+            if self.states[work_item.work_item_id] == FactoryState.VERIFIED:
+                self._transition(work_item, FactoryState.ACCEPTED, "accept", self.acceptances[work_item.work_item_id].authority)
 
             if release_authority is None:
                 raise AuthorityDenied("release authority is required")
@@ -353,13 +409,14 @@ class FactoryRuntime:
                     raise ValueError("publication must bind to exact output revision")
                 self.publications[work_item.work_item_id] = publication
                 self._save_publication(work_item, publication)
-                self._transition(
-                    work_item,
-                    FactoryState.DELIVERED,
-                    "deliver",
-                    release_authority,
-                    publication_id=publication.publication_id,
-                )
+                if self.states[work_item.work_item_id] == FactoryState.RELEASED:
+                    self._transition(
+                        work_item,
+                        FactoryState.DELIVERED,
+                        "deliver",
+                        release_authority,
+                        publication_id=publication.publication_id,
+                    )
 
             publication = self.publications[work_item.work_item_id]
             if publication.externally_observable and self.states[work_item.work_item_id] == FactoryState.DELIVERED:
@@ -458,9 +515,6 @@ class FactoryRuntime:
                 if len(attempts) >= max_attempts:
                     raise
         return None
-
-    def _has_unknown_attempt(self, work_item_id: str) -> bool:
-        return any(attempt["status"] == "UNKNOWN" for attempt in self.attempts.get(work_item_id, []))
 
     def _require_known_operation(self, work_item: WorkItem) -> None:
         known = self.operation_ids.get(work_item.work_item_id)
