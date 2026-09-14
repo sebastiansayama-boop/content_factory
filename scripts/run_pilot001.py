@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import os
 import time
-from pathlib import Path
 
 from content_factory.telegram_pilot import Pilot001Controller, TelegramBot, keyboard, preview_text
 
@@ -15,11 +14,20 @@ def _required(name: str) -> str:
     return value
 
 
+def _set_status(controller: Pilot001Controller, draft_id: str, status: str) -> None:
+    path = controller.draft_root / f"{draft_id}.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["draft"]["status"] = status
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
 def main() -> int:
     token = _required("TELEGRAM_BOT_TOKEN")
     chat_id = _required("TELEGRAM_CHAT_ID")
     controller = Pilot001Controller()
     bot = TelegramBot(token, chat_id)
+    # getUpdates cannot be used while a Telegram webhook is configured.
+    bot.delete_webhook()
     bot.send_message(
         "Content Factory Pilot001 online.\n\n"
         "Send /pilot <direction> to generate a researched post + carousel.\n"
@@ -51,35 +59,26 @@ def main() -> int:
                             )["research"]
                             bot.send_message(preview_text(draft, research_payload), keyboard(draft.draft_id))
                             for index, image in enumerate(images, 1):
-                                caption = f"Slide {index}/{len(images)}"
-                                bot.send_photo(image, caption)
+                                bot.send_photo(image, f"Slide {index}/{len(images)}")
                         except Exception as exc:
                             bot.send_message(f"Pilot001 failed: {exc}")
                     elif text in {"/start", "/help"}:
                         bot.send_message("Use /pilot <direction>. Example: /pilot AI agents for small businesses")
+
                 callback = update.get("callback_query")
                 if callback:
-                    callback_id = callback["id"]
-                    data = str(callback.get("data") or "")
-                    bot.answer_callback(callback_id)
-                    action, _, draft_id = data.partition(":")
+                    bot.answer_callback(callback["id"])
+                    action, _, draft_id = str(callback.get("data") or "").partition(":")
                     if not draft_id:
                         continue
                     try:
-                        draft, research = controller._load_for_action(draft_id) if hasattr(controller, "_load_for_action") else (None, None)
                         if action == "approve":
-                            path = controller.draft_root / f"{draft_id}.json"
-                            payload = json.loads(path.read_text(encoding="utf-8"))
-                            payload["draft"]["status"] = "APPROVED"
-                            path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+                            _set_status(controller, draft_id, "APPROVED")
                             bot.send_message(
                                 f"APPROVED: {draft_id}\n\nManual publication boundary reached.\nPublish the approved post manually to Instagram / Threads."
                             )
                         elif action == "reject":
-                            path = controller.draft_root / f"{draft_id}.json"
-                            payload = json.loads(path.read_text(encoding="utf-8"))
-                            payload["draft"]["status"] = "REJECTED"
-                            path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+                            _set_status(controller, draft_id, "REJECTED")
                             bot.send_message(f"REJECTED: {draft_id}")
                         elif action == "regen":
                             bot.send_message("Regenerating with a new angle...")
