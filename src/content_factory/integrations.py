@@ -97,4 +97,10 @@ class HttpJsonAdapter:
                         details.append(f"message={message}")
             raise IntegrationError("; ".join(details)) from exc
         except URLError as exc:
-            raise IntegrationError("provider connectivity error") from exc
+            reason = exc.reason
+            reason_type = type(reason).__name__
+            reason_text = str(reason).replace("\n", " ").strip()
+            details = ["provider connectivity error", f"reason_type={reason_type}"]
+            if reason_text:
+                details.append(f"reason={reason_text}")
+            raise IntegrationError("; ".join(details)) from exc
