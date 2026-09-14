@@ -272,7 +272,7 @@ def main() -> None:
     Handler.service = service
     host = os.environ.get("HOST", "0.0.0.0")
     port = int(os.environ.get("PORT", "8080"))
-    server = ThreadingHTTPServer((host, port))
+    server = ThreadingHTTPServer((host, port), Handler)
     try:
         server.serve_forever()
     finally:
