@@ -1,6 +1,6 @@
 # Content Factory Repository Rules
 
-The repository is a research environment for an editorial knowledge and production system.
+The repository is a research-and-development environment for an executable editorial knowledge and production system.
 
 ## Governing rules
 
