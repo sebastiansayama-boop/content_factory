@@ -1,5 +1,19 @@
 {
+  "id": "factory-execution-proof-workflow-v0",
   "name": "Content Factory - External Execution Proof",
+  "active": false,
+  "versionId": "factory-execution-proof-version-v0",
+  "versionCounter": 1,
+  "triggerCount": 1,
+  "isArchived": false,
+  "meta": {},
+  "nodeGroups": [],
+  "staticData": null,
+  "pinData": {},
+  "tags": [],
+  "settings": {
+    "executionOrder": "v1"
+  },
   "nodes": [
     {
       "parameters": {
@@ -12,10 +26,7 @@
       "name": "Factory Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
-      "position": [
-        260,
-        300
-      ],
+      "position": [260, 300],
       "webhookId": "factory-execution-proof-v0"
     },
     {
@@ -26,10 +37,7 @@
       "name": "Build Factory Execution Result",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        560,
-        300
-      ]
+      "position": [560, 300]
     }
   ],
   "connections": {
@@ -44,11 +52,5 @@
         ]
       ]
     }
-  },
-  "pinData": {},
-  "active": false,
-  "settings": {
-    "executionOrder": "v1"
-  },
-  "tags": []
+  }
 }
