@@ -28,37 +28,37 @@ These parameters are proposed for the first production attempt and require execu
 
 ## 4. Shot plan
 
-### shot_01 — Inherited toolkit
+### shot_01 — Inherited biological machinery
 
-Narration intent: Different species can look radically different while sharing deep biological machinery inherited from common ancestry.
+Narration intent: Different species can look radically different while sharing deep biological machinery inherited from common ancestry. The visual should distinguish shared biological foundations from identical outward form.
 
 Claim bindings: `C1`, `C2`, `C3`.
 
-Visual direction: restrained scientific motion graphic showing a branching evolutionary tree with repeated cellular/molecular motifs persisting across branches; no claim that all visible structures are identical.
+Visual direction: restrained scientific motion graphic showing a branching evolutionary tree with selected repeated cellular/molecular motifs persisting across branches. Do not label every visible motif as universally identical or imply a complete reconstruction of the ancestral toolkit.
 
-### shot_02 — Recurring problems and constraints
+### shot_02 — Recurring problems and qualified constraints
 
-Narration intent: Organisms repeatedly face functional and environmental problems, while physics, ecology, development and inherited architecture can constrain accessible evolutionary trajectories.
+Narration intent: Organisms repeatedly encounter functional and environmental problems. Physical, ecological, developmental and historical factors can constrain or bias accessible evolutionary trajectories, but they do not determine one inevitable outcome.
 
 Claim bindings: `C4`, `C5`.
 
-Visual direction: aquatic locomotion problem represented by flow lines and several independently branching body-plan silhouettes; emphasize a constrained design landscape without depicting one inevitable solution.
+Visual direction: aquatic locomotion problem represented by flow lines and several independently branching body-plan silhouettes. Emphasize a constrained design landscape without a deterministic `constraint → solution` arrow.
 
 ### shot_03 — Convergent locomotion
 
-Narration intent: Large distantly related aquatic vertebrates independently evolved a thunniform body plan, illustrating recurrent phenotypic solutions under recurring functional and physical conditions.
+Narration intent: Large distantly related aquatic vertebrates independently evolved a thunniform body plan, providing a documented example of recurrent phenotypic solutions under recurring functional and physical conditions.
 
 Claim bindings: `C4`, `C5`, `C6`.
 
-Visual direction: comparative scientific silhouettes of tuna-like, shark-like and other large cruising vertebrate forms, presented as independent lineages rather than a single ancestry chain.
+Visual direction: comparative scientific silhouettes of tuna-like, shark-like, cetacean-like and ichthyosaur-like large cruising vertebrate forms, presented as independent evolutionary lineages rather than a single ancestry chain. Avoid implying that hydrodynamics alone explains the convergence.
 
-### shot_04 — Camera eyes and component reuse
+### shot_04 — Camera eyes: convergent organ, mosaic underlying basis
 
-Narration intent: Vertebrate and cephalopod camera eyes show organ-level convergence, while similarity at the organ level does not mean every underlying component evolved independently; ancient biological components can be reused.
+Narration intent: Vertebrate and cephalopod camera eyes are a classic example of organ-level convergence. Their similar function and overall architecture do not mean that every underlying component evolved independently or that the same genetic mechanism produced both eyes. Evidence instead supports a mosaic picture involving conserved/shared genes and molecular systems alongside lineage-specific recruitment, gene duplication, expression changes and other modifications.
 
 Claim bindings: `C6`, `C7`, `C8`, `C9`.
 
-Visual direction: split comparison of vertebrate and cephalopod camera-eye architecture, followed by a restrained component/reuse diagram. Explicitly avoid implying identical developmental construction or universal genetic convergence.
+Visual direction: split comparison of vertebrate and cephalopod camera-eye architecture, followed by a restrained component-level diagram with two categories: shared/conserved molecular resources and lineage-specific recruitment/modification. Do not depict a one-to-one identical gene set, complete independence, or identical developmental construction. citeturn0search0turn0search4turn0search5
 
 ## 5. Global visual constraints
 
@@ -67,7 +67,9 @@ Visual direction: split comparison of vertebrate and cephalopod camera-eye archi
 - no deterministic arrows such as `constraint → inevitable solution`;
 - no phenotype → ancestry inference;
 - no claim that convergent phenotype generally implies convergent genes;
+- no claim that every component of a convergent phenotype evolved independently;
 - preserve distinction between organ/phenotype and component/gene levels;
+- preserve the mosaic basis of the camera-eye example;
 - no unsupported labels or factual annotations outside `C1–C9`.
 
 ## 6. Required files for executable pack
@@ -102,3 +104,4 @@ Production remains blocked until those inputs exist.
 - Editorial specification: `05_decision/2026-09-14-commonality-convergence-editorial-specification.md`
 - Claim graph: `04_reasoning/2026-09-14-claim-graph-commonality-convergence.md`
 - Renderer contract: `sebastiansayama-boop/whisper-studio/docs/one-command-generator.md`
+- External evidence checked for this synchronization: Nature Ecology & Evolution 2025; BMC Ecology and Evolution 2011; Molecular Evidence for Convergence and Parallelism 2015. citeturn0search0turn0search4turn0search5
