@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "content-demand-v1",
+  "title": "ContentDemand v1",
+  "description": "Receiving-boundary contract for an authorized discovery decision entering Content Factory.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "demand_id", "revision_id", "strategic_intent_ref", "opportunity_or_problem_ref",
+    "audience_context_ref", "requested_outcome", "content_job_or_product_intent",
+    "knowledge_basis_refs", "evidence_refs", "decision_ref", "decision_status",
+    "authority_ref", "constraints", "acceptance_criteria", "release_requirements", "success_signals"
+  ],
+  "properties": {
+    "demand_id": {"type": "string", "minLength": 1},
+    "revision_id": {"type": "string", "minLength": 1},
+    "strategic_intent_ref": {"type": "string", "minLength": 1},
+    "opportunity_or_problem_ref": {"type": "string", "minLength": 1},
+    "audience_context_ref": {"type": "string", "minLength": 1},
+    "requested_outcome": {"type": "string", "minLength": 1},
+    "content_job_or_product_intent": {"type": "string", "minLength": 1},
+    "knowledge_basis_refs": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1},
+    "evidence_refs": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1},
+    "decision_ref": {"type": "string", "minLength": 1},
+    "decision_status": {"const": "AUTHORIZED"},
+    "authority_ref": {"type": "string", "minLength": 1},
+    "constraints": {"type": "array", "items": {"type": "string"}},
+    "acceptance_criteria": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1},
+    "release_requirements": {"type": "array", "items": {"type": "string"}},
+    "success_signals": {"type": "array", "items": {"type": "string"}}
+  }
+}
