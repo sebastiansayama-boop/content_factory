@@ -1,6 +1,6 @@
 # 2026-09-14 — Discovery → Content Demand and Rules Consistency Audit
 
-Status: `SUPPORTED / ARCHITECTURE REVIEW / INTAKE CONTRACT IMPLEMENTED`
+Status: `SUPPORTED / ARCHITECTURE REVIEW / OPENALEX ADAPTER PROOF ADDED`
 
 ## Question
 
@@ -34,6 +34,7 @@ Project-state assertions should remain in model/navigation artifacts rather than
 4. Define the Discovery → Content Demand boundary as an explicit receiving-side contract in Content Factory while preserving discovery evidence and decision authority in source systems.
 5. Keep producer ownership unresolved until an active system demonstrates the required decision lifecycle.
 6. Change no unrelated execution architecture.
+7. Use a provider-neutral external-source adapter as the first Knowledge Layer seam, and prove it on one real provider before adding more adapters.
 
 ## Implemented receiving contract
 
@@ -45,27 +46,44 @@ Project-state assertions should remain in model/navigation artifacts rather than
 
 This is an intake contract, not an end-to-end Discovery implementation. No upstream repository is declared its canonical producer.
 
+## External Source Adapter proof
+
+`src/content_factory/external_source.py` now defines the minimal provider-neutral `ExternalSourceAdapter` seam and a read-only `OpenAlexAdapter` implementation. The adapter normalizes OpenAlex works into `Source`, retrieves an evidence representation, and derives a claim that explicitly references that evidence.
+
+`src/content_factory/openalex_demand.py` maps that source/evidence/claim chain into the already-existing `ContentDemand`; it does not introduce a second production primitive.
+
+`tests/test_openalex_adapter.py` exercises the complete local chain with a deterministic OpenAlex-shaped HTTP fixture:
+
+`OpenAlex → Source → Evidence → Claim → ContentDemand`
+
+The fixture proves identifier/provenance propagation and the existing AUTHORIZED intake gate. It does not prove a live network call from the repository because the available GitHub connector cannot execute the test suite.
+
+The external source choice is technically justified: current OpenAlex documentation describes a free REST API over its connected graph of works, authors, sources, institutions and topics, with work records exposing DOI, abstract, open-access, authorship, topic and citation-related fields. citeturn0search0turn0search3
+
 ## Open unknowns
 
 - Which active system should own canonical Discovery decisions.
 - Whether Discovery needs one normalized repository or can remain federated behind the contract.
 - What authority model should approve a Content Demand across repositories.
-- Which real case should be used as the first end-to-end Discovery → Demand proof.
+- Whether the evidence representation needs spans/chunks rather than an excerpt for long-form sources.
+- Whether Source identity needs stronger cross-provider resolution (DOI/OpenAlex/other identifiers).
+- Which real case should be used as the first live network-backed Discovery → Demand proof.
 - Whether the existing WorkItem mapping is sufficient once a real producer case is exercised.
 
 ## Verification status
 
-The new contract, executable boundary and tests were fetched from `main` after writing and are present. The executable boundary was inspected against the current `WorkItem` runtime shape.
+The new adapter, bridge and tests were fetched from `main` after writing and are present. The adapter was inspected against the current `ContentDemand` and `WorkItem` shapes.
 
-The GitHub connector available in this cycle does not execute the repository test suite, so the tests are written but **not independently executed here**. Therefore this change proves contract presence and source-level consistency, not CI/test execution.
+The GitHub connector available in this cycle does not execute the repository test suite, so the tests are written but **not independently executed here**. Therefore this change proves contract presence and source-level consistency plus deterministic fixture coverage, not passing CI or live network execution.
 
 ## External research reconciliation
 
 - Continuous discovery / opportunity mapping: `SUPPORTS_CURRENT_MODEL`.
 - Provenance across transformations: `SUPPORTS_CURRENT_MODEL`.
+- OpenAlex as a machine-accessible research graph: `SUPPORTS_ADAPTER_CHOICE`.
 - Specific repository ownership of Discovery: `UNCERTAIN`.
 - Existing ecosystem implementation of the proposed bridge: `REVEALS_GAP`.
 
 ## Next legitimate step
 
-Run one real bounded Discovery → Content Demand case through the receiving contract. Use that case to determine whether the contract is sufficient and whether an active upstream system can legitimately produce it. Do not create a general Discovery platform before that proof.
+Run the repository test suite/CI and one live OpenAlex-backed bounded case. If that passes, generalize only the provider-neutral seam: add the next source adapter (likely Wikidata or GitHub) without changing the ContentDemand or runtime primitives unless the real case demonstrates a gap.
