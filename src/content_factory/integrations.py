@@ -95,6 +95,9 @@ class HttpJsonAdapter:
                     message = error.get("message")
                     if isinstance(message, str) and message:
                         details.append(f"message={message}")
+                raw_response = body.get("raw_response")
+                if isinstance(raw_response, str) and raw_response.strip():
+                    details.append(f"raw_response={raw_response.strip()[:1000]}")
             raise IntegrationError("; ".join(details)) from exc
         except URLError as exc:
             reason = exc.reason
