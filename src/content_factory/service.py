@@ -90,7 +90,8 @@ class FactoryService:
 
     @staticmethod
     def _build_provider() -> tuple[str, Capability]:
-        provider = os.environ.get("FACTORY_PROVIDER", "gemini").strip().lower()
+        configured = os.environ.get("FACTORY_PROVIDER", "").strip().lower()
+        provider = configured or ("gemini" if os.environ.get("GEMINI_API_KEY", "").strip() else "openai")
         if provider == "gemini":
             adapter = GeminiOpenAICompatibleAdapter()
             capability = text_generation_capability(
@@ -108,14 +109,16 @@ class FactoryService:
         self._store.close()
 
     def health(self) -> dict[str, Any]:
-        if self._provider == "gemini":
-            key_configured = bool(os.environ.get("GEMINI_API_KEY"))
-        else:
-            key_configured = bool(os.environ.get("OPENAI_API_KEY"))
         return {
             "status": "ok",
             "provider": self._provider,
-            "provider_key_configured": key_configured,
+            "provider_key_configured": bool(
+                os.environ.get("GEMINI_API_KEY")
+                if self._provider == "gemini"
+                else os.environ.get("OPENAI_API_KEY")
+            ),
+            "gemini_key_configured": bool(os.environ.get("GEMINI_API_KEY")),
+            "openai_key_configured": bool(os.environ.get("OPENAI_API_KEY")),
             "publisher_configured": self._publisher is not None,
             "api_auth_configured": bool(os.environ.get("FACTORY_API_TOKEN")),
         }
