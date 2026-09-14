@@ -23,12 +23,7 @@ from .runtime_store import RuntimeStore
 
 
 class WebhookPublisher:
-    """Deliver an accepted output to a configured HTTPS webhook.
-
-    A successful 2xx response is treated as externally observable delivery of
-    the payload to that webhook. This is a delivery proof, not proof of an
-    audience/business outcome.
-    """
+    """Deliver an accepted output to a configured HTTPS webhook."""
 
     def __init__(self, url: str, token: str | None = None, timeout: float = 30.0) -> None:
         if not url.startswith("https://"):
@@ -38,9 +33,10 @@ class WebhookPublisher:
         self.timeout = timeout
 
     def publish(self, work_item: WorkItem, execution) -> PublicationResult:
+        publication_id = str(uuid4())
         body = json.dumps(
             {
-                "publication_id": str(uuid4()),
+                "publication_id": publication_id,
                 "work_item_id": work_item.work_item_id,
                 "work_item_revision_id": work_item.revision_id,
                 "output_revision_id": execution.output_revision_id,
@@ -63,7 +59,6 @@ class WebhookPublisher:
             raise RuntimeError(f"publisher connection failed: {exc.reason}") from exc
         if status < 200 or status >= 300:
             raise RuntimeError(f"publisher returned HTTP {status}")
-        publication_id = json.loads(body.decode("utf-8"))["publication_id"]
         return PublicationResult(
             publication_id=publication_id,
             output_revision_id=execution.output_revision_id,
@@ -96,6 +91,7 @@ class FactoryService:
             "status": "ok",
             "publisher_configured": self._publisher is not None,
             "openai_key_configured": bool(os.environ.get("OPENAI_API_KEY")),
+            "api_auth_configured": bool(os.environ.get("FACTORY_API_TOKEN")),
         }
 
     def run(self, payload: dict[str, Any]) -> dict[str, Any]:
@@ -188,6 +184,12 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(raw)
 
+    def _authorized(self) -> bool:
+        expected = os.environ.get("FACTORY_API_TOKEN", "").strip()
+        if not expected:
+            return False
+        return self.headers.get("Authorization", "") == f"Bearer {expected}"
+
     def do_GET(self) -> None:  # noqa: N802
         if self.path == "/health":
             self._json(200, self.service.health())
@@ -197,6 +199,9 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:  # noqa: N802
         if self.path != "/run":
             self._json(404, {"error": "not found"})
+            return
+        if not self._authorized():
+            self._json(401, {"error": "missing or invalid API token"})
             return
         try:
             length = int(self.headers.get("Content-Length", "0"))
