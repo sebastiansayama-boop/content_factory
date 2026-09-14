@@ -1,22 +1,25 @@
-# Real Provider External Proof — Phase 2
+# External Execution Proof — Phase 2
 
 ## Status
 
-Harness implemented. Real-provider proof is **not yet claimed passed** until the operator runs it with valid `OPENAI_API_KEY` in the execution environment.
+The repository contains two proof paths. Neither is claimed passed until it is executed in the real local execution environment.
+
+The **free primary path** is the local n8n execution substrate. The OpenAI path is optional and requires a paid/credited API account.
 
 ## Goal
 
-Prove one real Work Item reaches a real provider-generated output and a revision-bound `VERIFIED` state, with durable reconstruction after process exit.
+Prove one real Work Item crosses an actual external execution boundary, produces a revision-bound output, persists execution and verification evidence, and reconstructs as `VERIFIED` after the process is reopened.
 
-This is Phase 2 (`real_execution`). It intentionally stops before acceptance, release, publication, and external-effect observation, which belong to later phases.
+This milestone deliberately stops before acceptance, release, publication and observed external business effect.
 
-## Proof path
+## Free proof path: local n8n
 
 ```text
 WorkItem
-  -> FactoryRuntime submit/admit
-  -> OpenAI Responses API
-  -> provider response id
+  -> factory-owned operation_id
+  -> N8nExecutionAdapter
+  -> local n8n webhook/workflow
+  -> normalized n8n execution result
   -> ExecutionResult
   -> output_revision_id
   -> VerificationResult
@@ -26,52 +29,68 @@ WorkItem
   -> VERIFIED reconstructed
 ```
 
-The proof harness is `scripts/prove_real_provider_durable.py`.
+The proof harness is `scripts/prove_local_n8n_execution.py`.
 
-## Preconditions
+### Preconditions
 
-The execution environment must provide `OPENAI_API_KEY`. The harness reads the secret through the existing integration boundary; the value is not written to the repository or proof report.
+A local n8n instance must be running with the existing `factory-execution` webhook/workflow. The default endpoint is:
 
-The provider binding uses the repository's existing OpenAI Responses capability and the current configured GPT-5.6 Luna model.
+`http://localhost:5678/webhook-test/factory-execution`
 
-## Run
+Override it with `N8N_FACTORY_WEBHOOK_URL` when necessary.
+
+No paid model API, API credit or external secret is required for this proof.
+
+### Run
 
 PowerShell:
 
 ```powershell
-$env:OPENAI_API_KEY="<your key>"
-uv run python scripts/prove_real_provider_durable.py
+cd C:\Users\sebas\content_factory
+uv sync --extra dev
+$env:N8N_FACTORY_WEBHOOK_URL="http://localhost:5678/webhook-test/factory-execution"
+uv run python scripts/prove_local_n8n_execution.py
 ```
 
-Expected terminal result:
+Expected result:
 
 ```text
 EXTERNAL PROOF PASSED
-work_item_id=external-proof-...
+work_item_id=external-proof-n8n-...
 operation_id=...
 execution_id=...
-output_revision_id=openai-response:...
-provider_response_id=...
-verification_revision_id=openai-response:...
-events=4
-report=data/external_proof/external-proof-....json
+output_revision_id=...
+evidence_refs=[...]
+recovered_state=VERIFIED
+recovered_events=4
+provider=openai:not_used
+execution_substrate=n8n:local
 ```
 
-The exact event count may increase if the runtime emits additional recovery/evidence events; the important requirements are durable `operation_id`, execution identity, provider response evidence, exact output revision binding, and reconstructed `VERIFIED` state.
+The important claims are: n8n was actually called; factory `operation_id` crossed the boundary unchanged; an execution identity and revision-bound output were returned; verification bound to that exact revision; RuntimeStore retained the projections; and a fresh process recovered the work item as `VERIFIED`.
 
-## Proof report
+## Optional paid provider proof
 
-The report stores identifiers and a SHA-256 digest of the provider output. It deliberately does not store the API key or raw provider text.
+`scripts/prove_real_provider_durable.py` remains the OpenAI-specific proof path. It requires `OPENAI_API_KEY` and is not required for the free phase-2 execution-boundary proof.
 
-## Acceptance conditions
+The OpenAI binding uses the repository's existing Responses capability. The provider response id becomes evidence and the output revision is derived from that provider response.
 
-The proof passes only when all of the following are true:
+## What this proves
 
-- the provider call returns HTTP success and a provider response id;
-- the generated output is non-empty and contains `CONTENT_FACTORY_EXTERNAL_PROOF_OK`;
-- `ExecutionResult.output_revision_id` is the revision verified by `VerificationResult`;
-- execution evidence contains the provider response id;
-- RuntimeStore contains the work item, attempt, execution projection, verification projection, and lifecycle events;
-- a fresh `FactoryRuntime` opened after the first process exits reconstructs the same Work Item as `VERIFIED`.
+A successful free proof establishes:
 
-A successful proof establishes real provider execution and durable reconstruction. It does **not** establish real publication or real external effect.
+- real factory-to-execution-substrate transport;
+- durable operation identity across the boundary;
+- normalized execution result;
+- revision-bound verification;
+- durable reconstruction after process exit.
+
+It does **not** establish:
+
+- LLM/model generation;
+- real public publication;
+- externally observable business/content outcome;
+- production-grade distributed execution;
+- the learning loop.
+
+Those require separate proofs.
