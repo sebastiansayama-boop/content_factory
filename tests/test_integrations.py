@@ -54,3 +54,28 @@ def test_openai_response_text_rejects_missing_text():
     )
     with pytest.raises(ValueError, match="no text output"):
         OpenAIResponsesAdapter.response_text(result)
+
+
+def test_http_error_preserves_provider_error_code_and_message(monkeypatch):
+    from content_factory import integrations
+
+    class FakeHttpError:
+        code = 429
+
+        def read(self):
+            return b'{"error":{"type":"insufficient_quota","code":"credit_balance_exhausted","message":"No credits remain"}}'
+
+    def raise_http_error(*args, **kwargs):
+        raise FakeHttpError()
+
+    monkeypatch.setenv("CF_TEST_SECRET", "test-secret")
+    monkeypatch.setattr(integrations, "urlopen", raise_http_error)
+    adapter = integrations.HttpJsonAdapter(
+        IntegrationConfig("test", "https://example.invalid", "CF_TEST_SECRET")
+    )
+
+    with pytest.raises(
+        IntegrationError,
+        match=r"provider HTTP error: 429; type=insufficient_quota; code=credit_balance_exhausted; message=No credits remain",
+    ):
+        adapter.call({"input": "test"})
