@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import argparse
 import os
 from pathlib import Path
 
 from .artifacts import ArtifactStore
+from .control_plane import serve
 from .runtime import (
     AcceptanceDecision,
     Capability,
@@ -16,9 +18,9 @@ from .runtime import (
 
 
 class DemoPublisher:
-    def publish(self, work_item, execution):
+    def publish(self, work_item, execution, publication_id=None):
         return PublicationResult(
-            publication_id="demo-publication",
+            publication_id=publication_id or "demo-publication",
             output_revision_id=execution.output_revision_id,
             target="demo://simulated",
             externally_observable=False,
@@ -26,7 +28,7 @@ class DemoPublisher:
         )
 
 
-def main() -> None:
+def demo() -> None:
     repository_root = Path(os.getenv("CONTENT_FACTORY_ROOT", "."))
     runtime = FactoryRuntime(
         publisher=DemoPublisher(),
@@ -65,6 +67,19 @@ def main() -> None:
     )
     print(runtime.states[item.work_item_id].value)
     print(publication.publication_id if publication else "FAILED")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Content Factory local entrypoint")
+    subparsers = parser.add_subparsers(dest="command")
+    subparsers.add_parser("serve", help="start the local Control Plane")
+    subparsers.add_parser("demo", help="run the deterministic runtime demo")
+    args = parser.parse_args()
+
+    if args.command == "serve":
+        serve()
+    else:
+        demo()
 
 
 if __name__ == "__main__":
