@@ -1,0 +1,91 @@
+version: 1
+status: candidate
+name: digital_product_development_lifecycle
+principle: gated_stage_progression
+movement_default: one_stage_forward_or_backward
+
+stages:
+  - id: 0
+    name: product_brief
+    purpose: bound_intent_and_problem_space
+    exit_gate: explicit_outcome_users_scope_constraints_non_goals_unknowns
+  - id: 1
+    name: discovery
+    purpose: establish_evidence_about_users_context_market_alternatives_and_constraints
+    exit_gate: sufficient_evidence_of_users_current_experience_problems_needs_alternatives_constraints_and_critical_unknowns
+  - id: 2
+    name: problem_opportunity
+    purpose: convert_evidence_into_bounded_problem_and_opportunity_model
+    exit_gate: problem_and_desired_outcome_are_separable_from_solution_and_assumptions_are_explicit
+  - id: 3
+    name: product_decision
+    purpose: explicitly_authorize_stop_research_more_or_proceed
+    exit_gate: authorized_decision_with_scope_outcome_evidence_tradeoffs_and_conditions
+  - id: 4
+    name: solution_design_validation
+    purpose: explore_and_validate_riskiest_solution_assumptions
+    exit_gate: selected_solution_has_tested_critical_flows_assumptions_and_known_remaining_risks
+  - id: 5
+    name: product_specification
+    purpose: translate_validated_solution_into_executable_boundary
+    exit_gate: requirements_acceptance_dependencies_release_and_verification_are_explicit
+  - id: 6
+    name: build_integration
+    purpose: implement_and_verify_approved_specification
+    exit_gate: exact_release_candidate_satisfies_acceptance_and_required_verification
+  - id: 7
+    name: release_live_operation
+    purpose: authorize_real_release_and_observe_external_effect
+    exit_gate: accepted_revision_authority_external_effect_and_observation_are_reconstructable
+  - id: 8
+    name: learning_evolution_retirement
+    purpose: convert_real_world_observation_into_explicit_learning_and_future_decision
+    exit_gate: learning_is_evidence_scoped_and_any_direction_change_is_explicitly_decided
+
+transition_contracts:
+  - ProductBrief
+  - DiscoveryResult
+  - ProblemOpportunity
+  - ProductDecision
+  - AuthorizedProductDemand
+  - ValidatedSolution
+  - ProductSpecification
+  - WorkItem
+  - VerifiedReleaseCandidate
+  - AuthorizedRelease
+  - Effect
+  - Observation
+  - Learning
+
+movement:
+  proceed: current_plus_one
+  return: current_minus_one
+  hold: remain_current
+  stop: terminate_and_preserve_record
+  skip_requires_explicit_decision: true
+
+boundaries:
+  research_is_not_authority: true
+  observation_is_not_knowledge: true
+  decision_is_not_implementation: true
+  verification_is_not_acceptance: true
+  acceptance_is_not_publication: true
+  publication_is_not_outcome: true
+  metric_is_not_learning: true
+  learning_is_not_strategy_without_decision: true
+
+ownership:
+  product_brief: product_specific_or_factory_context
+  discovery: discovery_layer
+  problem_opportunity: discovery_layer
+  product_decision: atlas_records_plus_upstream_product_owner
+  solution_design_validation: whisper_studio_plus_product_specific_surfaces
+  product_specification: content_factory_plus_product_specific_surfaces
+  build_integration: atlas_agent_plus_controlled_agent_executor_plus_product_implementations
+  release_live_operation: product_effect_surface_plus_atlas_authority_boundary
+  learning: content_factory_plus_discovery_and_product_learning_surfaces
+
+known_gap:
+  name: discovery_decision_to_authorized_demand
+  status: producer_unresolved
+  next_step: bounded_real_case_after_lifecycle_acceptance
