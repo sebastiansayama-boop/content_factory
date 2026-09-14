@@ -2,7 +2,7 @@
 
 Date: 2026-09-13
 Work item ID: WI-2026-09-13-002
-Revision ID: WI-2026-09-13-002-r2
+Revision ID: WI-2026-09-13-002-r3
 Status: IN_PROGRESS
 
 ## Objective
@@ -53,13 +53,19 @@ Initial external evidence:
 - Nature Genetics — independently evolved marine-mammal adaptations to aquatic environments.
 - NHGRI — comparative genomics and conserved sequences across species.
 
-Targeted constraint/convergence evidence added in revision r2:
-- Nature (Motani, 2002) — four unrelated groups of large cruising vertebrates evolved tuna-shaped/thunniform body plans; mathematical fluid-mechanics modelling and empirical data support stringent physical constraints as a driver of the convergence.
+Constraint/convergence evidence:
+- Nature (Motani, 2002) — four unrelated groups of large cruising vertebrates evolved tuna-shaped/thunniform body plans; mathematical fluid-mechanics modelling and empirical data support stringent physical constraints as a driver of convergence.
 - Nature (Donley et al., 2004) — quantitative mechanical analysis of lamnid sharks and tunas supports hydromechanical demands as an important selection pressure for convergent locomotor design.
 - Nature Ecology & Evolution (Pigot et al., 2020) — analysis of 9,963 bird species found that trophic diversity occupies a limited multidimensional trait space and that form–function associations reflect convergence toward predictable trait combinations.
-- Nature Communications (2019) — mammal and bird ecological strategy space is strongly restricted relative to several null models; this supports a restricted set of realized ecological strategies, but does not by itself prove a single universal constraint mechanism.
-- Nature Reviews Genetics (2026) — evolutionary innovation is shaped by genetic architecture and ecological context; epistasis, pleiotropy, recurrent selection, contingency and historical constraint can bias evolutionary trajectories.
+- Nature Communications (2019) — mammal and bird ecological strategy space is restricted relative to several null models; restricted occupancy does not identify a single universal cause.
+- Nature Reviews Genetics (2026) — evolutionary innovation is shaped by genetic architecture and ecological context; epistasis, pleiotropy, recurrent selection, contingency and historical constraint can bias trajectories.
 - Nature Reviews Genetics (2026) — convergent phenotypes can have multiple genetic bases; adaptive convergence must be distinguished from background/random molecular convergence.
+
+Non-locomotion test — visual systems:
+- Nature Ecology & Evolution (2025) — cephalopod and vertebrate visual systems are a classical case of convergent evolution; the systems are functionally analogous but differ substantially in retinal organization, photoreceptor type and neural architecture.
+- Developmental/transcriptomic studies of cephalopod eyes — independent camera-eye evolution involved recruitment, co-option, duplication and divergence of genes; many molecular components were already ancient, so independent phenotype does not mean independent invention of every molecular component.
+- Nature Reviews Neuroscience — vertebrate camera eyes show a sequence of evolutionary changes from simpler ancestral visual systems, demonstrating that a complex camera eye need not be treated as an indivisible evolutionary leap.
+- Nature Reviews Genetics — convergent phenotypes can emerge through similar or different genetic changes; developmental architecture can influence which changes are repeatedly used.
 
 Repository evidence:
 - `docs/23_content_factory_operating_model.md`
@@ -74,11 +80,15 @@ The strongest story is unlikely to be a flat inventory of similarities. A more e
 
 plus
 
-`shared constraints / selection → independently recurring solutions`
+`shared problems/constraints → independently recurring phenotypic solutions`
 
-with the important boundary that superficial similarity does not by itself establish either common ancestry or functional equivalence.
+with an important third layer:
 
-This remains a hypothesis to test, not a promoted conclusion.
+`shared ancient biological toolkit → different lineages assemble/reuse components differently`
+
+Therefore similarity of outcome does not imply either common ancestry of the whole trait or identical molecular mechanism.
+
+This remains a bounded explanatory model, not a universal law.
 
 ## Targeted constraint test — revision r2
 
@@ -86,69 +96,124 @@ The question "Do constraints narrow the space of biological solutions?" now has 
 
 ### Finding 1 — physical constraints can be quantitatively demonstrated
 
-Large cruising vertebrates provide the strongest example in this pass. Tunas, lamnid sharks, whales and ichthyosaurs independently evolved broadly similar thunniform body plans. Fluid-mechanical modelling links morphology and kinematics to hydrodynamic performance and identifies physical constraints associated with efficient large-scale cruising. This is stronger than visual analogy because the proposed constraint is represented by a quantitative mechanical model and tested against empirical data.
+Large cruising vertebrates provide the strongest example in this pass. Tunas, lamnid sharks, whales and ichthyosaurs independently evolved broadly similar thunniform body plans. Fluid-mechanical modelling links morphology and kinematics to hydrodynamic performance and identifies physical constraints associated with efficient large-scale cruising.
 
 Evidence class: SUPPORTED.
 
 ### Finding 2 — ecological function can organize phenotype space into recurring regions
 
-Across 9,963 bird species, nine morphological traits map onto trophic and foraging niches with substantial predictive accuracy, and phylogenetic analysis identifies convergence toward predictable trait combinations. This supports the narrower claim that ecological function can make some combinations of form more recurrent than others.
+Across 9,963 bird species, morphological traits map onto trophic and foraging niches with substantial predictive accuracy, and phylogenetic analysis identifies convergence toward predictable trait combinations.
 
 Evidence class: SUPPORTED.
 
-### Finding 3 — the realized ecological strategy space is restricted, but mechanism must not be overgeneralized
+### Finding 3 — realized ecological strategy space is restricted, but mechanism must not be overgeneralized
 
-Comparative analysis of mammal and bird ecological strategies found substantially less trait-space occupation than several null models would predict. This is evidence that the observed biological strategy space is not an unconstrained combinatorial space. However, restricted occupancy alone does not identify one universal cause: physics, ecology, developmental architecture, genetics, historical contingency and extinction/filtering can all contribute.
+Comparative analysis of mammal and bird ecological strategies found substantially less trait-space occupation than several null models would predict. This supports restricted realized space, but physics, ecology, development, genetics, historical contingency and extinction/filtering may all contribute.
 
-Evidence class: SUPPORTED for restricted realized space; CAUSAL INTERPRETATION REMAINS MULTI-FACTORIAL.
+Evidence class: SUPPORTED for restricted realized space; causal interpretation is multi-factorial.
 
 ### Finding 4 — genetic/developmental constraints are a real additional mechanism
 
-Recent synthesis distinguishes ecological context from genetic architecture and identifies epistasis, pleiotropy and historical constraint as mechanisms that can bias evolutionary trajectories. Therefore "constraint" should not be reduced to physics alone.
+Evolutionary innovation can be biased by epistasis, pleiotropy, developmental architecture and historical contingency. Constraint therefore cannot be reduced to physics.
 
-Evidence class: SUPPORTED as a class of mechanisms; strength and relevance vary by trait.
+Evidence class: SUPPORTED as a mechanism class; trait-specific strength varies.
 
 ### Finding 5 — convergence does not imply identical mechanisms
 
-The 2026 Nature Reviews Genetics synthesis explicitly emphasizes that convergent phenotypes can arise through different forms of molecular change and that adaptive convergence must be distinguished from background/random convergence. Therefore a repeated phenotype is evidence for recurrent selection/solution space only when the phylogenetic and mechanistic analysis supports that interpretation.
+Repeated phenotypes can have different genetic bases, while similar genetic targets can also recur independently. Therefore phenotype-level convergence and molecular convergence must be analysed separately.
 
 Evidence class: SUPPORTED.
 
-## Decision from the constraint test
+## Non-locomotion test — revision r3
 
-The earlier candidate layer can be promoted one level, but only in a bounded form:
+The camera eye is a useful stress test because the repeated solution is not primarily a locomotor structure.
 
-`similar environmental/function problem + viable physical/ecological/developmental space → elevated probability of recurrent phenotypic solutions`
+### Finding 6 — camera eyes independently recur across distant animal lineages
 
-This is stronger and safer than:
+Vertebrate and cephalopod camera eyes are a well-established example of convergent evolution. Their common ancestor did not possess the modern camera-eye architecture. Yet both lineages evolved a lens-based image-forming system.
 
-`evolution is constrained, therefore evolution produces the same solutions.`
+Evidence class: STRONGLY SUPPORTED.
 
-The latter is too broad.
+### Finding 7 — optical function provides a plausible physical constraint, but does not uniquely determine anatomy
 
-The strongest current story spine is therefore:
+An image-forming optical system must control light and project a spatial image onto light-sensitive cells. Across animals, this can be achieved through different optical arrangements. Comparative work shows substantial variation in focusing mechanisms and retinal organization.
 
-`common ancestry preserves old solutions`
+Therefore optics constrains functional requirements, but does not prescribe one exact anatomical implementation.
 
-`similar problems/constraints can favor recurring solutions`
+Evidence class: SUPPORTED for functional constraints; NOT SUPPORTED as a claim of one uniquely determined design.
 
-`but similar outcomes can still arise through different genetic/developmental routes`
+### Finding 8 — independent complex structures can reuse ancient components
 
-`therefore similarity must be explained, not merely observed.`
+The camera eyes of cephalopods and vertebrates differ developmentally and anatomically, yet many genes and molecular pathways involved in visual development predate their divergence. Recent single-cell work further finds molecular correspondences between cephalopod and vertebrate visual systems while emphasizing major organizational differences.
+
+This gives a critical distinction:
+
+`independent origin of a phenotype ≠ independent origin of every component`
+
+A lineage can inherit an ancient toolkit and independently reorganize/recruit it into a new complex structure.
+
+Evidence class: SUPPORTED.
+
+### Finding 9 — the same explanatory model survives the non-locomotion test
+
+The camera-eye case preserves the same structure found in locomotion:
+
+`functional problem → constraints on viable solutions → recurrent phenotype`
+
+but adds:
+
+`available ancestral toolkit → historically accessible implementation paths`
+
+The evidence therefore supports a richer model of convergence than simple "same environment → same form".
+
+Evidence class: SUPPORTED as a bounded synthesis across the reviewed cases.
+
+## Current explanatory model
+
+The strongest current model is:
+
+`ancestry → inherited toolkit`
+
+`problem/environment → selection pressures`
+
+`physics/ecology/development → constraints on viable trajectories`
+
+`historical toolkit + accessible variation → implementation path`
+
+`selection → recurrent or divergent phenotype`
+
+This model explains why two species can be similar in three different senses:
+
+1. homologous — similar because the relevant feature was inherited from common ancestry;
+2. convergent — similar outcome evolved independently under comparable functional/selection pressures;
+3. component-reuse convergence — similar complex outcome independently assembled from partly shared ancient biological components.
+
+These categories can overlap at different levels of analysis. A trait may be convergent at the organ level while using homologous genes or developmental modules.
+
+## Decision from the research sequence
+
+The non-locomotion test strengthens the bounded story spine. We no longer need the stronger universal claim that evolution has one globally narrow solution space.
+
+The defensible claim is:
+
+`Evolution does not search an unconstrained space. What can evolve is filtered by inherited architecture, physical laws, ecological demands, developmental organization and available variation. Under recurring problems, this can make similar solutions recur — sometimes in strikingly different lineages.`
+
+This is a synthesis, not a single experimental result, and should be presented as such.
 
 ## Candidate evidence matrix
 
 | Layer | Candidate question | Evidence status |
 |---|---|---|
-| Universal cellular foundations | What mechanisms are shared across extant cellular life? | SUPPORTED by current sources; needs synthesis |
+| Universal cellular foundations | What mechanisms are shared across extant cellular life? | SUPPORTED; synthesis required |
 | Common ancestry | Which shared mechanisms are best explained by inheritance? | SUPPORTED in broad terms; exact ancestral reconstruction remains model-dependent |
 | Convergence | Can unrelated lineages independently evolve similar complex traits? | STRONGLY SUPPORTED |
-| Molecular convergence | Can convergence occur at genomic/protein sequence level? | SUPPORTED, but strength varies by trait/gene |
-| Physical constraints | Can physical laws quantitatively channel morphology toward recurrent solutions? | SUPPORTED; strongest current example is hydrodynamic convergence in large cruising vertebrates |
-| Ecological constraints | Can similar ecological functions correspond to recurring trait combinations? | SUPPORTED; broad causal generalization remains bounded |
-| Genetic/developmental constraints | Can biological architecture bias accessible evolutionary trajectories? | SUPPORTED as a mechanism class; trait-specific strength varies |
-| Evolutionary solution space | Is biological design space globally constrained to a small universal set? | NOT ESTABLISHED |
-| Story-level conclusion | How much does this constrain the space of biological solutions? | PARTIALLY SUPPORTED in bounded/mechanistic form; not a universal law |
+| Molecular convergence | Can convergence occur at genomic/protein sequence level? | SUPPORTED, trait/gene dependent |
+| Physical constraints | Can physical laws channel morphology toward recurrent solutions? | SUPPORTED |
+| Ecological constraints | Can ecological functions correspond to recurring trait combinations? | SUPPORTED; broad causality bounded |
+| Genetic/developmental constraints | Can architecture bias accessible trajectories? | SUPPORTED as a mechanism class |
+| Ancient toolkit reuse | Can independently evolved structures reuse homologous components? | SUPPORTED |
+| Globally narrow universal solution space | Is biological design space universally constrained to a small fixed set? | NOT ESTABLISHED |
+| Story-level synthesis | Can recurring solutions be explained by ancestry + constraints + accessible variation? | SUPPORTED as bounded synthesis; not a universal law |
 
 ## Acceptance criteria
 
@@ -173,6 +238,4 @@ KNOWLEDGE / RESEARCH
 
 ## Current research decision
 
-The constraint layer is no longer merely a candidate explanatory idea. There is sufficient evidence to use a bounded statement about physical, ecological and genetic/developmental constraints in the story backbone. The broader claim that evolution has a universally narrow solution space remains unresolved.
-
-Next legitimate research step: test whether the same explanatory distinction survives a deliberately contrasting non-locomotion example (for example sensory systems such as camera eyes) and determine whether the story can be closed at the level of "recurring solutions under constraints" without needing a stronger universal claim.
+The research has now passed two contrasting convergence tests: locomotion and vision. The bounded explanatory model is sufficiently supported to serve as the research backbone. The next step should no longer be another broad search for more examples. It should be synthesis: convert the evidence into a minimal claim graph and identify exactly which claims are strong enough for the eventual story, which require qualification, and which remain outside the evidence boundary.
