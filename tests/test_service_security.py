@@ -1,5 +1,4 @@
 import io
-import os
 
 import pytest
 
@@ -16,7 +15,8 @@ class DummyService:
 
 class DummyHandler(Handler):
     def __init__(self, headers=None, body=b"{}", client_ip="127.0.0.1"):
-        self.headers = headers or {}
+        self.headers = dict(headers or {})
+        self.headers.setdefault("Content-Length", str(len(body)))
         self.rfile = io.BytesIO(body)
         self.wfile = io.BytesIO()
         self.client_address = (client_ip, 12345)
@@ -50,7 +50,7 @@ def reset_handler_state(monkeypatch):
     monkeypatch.setenv("FACTORY_RELEASE_AUTHORITY", "release-authority")
 
 
-def test_authorization_uses_constant_time_compare(monkeypatch):
+def test_authorization_uses_constant_time_compare():
     handler = DummyHandler({"Authorization": "Bearer " + "a" * 32})
     assert handler._authorized() is True
 
@@ -95,7 +95,7 @@ def test_auth_failures_are_rate_limited():
     assert handler.status == 429
 
 
-def test_authority_policy_is_server_configured(monkeypatch):
+def test_authority_policy_is_server_configured():
     from content_factory.service import FactoryService
 
     service = object.__new__(FactoryService)
