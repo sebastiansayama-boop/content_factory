@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import hmac
 import json
 import os
 import threading
+import time
 import urllib.error
 import urllib.request
+from collections import deque
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
@@ -23,6 +26,12 @@ from .runtime import (
 )
 from .runtime_store import RuntimeStore
 from .text_capability import text_generation_capability
+
+MAX_REQUEST_BYTES = 64 * 1024
+RATE_LIMIT_WINDOW_SECONDS = 60.0
+RATE_LIMIT_REQUESTS = 10
+AUTH_FAILURE_WINDOW_SECONDS = 60.0
+AUTH_FAILURE_REQUESTS = 20
 
 
 class WebhookPublisher:
@@ -96,6 +105,8 @@ class FactoryService:
         publisher = WebhookPublisher(publisher_url, os.environ.get("PUBLISH_AUTH_TOKEN")) if publisher_url else LocalReleasePublisher()
         self._publisher = publisher
         self._provider, self._capability = self._build_provider()
+        self._acceptance_authority = os.environ.get("FACTORY_ACCEPTANCE_AUTHORITY", "").strip()
+        self._release_authority = os.environ.get("FACTORY_RELEASE_AUTHORITY", "").strip()
         self._lock = threading.Lock()
 
     @staticmethod
@@ -122,15 +133,10 @@ class FactoryService:
         return {
             "status": "ok",
             "provider": self._provider,
-            "provider_key_configured": bool(
-                os.environ.get("GEMINI_API_KEY")
-                if self._provider == "gemini"
-                else os.environ.get("OPENAI_API_KEY")
-            ),
-            "gemini_key_configured": bool(os.environ.get("GEMINI_API_KEY")),
-            "openai_key_configured": bool(os.environ.get("OPENAI_API_KEY")),
             "publisher_configured": self._external_publisher_configured,
-            "api_auth_configured": bool(os.environ.get("FACTORY_API_TOKEN")),
+            "authorization_policy_configured": bool(
+                self._acceptance_authority and self._release_authority
+            ),
         }
 
     def run(self, payload: dict[str, Any]) -> dict[str, Any]:
@@ -140,12 +146,21 @@ class FactoryService:
         requested_outcome = str(payload.get("requested_outcome") or "").strip()
         if not requested_outcome:
             raise ValueError("requested_outcome is required")
+        if len(requested_outcome) > 16_000:
+            raise ValueError("requested_outcome exceeds maximum length")
+
         acceptance_authority = str(payload.get("acceptance_authority") or "").strip()
         release_authority = str(payload.get("release_authority") or "").strip()
         if not acceptance_authority:
             raise ValueError("acceptance_authority is required")
         if not release_authority:
             raise ValueError("release_authority is required")
+        if not self._acceptance_authority or not self._release_authority:
+            raise ValueError("factory authority policy is not configured")
+        if not hmac.compare_digest(acceptance_authority, self._acceptance_authority):
+            raise ValueError("acceptance authority denied")
+        if not hmac.compare_digest(release_authority, self._release_authority):
+            raise ValueError("release authority denied")
 
         capability_id = self._capability.capability_id
         item = WorkItem(
@@ -183,10 +198,10 @@ class FactoryService:
                 acceptance=lambda _, verified: AcceptanceDecision(
                     output_revision_id=verified.output_revision_id,
                     accepted=True,
-                    authority=acceptance_authority,
-                    reason="explicit API acceptance authority",
+                    authority=self._acceptance_authority,
+                    reason="server-configured acceptance authority",
                 ),
-                release_authority=release_authority,
+                release_authority=self._release_authority,
                 actor="api",
             )
             state = runtime.states[item.work_item_id].value
@@ -224,20 +239,54 @@ class FactoryService:
 
 class Handler(BaseHTTPRequestHandler):
     service: FactoryService
+    _rate_lock = threading.Lock()
+    _authorized_requests: deque[float] = deque()
+    _auth_failures: dict[str, deque[float]] = {}
 
-    def _json(self, status: int, body: dict[str, Any]) -> None:
+    @staticmethod
+    def _prune(bucket: deque[float], now: float, window: float) -> None:
+        cutoff = now - window
+        while bucket and bucket[0] <= cutoff:
+            bucket.popleft()
+
+    @classmethod
+    def _rate_limited(cls, bucket: deque[float], limit: int, now: float, window: float) -> bool:
+        with cls._rate_lock:
+            cls._prune(bucket, now, window)
+            if len(bucket) >= limit:
+                return True
+            bucket.append(now)
+            return False
+
+    @classmethod
+    def _auth_failure_limited(cls, client_ip: str, now: float) -> bool:
+        with cls._rate_lock:
+            bucket = cls._auth_failures.setdefault(client_ip, deque())
+            cls._prune(bucket, now, AUTH_FAILURE_WINDOW_SECONDS)
+            if len(bucket) >= AUTH_FAILURE_REQUESTS:
+                return True
+            bucket.append(now)
+            if len(cls._auth_failures) > 1024:
+                stale = [key for key, value in cls._auth_failures.items() if not value]
+                for key in stale[:256]:
+                    cls._auth_failures.pop(key, None)
+            return False
+
+    def _json(self, status: int, body: dict[str, Any], retry_after: int | None = None) -> None:
         raw = json.dumps(body, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(raw)))
+        if retry_after is not None:
+            self.send_header("Retry-After", str(retry_after))
         self.end_headers()
         self.wfile.write(raw)
 
     def _authorized(self) -> bool:
         expected = os.environ.get("FACTORY_API_TOKEN", "").strip()
-        if not expected:
-            return False
-        return self.headers.get("Authorization", "") == f"Bearer {expected}"
+        presented = self.headers.get("Authorization", "")
+        expected_header = f"Bearer {expected}" if expected else ""
+        return bool(expected) and hmac.compare_digest(presented, expected_header)
 
     def do_GET(self) -> None:  # noqa: N802
         if self.path == "/health":
@@ -249,17 +298,38 @@ class Handler(BaseHTTPRequestHandler):
         if self.path != "/run":
             self._json(404, {"error": "not found"})
             return
+
+        now = time.monotonic()
+        client_ip = self.client_address[0]
+        if self._auth_failure_limited(client_ip, now):
+            self._json(429, {"error": "too many authentication failures"}, retry_after=60)
+            return
         if not self._authorized():
             self._json(401, {"error": "missing or invalid API token"})
             return
+        if self._rate_limited(self._authorized_requests, RATE_LIMIT_REQUESTS, now, RATE_LIMIT_WINDOW_SECONDS):
+            self._json(429, {"error": "run rate limit exceeded"}, retry_after=60)
+            return
+
         try:
-            length = int(self.headers.get("Content-Length", "0"))
-            payload = json.loads(self.rfile.read(length).decode("utf-8"))
+            content_length = int(self.headers.get("Content-Length", "0"))
+            if content_length < 0 or content_length > MAX_REQUEST_BYTES:
+                raise ValueError("request body exceeds maximum size")
+            raw_body = self.rfile.read(content_length)
+            if len(raw_body) != content_length:
+                raise ValueError("incomplete request body")
+            payload = json.loads(raw_body.decode("utf-8"))
             if not isinstance(payload, dict):
                 raise ValueError("JSON body must be an object")
             result = self.service.run(payload)
             status = 200 if result["state"] in {"OBSERVED", "DELIVERED"} else 422
             self._json(status, result)
+        except json.JSONDecodeError:
+            self._json(400, {"error": "invalid JSON body"})
+        except UnicodeDecodeError:
+            self._json(400, {"error": "request body must be UTF-8"})
+        except ValueError as exc:
+            self._json(400, {"error": str(exc)})
         except Exception as exc:
             self._json(400, {"error": str(exc)})
 
