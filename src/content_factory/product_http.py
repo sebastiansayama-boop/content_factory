@@ -6,7 +6,13 @@ import time
 from pathlib import Path
 from typing import Any
 
-from .service import FactoryService, Handler, MAX_REQUEST_BYTES, RATE_LIMIT_REQUESTS, RATE_LIMIT_WINDOW_SECONDS
+from .service import (
+    FactoryService,
+    Handler,
+    MAX_REQUEST_BYTES,
+    RATE_LIMIT_REQUESTS,
+    RATE_LIMIT_WINDOW_SECONDS,
+)
 from .workspace import ContentWorkspace
 
 
@@ -22,7 +28,7 @@ class ProductHandler(Handler):
             raise ValueError("incomplete request body")
         payload = json.loads(raw.decode("utf-8"))
         if not isinstance(payload, dict):
-            raise ValueError("JSON body must be an object")
+            raise TypeError("JSON body must be an object")
         return payload
 
     @staticmethod
@@ -32,7 +38,7 @@ class ProductHandler(Handler):
     def _product_access_allowed(self) -> bool:
         return self._public_beta() or self._authorized()
 
-    def do_GET(self) -> None:  # noqa: N802
+    def do_GET(self) -> None:
         if self.path in {"/", "/index.html"}:
             raw = (Path(__file__).parent / "static" / "index.html").read_bytes()
             self.send_response(200)
@@ -43,7 +49,7 @@ class ProductHandler(Handler):
             return
         super().do_GET()
 
-    def do_POST(self) -> None:  # noqa: N802
+    def do_POST(self) -> None:
         if self.path not in {"/api/analyze", "/api/produce"}:
             super().do_POST()
             return
@@ -72,9 +78,7 @@ class ProductHandler(Handler):
             self._json(400, {"error": "invalid JSON body"})
         except UnicodeDecodeError:
             self._json(400, {"error": "request body must be UTF-8"})
-        except ValueError as exc:
-            self._json(400, {"error": str(exc)})
-        except Exception as exc:
+        except (TypeError, ValueError) as exc:
             self._json(400, {"error": str(exc)})
 
 
