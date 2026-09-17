@@ -1,0 +1,34 @@
+name: Deployment Probe Public HTTP
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  public-http:
+    runs-on: ubuntu-slim
+    steps:
+      - name: Probe public root
+        run: |
+          set -eu
+          url="https://content-factory-deployment-probe.onrender.com/"
+          echo "GET $url"
+          curl --fail --show-error --silent --location --dump-header /tmp/headers.txt --output /tmp/body.txt "$url"
+          echo "--- response headers ---"
+          cat /tmp/headers.txt
+          echo "--- response body ---"
+          cat /tmp/body.txt
+          grep -q 'deployment-probe: OK' /tmp/body.txt
+
+      - name: Probe public health
+        run: |
+          set -eu
+          url="https://content-factory-deployment-probe.onrender.com/health"
+          echo "GET $url"
+          curl --fail --show-error --silent --location --dump-header /tmp/health-headers.txt --output /tmp/health-body.txt "$url"
+          echo "--- response headers ---"
+          cat /tmp/health-headers.txt
+          echo "--- response body ---"
+          cat /tmp/health-body.txt
+          grep -q '"status": "ok"' /tmp/health-body.txt
