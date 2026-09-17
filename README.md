@@ -28,9 +28,45 @@ CONTENT ECOSYSTEM
 
 `Content Factory` — функциональная система внутри `Content Ecosystem`. Capability и Engineering являются execution layers, позволяющими фабрике использовать абстрактные способности без прямой зависимости от конкретных инструментов и провайдеров.
 
+## First executable prototype test
+
+The first bounded vertical slice is now runnable as an explicit test:
+
+```text
+source fixture
+  ↓
+/api/analyze
+  ↓
+editorial stories + source evidence
+  ↓
+select one story
+  ↓
+/api/produce
+  ↓
+article + social_posts
+  ↓
+runtime identity + final state
+```
+
+Run it with a configured service and provider:
+
+```text
+python scripts/first_prototype_test.py
+```
+
+Or against a hosted instance:
+
+```text
+FACTORY_URL=https://<service> FACTORY_API_TOKEN=<token> python scripts/first_prototype_test.py
+```
+
+The fixture is `tests/fixtures/first_prototype_source.txt`; the exact pass criteria are recorded in `docs/first_prototype_test.md`.
+
+This test is intentionally text-only. It does not claim transcription, media generation, external publishing, audience value, or business outcome.
+
 ## End-user Content Workspace
 
-Первый пользовательский vertical slice теперь доступен непосредственно из HTTP service:
+The first user-facing vertical slice is available directly from the HTTP service:
 
 ```text
 SOURCE
@@ -217,11 +253,12 @@ persistent runtime state        COMPLETE
 real provider boundary          IMPLEMENTED
 HTTP deployment surface         IMPLEMENTED
 end-user workspace              IMPLEMENTED (text-source vertical slice)
+first executable prototype test IMPLEMENTED; REAL PROVIDER RUN PENDING
 container                        IMPLEMENTED
-CI / container verification      IMPLEMENTED
-live hosted instance             NOT YET DEPLOYED
+CI / container verification      PASS on evidence/system-gates-v1
+live hosted instance             DEPLOYED PROBE; FACTORY LIVE STATUS MUST BE VERIFIED SEPARATELY
 real external destination        NOT YET CONFIGURED
-real external proof              PENDING DEPLOYMENT + DESTINATION
+real external proof             NOT YET CLAIMED
 ```
 
-The repository is now deployable, but it is not truthful to call it live until a hosting account actually creates the service, the secrets are provisioned, `/health` passes, and one real authorized Work Item reaches a real destination.
+The repository can now be tested as a bounded content-production system without pretending that unimplemented media ingestion, external publishing, or audience outcomes exist.
