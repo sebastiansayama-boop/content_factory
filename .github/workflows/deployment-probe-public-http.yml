@@ -9,7 +9,7 @@ jobs:
   public-http:
     runs-on: ubuntu-slim
     steps:
-      - name: Probe public root
+      - name: Probe deployment substrate root
         run: |
           set -eu
           url="https://content-factory-deployment-probe.onrender.com/"
@@ -21,7 +21,7 @@ jobs:
           cat /tmp/body.txt
           grep -q 'deployment-probe: OK' /tmp/body.txt
 
-      - name: Probe public health
+      - name: Probe deployment substrate health
         run: |
           set -eu
           url="https://content-factory-deployment-probe.onrender.com/health"
@@ -32,3 +32,25 @@ jobs:
           echo "--- response body ---"
           cat /tmp/health-body.txt
           grep -q '"status": "ok"' /tmp/health-body.txt
+
+      - name: Probe Content Factory root
+        run: |
+          set -eu
+          url="https://content-factory-1zij.onrender.com/"
+          echo "GET $url"
+          curl --fail --show-error --silent --location --dump-header /tmp/factory-headers.txt --output /tmp/factory-body.txt "$url"
+          echo "--- response headers ---"
+          cat /tmp/factory-headers.txt
+          echo "--- response body ---"
+          cat /tmp/factory-body.txt
+
+      - name: Probe Content Factory health
+        run: |
+          set -eu
+          url="https://content-factory-1zij.onrender.com/health"
+          echo "GET $url"
+          curl --fail --show-error --silent --location --dump-header /tmp/factory-health-headers.txt --output /tmp/factory-health-body.txt "$url"
+          echo "--- response headers ---"
+          cat /tmp/factory-health-headers.txt
+          echo "--- response body ---"
+          cat /tmp/factory-health-body.txt
