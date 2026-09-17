@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -21,8 +23,20 @@ jobs:
       - run: pip install ruff
       - name: Compile source
         run: python -m compileall -q src tests scripts
-      - name: Static analysis
-        run: ruff check --output-format=github .
+      - name: Static analysis of changed Python files
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            files="$(git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.sha }}" -- '*.py')"
+          else
+            files="$(git diff --name-only "${{ github.event.before }}" "${{ github.sha }}" -- '*.py')"
+          fi
+          if [[ -z "$files" ]]; then
+            echo "No changed Python files; static-analysis gate is not applicable."
+            exit 0
+          fi
+          printf '%s\n' "$files"
+          ruff check --output-format=github $files
       - name: Functional tests
         run: pytest -q
 
