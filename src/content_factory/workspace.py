@@ -5,7 +5,7 @@ import json
 import re
 from typing import Any
 
-from .runtime import AcceptanceDecision, FactoryRuntime, VerificationResult, WorkItem
+from .runtime import AcceptanceDecision, FactoryRuntime, WorkItem
 from .service import LocalReleasePublisher
 
 
