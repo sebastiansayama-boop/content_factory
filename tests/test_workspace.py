@@ -1,7 +1,7 @@
 from content_factory.artifacts import ArtifactStore
 from content_factory.runtime import Capability, ExecutionResult
 from content_factory.runtime_store import RuntimeStore
-from content_factory.workspace import ContentWorkspace, WorkspaceError, _json_from_text
+from content_factory.workspace import ContentWorkspace, WorkspaceError, _json_from_text, _source_id
 
 
 class FakeFactory:
@@ -39,13 +39,12 @@ def test_json_from_markdown_fence():
 
 def test_analyze_builds_source_grounded_editorial_request(tmp_path):
     fake = FakeFactory(
-        '{"summary":"A","themes":["one"],"stories":[{"id":"story-1","title":"T","angle":"A","why":"W","evidence":[]}],"moments":[]}',
+        '{"summary":"A","themes":["one"],"stories":[{"id":"story-1","title":"T","angle":"A","why":"W","evidence":[{"id":"evidence-1","quote":"A substantive source","location":"source"}]}],"moments":[]}',
         tmp_path,
     )
-    # Use the production verification contract supplied by the service shape.
-    fake._verify = fake._verify
     result = ContentWorkspace(fake).analyze(source="A substantive source", title="Interview")
     assert result["stories"][0]["id"] == "story-1"
+    assert result["stories"][0]["source_id"] == _source_id("A substantive source")
     assert result["title"] == "Interview"
     fake._store.close()
 
@@ -63,15 +62,24 @@ def test_produce_requires_story_identity(tmp_path):
 
 
 def test_produce_returns_package_and_runtime_identity(tmp_path):
+    source = "source"
+    story = {
+        "id": "story-1",
+        "title": "T",
+        "angle": "A",
+        "source_id": _source_id(source),
+        "evidence": [{"id": "evidence-1", "quote": "source", "location": "source"}],
+    }
     fake = FakeFactory(
-        '{"story":{"id":"story-1","title":"T","angle":"A"},"package":[{"id":"asset-1","format":"article","title":"T","content":"Body","source_refs":[]}]}'
-        , tmp_path,
+        '{"story":{"id":"story-1","title":"T","angle":"A"},"package":[{"id":"asset-1","format":"article","title":"T","content":"Body","source_refs":["evidence-1"]}]}',
+        tmp_path,
     )
     result = ContentWorkspace(fake).produce(
-        source="source",
-        story={"id": "story-1", "title": "T", "angle": "A"},
+        source=source,
+        story=story,
         formats=["article"],
     )
     assert result["story_id"] == "story-1"
     assert result["package"][0]["format"] == "article"
+    assert result["package"][0]["source_refs"] == ["evidence-1"]
     fake._store.close()
