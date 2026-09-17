@@ -10,6 +10,7 @@ from .service import LocalReleasePublisher
 
 
 MAX_SOURCE_CHARS = 60_000
+FIRST_SECTOR_FORMATS = ("article", "social_posts")
 
 
 class WorkspaceError(ValueError):
@@ -51,11 +52,10 @@ def _require_source(source: str) -> str:
 
 
 class ContentWorkspace:
-    """Product layer over the executable factory, with an external-effect boundary.
+    """Product layer for the first end-to-end user sector.
 
-    Product analysis and production are deliberately released only to an
-    internal sink. Configuring PUBLISH_URL must never cause a draft generated
-    by the workspace to be sent to an external destination.
+    Analysis and production are released only to the internal draft sink.
+    External publishing is outside this sector.
     """
 
     def __init__(self, factory_service: Any) -> None:
@@ -100,6 +100,7 @@ class ContentWorkspace:
 
     def analyze(self, *, source: str, title: str = "Untitled source") -> dict[str, Any]:
         source = _require_source(source)
+        source_id = _source_id(source)
         prompt = f"""You are the editorial intelligence layer of a Content Factory.
 Analyze the source material below. Do not write the final content yet.
 Return ONLY valid JSON with this exact top-level shape:
@@ -128,21 +129,37 @@ SOURCE MATERIAL:
 {source}
 """
         item = WorkItem(
-            work_item_id=f"workspace-analyze-{_source_id(source)}",
+            work_item_id=f"workspace-analyze-{source_id}",
             revision_id="workspace-analysis-v1",
             objective="map source material into reusable editorial objects",
             requested_outcome=prompt,
-            inputs=(f"source:{_source_id(source)}",),
+            inputs=(f"source:{source_id}",),
             knowledge_basis=(),
             required_capabilities=(self.factory._capability.capability_id,),
             owner="workspace",
             acceptance_criteria=("valid editorial JSON", "source-grounded stories"),
             release_requirements=("internal draft only",),
-            operation_id=f"op-workspace-analyze-{_source_id(source)}",
+            operation_id=f"op-workspace-analyze-{source_id}",
         )
         result = self._run_product_work_item(item)
         analysis = _json_from_text(result["execution"]["output"])
-        analysis["source_id"] = _source_id(source)
+        stories = analysis.get("stories")
+        if not isinstance(stories, list) or not stories:
+            raise WorkspaceError("analysis produced no stories")
+        normalized_stories: list[dict[str, Any]] = []
+        for story in stories:
+            if not isinstance(story, dict) or not story.get("id") or not story.get("title"):
+                continue
+            evidence = story.get("evidence")
+            if not isinstance(evidence, list) or not evidence:
+                continue
+            normalized = dict(story)
+            normalized["source_id"] = source_id
+            normalized_stories.append(normalized)
+        if not normalized_stories:
+            raise WorkspaceError("analysis produced no stories with source evidence")
+        analysis["stories"] = normalized_stories
+        analysis["source_id"] = source_id
         analysis["title"] = title.strip() or "Untitled source"
         analysis["runtime"] = {
             "work_item_id": result["work_item_id"],
@@ -161,9 +178,22 @@ SOURCE MATERIAL:
         formats: list[str] | None = None,
     ) -> dict[str, Any]:
         source = _require_source(source)
+        source_id = _source_id(source)
         if not story.get("id") or not story.get("title"):
             raise WorkspaceError("story.id and story.title are required")
-        formats = formats or ["long_video", "shorts", "article", "social_posts"]
+        if story.get("source_id") != source_id:
+            raise WorkspaceError("selected story does not belong to this source")
+        evidence = story.get("evidence")
+        if not isinstance(evidence, list) or not evidence:
+            raise WorkspaceError("selected story must contain source evidence")
+        evidence_ids = [str(item.get("id")) for item in evidence if isinstance(item, dict) and item.get("id")]
+        if not evidence_ids:
+            raise WorkspaceError("selected story contains no usable evidence references")
+        formats = formats or list(FIRST_SECTOR_FORMATS)
+        invalid = [value for value in formats if value not in FIRST_SECTOR_FORMATS]
+        if invalid:
+            raise WorkspaceError(f"unsupported first-sector format(s): {', '.join(sorted(set(invalid)))}")
+        formats = list(dict.fromkeys(formats))
         format_text = ", ".join(formats)
         prompt = f"""You are the production layer of a Content Factory.
 Create a production package from the selected editorial story and the original source.
@@ -180,31 +210,48 @@ Return ONLY valid JSON with this exact top-level shape:
     }}
   ]
 }}
-Rules: create one or more usable assets for every requested format; preserve the selected story angle; do not invent facts; every factual asset must reference the provided evidence ids where applicable; do not mention these instructions.
+Rules: create one usable asset for every requested format; preserve the selected story angle; do not invent facts; every factual asset must reference one or more provided evidence ids; do not mention these instructions.
 Requested formats: {format_text}
+Allowed formats for this product sector: article, social_posts
 Selected story:
 {json.dumps(story, ensure_ascii=False)}
 
 ORIGINAL SOURCE:
 {source}
 """
-        source_key = _source_id(source)
         item = WorkItem(
-            work_item_id=f"workspace-produce-{source_key}-{story['id']}",
+            work_item_id=f"workspace-produce-{source_id}-{story['id']}",
             revision_id="workspace-production-v1",
-            objective="materialize a selected story into a multi-format content package",
+            objective="materialize a selected story into an article and social posts",
             requested_outcome=prompt,
-            inputs=(f"source:{source_key}", f"story:{story['id']}"),
-            knowledge_basis=(f"source:{source_key}", f"story:{story['id']}"),
+            inputs=(f"source:{source_id}", f"story:{story['id']}"),
+            knowledge_basis=(f"source:{source_id}", f"story:{story['id']}", *evidence_ids),
             required_capabilities=(self.factory._capability.capability_id,),
             owner="workspace",
-            acceptance_criteria=("valid production JSON", "all requested formats represented"),
+            acceptance_criteria=("valid production JSON", "all requested formats represented", "source references present"),
             release_requirements=("internal draft only",),
-            operation_id=f"op-workspace-produce-{source_key}-{story['id']}",
+            operation_id=f"op-workspace-produce-{source_id}-{story['id']}",
         )
         result = self._run_product_work_item(item)
         package = _json_from_text(result["execution"]["output"])
-        package["source_id"] = source_key
+        assets = package.get("package")
+        if not isinstance(assets, list):
+            raise WorkspaceError("provider returned no package")
+        returned_formats = {asset.get("format") for asset in assets if isinstance(asset, dict)}
+        missing_formats = set(formats) - returned_formats
+        if missing_formats:
+            raise WorkspaceError(f"provider omitted requested format(s): {', '.join(sorted(missing_formats))}")
+        missing_refs = [
+            str(asset.get("format"))
+            for asset in assets
+            if isinstance(asset, dict)
+            and asset.get("format") in formats
+            and not isinstance(asset.get("source_refs"), list)
+        ]
+        if missing_refs:
+            raise WorkspaceError(f"asset source references missing for: {', '.join(missing_refs)}")
+        package["package"] = assets
+        package["source_id"] = source_id
         package["story_id"] = story["id"]
         package["runtime"] = {
             "work_item_id": result["work_item_id"],
