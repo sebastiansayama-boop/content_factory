@@ -16,15 +16,36 @@ GitHub's official guidance for AI-generated code explicitly recommends functiona
 ## Changes in this candidate
 
 1. CI compiles `src`, `tests`, and `scripts` before tests.
-2. CI runs Ruff as an independent static-analysis gate.
+2. CI runs Ruff as an independent static-analysis gate on changed Python files.
 3. CodeQL scans Python and JavaScript/TypeScript with the `security-and-quality` suite.
 4. Existing pytest and container build gates remain unchanged.
 
+## Evidence from the first run
+
+The first CI run of this candidate was intentionally treated as a real validation result, not hidden.
+
+- Compile gate: PASS.
+- Ruff gate: FAIL.
+- Pytest: SKIPPED because the static gate failed.
+- Container: SKIPPED because the test job failed.
+
+Ruff reported pre-existing findings across source, tests, and scripts, including unused imports, broad exception catches, import-order issues, mutable class defaults, and other maintainability findings. The failure was therefore useful evidence: a naive full-repository lint gate would not distinguish new defects from the repository's existing baseline.
+
+## Repair after observation
+
+The CI gate was narrowed to changed Python files for the current pull request. This preserves the useful property—new Python changes must pass static analysis—without falsely treating the entire historical repository as newly introduced debt.
+
+This is an intentional correction cycle:
+
+`external guidance → implementation → observed failure → scope diagnosis → gate repair`
+
+The repair is not considered successful until a new CI run passes the scoped static gate and the remaining functional/container/CodeQL jobs are observed.
+
 ## What this proves
 
-If the workflow passes, it proves only that the repository passed these concrete gates for that commit:
+If the repaired workflow passes, it proves only that the repository passed these concrete gates for that commit:
 
-`compile -> static analysis -> pytest -> container build -> CodeQL`
+`compile -> changed-file static analysis -> pytest -> container build -> CodeQL`
 
 It does not prove product usefulness, semantic correctness of every requirement, external business outcome, or absence of all AI-generated defects.
 
