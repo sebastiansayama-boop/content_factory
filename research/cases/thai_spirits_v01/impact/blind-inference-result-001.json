@@ -1,0 +1,31 @@
+{
+  "test_id": "blind-inference-001",
+  "mode": "manual_blind_adjudication",
+  "inputs_used": [
+    "C004-v1",
+    "C004-v2",
+    "SCRIPT-001",
+    "VIDEO-001",
+    "SHORT-001",
+    "SHORT-002",
+    "SHORT-003",
+    "TELEGRAM-001"
+  ],
+  "withheld_from_analysis": [
+    "semantic-dependency-map-001.json",
+    "impact-analysis-001.json",
+    "impact-test.md",
+    "lineage.json",
+    "prior_expected_result"
+  ],
+  "results": [
+    {"object_id":"SCRIPT-001","decision":"REVIEW","confidence":0.98,"evidence_span":"One important example is the San Phra Phum, a spirit house associated with a guardian spirit or deity connected with a place.","dependency_reason":"The artifact states the changed C004 proposition directly; the revised wording changes the framing from a generic spirit-house description to a specific place-guardian characterization."},
+    {"object_id":"VIDEO-001","decision":"REVIEW","confidence":0.86,"evidence_span":"Include a simple visual explanation of shrine categories.","dependency_reason":"The treatment explicitly represents the shrine and its category context. The semantic change affects how the shrine should be identified and explained, while the visual concept itself may remain usable."},
+    {"object_id":"SHORT-001","decision":"KEEP","confidence":0.99,"evidence_span":"Phi does not simply mean ghost. The term has meanings and classifications that vary across historical and religious contexts.","dependency_reason":"The artifact does not use the San Phra Phum proposition."},
+    {"object_id":"SHORT-002","decision":"REGENERATE","confidence":0.99,"evidence_span":"the San Phra Phum, a spirit house associated with a guardian spirit or deity connected with a place.","dependency_reason":"The artifact directly states the proposition changed by C004 and therefore its semantic payload must be regenerated."},
+    {"object_id":"SHORT-003","decision":"KEEP","confidence":0.98,"evidence_span":"Thai ritual life draws from several traditions, and spirit beliefs can coexist with Buddhist practice.","dependency_reason":"The artifact discusses coexistence and offerings but does not depend on the specific San Phra Phum proposition."},
+    {"object_id":"TELEGRAM-001","decision":"KEEP","confidence":0.91,"evidence_span":"Spirit houses can be associated with guardian spirits connected with a place, and shrine traditions differ.","dependency_reason":"The artifact contains a general statement compatible with the revised C004 but does not preserve the narrower v1 wording as a claim that requires correction."}
+  ],
+  "execution": {"status":"not_executed","human_approval_required":true},
+  "limitation":"This is an independent manual blind adjudication, not automated semantic inference by a production analyzer. It demonstrates the target decision procedure and fixture validity, not model performance."
+}
