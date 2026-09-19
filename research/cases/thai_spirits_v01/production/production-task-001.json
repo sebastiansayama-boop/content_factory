@@ -1,0 +1,27 @@
+{
+  "production_task_id": "PROD-THAI-PHI-001",
+  "canonical_topic": {
+    "domain": "Thailand",
+    "concept": "phi",
+    "script": "ผี",
+    "label": "Thai Phi (ผี) — Spirit Beliefs & Spirit Houses"
+  },
+  "status": "PRODUCTION_READY",
+  "master_artifact": "SCRIPT-001",
+  "derivatives": [
+    "VIDEO-001",
+    "SHORT-001",
+    "SHORT-002",
+    "SHORT-003",
+    "TELEGRAM-001"
+  ],
+  "constraints": [
+    "preserve_semantic_identity",
+    "trace_claims_to_sources",
+    "no_unsupported_C010",
+    "block_unresolved_ambiguity",
+    "impact_analysis_before_release",
+    "no_deletion"
+  ],
+  "release": "NOT_AUTHORIZED"
+}
