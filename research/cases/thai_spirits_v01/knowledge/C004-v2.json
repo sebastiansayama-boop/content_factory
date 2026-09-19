@@ -1,0 +1,10 @@
+{
+  "id": "C004",
+  "version": "v2",
+  "status": "supported",
+  "confidence": "high",
+  "text": "San Phra Phum is described as a shrine associated with a guardian spirit/deity connected with a place; in this case it is treated specifically as a place-guardian shrine rather than a generic 'ghost house'.",
+  "supersedes": "C004@v1",
+  "sources": ["S005", "S006"],
+  "change_id": "CHANGE-001"
+}
