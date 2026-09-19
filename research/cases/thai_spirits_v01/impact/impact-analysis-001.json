@@ -46,9 +46,9 @@
     },
     {
       "object": "TELEGRAM-001",
-      "decision": "REVIEW",
-      "reason": "The current derivative references C004 in its research basis; final wording must be checked before release.",
-      "causal_path": "C004@v2 -> SCRIPT-001 -> TELEGRAM-001"
+      "decision": "KEEP",
+      "reason": "The derivative uses a general place-guardian formulation compatible with C004@v2 and does not reproduce the superseded v1 wording.",
+      "causal_path": "C004@v2 -> SCRIPT-001 -> TELEGRAM-001; semantic inspection finds no correction required"
     }
   ],
   "human_decision": "PENDING",
