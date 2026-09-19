@@ -5,7 +5,7 @@ Status: DRAFT / research-backed.
 Opening:
 Walk past a house, hotel, shop or office in Thailand and you may notice a small shrine outside the building. There can be flowers, drinks, food or incense in front of it.
 
-The obvious question is: if Thailand is predominantly Buddhist, why are people making offerings to spirits?
+The obvious question is: if Buddhism is central to religious life in Thailand, why do some people make offerings to spirits?
 
 The short answer is that Thai religious life does not fit neatly into a Buddhism-versus-spirits binary.
 
@@ -21,7 +21,7 @@ And this is not only a rural phenomenon. Research documents spirit-house practic
 
 So the interesting part is not simply that "Thai people believe in ghosts".
 
-It is that several religious traditions have developed alongside one another, and the boundaries between them can be more complicated than a Western category such as "religion versus superstition" suggests.
+It is that several religious traditions have developed alongside one another, and the boundaries between categories such as "religion" and "superstition" do not always describe the practices documented by researchers.
 
 Thai religious life is layered, local and still changing. [C008, C009]
 
