@@ -1,0 +1,44 @@
+{
+  "change_id": "CHANGE-001",
+  "method": "manual_semantic_dependency_annotation",
+  "purpose": "Separate semantic use from graph reachability for the first controlled impact test.",
+  "dependencies": [
+    {
+      "object": "SCRIPT-001",
+      "uses": ["C004"],
+      "evidence": "The script contains an explicit explanation of San Phra Phum.",
+      "impact_if_C004_changes": "review"
+    },
+    {
+      "object": "VIDEO-001",
+      "uses": ["C004"],
+      "evidence": "The production treatment explicitly includes a simple visual explanation of shrine categories and the San Phra Phum material.",
+      "impact_if_C004_changes": "review"
+    },
+    {
+      "object": "SHORT-002",
+      "uses": ["C004", "C005"],
+      "evidence": "The derivative plan names C004 as a source claim and the short is specifically about the spirit house.",
+      "impact_if_C004_changes": "regenerate"
+    },
+    {
+      "object": "SHORT-001",
+      "uses": ["C002"],
+      "evidence": "The derivative plan lists only C002 as its source claim.",
+      "impact_if_C004_changes": "keep"
+    },
+    {
+      "object": "SHORT-003",
+      "uses": ["C001", "C003", "C006"],
+      "evidence": "The derivative plan lists only coexistence/offerings claims, not C004.",
+      "impact_if_C004_changes": "keep"
+    },
+    {
+      "object": "TELEGRAM-001",
+      "uses": ["C001", "C002", "C003", "C004", "C009"],
+      "evidence": "The derivative plan explicitly lists C004 as a source claim.",
+      "impact_if_C004_changes": "review"
+    }
+  ],
+  "limitation": "This is annotated evidence, not an automated semantic parser. It validates the data model and expected decision behavior, not general semantic inference accuracy."
+}
