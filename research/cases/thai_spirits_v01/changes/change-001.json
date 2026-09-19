@@ -1,0 +1,15 @@
+{
+  "change_id": "CHANGE-001",
+  "case_id": "thai_spirits_v01",
+  "change_type": "semantic_content_change",
+  "source_object": "C004",
+  "from_version": "C004@v1",
+  "to_version": "C004@v2",
+  "summary": "The claim is narrowed so the content no longer treats San Phra Phum as a generic spirit-house example; it explicitly frames it as a place-guardian shrine and preserves the distinction from other shrine traditions.",
+  "old_text": "San Phra Phum is described as a shrine associated with a guardian spirit/deity connected with a place.",
+  "new_text": "San Phra Phum is described as a shrine associated with a guardian spirit/deity connected with a place; in this case it is treated specifically as a place-guardian shrine rather than a generic 'ghost house'.",
+  "reason": "Test whether a semantic change inside a supported claim can produce a narrower downstream impact than graph traversal alone.",
+  "expected_semantic_effect": "Objects that merely discuss phi or the coexistence of spirit practice and Buddhism should remain valid; objects that explain or depict San Phra Phum specifically require review or regeneration.",
+  "execution_status": "not_executed",
+  "human_approval_required": true
+}
