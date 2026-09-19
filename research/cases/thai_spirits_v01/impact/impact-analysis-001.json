@@ -1,0 +1,56 @@
+{
+  "change_id": "CHANGE-001",
+  "analysis_version": "impact-analysis-v0.1",
+  "changed_object": "C004@v1 -> C004@v2",
+  "graph_only_result": {
+    "affected_by_reachability": [
+      "SCRIPT-001",
+      "VIDEO-001",
+      "SHORT-001",
+      "SHORT-002",
+      "SHORT-003",
+      "TELEGRAM-001"
+    ],
+    "limitation": "Graph reachability cannot distinguish objects that inherit a node relationship from objects that actually use the changed semantic."
+  },
+  "semantic_result": [
+    {
+      "object": "SCRIPT-001",
+      "decision": "REVIEW",
+      "reason": "The script explicitly explains San Phra Phum and therefore uses the changed semantic.",
+      "causal_path": "C004@v2 -> SCRIPT-001 paragraph on San Phra Phum"
+    },
+    {
+      "object": "VIDEO-001",
+      "decision": "REVIEW",
+      "reason": "The video treatment contains a specific San Phra Phum explanation and visual treatment.",
+      "causal_path": "C004@v2 -> SCRIPT-001 -> VIDEO-001 San Phra Phum segment"
+    },
+    {
+      "object": "SHORT-002",
+      "decision": "REGENERATE",
+      "reason": "SHORT-002 is specifically about the spirit house and depends directly on the changed explanation.",
+      "causal_path": "C004@v2 -> SCRIPT-001 -> VIDEO-001 -> SHORT-002"
+    },
+    {
+      "object": "SHORT-001",
+      "decision": "KEEP",
+      "reason": "SHORT-001 explains the term phi and does not depend on the changed San Phra Phum semantic.",
+      "causal_path": "C002 -> SCRIPT-001 -> VIDEO-001 -> SHORT-001; no semantic use of C004 detected"
+    },
+    {
+      "object": "SHORT-003",
+      "decision": "KEEP",
+      "reason": "SHORT-003 concerns coexistence of spirit offerings and Buddhism and does not require the changed shrine-specific formulation.",
+      "causal_path": "C001/C003/C006 -> SCRIPT-001 -> VIDEO-001 -> SHORT-003; no semantic use of C004 detected"
+    },
+    {
+      "object": "TELEGRAM-001",
+      "decision": "REVIEW",
+      "reason": "The current derivative references C004 in its research basis; final wording must be checked before release.",
+      "causal_path": "C004@v2 -> SCRIPT-001 -> TELEGRAM-001"
+    }
+  ],
+  "human_decision": "PENDING",
+  "execution": "BLOCKED_UNTIL_APPROVAL"
+}
