@@ -1,0 +1,27 @@
+{
+  "test_id": "semantic-label-integrity-001",
+  "input": "что-нибудь про отношение тайцев к духам",
+  "canonical_meaning": {
+    "domain": "Thailand",
+    "concept": "phi",
+    "script": "ผี",
+    "meaning": "Thai spirit beliefs, spirit houses, offerings, and their relationship with Buddhist practice",
+    "excluded_interpretations": ["alcoholic beverages"]
+  },
+  "invariant": "Internal operation metadata must be derived from resolved canonical meaning, never directly from ambiguous user text.",
+  "required_flow": ["USER_INPUT", "SEMANTIC_INTERPRETATION", "CANONICAL_MEANING", "OPERATION_METADATA"],
+  "forbidden_flow": ["USER_INPUT", "OPERATION_METADATA"],
+  "failure_condition": {
+    "status": "SEMANTIC_DRIFT",
+    "examples": ["алкоголь", "спиртные напитки", "alcoholic beverages"],
+    "execution": "BLOCKED"
+  },
+  "observed_failure": {
+    "label": "Исследование влияния тайских спиртных напитков",
+    "source": "conversation/interface progress label",
+    "repository_presence": "not_found",
+    "classification": "observed_interface_operation_label_defect"
+  },
+  "runtime_enforcement": "not_implemented",
+  "research_status": "sufficient_for_first_production_experiment"
+}
