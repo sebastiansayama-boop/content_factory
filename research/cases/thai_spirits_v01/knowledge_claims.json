@@ -1,0 +1,76 @@
+{
+  "case_id": "thai_spirits_v01",
+  "question": "Why can spirit offerings coexist with Buddhist practice in Thailand?",
+  "claims": [
+    {
+      "id": "C001",
+      "text": "Thai religious and ritual life draws on Theravada and Mahayana Buddhism, Brahmanism, and spirit cults.",
+      "status": "supported",
+      "confidence": "high",
+      "sources": ["S001"]
+    },
+    {
+      "id": "C002",
+      "text": "Phi (ผี) should not automatically be translated as a single English category such as ghost; its meanings and classifications vary by context and history.",
+      "status": "supported",
+      "confidence": "high",
+      "sources": ["S002", "S003"]
+    },
+    {
+      "id": "C003",
+      "text": "Spirit beliefs and Buddhist practice can coexist in Thai religious life rather than forming a simple binary opposition.",
+      "status": "supported",
+      "confidence": "high",
+      "sources": ["S001", "S003", "S004"]
+    },
+    {
+      "id": "C004",
+      "text": "San Phra Phum is described as a shrine associated with a guardian spirit/deity connected with a place.",
+      "status": "supported",
+      "confidence": "high",
+      "sources": ["S005", "S006"]
+    },
+    {
+      "id": "C005",
+      "text": "Phra Phum, Jao Thii and Phra Phrom are treated as distinct shrine traditions in research on Bangkok.",
+      "status": "supported",
+      "confidence": "medium-high",
+      "sources": ["S006"]
+    },
+    {
+      "id": "C006",
+      "text": "Offerings of food, drink, flowers, incense or other items occur in spirit-related practices.",
+      "status": "supported",
+      "confidence": "high",
+      "sources": ["S004", "S007"]
+    },
+    {
+      "id": "C007",
+      "text": "Spirit mediumship remains a documented practice in Thailand, including urban and northern Thai contexts.",
+      "status": "supported",
+      "confidence": "high",
+      "sources": ["S004", "S007", "S008"]
+    },
+    {
+      "id": "C008",
+      "text": "Contemporary Thai religious practice is dynamic: new spiritual figures and devotional movements can emerge from multiple religious traditions.",
+      "status": "supported",
+      "confidence": "high",
+      "sources": ["S001"]
+    },
+    {
+      "id": "C009",
+      "text": "Thai spirit-house practices should not be represented as one uniform national system; historical, regional and shrine-specific differences matter.",
+      "status": "supported-synthesis",
+      "confidence": "high",
+      "sources": ["S003", "S006", "S008", "S009"]
+    },
+    {
+      "id": "C010",
+      "text": "The popular claim that red Fanta is offered to spirits for a specific universal reason is not sufficiently established by the sources used in this case.",
+      "status": "open-question",
+      "confidence": "low",
+      "sources": []
+    }
+  ]
+}
