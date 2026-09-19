@@ -1,0 +1,64 @@
+{
+  "test_id": "BLIND-001",
+  "change_id": "CHANGE-001",
+  "inputs_used": [
+    "changes/change-001.json",
+    "knowledge_claims.json",
+    "knowledge/C004-v2.json",
+    "production/script-001.md",
+    "production/derivatives.md",
+    "lineage.json"
+  ],
+  "method": "semantic inspection of actual textual dependency declarations; no use of the prior expected-impact result as an input",
+  "analysis": [
+    {
+      "object": "SCRIPT-001",
+      "decision": "REVIEW",
+      "confidence": "high",
+      "evidence": "SCRIPT-001 explicitly cites C004 in the San Phra Phum paragraph.",
+      "reason": "The changed claim is used in substantive explanatory text."
+    },
+    {
+      "object": "VIDEO-001",
+      "decision": "REVIEW",
+      "confidence": "medium",
+      "evidence": "The production treatment explicitly calls for a shrine-category explanation, while the script supplies the C004-specific explanation.",
+      "reason": "The visual explanation may encode the changed semantic and therefore requires inspection before release."
+    },
+    {
+      "object": "SHORT-002",
+      "decision": "REGENERATE",
+      "confidence": "high",
+      "evidence": "Derivative plan explicitly declares C004 and C005 as source claims; the short is specifically about the spirit house.",
+      "reason": "Its subject is the changed claim's semantic domain."
+    },
+    {
+      "object": "SHORT-001",
+      "decision": "KEEP",
+      "confidence": "high",
+      "evidence": "Derivative plan declares C002 only.",
+      "reason": "No semantic dependency on C004 is declared or found."
+    },
+    {
+      "object": "SHORT-003",
+      "decision": "KEEP",
+      "confidence": "high",
+      "evidence": "Derivative plan declares C001, C003 and C006 only.",
+      "reason": "The topic is coexistence and offerings, not the shrine-specific C004 claim."
+    },
+    {
+      "object": "TELEGRAM-001",
+      "decision": "REVIEW",
+      "confidence": "high",
+      "evidence": "Derivative plan explicitly declares C004 among its source claims.",
+      "reason": "The changed claim may affect final wording and must be checked."
+    }
+  ],
+  "graph_only_contrast": {
+    "would_flag": ["SCRIPT-001", "VIDEO-001", "SHORT-001", "SHORT-002", "SHORT-003", "TELEGRAM-001"],
+    "semantic_analysis_flags": ["SCRIPT-001", "VIDEO-001", "SHORT-002", "TELEGRAM-001"],
+    "semantic_keep": ["SHORT-001", "SHORT-003"]
+  },
+  "result": "The blind analysis reproduced the intended narrow-impact classification from the available dependency evidence.",
+  "critical_limit": "This is not yet autonomous semantic inference. The system relies on explicit source-claim annotations and human-readable dependency declarations. A future test must remove those declarations from the analysis input and ask a model to infer semantic usage from artifact content."
+}
