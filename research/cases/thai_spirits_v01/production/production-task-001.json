@@ -6,7 +6,7 @@
     "script": "ผี",
     "label": "Thai Phi (ผี) — Spirit Beliefs & Spirit Houses"
   },
-  "status": "PRODUCTION_READY",
+  "status": "ACCEPTED",
   "master_artifact": "SCRIPT-001",
   "derivatives": [
     "VIDEO-001",
@@ -15,6 +15,14 @@
     "SHORT-003",
     "TELEGRAM-001"
   ],
+  "accepted_versions": {
+    "SCRIPT-001": "current",
+    "VIDEO-001": "VIDEO-001-v2",
+    "SHORT-001": "current",
+    "SHORT-002": "current",
+    "SHORT-003": "SHORT-003-v2",
+    "TELEGRAM-001": "TELEGRAM-001-v2"
+  },
   "constraints": [
     "preserve_semantic_identity",
     "trace_claims_to_sources",
@@ -23,5 +31,7 @@
     "impact_analysis_before_release",
     "no_deletion"
   ],
-  "release": "NOT_AUTHORIZED"
+  "release": "AUTHORIZED",
+  "human_acceptance": "human-acceptance-001",
+  "external_publication": "NOT_EXECUTED"
 }
