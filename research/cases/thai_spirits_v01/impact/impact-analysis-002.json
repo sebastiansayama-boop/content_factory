@@ -1,0 +1,16 @@
+{
+  "analysis_id": "IMPACT-002",
+  "trigger": "SCRIPT-001@revision-after-QUALITY-001",
+  "changed_object": "SCRIPT-001",
+  "knowledge_claims_changed": [],
+  "result": [
+    {"object":"VIDEO-001","decision":"REVIEW","reason":"Direct derivative of revised master; audiovisual narrative must be synchronized with revised framing."},
+    {"object":"SHORT-001","decision":"KEEP","reason":"Scope is C002 and does not use the changed demographic or category-framing language."},
+    {"object":"SHORT-002","decision":"KEEP","reason":"Scope is C004/C005 and does not use the changed framing."},
+    {"object":"SHORT-003","decision":"REVIEW","reason":"Scope C001/C003/C006 overlaps the revised Buddhism/spirit framing."},
+    {"object":"TELEGRAM-001","decision":"REVIEW","reason":"Direct derivative of revised master and includes C001/C003."}
+  ],
+  "human_decision": "PENDING",
+  "execution": "BLOCKED_UNTIL_APPROVAL",
+  "prior_analysis_preserved": "impact-analysis-001"
+}
