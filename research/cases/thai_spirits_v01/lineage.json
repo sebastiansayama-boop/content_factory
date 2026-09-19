@@ -1,0 +1,36 @@
+{
+  "case_id": "thai_spirits_v01",
+  "objects": [
+    {"id":"C001","type":"CLAIM"},
+    {"id":"C002","type":"CLAIM"},
+    {"id":"C003","type":"CLAIM"},
+    {"id":"C004","type":"CLAIM"},
+    {"id":"C005","type":"CLAIM"},
+    {"id":"C006","type":"CLAIM"},
+    {"id":"C007","type":"CLAIM"},
+    {"id":"C008","type":"CLAIM"},
+    {"id":"C009","type":"CLAIM"},
+    {"id":"SCRIPT-001","type":"SCRIPT"},
+    {"id":"VIDEO-001","type":"VIDEO"},
+    {"id":"SHORT-001","type":"SHORT"},
+    {"id":"SHORT-002","type":"SHORT"},
+    {"id":"SHORT-003","type":"SHORT"},
+    {"id":"TELEGRAM-001","type":"POST"}
+  ],
+  "relations": [
+    {"from":"C002","to":"SCRIPT-001","type":"SUPPORTS"},
+    {"from":"C004","to":"SCRIPT-001","type":"SUPPORTS"},
+    {"from":"C005","to":"SCRIPT-001","type":"SUPPORTS"},
+    {"from":"C001","to":"SCRIPT-001","type":"SUPPORTS"},
+    {"from":"C003","to":"SCRIPT-001","type":"SUPPORTS"},
+    {"from":"C006","to":"SCRIPT-001","type":"SUPPORTS"},
+    {"from":"C007","to":"SCRIPT-001","type":"SUPPORTS"},
+    {"from":"C008","to":"SCRIPT-001","type":"SUPPORTS"},
+    {"from":"C009","to":"SCRIPT-001","type":"SUPPORTS"},
+    {"from":"SCRIPT-001","to":"VIDEO-001","type":"DERIVED_FROM"},
+    {"from":"VIDEO-001","to":"SHORT-001","type":"DERIVED_FROM"},
+    {"from":"VIDEO-001","to":"SHORT-002","type":"DERIVED_FROM"},
+    {"from":"VIDEO-001","to":"SHORT-003","type":"DERIVED_FROM"},
+    {"from":"SCRIPT-001","to":"TELEGRAM-001","type":"DERIVED_FROM"}
+  ]
+}
