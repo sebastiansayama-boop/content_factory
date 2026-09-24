@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,8 @@ class ProductHandler(Handler):
 
     def _body(self) -> dict[str, Any]:
         length = int(self.headers.get("Content-Length", "0"))
+        if length < 0 or length > 64 * 1024:
+            raise ValueError("request body exceeds maximum size")
         payload = json.loads(self.rfile.read(length).decode("utf-8"))
         if not isinstance(payload, dict):
             raise ValueError("JSON body must be an object")
@@ -34,9 +37,19 @@ class ProductHandler(Handler):
         if self.path not in {"/api/analyze", "/api/produce"}:
             super().do_POST()
             return
+
+        now = time.monotonic()
+        client_ip = self.client_address[0]
+        if self._auth_failure_limited(client_ip, now):
+            self._json(429, {"error": "too many authentication failures"}, retry_after=60)
+            return
         if not self._authorized():
             self._json(401, {"error": "missing or invalid API token"})
             return
+        if self._rate_limited(self._authorized_requests, 10, now, 60.0):
+            self._json(429, {"error": "product rate limit exceeded"}, retry_after=60)
+            return
+
         try:
             payload = self._body()
             if self.path == "/api/analyze":
@@ -45,12 +58,21 @@ class ProductHandler(Handler):
                     title=str(payload.get("title", "Untitled source")),
                 )
             else:
+                formats = payload.get("formats", [])
+                if not isinstance(formats, list):
+                    raise ValueError("formats must be an array")
                 result = self.workspace.produce(
                     source=str(payload.get("source", "")),
                     story=payload.get("story") if isinstance(payload.get("story"), dict) else {},
-                    formats=[str(value) for value in payload.get("formats", [])],
+                    formats=[str(value) for value in formats],
                 )
             self._json(200, result)
+        except json.JSONDecodeError:
+            self._json(400, {"error": "invalid JSON body"})
+        except UnicodeDecodeError:
+            self._json(400, {"error": "request body must be UTF-8"})
+        except ValueError as exc:
+            self._json(400, {"error": str(exc)})
         except Exception as exc:
             self._json(400, {"error": str(exc)})
 
