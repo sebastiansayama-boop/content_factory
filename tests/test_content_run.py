@@ -178,3 +178,82 @@ def test_get_missing_run_returns_404(tmp_path):
     assert handler.status == 404
     assert handler.body["error"] == "content run not found"
     store.close()
+
+
+class FakeVerticalSlice:
+    def __init__(self):
+        pass
+
+    def run(self, *, run_id, brief, formats):
+        assert run_id.startswith("run-")
+        assert brief == "Research this topic."
+        assert formats == ["article", "social_post", "visual_card"]
+        from content_factory.vertical_slice import VerticalSliceResult
+
+        return VerticalSliceResult(
+            run_id=run_id,
+            brief=brief,
+            research={
+                "topic": "Test topic",
+                "summary": "Research summary",
+                "claims": [{"id": "claim-1", "text": "A fact", "source_ids": ["source-1"]}],
+                "sources": [{"id": "source-1", "title": "Test source", "url": "https://example.com/source"}],
+                "editorial_angles": ["Test angle"],
+            },
+            package={
+                "topic": "Test topic",
+                "package": [{
+                    "id": "test-article-v1",
+                    "format": "article",
+                    "title": "Test article",
+                    "content": "Generated content",
+                    "claim_refs": ["claim-1"],
+                    "source_refs": ["source-1"],
+                }],
+            },
+            quality={"status": "PASS", "errors": [], "asset_count": 1, "claim_count": 1, "source_count": 1},
+        )
+
+
+def test_execute_endpoint_runs_vertical_slice_and_persists_result(tmp_path):
+    store = ContentRunStore(tmp_path / "runs.sqlite3")
+    created = store.create(
+        title="Test run",
+        brief="Research this topic.",
+        formats=("article", "social_post", "visual_card"),
+    )
+
+    class RunsHandler(ProductHandler):
+        content_runs = store
+        vertical_slice_factory = FakeVerticalSlice
+
+    handler = RunsHandler(f"/api/runs/{created.run_id}/execute")
+    ProductHandler.do_POST(handler)
+
+    assert handler.status == 200
+    assert handler.body["status"] == "REVIEW"
+    assert handler.body["result"]["quality"]["status"] == "PASS"
+    assert handler.body["result"]["research"]["claims"][0]["id"] == "claim-1"
+    assert store.get(created.run_id).result["package"]["package"][0]["id"] == "test-article-v1"
+    store.close()
+
+
+def test_execute_failure_marks_run_failed(tmp_path):
+    store = ContentRunStore(tmp_path / "runs.sqlite3")
+    created = store.create(title="Test run", brief="Research this topic.")
+
+    class FailingVerticalSlice:
+        def run(self, **kwargs):
+            raise ValueError("research failed")
+
+    class RunsHandler(ProductHandler):
+        content_runs = store
+        vertical_slice_factory = FailingVerticalSlice
+
+    handler = RunsHandler(f"/api/runs/{created.run_id}/execute")
+    ProductHandler.do_POST(handler)
+
+    assert handler.status == 400
+    assert handler.body["error"] == "research failed"
+    assert store.get(created.run_id).status == "FAILED"
+    store.close()
