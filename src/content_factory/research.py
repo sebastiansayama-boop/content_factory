@@ -7,7 +7,7 @@ from .integrations import ExternalCallResult, HttpJsonAdapter, IntegrationConfig
 
 
 class OpenAIWebResearchAdapter:
-    def __init__(self, model: str = "gpt-5.5") -> None:
+    def __init__(self, model: str = "gpt-5.6-luna") -> None:
         self.model = model
         self._http = HttpJsonAdapter(IntegrationConfig(
             integration_id="openai.responses.web_search",
