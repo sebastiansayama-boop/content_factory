@@ -35,19 +35,16 @@ class FakeFactory:
 
 def test_produce_exposes_claim_level_provenance_for_downstream_asset(tmp_path):
     """
-    Falsification test for the current product contract.
+    Regression test for the claim-level provenance contract.
 
-    Given a selected story grounded in evidence-4 and a claim claim-1,
-    production should expose the relationship needed to answer:
-    "which assets are affected if claim-1 changes?"
-
-    The current workspace contract only exposes source_refs, so this test
-    is expected to fail until claim-level provenance is actually persisted.
+    Given a selected story grounded in evidence-4 and claim-1 explicitly
+    supported by evidence-4, production must expose the relationship needed
+    to answer: "which assets are affected if claim-1 changes?"
     """
     fake = FakeFactory(
         '{"story":{"id":"story-1","title":"T","angle":"A"},'
         '"package":[{"id":"asset-1","format":"article","title":"T",'
-        '"content":"Body","source_refs":["evidence-4"]}]}',
+        '"content":"Body","source_refs":["evidence-4"],"claim_refs":["claim-1"]}]}',
         tmp_path,
     )
 
@@ -64,7 +61,13 @@ def test_produce_exposes_claim_level_provenance_for_downstream_asset(tmp_path):
                     "location":"source",
                 }
             ],
-            "claims":[{"id":"claim-1","text":"Claim 1"}],
+            "claims":[
+                {
+                    "id":"claim-1",
+                    "text":"Claim 1",
+                    "evidence_refs":["evidence-4"],
+                }
+            ],
         },
         formats=["article"],
     )
