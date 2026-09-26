@@ -109,3 +109,38 @@ def test_produce_derives_claim_refs_from_asset_evidence(tmp_path):
     )
 
     assert result["package"][0]["claim_refs"] == ["claim-1"]
+
+
+def test_produce_rejects_claim_not_supported_by_asset_evidence(tmp_path):
+    fake = FakeFactory(
+        '{"story":{"id":"story-1","title":"T","angle":"A"},'
+        '"package":[{"id":"asset-1","format":"article","title":"T",'
+        '"content":"Body","source_refs":["evidence-4"],"claim_refs":["claim-1"]}]}',
+        tmp_path,
+    )
+
+    try:
+        ContentWorkspace(fake).produce(
+            source="Evidence-4 supports another claim.",
+            story={
+                "id": "story-1",
+                "title": "T",
+                "angle": "A",
+                "evidence": [
+                    {"id": "evidence-4", "quote": "Other evidence", "location": "source"},
+                    {"id": "evidence-5", "quote": "Claim evidence", "location": "source"},
+                ],
+                "claims": [
+                    {
+                        "id": "claim-1",
+                        "text": "Claim 1",
+                        "evidence_refs": ["evidence-5"],
+                    }
+                ],
+            },
+            formats=["article"],
+        )
+    except Exception as exc:
+        assert "not supported by asset source_refs" in str(exc)
+    else:
+        raise AssertionError("unsupported claim provenance must fail closed")
