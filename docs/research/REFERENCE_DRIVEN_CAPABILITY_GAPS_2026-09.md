@@ -359,3 +359,11 @@ The working product hypothesis is now:
 > Content Factory should not compete with specialist AI products at generation. It should connect them around a canonical content identity, research/evidence, semantic dependencies, provenance, cross-format consistency, QC and final packaging — but only where real experiments demonstrate that existing products do not already solve the problem.
 
 This conclusion is deliberately falsifiable. The next experiment is an actual end-to-end production run, not another architecture exercise.
+
+## First implementation from the gap analysis
+
+The first gap candidate has now been implemented as a deliberately small domain layer: `src/content_factory/content_provenance.py`.
+
+It records relationships between editorial units and provider-generated assets while preserving source/evidence/claim references. It does not execute providers, orchestrate jobs, replace provider workflows, or introduce a generic runtime. Tests are in `tests/test_content_provenance.py`.
+
+This is an implementation of the hypothesis, not proof that the gap is commercially valuable. The next end-to-end experiment must use at least two distinct production providers and verify that the graph provides information that neither provider can preserve across the handoff.
