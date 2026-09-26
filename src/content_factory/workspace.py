@@ -50,6 +50,36 @@ def _require_source(source: str) -> str:
     return source
 
 
+def _require_story_provenance(story: dict[str, Any]) -> None:
+    evidence_ids = {
+        item["id"]
+        for item in story.get("evidence", [])
+        if isinstance(item, dict) and item.get("id")
+    }
+    claims = story.get("claims")
+    if not isinstance(claims, list) or not claims:
+        raise WorkspaceError("story.claims are required for claim-level provenance")
+
+    seen: set[str] = set()
+    for claim in claims:
+        if not isinstance(claim, dict) or not claim.get("id"):
+            raise WorkspaceError("every story claim requires an id")
+        claim_id = claim["id"]
+        if claim_id in seen:
+            raise WorkspaceError(f"duplicate story claim id: {claim_id}")
+        seen.add(claim_id)
+        evidence_refs = {
+            ref for ref in claim.get("evidence_refs", []) if isinstance(ref, str)
+        }
+        if not evidence_refs:
+            raise WorkspaceError(f"claim {claim_id} requires evidence_refs")
+        if not evidence_refs.issubset(evidence_ids):
+            unknown = sorted(evidence_refs - evidence_ids)
+            raise WorkspaceError(
+                f"claim {claim_id} references unknown evidence ids: {', '.join(unknown)}"
+            )
+
+
 class ContentWorkspace:
     """Product layer over the executable factory, with an external-effect boundary.
 
@@ -166,6 +196,7 @@ SOURCE MATERIAL:
         source = _require_source(source)
         if not story.get("id") or not story.get("title"):
             raise WorkspaceError("story.id and story.title are required")
+        _require_story_provenance(story)
         formats = formats or ["long_video", "shorts", "article", "social_posts"]
         format_text = ", ".join(formats)
         prompt = f"""You are the production layer of a Content Factory.
