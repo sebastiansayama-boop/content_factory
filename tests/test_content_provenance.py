@@ -177,3 +177,37 @@ def test_regeneration_plan_deduplicates_overlapping_claim_dependencies():
     )
     assert plan.regenerate_asset_ids == ("video-001", "article-001")
     assert plan.retain_asset_ids == ()
+
+
+def test_regeneration_plan_preserves_provider_context_for_each_target():
+    package = {
+        "package": [
+            {
+                "id": "video-001",
+                "format": "video",
+                "claim_refs": ["claim-001", "claim-002"],
+            },
+            {
+                "id": "article-001",
+                "format": "article",
+                "claim_refs": ["claim-001"],
+            },
+        ]
+    }
+
+    graph = ProvenanceGraph.from_package(
+        package,
+        run_id="run-001",
+        provider="provider-a",
+    )
+    plan = graph.regeneration_plan(
+        changed_claim_ids=["claim-001", "claim-002"],
+    )
+
+    assert tuple(
+        (target.asset_id, graph.assets[target.asset_id].provider, target.changed_claim_ids)
+        for target in plan.targets
+    ) == (
+        ("video-001", "provider-a", ("claim-001", "claim-002")),
+        ("article-001", "provider-a", ("claim-001",)),
+    )
