@@ -186,6 +186,106 @@ SOURCE MATERIAL:
         }
         return analysis
 
+    def regenerate(
+        self,
+        *,
+        source: str,
+        story: dict[str, Any],
+        package: dict[str, Any],
+        changed_claim_ids: list[str] | tuple[str, ...],
+    ) -> dict[str, Any]:
+        """Regenerate only assets affected by changed claims."""
+        source = _require_source(source)
+        if not story.get("id") or not story.get("title"):
+            raise WorkspaceError("story.id and story.title are required")
+        _require_story_provenance(story)
+
+        from .content_provenance import ProvenanceGraph, ProvenanceError
+
+        try:
+            graph = ProvenanceGraph.from_package(
+                package,
+                run_id=str(package.get("runtime", {}).get("execution_id", "regeneration")),
+                provider="workspace",
+            )
+            plan = graph.regeneration_plan(changed_claim_ids=changed_claim_ids)
+        except ProvenanceError as exc:
+            raise WorkspaceError(str(exc)) from exc
+
+        assets_by_id = {
+            item.get("id"): item
+            for item in package.get("package", [])
+            if isinstance(item, dict) and item.get("id")
+        }
+        regenerated: list[dict[str, Any]] = []
+
+        for target in plan.targets:
+            original = assets_by_id[target.asset_id]
+            prompt = f"""You are the revision layer of a Content Factory.
+Regenerate exactly ONE existing asset because specific factual claims changed.
+Return ONLY valid JSON for one asset:
+{{
+  "id": "{target.asset_id}",
+  "format": "{original.get("format", "")}",
+  "title": "string",
+  "content": "complete usable content",
+  "source_refs": ["evidence-id"],
+  "claim_refs": ["claim-id"]
+}}
+Preserve the asset format and editorial purpose. Incorporate the changed claims
+without rewriting unrelated claims unless required for factual consistency.
+Every referenced claim must be supported by the asset source_refs.
+Changed claims: {json.dumps(target.changed_claim_ids, ensure_ascii=False)}
+Current asset:
+{json.dumps(original, ensure_ascii=False)}
+Selected story:
+{json.dumps(story, ensure_ascii=False)}
+ORIGINAL SOURCE:
+{source}
+"""
+            source_key = _source_id(source)
+            item = WorkItem(
+                work_item_id=f"workspace-regenerate-{source_key}-{story['id']}-{target.asset_id}",
+                revision_id=f"workspace-regeneration-{target.asset_id}-v1",
+                objective=f"regenerate asset {target.asset_id} after claim change",
+                requested_outcome=prompt,
+                inputs=(f"source:{source_key}", f"story:{story['id']}", f"asset:{target.asset_id}"),
+                knowledge_basis=tuple(target.changed_claim_ids),
+                required_capabilities=(self.factory._capability.capability_id,),
+                owner="workspace",
+                acceptance_criteria=("valid single-asset JSON", "changed claims incorporated"),
+                release_requirements=("internal draft only",),
+                dependencies=tuple(target.changed_claim_ids),
+                operation_id=f"op-workspace-regenerate-{source_key}-{story['id']}-{target.asset_id}",
+            )
+            result = self._run_product_work_item(item)
+            regenerated_asset = _json_from_text(result["execution"]["output"])
+            if regenerated_asset.get("id") != target.asset_id:
+                raise WorkspaceError(
+                    f"regenerated asset id mismatch: expected {target.asset_id}"
+                )
+            regenerated.append(regenerated_asset)
+
+        replacement_by_id = {asset["id"]: asset for asset in regenerated}
+        output = dict(package)
+        output["package"] = [
+            replacement_by_id.get(asset.get("id"), asset)
+            for asset in package.get("package", [])
+        ]
+        output["regeneration"] = {
+            "changed_claim_ids": list(plan.changed_claim_ids),
+            "regenerated_asset_ids": list(plan.regenerate_asset_ids),
+            "retained_asset_ids": list(plan.retain_asset_ids),
+            "targets": [
+                {
+                    "asset_id": target.asset_id,
+                    "changed_claim_ids": list(target.changed_claim_ids),
+                }
+                for target in plan.targets
+            ],
+        }
+        return output
+
     def produce(
         self,
         *,
