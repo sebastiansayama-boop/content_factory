@@ -45,9 +45,9 @@ def test_content_run_store_persists_and_lists(tmp_path):
     assert listed[0].run_id == created.run_id
 
 
-def test_post_runs_creates_draft():
+def test_post_runs_creates_draft(tmp_path):
     handler = DummyRunsHandler()
-    handler.content_runs = ContentRunStore(":memory:")
+    handler.content_runs = ContentRunStore(tmp_path / "runs.sqlite3")
     handler.payload = {
         "title": "Thai spirits",
         "brief": "Explain Red Fanta offerings.",
@@ -65,8 +65,8 @@ def test_post_runs_creates_draft():
     assert handler.content_runs.get(handler.body["run_id"]) is not None
 
 
-def test_get_runs_lists_and_gets_one():
-    store = ContentRunStore(":memory:")
+def test_get_runs_lists_and_gets_one(tmp_path):
+    store = ContentRunStore(tmp_path / "runs.sqlite3")
     created = store.create(title="One", brief="Brief")
 
     handler = DummyRunsHandler("/api/runs")
@@ -85,8 +85,8 @@ def test_get_runs_lists_and_gets_one():
     store.close()
 
 
-def test_get_missing_run_returns_404():
-    store = ContentRunStore(":memory:")
+def test_get_missing_run_returns_404(tmp_path):
+    store = ContentRunStore(tmp_path / "runs.sqlite3")
     handler = DummyRunsHandler("/api/runs/run-missing")
     handler.content_runs = store
 
