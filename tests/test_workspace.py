@@ -69,7 +69,21 @@ def test_produce_returns_package_and_runtime_identity(tmp_path):
     )
     result = ContentWorkspace(fake).produce(
         source="source",
-        story={"id": "story-1", "title": "T", "angle": "A"},
+        story={
+            "id": "story-1",
+            "title": "T",
+            "angle": "A",
+            "evidence": [
+                {"id": "evidence-1", "quote": "Source evidence", "location": "source"}
+            ],
+            "claims": [
+                {
+                    "id": "claim-1",
+                    "text": "A factual claim",
+                    "evidence_refs": ["evidence-1"],
+                }
+            ],
+        },
         formats=["article"],
     )
     assert result["story_id"] == "story-1"
