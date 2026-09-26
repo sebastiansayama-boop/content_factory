@@ -112,6 +112,7 @@ class ContentRunStore:
             constraints=constraints,
             status="DRAFT",
             plan=None,
+            result=None,
             created_at=now,
             updated_at=now,
         )
@@ -251,6 +252,7 @@ class ContentRunStore:
             constraints=tuple(json.loads(row["constraints_json"])),
             status=row["status"],
             plan=json.loads(row["plan_json"]) if row["plan_json"] else None,
+            result=json.loads(row["result_json"]) if row["result_json"] else None,
             created_at=row["created_at"],
             updated_at=row["updated_at"],
         )
