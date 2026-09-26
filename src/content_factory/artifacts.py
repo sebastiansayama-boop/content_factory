@@ -106,7 +106,10 @@ class ArtifactStore:
     def _write(self, zone: str, work_id: str, payload: dict[str, Any]) -> None:
         directory = self.root / zone
         directory.mkdir(parents=True, exist_ok=True)
-        path = directory / f"{work_id}.json"
+        path = (directory / f"{work_id}.json").resolve()
+        root = directory.resolve()
+        if path.parent != root:
+            raise ValueError("work_item_id would escape artifact zone")
         path.write_text(
             json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
             encoding="utf-8",

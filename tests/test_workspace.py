@@ -75,3 +75,28 @@ def test_produce_returns_package_and_runtime_identity(tmp_path):
     assert result["story_id"] == "story-1"
     assert result["package"][0]["format"] == "article"
     fake._store.close()
+
+
+def test_artifact_store_rejects_path_traversal(tmp_path):
+    store = ArtifactStore(tmp_path / "artifacts")
+    payload = {"type": "security-test"}
+    zone = "03_working_context"
+
+    for work_id in ("../escape", "/tmp/escape"):
+        try:
+            store._write(zone, work_id, payload)
+        except ValueError as exc:
+            assert str(exc) == "work_item_id would escape artifact zone"
+        else:
+            raise AssertionError(f"path traversal must be rejected: {work_id}")
+
+    assert not (tmp_path / "escape.json").exists()
+    assert not (tmp_path / "artifacts" / "escape.json").exists()
+
+
+def test_artifact_store_writes_valid_work_item_id(tmp_path):
+    store = ArtifactStore(tmp_path / "artifacts")
+    store._write("03_working_context", "wi-valid_123-abc", {"type": "security-test"})
+
+    path = tmp_path / "artifacts" / "03_working_context" / "wi-valid_123-abc.json"
+    assert path.exists()
