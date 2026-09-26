@@ -17,6 +17,7 @@ class ProductHandler(Handler):
     workspace: ContentWorkspace
     content_runs: ContentRunStore
     content_run_planner: ContentRunPlanner
+    vertical_slice_factory = ContentFactoryVerticalSlice
 
     def _body(self) -> dict[str, Any]:
         length = int(self.headers.get("Content-Length", "0"))
@@ -106,7 +107,7 @@ class ProductHandler(Handler):
                     return
                 self.content_runs.start_execution(run_id)
                 try:
-                    result = ContentFactoryVerticalSlice().run(
+                    result = self.vertical_slice_factory().run(
                         run_id=run.run_id,
                         brief=run.brief,
                         formats=list(run.formats) or ["article", "social_post", "visual_card"],
