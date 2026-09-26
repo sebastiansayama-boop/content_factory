@@ -70,7 +70,7 @@ class ProductHandler(Handler):
 
     def do_POST(self) -> None:
         is_run_plan = self.path.startswith("/api/runs/") and self.path.endswith("/plan")
-        if self.path not in {"/api/analyze", "/api/produce", "/api/runs"} and not is_run_plan:
+        if self.path not in {"/api/analyze", "/api/produce", "/api/regenerate", "/api/runs"} and not is_run_plan:
             super().do_POST()
             return
 
