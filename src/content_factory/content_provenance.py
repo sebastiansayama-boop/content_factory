@@ -44,8 +44,15 @@ class ProvenanceError(ValueError):
 
 
 @dataclass(frozen=True)
+class RegenerationTarget:
+    asset_id: str
+    changed_claim_ids: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class RegenerationPlan:
     changed_claim_ids: tuple[str, ...]
+    targets: tuple[RegenerationTarget, ...]
     regenerate_asset_ids: tuple[str, ...]
     retain_asset_ids: tuple[str, ...]
 
@@ -142,18 +149,26 @@ class ProvenanceGraph:
         if not all(isinstance(claim_id, str) and claim_id for claim_id in changed):
             raise ProvenanceError("changed_claim_ids must contain non-empty strings")
 
-        affected: list[str] = []
+        affected_by_asset: dict[str, list[str]] = {}
         for claim_id in changed:
             for asset_id in self.affected_asset_ids(claim_id=claim_id):
-                if asset_id not in affected:
-                    affected.append(asset_id)
+                affected_by_asset.setdefault(asset_id, []).append(claim_id)
 
+        targets = tuple(
+            RegenerationTarget(
+                asset_id=asset_id,
+                changed_claim_ids=tuple(claim_ids),
+            )
+            for asset_id, claim_ids in affected_by_asset.items()
+        )
+        affected = tuple(target.asset_id for target in targets)
         affected_set = set(affected)
-        retained = [
+        retained = tuple(
             asset_id for asset_id in self.assets if asset_id not in affected_set
-        ]
+        )
         return RegenerationPlan(
             changed_claim_ids=changed,
-            regenerate_asset_ids=tuple(affected),
-            retain_asset_ids=tuple(retained),
+            targets=targets,
+            regenerate_asset_ids=affected,
+            retain_asset_ids=retained,
         )
