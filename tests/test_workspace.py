@@ -89,3 +89,57 @@ def test_produce_returns_package_and_runtime_identity(tmp_path):
     assert result["story_id"] == "story-1"
     assert result["package"][0]["format"] == "article"
     fake._store.close()
+
+
+def test_regenerate_executes_only_claim_affected_asset(tmp_path):
+    fake = FakeFactory(
+        '{"id":"asset-1","format":"article","title":"Revised","content":"Updated body","source_refs":["evidence-1"],"claim_refs":["claim-1"]}',
+        tmp_path,
+    )
+    workspace = ContentWorkspace(fake)
+    story = {
+        "id": "story-1",
+        "title": "T",
+        "angle": "A",
+        "evidence": [
+            {"id": "evidence-1", "quote": "Evidence one", "location": "source"},
+            {"id": "evidence-2", "quote": "Evidence two", "location": "source"},
+        ],
+        "claims": [
+            {"id": "claim-1", "text": "Changed claim", "evidence_refs": ["evidence-1"]},
+            {"id": "claim-2", "text": "Unchanged claim", "evidence_refs": ["evidence-2"]},
+        ],
+    }
+    package = {
+        "package": [
+            {
+                "id": "asset-1",
+                "format": "article",
+                "title": "Original",
+                "content": "Original body",
+                "source_refs": ["evidence-1"],
+                "claim_refs": ["claim-1"],
+            },
+            {
+                "id": "asset-2",
+                "format": "social_post",
+                "title": "Keep",
+                "content": "Keep body",
+                "source_refs": ["evidence-2"],
+                "claim_refs": ["claim-2"],
+            },
+        ]
+    }
+
+    result = workspace.regenerate(
+        source="source",
+        story=story,
+        package=package,
+        changed_claim_ids=["claim-1"],
+    )
+
+    assert result["package"][0]["content"] == "Updated body"
+    assert result["package"][1]["content"] == "Keep body"
+    assert result["regeneration"]["regenerated_asset_ids"] == ["asset-1"]
+    assert result["regeneration"]["retained_asset_ids"] == ["asset-2"]
+    fake._store.close()
