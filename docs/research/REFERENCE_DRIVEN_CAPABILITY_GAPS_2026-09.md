@@ -367,3 +367,33 @@ The first gap candidate has now been implemented as a deliberately small domain 
 It records relationships between editorial units and provider-generated assets while preserving source/evidence/claim references. It does not execute providers, orchestrate jobs, replace provider workflows, or introduce a generic runtime. Tests are in `tests/test_content_provenance.py`.
 
 This is an implementation of the hypothesis, not proof that the gap is commercially valuable. The next end-to-end experiment must use at least two distinct production providers and verify that the graph provides information that neither provider can preserve across the handoff.
+
+## External implementation references for cross-provider context
+
+The implementation should reuse existing interoperability primitives rather than inventing transport infrastructure.
+
+W3C PROV provides a domain-independent provenance model for entities, activities, agents and derivations, and explicitly targets interoperable provenance exchange across heterogeneous environments. It is therefore a reference for the relationship model, not a replacement for Content Factory's semantic context.
+
+OpenTelemetry Context/Propagators provide established mechanisms for carrying execution-scoped context across API/process boundaries. OpenTelemetry Baggage provides application-defined key/value context that can be propagated across boundaries. Baggage is not suitable for carrying the full Content Factory semantic payload because it can be exposed to downstream services; it is better treated as a correlation/propagation mechanism.
+
+Current implementation consequence:
+
+- ContentContext is the canonical product-level semantic object.
+- ProviderContext is a provider-specific projection of that object.
+- run_id and task_id remain stable across the handoff.
+- research providers can receive claims/evidence/editorial context;
+- text providers receive claims/editorial context;
+- media providers receive claims/editorial context plus source assets when needed;
+- irrelevant context is deliberately not forwarded.
+
+This is intentionally a thin domain layer. It does not implement tracing, a generic event bus, a workflow engine, or provider execution.
+
+Official external references checked on 2026-09-26:
+
+- W3C PROV: https://www.w3.org/TR/prov-overview/
+- W3C PROV-DM: https://www.w3.org/TR/prov-dm/
+- OpenTelemetry Context: https://opentelemetry.io/docs/specs/otel/context/
+- OpenTelemetry Propagators: https://opentelemetry.io/docs/specs/otel/context/api-propagators/
+- OpenTelemetry Baggage: https://opentelemetry.io/docs/specs/otel/baggage/api/
+
+The next validation is a real provider-to-provider handoff. The contract must be tested against actual provider APIs; unit tests alone cannot establish that an external provider preserves or uses the supplied semantic context.
