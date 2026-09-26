@@ -8,7 +8,17 @@ from pathlib import Path
 from uuid import uuid4
 
 
-STATUSES = {"DRAFT", "RESEARCHING", "RESEARCH_READY", "PLANNING", "PRODUCING", "REVIEW", "APPROVED", "EXPORTED", "FAILED"}
+STATUSES = {
+    "DRAFT",
+    "RESEARCHING",
+    "RESEARCH_READY",
+    "PLANNING",
+    "PRODUCING",
+    "REVIEW",
+    "APPROVED",
+    "EXPORTED",
+    "FAILED",
+}
 
 
 def _now() -> str:
@@ -25,6 +35,7 @@ class ContentRun:
     formats: tuple[str, ...]
     constraints: tuple[str, ...]
     status: str
+    plan: dict[str, object] | None
     created_at: str
     updated_at: str
 
@@ -59,11 +70,18 @@ class ContentRunStore:
                 formats_json TEXT NOT NULL,
                 constraints_json TEXT NOT NULL,
                 status TEXT NOT NULL,
+                plan_json TEXT,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL
             )
             """
         )
+        columns = {
+            row["name"]
+            for row in self._connection.execute("PRAGMA table_info(content_runs)")
+        }
+        if "plan_json" not in columns:
+            self._connection.execute("ALTER TABLE content_runs ADD COLUMN plan_json TEXT")
         self._connection.execute(
             "CREATE INDEX IF NOT EXISTS idx_content_runs_updated_at ON content_runs(updated_at DESC)"
         )
@@ -89,6 +107,7 @@ class ContentRunStore:
             formats=formats,
             constraints=constraints,
             status="DRAFT",
+            plan=None,
             created_at=now,
             updated_at=now,
         )
@@ -97,8 +116,8 @@ class ContentRunStore:
                 """
                 INSERT INTO content_runs(
                     run_id, title, brief, audience, goal, formats_json,
-                    constraints_json, status, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    constraints_json, status, plan_json, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     run.run_id,
@@ -109,6 +128,7 @@ class ContentRunStore:
                     json.dumps(run.formats, ensure_ascii=False),
                     json.dumps(run.constraints, ensure_ascii=False),
                     run.status,
+                    None,
                     run.created_at,
                     run.updated_at,
                 ),
@@ -127,6 +147,56 @@ class ContentRunStore:
         ).fetchall()
         return [self._from_row(row) for row in rows]
 
+    def start_planning(self, run_id: str) -> ContentRun:
+        now = _now()
+        with self._connection:
+            cursor = self._connection.execute(
+                """
+                UPDATE content_runs
+                SET status = 'PLANNING', updated_at = ?
+                WHERE run_id = ? AND status IN ('DRAFT', 'FAILED')
+                """,
+                (now, run_id),
+            )
+        if cursor.rowcount != 1:
+            run = self.get(run_id)
+            if run is None:
+                raise ValueError("content run not found")
+            raise ValueError(f"content run cannot start planning from status {run.status}")
+        run = self.get(run_id)
+        assert run is not None
+        return run
+
+    def save_plan(self, run_id: str, plan: dict[str, object]) -> ContentRun:
+        now = _now()
+        with self._connection:
+            cursor = self._connection.execute(
+                """
+                UPDATE content_runs
+                SET status = 'PLANNING', plan_json = ?, updated_at = ?
+                WHERE run_id = ?
+                """,
+                (json.dumps(plan, ensure_ascii=False), now, run_id),
+            )
+        if cursor.rowcount != 1:
+            raise ValueError("content run not found")
+        run = self.get(run_id)
+        assert run is not None
+        return run
+
+    def mark_failed(self, run_id: str) -> ContentRun:
+        now = _now()
+        with self._connection:
+            cursor = self._connection.execute(
+                "UPDATE content_runs SET status = 'FAILED', updated_at = ? WHERE run_id = ?",
+                (now, run_id),
+            )
+        if cursor.rowcount != 1:
+            raise ValueError("content run not found")
+        run = self.get(run_id)
+        assert run is not None
+        return run
+
     @staticmethod
     def _from_row(row: sqlite3.Row) -> ContentRun:
         return ContentRun(
@@ -138,6 +208,7 @@ class ContentRunStore:
             formats=tuple(json.loads(row["formats_json"])),
             constraints=tuple(json.loads(row["constraints_json"])),
             status=row["status"],
+            plan=json.loads(row["plan_json"]) if row["plan_json"] else None,
             created_at=row["created_at"],
             updated_at=row["updated_at"],
         )
