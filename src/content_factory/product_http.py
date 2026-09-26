@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from .content_run import ContentRunStore
-
+from .content_run_planner import ContentRunPlanner
 from .service import FactoryService, Handler
 from .workspace import ContentWorkspace
 
@@ -15,6 +15,7 @@ from .workspace import ContentWorkspace
 class ProductHandler(Handler):
     workspace: ContentWorkspace
     content_runs: ContentRunStore
+    content_run_planner: ContentRunPlanner
 
     def _body(self) -> dict[str, Any]:
         length = int(self.headers.get("Content-Length", "0"))
@@ -39,7 +40,7 @@ class ProductHandler(Handler):
             return False
         return True
 
-    def do_GET(self) -> None:  # noqa: N802
+    def do_GET(self) -> None:
         if self.path in {"/", "/index.html"}:
             raw = (Path(__file__).parent / "static" / "index.html").read_bytes()
             self.send_response(200)
@@ -56,6 +57,8 @@ class ProductHandler(Handler):
                 self._json(200, {"runs": [run.to_dict() for run in self.content_runs.list()]})
                 return
             run_id = self.path.removeprefix("/api/runs/").strip("/")
+            if run_id.endswith("/plan"):
+                run_id = run_id.removesuffix("/plan").strip("/")
             run = self.content_runs.get(run_id)
             if run is None:
                 self._json(404, {"error": "content run not found"})
@@ -65,8 +68,9 @@ class ProductHandler(Handler):
 
         super().do_GET()
 
-    def do_POST(self) -> None:  # noqa: N802
-        if self.path not in {"/api/analyze", "/api/produce", "/api/runs"}:
+    def do_POST(self) -> None:
+        is_run_plan = self.path.startswith("/api/runs/") and self.path.endswith("/plan")
+        if self.path not in {"/api/analyze", "/api/produce", "/api/runs"} and not is_run_plan:
             super().do_POST()
             return
 
@@ -74,6 +78,32 @@ class ProductHandler(Handler):
             return
 
         try:
+            if is_run_plan:
+                run_id = self.path.removeprefix("/api/runs/").removesuffix("/plan").strip("/")
+                if not run_id:
+                    raise ValueError("content run id is required")
+                run = self.content_runs.get(run_id)
+                if run is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                self.content_runs.start_planning(run_id)
+                try:
+                    plan = self.content_run_planner.plan(
+                        run_id=run.run_id,
+                        title=run.title,
+                        brief=run.brief,
+                        audience=run.audience,
+                        goal=run.goal,
+                        formats=list(run.formats),
+                        constraints=list(run.constraints),
+                    )
+                except Exception:
+                    self.content_runs.mark_failed(run_id)
+                    raise
+                updated = self.content_runs.save_plan(run_id, plan)
+                self._json(200, updated.to_dict())
+                return
+
             payload = self._body()
             if self.path == "/api/runs":
                 title = str(payload.get("title", "")).strip()
@@ -134,6 +164,7 @@ def main() -> None:
     ProductHandler.service = service
     ProductHandler.workspace = ContentWorkspace(service)
     ProductHandler.content_runs = service.content_runs
+    ProductHandler.content_run_planner = ContentRunPlanner(ProductHandler.workspace)
     from http.server import ThreadingHTTPServer
 
     host = os.environ.get("HOST", "0.0.0.0")

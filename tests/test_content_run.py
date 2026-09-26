@@ -8,6 +8,7 @@ class DummyRunsHandler(ProductHandler):
         self.status = None
         self.body = None
         self.content_runs = None
+        self.content_run_planner = None
         self.payload = {}
         self.response_headers = {}
 
@@ -33,6 +34,10 @@ def test_content_run_store_persists_and_lists(tmp_path):
         formats=("long_video", "telegram"),
         constraints=("cite sources",),
     )
+    planned = store.save_plan(
+        created.run_id,
+        {"objective": "Explain the topic", "deliverables": [{"format": "long_video"}]},
+    )
     store.close()
 
     reopened = ContentRunStore(path)
@@ -41,7 +46,9 @@ def test_content_run_store_persists_and_lists(tmp_path):
     reopened.close()
 
     assert loaded is not None
-    assert loaded.to_dict() == created.to_dict()
+    assert loaded.to_dict() == planned.to_dict()
+    assert loaded.status == "PLANNING"
+    assert loaded.plan["objective"] == "Explain the topic"
     assert listed[0].run_id == created.run_id
 
 
@@ -63,6 +70,61 @@ def test_post_runs_creates_draft(tmp_path):
     assert handler.body["status"] == "DRAFT"
     assert handler.body["title"] == "Thai spirits"
     assert handler.content_runs.get(handler.body["run_id"]) is not None
+
+
+def test_plan_endpoint_persists_runtime_backed_plan(tmp_path):
+    store = ContentRunStore(tmp_path / "runs.sqlite3")
+    created = store.create(
+        title="Thai spirits",
+        brief="Explain Red Fanta offerings.",
+        formats=("long_video", "telegram"),
+    )
+
+    class Planner:
+        def plan(self, **kwargs):
+            assert kwargs["run_id"] == created.run_id
+            return {
+                "objective": "Explain the topic",
+                "research_questions": ["Why is this offering used?"],
+                "source_requirements": ["Thai-language sources"],
+                "deliverables": [
+                    {"format": "long_video", "purpose": "episode"},
+                    {"format": "telegram", "purpose": "post"},
+                ],
+                "runtime": {"work_item_id": "content-run-plan-test"},
+            }
+
+    handler = DummyRunsHandler(f"/api/runs/{created.run_id}/plan")
+    handler.content_runs = store
+    handler.content_run_planner = Planner()
+
+    ProductHandler.do_POST(handler)
+
+    assert handler.status == 200
+    assert handler.body["status"] == "PLANNING"
+    assert handler.body["plan"]["runtime"]["work_item_id"] == "content-run-plan-test"
+    assert store.get(created.run_id).plan["objective"] == "Explain the topic"
+    store.close()
+
+
+def test_plan_failure_marks_run_failed(tmp_path):
+    store = ContentRunStore(tmp_path / "runs.sqlite3")
+    created = store.create(title="One", brief="Brief")
+
+    class Planner:
+        def plan(self, **kwargs):
+            raise ValueError("planner failed")
+
+    handler = DummyRunsHandler(f"/api/runs/{created.run_id}/plan")
+    handler.content_runs = store
+    handler.content_run_planner = Planner()
+
+    ProductHandler.do_POST(handler)
+
+    assert handler.status == 400
+    assert handler.body["error"] == "planner failed"
+    assert store.get(created.run_id).status == "FAILED"
+    store.close()
 
 
 def test_get_runs_lists_and_gets_one(tmp_path, monkeypatch):
