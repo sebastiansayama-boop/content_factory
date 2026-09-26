@@ -43,6 +43,13 @@ class ProvenanceError(ValueError):
     pass
 
 
+@dataclass(frozen=True)
+class RegenerationPlan:
+    changed_claim_ids: tuple[str, ...]
+    regenerate_asset_ids: tuple[str, ...]
+    retain_asset_ids: tuple[str, ...]
+
+
 class ProvenanceGraph:
     """Small cross-provider provenance graph.
 
@@ -127,3 +134,26 @@ class ProvenanceGraph:
 
     def affected_asset_ids(self, *, claim_id: str) -> list[str]:
         return [asset.asset_id for asset in self.affected_assets(claim_id=claim_id)]
+
+    def regeneration_plan(
+        self, *, changed_claim_ids: tuple[str, ...] | list[str]
+    ) -> RegenerationPlan:
+        changed = tuple(dict.fromkeys(changed_claim_ids))
+        if not all(isinstance(claim_id, str) and claim_id for claim_id in changed):
+            raise ProvenanceError("changed_claim_ids must contain non-empty strings")
+
+        affected: list[str] = []
+        for claim_id in changed:
+            for asset_id in self.affected_asset_ids(claim_id=claim_id):
+                if asset_id not in affected:
+                    affected.append(asset_id)
+
+        affected_set = set(affected)
+        retained = [
+            asset_id for asset_id in self.assets if asset_id not in affected_set
+        ]
+        return RegenerationPlan(
+            changed_claim_ids=changed,
+            regenerate_asset_ids=tuple(affected),
+            retain_asset_ids=tuple(retained),
+        )
