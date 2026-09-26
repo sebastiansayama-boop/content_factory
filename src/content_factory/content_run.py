@@ -36,6 +36,7 @@ class ContentRun:
     constraints: tuple[str, ...]
     status: str
     plan: dict[str, object] | None
+    result: dict[str, object] | None
     created_at: str
     updated_at: str
 
@@ -71,6 +72,7 @@ class ContentRunStore:
                 constraints_json TEXT NOT NULL,
                 status TEXT NOT NULL,
                 plan_json TEXT,
+                result_json TEXT,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL
             )
@@ -82,6 +84,8 @@ class ContentRunStore:
         }
         if "plan_json" not in columns:
             self._connection.execute("ALTER TABLE content_runs ADD COLUMN plan_json TEXT")
+        if "result_json" not in columns:
+            self._connection.execute("ALTER TABLE content_runs ADD COLUMN result_json TEXT")
         self._connection.execute(
             "CREATE INDEX IF NOT EXISTS idx_content_runs_updated_at ON content_runs(updated_at DESC)"
         )
@@ -116,8 +120,8 @@ class ContentRunStore:
                 """
                 INSERT INTO content_runs(
                     run_id, title, brief, audience, goal, formats_json,
-                    constraints_json, status, plan_json, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    constraints_json, status, plan_json, result_json, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     run.run_id,
@@ -128,6 +132,7 @@ class ContentRunStore:
                     json.dumps(run.formats, ensure_ascii=False),
                     json.dumps(run.constraints, ensure_ascii=False),
                     run.status,
+                    None,
                     None,
                     run.created_at,
                     run.updated_at,
@@ -177,6 +182,23 @@ class ContentRunStore:
                 WHERE run_id = ?
                 """,
                 (json.dumps(plan, ensure_ascii=False), now, run_id),
+            )
+        if cursor.rowcount != 1:
+            raise ValueError("content run not found")
+        run = self.get(run_id)
+        assert run is not None
+        return run
+
+    def save_result(self, run_id: str, result: dict[str, object]) -> ContentRun:
+        now = _now()
+        with self._connection:
+            cursor = self._connection.execute(
+                """
+                UPDATE content_runs
+                SET status = 'REVIEW', result_json = ?, updated_at = ?
+                WHERE run_id = ?
+                """,
+                (json.dumps(result, ensure_ascii=False), now, run_id),
             )
         if cursor.rowcount != 1:
             raise ValueError("content run not found")
