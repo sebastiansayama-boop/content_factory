@@ -228,6 +228,7 @@ def test_execute_endpoint_runs_vertical_slice_and_persists_result(tmp_path):
         vertical_slice_factory = FakeVerticalSlice
 
     handler = RunsHandler(f"/api/runs/{created.run_id}/execute")
+    handler.content_runs = store
     ProductHandler.do_POST(handler)
 
     assert handler.status == 200
@@ -251,6 +252,7 @@ def test_execute_failure_marks_run_failed(tmp_path):
         vertical_slice_factory = FailingVerticalSlice
 
     handler = RunsHandler(f"/api/runs/{created.run_id}/execute")
+    handler.content_runs = store
     ProductHandler.do_POST(handler)
 
     assert handler.status == 400
