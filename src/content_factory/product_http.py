@@ -10,6 +10,7 @@ from .content_run import ContentRunStore
 from .content_run_planner import ContentRunPlanner
 from .service import FactoryService, Handler
 from .workspace import ContentWorkspace
+from .vertical_slice import ContentFactoryVerticalSlice
 
 
 class ProductHandler(Handler):
@@ -53,6 +54,22 @@ class ProductHandler(Handler):
         if self.path == "/api/runs" or self.path.startswith("/api/runs/"):
             if not self._protect_product_api():
                 return
+            if self.path == "/api/regenerate":
+                if not isinstance(payload.get("story"), dict):
+                    raise ValueError("story must be an object")
+                if not isinstance(payload.get("package"), dict):
+                    raise ValueError("package must be an object")
+                changed_claim_ids = payload.get("changed_claim_ids")
+                if not isinstance(changed_claim_ids, list) or not all(isinstance(value, str) for value in changed_claim_ids):
+                    raise ValueError("changed_claim_ids must be an array of strings")
+                result = self.workspace.regenerate(
+                    source=str(payload.get("source", "")),
+                    story=payload["story"],
+                    package=payload["package"],
+                    changed_claim_ids=changed_claim_ids,
+                )
+                self._json(200, result)
+                return
             if self.path == "/api/runs":
                 self._json(200, {"runs": [run.to_dict() for run in self.content_runs.list()]})
                 return
@@ -70,7 +87,8 @@ class ProductHandler(Handler):
 
     def do_POST(self) -> None:
         is_run_plan = self.path.startswith("/api/runs/") and self.path.endswith("/plan")
-        if self.path not in {"/api/analyze", "/api/produce", "/api/runs"} and not is_run_plan:
+        is_run_execute = self.path.startswith("/api/runs/") and self.path.endswith("/execute")
+        if self.path not in {"/api/analyze", "/api/produce", "/api/regenerate", "/api/runs"} and not is_run_plan and not is_run_execute:
             super().do_POST()
             return
 
@@ -78,6 +96,31 @@ class ProductHandler(Handler):
             return
 
         try:
+            if is_run_execute:
+                run_id = self.path.removeprefix("/api/runs/").removesuffix("/execute").strip("/")
+                if not run_id:
+                    raise ValueError("content run id is required")
+                run = self.content_runs.get(run_id)
+                if run is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                self.content_runs.start_execution(run_id)
+                try:
+                    result = ContentFactoryVerticalSlice().run(
+                        run_id=run.run_id,
+                        brief=run.brief,
+                        formats=list(run.formats) or ["article", "social_post", "visual_card"],
+                    )
+                    updated = self.content_runs.save_result(
+                        run_id,
+                        ContentFactoryVerticalSlice.to_dict(result),
+                    )
+                except Exception:
+                    self.content_runs.mark_failed(run_id)
+                    raise
+                self._json(200, updated.to_dict())
+                return
+
             if is_run_plan:
                 run_id = self.path.removeprefix("/api/runs/").removesuffix("/plan").strip("/")
                 if not run_id:
