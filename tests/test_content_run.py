@@ -65,24 +65,45 @@ def test_post_runs_creates_draft(tmp_path):
     assert handler.content_runs.get(handler.body["run_id"]) is not None
 
 
-def test_get_runs_lists_and_gets_one(tmp_path):
+def test_get_runs_lists_and_gets_one(tmp_path, monkeypatch):
+    import http.client
+    import threading
+    from http.server import ThreadingHTTPServer
+
     store = ContentRunStore(tmp_path / "runs.sqlite3")
     created = store.create(title="One", brief="Brief")
 
-    handler = DummyRunsHandler("/api/runs")
-    handler.content_runs = store
-    ProductHandler.do_GET(handler)
+    class RunsHandler(ProductHandler):
+        content_runs = store
 
-    assert handler.status == 200
-    assert handler.body["runs"][0]["run_id"] == created.run_id
+    monkeypatch.setenv("FACTORY_API_TOKEN", "test-token")
+    server = ThreadingHTTPServer(("127.0.0.1", 0), RunsHandler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
 
-    handler = DummyRunsHandler(f"/api/runs/{created.run_id}")
-    handler.content_runs = store
-    ProductHandler.do_GET(handler)
+    try:
+        connection = http.client.HTTPConnection(*server.server_address)
+        connection.request("GET", "/api/runs", headers={"Authorization": "Bearer test-token"})
+        response = connection.getresponse()
+        body = response.read()
+        assert response.status == 200
+        assert created.run_id in body.decode("utf-8")
 
-    assert handler.status == 200
-    assert handler.body["run_id"] == created.run_id
-    store.close()
+        connection.request(
+            "GET",
+            f"/api/runs/{created.run_id}",
+            headers={"Authorization": "Bearer test-token"},
+        )
+        response = connection.getresponse()
+        body = response.read()
+        assert response.status == 200
+        assert created.run_id in body.decode("utf-8")
+        connection.close()
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+        store.close()
 
 
 def test_get_missing_run_returns_404(tmp_path):
