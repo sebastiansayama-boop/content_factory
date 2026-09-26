@@ -114,6 +114,9 @@ Return ONLY valid JSON with this exact top-level shape:
       "why": "string",
       "evidence": [
         {{"id": "evidence-1", "quote": "short exact quote from source", "location": "approximate section or context"}}
+      ],
+      "claims": [
+        {{"id": "claim-1", "text": "atomic factual claim", "evidence_refs": ["evidence-1"]}}
       ]
     }}
   ],
@@ -121,7 +124,7 @@ Return ONLY valid JSON with this exact top-level shape:
     {{"id": "moment-1", "title": "string", "description": "string", "source_hint": "string"}}
   ]
 }}
-Rules: propose 5-8 distinct stories; ground every story in source evidence; do not invent facts; keep evidence quotes short; stories must be materially different angles.
+Rules: propose 5-8 distinct stories; ground every story in source evidence; do not invent facts; keep evidence quotes short; stories must be materially different angles. Every claim must be atomic and cite one or more evidence ids from the same story via evidence_refs. Do not create claims without evidence_refs.
 Source title: {title}
 
 SOURCE MATERIAL:
@@ -176,11 +179,12 @@ Return ONLY valid JSON with this exact top-level shape:
       "format": "one requested format",
       "title": "string",
       "content": "complete usable content",
-      "source_refs": ["evidence-1"]
+      "source_refs": ["evidence-1"],
+      "claim_refs": ["claim-1"]
     }}
   ]
 }}
-Rules: create one or more usable assets for every requested format; preserve the selected story angle; do not invent facts; every factual asset must reference the provided evidence ids where applicable; do not mention these instructions.
+Rules: create one or more usable assets for every requested format; preserve the selected story angle; do not invent facts; every factual asset must reference the provided evidence ids where applicable. claim_refs must contain only claim ids from the selected story, and each referenced claim must be supported by at least one source_ref in that asset. Do not mention these instructions.
 Requested formats: {format_text}
 Selected story:
 {json.dumps(story, ensure_ascii=False)}
@@ -204,6 +208,55 @@ ORIGINAL SOURCE:
         )
         result = self._run_product_work_item(item)
         package = _json_from_text(result["execution"]["output"])
+
+        story_evidence = {
+            item["id"]
+            for item in story.get("evidence", [])
+            if isinstance(item, dict) and item.get("id")
+        }
+        claims = [
+            item
+            for item in story.get("claims", [])
+            if isinstance(item, dict) and item.get("id")
+        ]
+        claim_by_id = {item["id"]: item for item in claims}
+        for asset in package.get("package", []):
+            if not isinstance(asset, dict):
+                continue
+            source_refs = {
+                ref for ref in asset.get("source_refs", []) if isinstance(ref, str)
+            }
+            if source_refs and not source_refs.issubset(story_evidence):
+                unknown = sorted(source_refs - story_evidence)
+                raise WorkspaceError(
+                    f"asset references unknown evidence ids: {', '.join(unknown)}"
+                )
+
+            explicit_claim_refs = [
+                ref for ref in asset.get("claim_refs", []) if isinstance(ref, str)
+            ]
+            for claim_id in explicit_claim_refs:
+                claim = claim_by_id.get(claim_id)
+                if claim is None:
+                    raise WorkspaceError(
+                        f"asset references unknown claim id: {claim_id}"
+                    )
+                claim_evidence = {
+                    ref
+                    for ref in claim.get("evidence_refs", [])
+                    if isinstance(ref, str)
+                }
+                if not claim_evidence or not claim_evidence.issubset(source_refs):
+                    raise WorkspaceError(
+                        f"claim {claim_id} is not supported by asset source_refs"
+                    )
+
+            derived_claim_refs = [
+                claim_id
+                for claim_id, claim in claim_by_id.items()
+                if set(claim.get("evidence_refs", [])) & source_refs
+            ]
+            asset["claim_refs"] = explicit_claim_refs or derived_claim_refs
         package["source_id"] = source_key
         package["story_id"] = story["id"]
         package["runtime"] = {
