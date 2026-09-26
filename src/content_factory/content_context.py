@@ -11,16 +11,16 @@ ProviderKind = Literal["research", "text", "image", "video", "audio"]
 class ContentContext:
     """Canonical semantic context shared across provider boundaries.
 
-    This is the product-level context. Providers should receive a translated,
+    This is the product-level context. Providers receive a translated,
     task-specific view rather than this object wholesale.
     """
 
     run_id: str
     task_id: str
     purpose: str
-    claim_ids: tuple[str, ...] = ()
-    evidence_ids: tuple[str, ...] = ()
-    editorial_unit_ids: tuple[str, ...] = ()
+    claims: tuple[str, ...] = ()
+    evidence: tuple[str, ...] = ()
+    editorial_units: tuple[str, ...] = ()
     constraints: tuple[str, ...] = ()
     source_asset_ids: tuple[str, ...] = ()
 
@@ -32,8 +32,9 @@ class ProviderContext:
     run_id: str
     task_id: str
     purpose: str
-    claim_ids: tuple[str, ...] = ()
-    editorial_unit_ids: tuple[str, ...] = ()
+    claims: tuple[str, ...] = ()
+    evidence: tuple[str, ...] = ()
+    editorial_units: tuple[str, ...] = ()
     constraints: tuple[str, ...] = ()
     source_asset_ids: tuple[str, ...] = ()
     provider: ProviderKind = "text"
@@ -51,9 +52,9 @@ def to_provider_context(
 ) -> ProviderContext:
     """Translate canonical context into a provider-specific view.
 
-    Research/evidence identifiers are retained only for providers that may
-    need factual grounding. Media providers receive claims and constraints,
-    plus source assets when a downstream transformation depends on them.
+    The canonical context is deliberately richer than any single provider
+    request. Translation prevents accidental forwarding of irrelevant data
+    while preserving the stable run/task identity and semantic dependencies.
     """
 
     if not context.run_id or not context.task_id:
@@ -66,8 +67,9 @@ def to_provider_context(
             run_id=context.run_id,
             task_id=context.task_id,
             purpose=context.purpose,
-            claim_ids=context.claim_ids,
-            editorial_unit_ids=context.editorial_unit_ids,
+            claims=context.claims,
+            evidence=context.evidence,
+            editorial_units=context.editorial_units,
             constraints=context.constraints,
             provider=provider,
         )
@@ -77,8 +79,8 @@ def to_provider_context(
             run_id=context.run_id,
             task_id=context.task_id,
             purpose=context.purpose,
-            claim_ids=context.claim_ids,
-            editorial_unit_ids=context.editorial_unit_ids,
+            claims=context.claims,
+            editorial_units=context.editorial_units,
             constraints=context.constraints,
             provider=provider,
         )
@@ -87,8 +89,8 @@ def to_provider_context(
         run_id=context.run_id,
         task_id=context.task_id,
         purpose=context.purpose,
-        claim_ids=context.claim_ids,
-        editorial_unit_ids=context.editorial_unit_ids,
+        claims=context.claims,
+        editorial_units=context.editorial_units,
         constraints=context.constraints,
         source_asset_ids=context.source_asset_ids,
         provider=provider,
