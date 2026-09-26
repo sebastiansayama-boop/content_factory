@@ -52,10 +52,10 @@ class ProductHandler(Handler):
         if self.path == "/api/runs" or self.path.startswith("/api/runs/"):
             if not self._protect_product_api():
                 return
-            run_id = self.path.removeprefix("/api/runs/").strip("/")
-            if not run_id:
+            if self.path == "/api/runs":
                 self._json(200, {"runs": [run.to_dict() for run in self.content_runs.list()]})
                 return
+            run_id = self.path.removeprefix("/api/runs/").strip("/")
             run = self.content_runs.get(run_id)
             if run is None:
                 self._json(404, {"error": "content run not found"})
