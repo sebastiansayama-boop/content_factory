@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from typing import Any
 
 
 def _now() -> str:
@@ -75,6 +76,44 @@ class ProvenanceGraph:
         self.assets[asset.asset_id] = asset
         return asset
 
+    @classmethod
+    def from_package(
+        cls,
+        package: dict[str, Any],
+        *,
+        run_id: str,
+        provider: str = "workspace",
+    ) -> "ProvenanceGraph":
+        """Build the graph directly from a normalized production package."""
+        graph = cls()
+        for item in package.get("package", []):
+            if not isinstance(item, dict):
+                raise ProvenanceError("package assets must be objects")
+            asset_id = item.get("id")
+            asset_format = item.get("format")
+            if not isinstance(asset_id, str) or not asset_id:
+                raise ProvenanceError("every package asset requires an id")
+            if not isinstance(asset_format, str) or not asset_format:
+                raise ProvenanceError(f"asset {asset_id} requires a format")
+            claim_refs = item.get("claim_refs", [])
+            if not isinstance(claim_refs, list) or not all(
+                isinstance(ref, str) and ref for ref in claim_refs
+            ):
+                raise ProvenanceError(
+                    f"asset {asset_id} claim_refs must contain non-empty strings"
+                )
+            graph.add_asset(
+                ContentAsset(
+                    asset_id=asset_id,
+                    run_id=run_id,
+                    format=asset_format,
+                    provider=provider,
+                    provider_job_id=asset_id,
+                    provenance=ProvenanceLink(claim_ids=tuple(claim_refs)),
+                )
+            )
+        return graph
+
     def affected_assets(self, *, claim_id: str) -> list[ContentAsset]:
         return [
             asset
@@ -85,3 +124,6 @@ class ProvenanceGraph:
                 for unit_id in asset.editorial_unit_ids
             )
         ]
+
+    def affected_asset_ids(self, *, claim_id: str) -> list[str]:
+        return [asset.asset_id for asset in self.affected_assets(claim_id=claim_id)]
