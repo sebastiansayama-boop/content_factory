@@ -6,12 +6,15 @@ import time
 from pathlib import Path
 from typing import Any
 
+from .content_run import ContentRunStore
+
 from .service import FactoryService, Handler
 from .workspace import ContentWorkspace
 
 
 class ProductHandler(Handler):
     workspace: ContentWorkspace
+    content_runs: ContentRunStore
 
     def _body(self) -> dict[str, Any]:
         length = int(self.headers.get("Content-Length", "0"))
@@ -22,6 +25,20 @@ class ProductHandler(Handler):
             raise ValueError("JSON body must be an object")
         return payload
 
+    def _protect_product_api(self) -> bool:
+        now = time.monotonic()
+        client_ip = self.client_address[0]
+        if self._auth_failure_limited(client_ip, now):
+            self._json(429, {"error": "too many authentication failures"}, retry_after=60)
+            return False
+        if not self._authorized():
+            self._json(401, {"error": "missing or invalid API token"})
+            return False
+        if self._rate_limited(self._authorized_requests, 10, now, 60.0):
+            self._json(429, {"error": "product rate limit exceeded"}, retry_after=60)
+            return False
+        return True
+
     def do_GET(self) -> None:  # noqa: N802
         if self.path in {"/", "/index.html"}:
             raw = (Path(__file__).parent / "static" / "index.html").read_bytes()
@@ -31,27 +48,62 @@ class ProductHandler(Handler):
             self.end_headers()
             self.wfile.write(raw)
             return
+
+        if self.path == "/api/runs" or self.path.startswith("/api/runs/"):
+            if not self._protect_product_api():
+                return
+            if self.path == "/api/runs":
+                self._json(200, {"runs": [run.to_dict() for run in self.content_runs.list()]})
+                return
+            run_id = self.path.removeprefix("/api/runs/").strip("/")
+            run = self.content_runs.get(run_id)
+            if run is None:
+                self._json(404, {"error": "content run not found"})
+                return
+            self._json(200, run.to_dict())
+            return
+
         super().do_GET()
 
     def do_POST(self) -> None:  # noqa: N802
-        if self.path not in {"/api/analyze", "/api/produce"}:
+        if self.path not in {"/api/analyze", "/api/produce", "/api/runs"}:
             super().do_POST()
             return
 
-        now = time.monotonic()
-        client_ip = self.client_address[0]
-        if self._auth_failure_limited(client_ip, now):
-            self._json(429, {"error": "too many authentication failures"}, retry_after=60)
-            return
-        if not self._authorized():
-            self._json(401, {"error": "missing or invalid API token"})
-            return
-        if self._rate_limited(self._authorized_requests, 10, now, 60.0):
-            self._json(429, {"error": "product rate limit exceeded"}, retry_after=60)
+        if not self._protect_product_api():
             return
 
         try:
             payload = self._body()
+            if self.path == "/api/runs":
+                title = str(payload.get("title", "")).strip()
+                brief = str(payload.get("brief", "")).strip()
+                audience = str(payload.get("audience", "")).strip()
+                goal = str(payload.get("goal", "")).strip()
+                formats = payload.get("formats", [])
+                constraints = payload.get("constraints", [])
+                if not title:
+                    raise ValueError("title is required")
+                if not brief:
+                    raise ValueError("brief is required")
+                if len(title) > 200:
+                    raise ValueError("title exceeds maximum length")
+                if len(brief) > 16_000:
+                    raise ValueError("brief exceeds maximum length")
+                if not isinstance(formats, list) or not all(isinstance(value, str) for value in formats):
+                    raise ValueError("formats must be an array of strings")
+                if not isinstance(constraints, list) or not all(isinstance(value, str) for value in constraints):
+                    raise ValueError("constraints must be an array of strings")
+                run = self.content_runs.create(
+                    title=title,
+                    brief=brief,
+                    audience=audience,
+                    goal=goal,
+                    formats=tuple(value.strip() for value in formats if value.strip()),
+                    constraints=tuple(value.strip() for value in constraints if value.strip()),
+                )
+                self._json(201, run.to_dict())
+                return
             if self.path == "/api/analyze":
                 result = self.workspace.analyze(
                     source=str(payload.get("source", "")),
@@ -81,6 +133,7 @@ def main() -> None:
     service = FactoryService()
     ProductHandler.service = service
     ProductHandler.workspace = ContentWorkspace(service)
+    ProductHandler.content_runs = service.content_runs
     from http.server import ThreadingHTTPServer
 
     host = os.environ.get("HOST", "0.0.0.0")

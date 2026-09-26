@@ -14,6 +14,7 @@ from typing import Any
 from uuid import uuid4
 
 from .artifacts import ArtifactStore
+from .content_run import ContentRunStore
 from .gemini_adapter import GeminiOpenAICompatibleAdapter
 from .openai_capability import openai_text_capability
 from .runtime import (
@@ -100,6 +101,7 @@ class FactoryService:
         root.mkdir(parents=True, exist_ok=True)
         self._store = RuntimeStore(root / "runtime.sqlite3")
         self._artifacts = ArtifactStore(root / "artifacts")
+        self._content_runs = ContentRunStore(root / "content_runs.sqlite3")
         publisher_url = os.environ.get("PUBLISH_URL", "").strip()
         self._external_publisher_configured = bool(publisher_url)
         publisher = WebhookPublisher(publisher_url, os.environ.get("PUBLISH_AUTH_TOKEN")) if publisher_url else LocalReleasePublisher()
@@ -126,7 +128,12 @@ class FactoryService:
             return provider, openai_text_capability()
         raise ValueError("FACTORY_PROVIDER must be 'gemini' or 'openai'")
 
+    @property
+    def content_runs(self) -> ContentRunStore:
+        return self._content_runs
+
     def close(self) -> None:
+        self._content_runs.close()
         self._store.close()
 
     def health(self) -> dict[str, Any]:
