@@ -134,3 +134,38 @@ def test_production_package_rejects_invalid_claim_refs():
         assert "claim_refs" in str(exc)
     else:
         raise AssertionError("expected invalid claim_refs failure")
+
+
+def test_regeneration_plan_only_rebuilds_assets_affected_by_changed_claims():
+    package = {
+        "package": [
+            {"id": "article-001", "format": "article", "claim_refs": ["claim-001"]},
+            {"id": "video-001", "format": "video", "claim_refs": ["claim-001", "claim-002"]},
+            {"id": "social-001", "format": "social_post", "claim_refs": ["claim-002"]},
+            {"id": "image-001", "format": "image", "claim_refs": ["claim-003"]},
+        ]
+    }
+
+    graph = ProvenanceGraph.from_package(package, run_id="run-001")
+
+    plan = graph.regeneration_plan(changed_claim_ids=["claim-001"])
+
+    assert plan.changed_claim_ids == ("claim-001",)
+    assert plan.regenerate_asset_ids == ("article-001", "video-001")
+    assert plan.retain_asset_ids == ("social-001", "image-001")
+
+
+def test_regeneration_plan_deduplicates_overlapping_claim_dependencies():
+    package = {
+        "package": [
+            {"id": "video-001", "format": "video", "claim_refs": ["claim-001", "claim-002"]},
+            {"id": "article-001", "format": "article", "claim_refs": ["claim-002"]},
+        ]
+    }
+
+    graph = ProvenanceGraph.from_package(package, run_id="run-001")
+
+    plan = graph.regeneration_plan(changed_claim_ids=["claim-001", "claim-002"])
+
+    assert plan.regenerate_asset_ids == ("video-001", "article-001")
+    assert plan.retain_asset_ids == ()
