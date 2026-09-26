@@ -81,3 +81,56 @@ def test_duplicate_asset_identity_is_rejected():
         assert "already exists" in str(exc)
     else:
         raise AssertionError("expected duplicate asset failure")
+
+
+def test_production_package_maps_one_claim_to_multiple_affected_assets():
+    package = {
+        "package": [
+            {
+                "id": "article-001",
+                "format": "article",
+                "claim_refs": ["claim-001"],
+            },
+            {
+                "id": "video-001",
+                "format": "long_video",
+                "claim_refs": ["claim-001", "claim-002"],
+            },
+            {
+                "id": "social-001",
+                "format": "social_post",
+                "claim_refs": ["claim-002"],
+            },
+        ]
+    }
+
+    graph = ProvenanceGraph.from_package(package, run_id="run-001")
+
+    assert graph.affected_asset_ids(claim_id="claim-001") == [
+        "article-001",
+        "video-001",
+    ]
+    assert graph.affected_asset_ids(claim_id="claim-002") == [
+        "video-001",
+        "social-001",
+    ]
+    assert graph.affected_asset_ids(claim_id="claim-003") == []
+
+
+def test_production_package_rejects_invalid_claim_refs():
+    package = {
+        "package": [
+            {
+                "id": "asset-001",
+                "format": "video",
+                "claim_refs": ["claim-001", 2],
+            }
+        ]
+    }
+
+    try:
+        ProvenanceGraph.from_package(package, run_id="run-001")
+    except ValueError as exc:
+        assert "claim_refs" in str(exc)
+    else:
+        raise AssertionError("expected invalid claim_refs failure")
