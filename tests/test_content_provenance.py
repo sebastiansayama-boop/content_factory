@@ -151,6 +151,10 @@ def test_regeneration_plan_only_rebuilds_assets_affected_by_changed_claims():
     plan = graph.regeneration_plan(changed_claim_ids=["claim-001"])
 
     assert plan.changed_claim_ids == ("claim-001",)
+    assert tuple((target.asset_id, target.changed_claim_ids) for target in plan.targets) == (
+        ("article-001", ("claim-001",)),
+        ("video-001", ("claim-001",)),
+    )
     assert plan.regenerate_asset_ids == ("article-001", "video-001")
     assert plan.retain_asset_ids == ("social-001", "image-001")
 
@@ -167,5 +171,9 @@ def test_regeneration_plan_deduplicates_overlapping_claim_dependencies():
 
     plan = graph.regeneration_plan(changed_claim_ids=["claim-001", "claim-002"])
 
+    assert tuple((target.asset_id, target.changed_claim_ids) for target in plan.targets) == (
+        ("video-001", ("claim-001", "claim-002")),
+        ("article-001", ("claim-002",)),
+    )
     assert plan.regenerate_asset_ids == ("video-001", "article-001")
     assert plan.retain_asset_ids == ()
