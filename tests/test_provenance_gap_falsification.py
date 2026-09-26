@@ -74,3 +74,38 @@ def test_produce_exposes_claim_level_provenance_for_downstream_asset(tmp_path):
 
     asset = result["package"][0]
     assert asset["claim_refs"] == ["claim-1"]
+
+
+def test_produce_derives_claim_refs_from_asset_evidence(tmp_path):
+    fake = FakeFactory(
+        '{"story":{"id":"story-1","title":"T","angle":"A"},'
+        '"package":[{"id":"asset-1","format":"article","title":"T",'
+        '"content":"Body","source_refs":["evidence-4"]}]}',
+        tmp_path,
+    )
+
+    result = ContentWorkspace(fake).produce(
+        source="Evidence-4 supports claim-1.",
+        story={
+            "id": "story-1",
+            "title": "T",
+            "angle": "A",
+            "evidence": [
+                {
+                    "id": "evidence-4",
+                    "quote": "Evidence supporting claim-1",
+                    "location": "source",
+                }
+            ],
+            "claims": [
+                {
+                    "id": "claim-1",
+                    "text": "Claim 1",
+                    "evidence_refs": ["evidence-4"],
+                }
+            ],
+        },
+        formats=["article"],
+    )
+
+    assert result["package"][0]["claim_refs"] == ["claim-1"]
