@@ -223,7 +223,7 @@ def test_execute_endpoint_runs_vertical_slice_and_persists_result(tmp_path):
         formats=("article", "social_post", "visual_card"),
     )
 
-    class RunsHandler(ProductHandler):
+    class RunsHandler(DummyRunsHandler):
         content_runs = store
         vertical_slice_factory = FakeVerticalSlice
 
@@ -246,7 +246,7 @@ def test_execute_failure_marks_run_failed(tmp_path):
         def run(self, **kwargs):
             raise ValueError("research failed")
 
-    class RunsHandler(ProductHandler):
+    class RunsHandler(DummyRunsHandler):
         content_runs = store
         vertical_slice_factory = FailingVerticalSlice
 
