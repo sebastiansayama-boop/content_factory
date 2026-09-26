@@ -5,6 +5,7 @@ from .content_demand import ContentDemand
 from .external_source import Claim, Evidence, OpenAlexAdapter, Source
 from .openalex_demand import build_content_demand
 from .openai_capability import openai_text_capability
+from .production import Artifact, ProductionJob, ProductionJobStatus, ProductionRegistry
 from .runtime import (
     AcceptanceDecision,
     Capability,
@@ -21,8 +22,8 @@ from .runtime_store import RuntimeStore
 
 __all__ = [
     "AcceptanceDecision",
+    "Artifact",
     "Capability",
-    "Claim",
     "ContentDemand",
     "ArtifactStore",
     "Evidence",
@@ -31,6 +32,9 @@ __all__ = [
     "FactoryRuntime",
     "FactoryState",
     "OpenAlexAdapter",
+    "ProductionJob",
+    "ProductionJobStatus",
+    "ProductionRegistry",
     "PublicationResult",
     "RuntimePolicy",
     "RuntimeStore",

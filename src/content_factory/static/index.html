@@ -19,13 +19,13 @@
 <div class="muted">Paste a transcript, interview, podcast notes, research, lecture, or other substantive source material.</div>
 <input id="title" class="input" style="margin:12px 0 8px" placeholder="Source title">
 <textarea id="source" class="source" placeholder="Paste the source material here..."></textarea>
-<div class="row" style="margin-top:10px"><button id="sample" class="btn secondary">Load sample</button><button id="analyze" class="btn">Analyze source</button><span id="sourceCount" class="key">0 chars</span></div>
+<div class="row" style="margin-top:10px"><button id="sample" class="btn secondary">Load sample</button><button id="analyze" class="btn">Analyze source</button><button id="runFactory" class="btn">Run Factory</button><span id="sourceCount" class="key">0 chars</span></div>
 <div class="token"><input id="token" class="input" type="password" placeholder="FACTORY_API_TOKEN"><small>Stored only in this browser. Required by the protected product API.</small></div>
 </section>
 <section class="panel">
 <h2>2. Explore</h2>
 <div id="exploreEmpty" class="notice">Analyze a source to discover themes, stories, evidence, and moments.</div>
-<div id="summary" class="muted"></div><div id="themes" class="chips" style="margin:10px 0"></div><div id="stories" class="stories"></div>
+<div id="runResult" class="notice hidden"></div><div id="summary" class="muted"></div><div id="themes" class="chips" style="margin:10px 0"></div><div id="stories" class="stories"></div>
 <h3>Moments</h3><div id="moments" class="muted"></div>
 </section>
 <section class="panel">
@@ -49,6 +49,54 @@ function setStatus(t){$("status").textContent=t}function error(t){$("error").tex
 $("source").addEventListener("input",()=>{$("sourceCount").textContent=`${$("source").value.length.toLocaleString()} chars`});
 $("sample").onclick=()=>{$("title").value="Why animals evolve similar solutions";$("source").value="Different animal lineages can independently evolve similar traits when they face similar environmental pressures. This is called convergent evolution. Wings in bats and birds are an example of analogous structures: both enable powered flight, but their underlying evolutionary histories differ. Similar ecological problems can therefore produce similar functional solutions without a shared recent origin for the trait."; $("source").dispatchEvent(new Event("input"));clearError();setStatus("Sample loaded")};
 async function api(path,body){const token=$("token").value.trim()||localStorage.getItem("factory_token")||"";if(!token)throw new Error("Enter FACTORY_API_TOKEN.");localStorage.setItem("factory_token",token);const r=await fetch(path,{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${token}`},body:JSON.stringify(body)});let data={};try{data=await r.json()}catch{}if(!r.ok)throw new Error(data.error||`HTTP ${r.status}`);return data}
+$("runFactory").onclick=async()=>{
+  clearError();
+  const brief=$("source").value.trim();
+  if(!brief)return error("Add a brief or topic first.");
+  $("runFactory").disabled=true;
+  setStatus("Running research → production → QC…");
+  try{
+    const created=await api("/api/runs",{
+      title:$("title").value||"Content Factory run",
+      brief,
+      audience:"",
+      goal:"",
+      formats:["article","social_post","visual_card"],
+      constraints:[]
+    });
+    const updated=await api("/api/runs/"+encodeURIComponent(created.run_id)+"/execute",{});
+    const result=updated.result;
+    if(!result)throw new Error("Run completed without a production result.");
+    renderVerticalResult(result);
+    setStatus("Run complete · ready for review");
+  }catch(e){error(e.message);setStatus("Error")}
+  finally{$("runFactory").disabled=false}
+};
+function renderVerticalResult(result){
+  const qc=result.quality||{};
+  $("runResult").classList.remove("hidden");
+  $("runResult").innerHTML=
+    "<strong>Run "+esc(result.run_id)+"</strong><br>"+
+    "Research: "+esc(String((result.research?.claims||[]).length))+" claims · "+
+    esc(String((result.research?.sources||[]).length))+" sources · "+
+    "Assets: "+esc(String((result.package?.package||[]).length))+
+    " · QC: "+esc(qc.status||"UNKNOWN");
+  $("summary").textContent=result.research?.summary||"";
+  $("themes").innerHTML=(result.research?.editorial_angles||[]).map(x=>`<span class="chip">${esc(x)}</span>`).join("");
+  $("stories").innerHTML=(result.package?.package||[]).map(a=>
+    `<div class="story"><div class="story-title">${esc(a.title||a.format||"asset")}</div><div class="story-angle">${esc(a.format||"")}</div><div class="evidence">${esc(a.content||"")}</div></div>`
+  ).join("");
+  $("moments").innerHTML=(result.research?.claims||[]).map(c=>
+    `<div style="margin-bottom:8px"><strong>${esc(c.id)}</strong><br>${esc(c.text||"")}</div>`
+  ).join("");
+  $("selected").classList.add("hidden");
+  $("produceEmpty").classList.add("hidden");
+  $("package").innerHTML=(result.package?.package||[]).map(a=>
+    `<div class="asset"><div class="format">${esc(a.format||"asset")}</div><h4>${esc(a.title||"")}</h4><pre>${esc(a.content||"")}</pre><div class="key">Claims: ${esc((a.claim_refs||[]).join(", ")||"none")} · Sources: ${esc((a.source_refs||[]).join(", ")||"none")}</div></div>`
+  ).join("");
+  $("review").classList.remove("hidden");
+  $("reviewState").textContent="Run completed; draft requires review";
+}
 $("analyze").onclick=async()=>{clearError();const source=$("source").value.trim();if(!source)return error("Add source material first.");$("analyze").disabled=true;setStatus("Analyzing…");try{analysis=await api("/api/analyze",{title:$("title").value||"Untitled source",source});selected=null;renderAnalysis()}catch(e){error(e.message);setStatus("Error")}finally{$("analyze").disabled=false}};
 function renderAnalysis(){setStatus("Source mapped");$("exploreEmpty").classList.add("hidden");$("summary").textContent=analysis.summary||"";$("themes").innerHTML=(analysis.themes||[]).map(x=>`<span class="chip">${esc(x)}</span>`).join("");$("stories").innerHTML=(analysis.stories||[]).map((s,i)=>`<div class="story ${selected?.id===s.id?"selected":""}" data-i="${i}"><div class="story-title">${esc(s.title)}</div><div class="story-angle">${esc(s.angle||"")}</div><div class="evidence">${esc((s.evidence||[]).map(e=>e.quote).join(" · "))}</div></div>`).join("");document.querySelectorAll(".story").forEach(el=>el.onclick=()=>{selected=analysis.stories[Number(el.dataset.i)];renderAnalysis();$("selected").innerHTML=`<strong>${esc(selected.title)}</strong><div class="muted">${esc(selected.angle||"")}</div>`;$("selected").classList.remove("hidden");$("produceEmpty").classList.add("hidden");$("produce").disabled=false;$("package").innerHTML="";$("review").classList.add("hidden")});$("moments").innerHTML=(analysis.moments||[]).map(m=>`<div style="margin-bottom:8px"><strong>${esc(m.title)}</strong><br>${esc(m.description||"")}</div>`).join("")}
 $("produce").onclick=async()=>{clearError();if(!selected)return;const formats=[...document.querySelectorAll("#formats input:checked")].map(x=>x.value);if(!formats.length)return error("Select at least one format.");$("produce").disabled=true;setStatus("Producing…");try{lastPackage=await api("/api/produce",{source:$("source").value,title:$("title").value,story:selected,formats});renderPackage(lastPackage);setStatus("Package ready for review")}catch(e){error(e.message);setStatus("Error")}finally{$("produce").disabled=false}};
