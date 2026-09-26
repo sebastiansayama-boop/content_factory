@@ -53,6 +53,22 @@ class ProductHandler(Handler):
         if self.path == "/api/runs" or self.path.startswith("/api/runs/"):
             if not self._protect_product_api():
                 return
+            if self.path == "/api/regenerate":
+                if not isinstance(payload.get("story"), dict):
+                    raise ValueError("story must be an object")
+                if not isinstance(payload.get("package"), dict):
+                    raise ValueError("package must be an object")
+                changed_claim_ids = payload.get("changed_claim_ids")
+                if not isinstance(changed_claim_ids, list) or not all(isinstance(value, str) for value in changed_claim_ids):
+                    raise ValueError("changed_claim_ids must be an array of strings")
+                result = self.workspace.regenerate(
+                    source=str(payload.get("source", "")),
+                    story=payload["story"],
+                    package=payload["package"],
+                    changed_claim_ids=changed_claim_ids,
+                )
+                self._json(200, result)
+                return
             if self.path == "/api/runs":
                 self._json(200, {"runs": [run.to_dict() for run in self.content_runs.list()]})
                 return
