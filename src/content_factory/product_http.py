@@ -217,7 +217,8 @@ class ProductHandler(Handler):
                     self.service.control.record(run_id, "factory.started", status="RUNNING", actor="api")
                     prior = self.service.knowledge.search(run.brief)
                     if not prior["claims"]:
-                        self.content_runs.start_execution(run_id)
+                        if run.status in {"DRAFT", "FAILED", "PLANNING"}:
+                            self.content_runs.start_execution(run_id)
                         research_result = ContentFactoryVerticalSlice(knowledge_store=self.service.knowledge).run(
                             run_id=run_id,
                             brief=run.brief,
