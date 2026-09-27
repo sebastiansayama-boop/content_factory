@@ -241,7 +241,7 @@ class ProductHandler(Handler):
                         })
                         return
                     result = KnowledgeContentBuilder(self.workspace, self.service.knowledge).build(
-                        run_id=run_id, topic=run.title or run.brief, audience=run.audience,
+                        run_id=run_id, topic=run.brief, audience=run.audience,
                         goal=run.goal, formats=list(run.formats), constraints=list(run.constraints),
                     )
                     run = self.content_runs.save_result(run_id, {"run_id": run_id, "brief": run.brief, **result})
