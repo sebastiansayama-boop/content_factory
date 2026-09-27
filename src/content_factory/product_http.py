@@ -8,6 +8,7 @@ from typing import Any
 
 from .content_run import ContentRunStore
 from .content_run_planner import ContentRunPlanner
+from .assembly import ContentAssembler, QualityGate
 from .knowledge_content import KnowledgeContentBuilder
 from .service import FactoryService, Handler
 from .workspace import ContentWorkspace
@@ -104,8 +105,10 @@ class ProductHandler(Handler):
         is_run_produce = self.path.startswith("/api/runs/") and self.path.endswith("/produce")
         is_run_produce_execute = self.path.startswith("/api/runs/") and self.path.endswith("/produce/execute")
         is_run_produce_poll = self.path.startswith("/api/runs/") and self.path.endswith("/produce/poll")
+        is_run_assemble = self.path.startswith("/api/runs/") and self.path.endswith("/assemble")
+        is_run_qc = self.path.startswith("/api/runs/") and self.path.endswith("/qc")
         is_knowledge_promote = self.path.startswith("/api/knowledge/") and self.path.endswith("/promote")
-        if self.path not in {"/api/analyze", "/api/produce", "/api/regenerate", "/api/runs"} and not is_run_plan and not is_run_execute and not is_knowledge_promote and not is_run_build and not is_run_produce and not is_run_produce_execute and not is_run_produce_poll:
+        if self.path not in {"/api/analyze", "/api/produce", "/api/regenerate", "/api/runs"} and not is_run_plan and not is_run_execute and not is_knowledge_promote and not is_run_build and not is_run_produce and not is_run_produce_execute and not is_run_produce_poll and not is_run_assemble and not is_run_qc:
             super().do_POST()
             return
 
@@ -158,6 +161,68 @@ class ProductHandler(Handler):
                 self._json(200, updated.to_dict())
                 return
 
+            if is_run_assemble:
+                run_id = self.path.removeprefix("/api/runs/").removesuffix("/assemble").strip("/")
+                if not run_id:
+                    raise ValueError("content run id is required")
+                run = self.content_runs.get(run_id)
+                if run is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                result = run.result or {}
+                production = result.get("production")
+                if not isinstance(production, dict):
+                    raise ValueError("production has not been executed")
+                jobs = self.service.asset_jobs.list_for_run(run_id)
+                if not jobs or any(job.status != "COMPLETED" for job in jobs):
+                    raise ValueError("all asset jobs must be COMPLETED before assembly")
+                try:
+                    assets = [self.service.asset_registry.register_completed_job(job).to_dict() for job in jobs]
+                    output = ContentAssembler(self.service.asset_registry, os.environ.get("FACTORY_DATA_DIR", "./data")).assemble(
+                        run_id=run_id,
+                        script=result.get("script") if isinstance(result.get("script"), dict) else {},
+                        production_plan=result.get("production_plan") if isinstance(result.get("production_plan"), dict) else {},
+                    )
+                    updated = self.content_runs.save_production_result(run_id, {
+                        **result,
+                        "production": {**production, "status": "ASSEMBLED", "assets": assets, "output": output},
+                    })
+                except Exception:
+                    self.content_runs.mark_failed(run_id)
+                    raise
+                self._json(200, {"run": updated.to_dict(), "output": output})
+                return
+
+            if is_run_qc:
+                run_id = self.path.removeprefix("/api/runs/").removesuffix("/qc").strip("/")
+                if not run_id:
+                    raise ValueError("content run id is required")
+                run = self.content_runs.get(run_id)
+                if run is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                result = run.result or {}
+                production = result.get("production")
+                if not isinstance(production, dict):
+                    raise ValueError("production has not been assembled")
+                output = production.get("output")
+                if not isinstance(output, dict):
+                    raise ValueError("production output is missing; run /assemble first")
+                assets = self.service.asset_registry.list_for_run(run_id)
+                qc = QualityGate().evaluate(
+                    run_id=run_id,
+                    script=result.get("script") if isinstance(result.get("script"), dict) else {},
+                    production_plan=result.get("production_plan") if isinstance(result.get("production_plan"), dict) else {},
+                    assets=assets,
+                    output=output,
+                )
+                final_result = {
+                    **result,
+                    "production": {**production, "status": "READY_FOR_REVIEW" if qc["passed"] else "QC_FAILED", "qc": qc},
+                }
+                updated = self.content_runs.save_result(run_id, final_result) if qc["passed"] else self.content_runs.save_production_result(run_id, final_result)
+                self._json(200, {"run": updated.to_dict(), "qc": qc})
+                return
             if is_run_produce_poll:
                 run_id = self.path.removeprefix("/api/runs/").removesuffix("/produce/poll").strip("/")
                 if not run_id:
