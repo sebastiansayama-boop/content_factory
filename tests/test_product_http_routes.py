@@ -147,7 +147,7 @@ def test_factory_research_review_then_builds_production(tmp_path, monkeypatch):
         second.workspace = handler.workspace
         ProductHandler.do_POST(second)
 
-        assert second.status == 200
+        assert second.status == 200, second.response
         result = second.response["run"]["result"]
         assert result["content_spec"]["claim_refs"] == [candidate_id]
         assert result["production"]["status"] == "READY_FOR_REVIEW"
