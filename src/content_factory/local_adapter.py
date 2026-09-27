@@ -48,7 +48,7 @@ class LocalTextAdapter:
         else:
             value = {"result": "local development output"}
         digest = hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:16]
-        return ExternalCallResult(status_code=200, response_id=f"local-{digest}", payload={"text": json.dumps(value, ensure_ascii=False)})
+        return ExternalCallResult(integration_id="local-text", status_code=200, response_id=f"local-{digest}", payload={"text": json.dumps(value, ensure_ascii=False)})
 
     @staticmethod
     def response_text(result: ExternalCallResult) -> str:
