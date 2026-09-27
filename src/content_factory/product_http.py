@@ -9,6 +9,7 @@ from typing import Any
 from .content_run import ContentRunStore
 from .content_run_planner import ContentRunPlanner
 from .assembly import ContentAssembler, QualityGate
+from .exporter import ContentExporter
 from .knowledge_content import KnowledgeContentBuilder
 from .service import FactoryService, Handler
 from .workspace import ContentWorkspace
@@ -107,8 +108,10 @@ class ProductHandler(Handler):
         is_run_produce_poll = self.path.startswith("/api/runs/") and self.path.endswith("/produce/poll")
         is_run_assemble = self.path.startswith("/api/runs/") and self.path.endswith("/assemble")
         is_run_qc = self.path.startswith("/api/runs/") and self.path.endswith("/qc")
+        is_run_approve = self.path.startswith("/api/runs/") and self.path.endswith("/approve")
+        is_run_export = self.path.startswith("/api/runs/") and self.path.endswith("/export")
         is_knowledge_promote = self.path.startswith("/api/knowledge/") and self.path.endswith("/promote")
-        if self.path not in {"/api/analyze", "/api/produce", "/api/regenerate", "/api/runs"} and not is_run_plan and not is_run_execute and not is_knowledge_promote and not is_run_build and not is_run_produce and not is_run_produce_execute and not is_run_produce_poll and not is_run_assemble and not is_run_qc:
+        if self.path not in {"/api/analyze", "/api/produce", "/api/regenerate", "/api/runs"} and not is_run_plan and not is_run_execute and not is_knowledge_promote and not is_run_build and not is_run_produce and not is_run_produce_execute and not is_run_produce_poll and not is_run_assemble and not is_run_qc and not is_run_approve and not is_run_export:
             super().do_POST()
             return
 
@@ -161,6 +164,41 @@ class ProductHandler(Handler):
                 self._json(200, updated.to_dict())
                 return
 
+            if is_run_approve:
+                run_id = self.path.removeprefix("/api/runs/").removesuffix("/approve").strip("/")
+                if not run_id:
+                    raise ValueError("content run id is required")
+                run = self.content_runs.get(run_id)
+                if run is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                result = run.result or {}
+                production = result.get("production")
+                qc = production.get("qc") if isinstance(production, dict) else None
+                if not isinstance(qc, dict) or qc.get("status") != "PASSED":
+                    raise ValueError("only QC-passed runs can be approved")
+                payload = self._body()
+                decision_ref = str(payload.get("decision_ref", "")).strip()
+                updated = self.content_runs.approve(run_id, decision_ref=decision_ref)
+                self._json(200, updated.to_dict())
+                return
+
+            if is_run_export:
+                run_id = self.path.removeprefix("/api/runs/").removesuffix("/export").strip("/")
+                if not run_id:
+                    raise ValueError("content run id is required")
+                run = self.content_runs.get(run_id)
+                if run is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                try:
+                    export = ContentExporter(os.environ.get("FACTORY_DATA_DIR", "./data")).export(run_id=run_id, result=run.result or {})
+                    updated = self.content_runs.mark_exported(run_id, export)
+                except Exception:
+                    self.content_runs.mark_failed(run_id)
+                    raise
+                self._json(200, {"run": updated.to_dict(), "export": export})
+                return
             if is_run_assemble:
                 run_id = self.path.removeprefix("/api/runs/").removesuffix("/assemble").strip("/")
                 if not run_id:
