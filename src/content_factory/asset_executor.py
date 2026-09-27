@@ -149,7 +149,8 @@ class AssetExecutor:
         small = ImageFont.truetype(str(font_path), 38) if font_path.is_file() else ImageFont.load_default()
         scene = job.script_unit_id.replace("unit-", "") or "1"
         draw.text((70, 180), f"SCENE {scene}", font=font, fill=(250, 250, 250))
-        lines = textwrap.wrap(" · ".join(job.acceptance_criteria) or "evidence-grounded production", width=32)
+        caption = job.visual_intent or job.input_text or "evidence-grounded production"
+        lines = textwrap.wrap(caption, width=32)
         y = 1580
         for line in lines[:4]:
             draw.text((70, y), line, font=small, fill=(245, 245, 245))
