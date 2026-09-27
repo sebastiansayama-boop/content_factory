@@ -91,7 +91,8 @@ class ProductHandler(Handler):
     def do_POST(self) -> None:
         is_run_plan = self.path.startswith("/api/runs/") and self.path.endswith("/plan")
         is_run_execute = self.path.startswith("/api/runs/") and self.path.endswith("/execute")
-        if self.path not in {"/api/analyze", "/api/produce", "/api/regenerate", "/api/runs"} and not is_run_plan and not is_run_execute:
+        is_knowledge_promote = self.path.startswith("/api/knowledge/") and self.path.endswith("/promote")
+        if self.path not in {"/api/analyze", "/api/produce", "/api/regenerate", "/api/runs"} and not is_run_plan and not is_run_execute and not is_knowledge_promote:
             super().do_POST()
             return
 
@@ -99,6 +100,22 @@ class ProductHandler(Handler):
             return
 
         try:
+            if is_knowledge_promote:
+                claim_id = self.path.removeprefix("/api/knowledge/").removesuffix("/promote").strip("/")
+                if not claim_id:
+                    raise ValueError("knowledge claim id is required")
+                payload = self._body()
+                decision_ref = str(payload.get("decision_ref", "")).strip()
+                claim = self.service.knowledge.promote_claim(claim_id, decision_ref=decision_ref)
+                self._json(200, {
+                    "claim_id": claim.claim_id,
+                    "status": claim.status,
+                    "revision_id": claim.revision_id,
+                    "decision_ref": decision_ref,
+                    "promoted_at": claim.promoted_at,
+                })
+                return
+
             if is_run_execute:
                 run_id = self.path.removeprefix("/api/runs/").removesuffix("/execute").strip("/")
                 if not run_id:
