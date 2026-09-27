@@ -94,3 +94,64 @@ def test_replay_endpoint_is_read_only_and_returns_plan(tmp_path):
     assert handler.response["changed_claim_ids"] == ["kc-1"]
     assert store.get(run.run_id).status == "DRAFT"
     store.close()
+
+def test_factory_research_review_then_builds_production(tmp_path, monkeypatch):
+    monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.setenv("FACTORY_PROVIDER", "local")
+
+    from content_factory.service import FactoryService
+    from content_factory.workspace import ContentWorkspace
+
+    service = FactoryService()
+    try:
+        handler = DummyHandler("/api/runs", {
+            "title": "Test factory",
+            "brief": "Explain a topic with evidence.",
+            "audience": "general",
+            "goal": "short video",
+            "formats": ["short_video"],
+            "constraints": [],
+        })
+        handler.content_runs = service.content_runs
+        handler.service = service
+        handler.workspace = ContentWorkspace(service)
+        run = handler.content_runs.create(
+            title="Test factory",
+            brief="Explain a topic with evidence.",
+            audience="general",
+            goal="short video",
+            formats=("short_video",),
+            constraints=(),
+        )
+
+        first = DummyHandler(f"/api/runs/{run.run_id}/factory", {})
+        first.content_runs = service.content_runs
+        first.service = service
+        first.workspace = handler.workspace
+        ProductHandler.do_POST(first)
+
+        assert first.status == 409
+        assert first.response["candidates"]
+        candidate_id = first.response["candidates"][0]["claim_id"]
+        candidate = service.knowledge.get_claim(candidate_id)
+        assert candidate.status == "CANDIDATE"
+        assert service.content_runs.get(run.run_id).status == "RESEARCH_READY"
+
+        service.knowledge.promote_claim(candidate_id, decision_ref="TEST-FACTORY-REVIEW")
+
+        second = DummyHandler(f"/api/runs/{run.run_id}/factory", {})
+        second.content_runs = service.content_runs
+        second.service = service
+        second.workspace = handler.workspace
+        ProductHandler.do_POST(second)
+
+        assert second.status == 200
+        result = second.response["run"]["result"]
+        assert result["content_spec"]["claim_refs"] == [candidate_id]
+        assert result["production"]["status"] == "READY_FOR_REVIEW"
+        assert second.response["qc"]["status"] == "PASSED"
+        assert service.content_runs.get(run.run_id).status == "REVIEW"
+    finally:
+        service.close()
