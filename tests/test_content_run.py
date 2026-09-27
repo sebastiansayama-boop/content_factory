@@ -231,3 +231,55 @@ def test_execute_persists_durable_knowledge_refs(tmp_path, monkeypatch):
     assert persisted.status == "REVIEW"
     assert persisted.result["research"]["knowledge_refs"] == FakeResult.research["knowledge_refs"]
     store.close()
+
+
+def test_promote_knowledge_endpoint_requires_decision_and_returns_revision(tmp_path):
+    from content_factory.knowledge import KnowledgeStore
+
+    knowledge = KnowledgeStore(tmp_path / "knowledge.sqlite3")
+    payload = {
+        "claims": [{
+            "id": "claim-1",
+            "text": "Automobiles changed expectations about urban mobility.",
+            "confidence": "high",
+            "source_ids": ["source-1"],
+            "evidence_ids": ["evidence-1"],
+            "scope": "urban mobility",
+            "known_unknowns": [],
+        }],
+        "sources": [{
+            "id": "source-1",
+            "title": "Example",
+            "url": "https://example.com/cities",
+        }],
+        "evidence": [{
+            "id": "evidence-1",
+            "source_id": "source-1",
+            "excerpt": "Automobiles changed expectations about urban mobility.",
+            "locator": "paragraph",
+            "provenance": "example",
+        }],
+    }
+    knowledge.capture(run_id="run-promotion", research=payload)
+    claim_id = knowledge._connection.execute(
+        "SELECT claim_id FROM knowledge_claims"
+    ).fetchone()["claim_id"]
+
+    class Service:
+        pass
+
+    service = Service()
+    service.knowledge = knowledge
+    handler = DummyRunsHandler(f"/api/knowledge/{claim_id}/promote")
+    handler.service = service
+    handler.payload = {"decision_ref": "DEC-HTTP-001"}
+
+    ProductHandler.do_POST(handler)
+
+    assert handler.status == 200
+    assert handler.body["claim_id"] == claim_id
+    assert handler.body["status"] == "ACCEPTED"
+    assert handler.body["decision_ref"] == "DEC-HTTP-001"
+    assert handler.body["revision_id"].startswith(f"{claim_id}-r")
+    assert handler.body["promoted_at"]
+    knowledge.close()
