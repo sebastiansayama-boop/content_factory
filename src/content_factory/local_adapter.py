@@ -34,7 +34,8 @@ class LocalTextAdapter:
                 "units": [
                     {"unit_id": "unit-1", "kind": "hook", "text": "Here is what the evidence tells us.", "visual_intent": "establish topic", "claim_refs": [claim], "evidence_refs": [evidence]},
                     {"unit_id": "unit-2", "kind": "narration", "text": "We examine the supplied claim and its supporting evidence.", "visual_intent": "show evidence", "claim_refs": [claim], "evidence_refs": [evidence]},
-                    {"unit_id": "unit-3", "kind": "cta", "text": "Follow for more evidence-grounded stories.", "visual_intent": "close", "claim_refs": [claim], "evidence_refs": [evidence]},
+                    {"unit_id": "unit-3", "kind": "narration", "text": "The story stays within the supplied evidence and its stated limits.", "visual_intent": "show context", "claim_refs": [claim], "evidence_refs": [evidence]},
+                    {"unit_id": "unit-4", "kind": "cta", "text": "Follow for more evidence-grounded stories.", "visual_intent": "close", "claim_refs": [claim], "evidence_refs": [evidence]},
                 ]
             }
         elif '"style_bible":' in prompt:
