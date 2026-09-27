@@ -97,11 +97,11 @@ def test_factory_full_lifecycle_to_real_whisper_studio_video(tmp_path, monkeypat
         assets = result["production"]["assets"]
         assert len(assets) >= len(result["script"]["units"]) * 2
         for asset in assets:
-            asset_path = Path(asset["path"])
+            asset_path = Path(asset["uri"])
             assert asset_path.is_file(), asset
             assert asset["claim_refs"]
             assert asset["evidence_refs"]
-            if asset["type"] == "voice":
+            if asset["asset_type"] == "voice":
                 with wave.open(str(asset_path), "rb") as handle:
                     assert handle.getnchannels() == 1
                     assert handle.getnframes() > 0
