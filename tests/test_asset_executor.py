@@ -28,3 +28,20 @@ def test_stub_executor_materializes_asset_candidate(tmp_path, monkeypatch):
     assert result[0].result["claim_refs"] == ["kc-1"]
 
     jobs.close()
+
+
+def test_local_media_executor_materializes_authored_visual_and_voice(tmp_path, monkeypatch):
+    monkeypatch.setenv("FACTORY_ASSET_PROVIDER", "local_media")
+    jobs = AssetJobStore(tmp_path / "jobs.sqlite3")
+    plan = {"asset_requests": [
+        {"asset_request_id": "visual-1", "script_unit_id": "unit-1", "type": "visual", "claim_refs": ["kc-1"], "evidence_refs": ["ke-1"], "acceptance_criteria": ["preserve provenance"]},
+        {"asset_request_id": "voice-1", "script_unit_id": "unit-1", "type": "voice", "claim_refs": ["kc-1"], "evidence_refs": ["ke-1"], "acceptance_criteria": ["preserve provenance"]},
+    ]}
+    jobs.create_from_plan("run-local-media", plan)
+    result = AssetExecutor(jobs, tmp_path).execute_run("run-local-media")
+    assert {job.result["provider"] for job in result} == {"local_media"}
+    visual = Path(result[0].result["path"])
+    voice = Path(result[1].result["path"])
+    assert visual.suffix == ".png" and visual.stat().st_size > 1000
+    assert voice.suffix == ".wav" and voice.stat().st_size > 1000
+    jobs.close()
