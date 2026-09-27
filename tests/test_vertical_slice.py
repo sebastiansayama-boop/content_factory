@@ -1,6 +1,17 @@
 from content_factory.integrations import ExternalCallResult
+from content_factory.knowledge import KnowledgeStore
 from content_factory.research import OpenAIWebResearchAdapter
 from content_factory.vertical_slice import ContentFactoryVerticalSlice, quality_check
+
+
+class PromptRecordingFakeResearchAdapter(FakeResearchAdapter):
+    def __init__(self):
+        super().__init__()
+        self.prompts = []
+
+    def research(self, prompt: str) -> ExternalCallResult:
+        self.prompts.append(prompt)
+        return super().research(prompt)
 
 
 class FakeResearchAdapter:
@@ -47,3 +58,23 @@ def test_quality_check_rejects_unknown_claim_reference():
     )
     assert result["status"] == "FAIL"
     assert "unknown claim" in result["errors"][0]
+
+def test_vertical_slice_captures_and_reuses_knowledge(tmp_path):
+    store = KnowledgeStore(tmp_path / "knowledge.sqlite3")
+    first = ContentFactoryVerticalSlice(FakeResearchAdapter(), store).run(
+        run_id="run-knowledge-1",
+        brief="Explain why unrelated animals can evolve similar traits.",
+    )
+    assert first.research["knowledge"]["captured"] is True
+    assert store.counts()["claims"] == 1
+
+    second_adapter = PromptRecordingFakeResearchAdapter()
+    second = ContentFactoryVerticalSlice(second_adapter, store).run(
+        run_id="run-knowledge-2",
+        brief="Explain why unrelated animals can evolve similar traits.",
+        formats=["article"],
+    )
+    assert second.research["knowledge"]["reusable_context_counts"]["claims"] == 1
+    assert "Prior reusable knowledge" in second_adapter.prompts[0]
+    assert '"claims"' in second_adapter.prompts[0]
+    store.close()
