@@ -211,7 +211,7 @@ class ProductHandler(Handler):
                     self._json(404, {"error": "content run not found"})
                     return
                 try:
-                    if run.status == "DRAFT":
+                    if run.status in {"DRAFT", "RESEARCH_READY"}:
                         self.content_runs.start_planning(run_id)
                         run = self.content_runs.get(run_id)
                     self.service.control.record(run_id, "factory.started", status="RUNNING", actor="api")
