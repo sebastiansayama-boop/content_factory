@@ -49,7 +49,7 @@ class AssetExecutor:
             try:
                 execution = self._execute(running)
                 if execution.state == "SUBMITTED":
-                    output.append(self.jobs._transition(job.job_id, "SUBMITTED", execution.result))
+                    output.append(self.jobs.submit(job.job_id, execution.result))
                 else:
                     output.append(self.jobs.complete(job.job_id, execution.result))
             except Exception as exc:
