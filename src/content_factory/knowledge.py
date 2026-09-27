@@ -42,6 +42,8 @@ class KnowledgeClaim:
     source_ids: tuple[str, ...]
     evidence_ids: tuple[str, ...]
     first_seen_at: str
+    decision_ref: str | None = None
+    promoted_at: str | None = None
 
 
 @dataclass(frozen=True)
@@ -460,6 +462,8 @@ class KnowledgeStore:
             source_ids=tuple(str(item["source_id"]) for item in source_rows),
             evidence_ids=tuple(str(item["evidence_id"]) for item in evidence_rows),
             first_seen_at=row["first_seen_at"],
+            decision_ref=row["decision_ref"],
+            promoted_at=row["promoted_at"],
         )
 
     def search(self, query: str, *, limit: int = 8, include_candidates: bool = False) -> dict[str, list[dict[str, Any]]]:
