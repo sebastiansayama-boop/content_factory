@@ -16,6 +16,7 @@ from uuid import uuid4
 from .artifacts import ArtifactStore
 from .content_run import ContentRunStore
 from .gemini_adapter import GeminiOpenAICompatibleAdapter
+from .knowledge import KnowledgeStore
 from .openai_capability import openai_text_capability
 from .runtime import (
     AcceptanceDecision,
