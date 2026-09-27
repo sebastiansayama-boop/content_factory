@@ -101,8 +101,8 @@ class ContentFactoryVerticalSlice:
         prior_json = json.dumps(prior_knowledge, ensure_ascii=False)
         research_prompt = f"""You are the research stage of a content production system.
 Research the user's brief using live web search. Return ONLY JSON:
-{{"topic":"string","summary":"string","claims":[{{"id":"claim-1","text":"atomic factual claim","confidence":"high|medium|low","source_ids":["source-1"]}}],"sources":[{{"id":"source-1","title":"string","url":"https://..."}}],"editorial_angles":["string"]}}
-Rules: search the web; use current reputable sources; every factual claim must cite source_ids; never invent URLs; keep claims atomic; return source metadata for sources actually used.
+{{"topic":"string","summary":"string","claims":[{{"id":"claim-1","text":"atomic factual claim","confidence":"high|medium|low","source_ids":["source-1"],"evidence_ids":["evidence-1"],"scope":"string","known_unknowns":["string"]}}],"sources":[{{"id":"source-1","title":"string","url":"https://..."}}],"evidence":[{{"id":"evidence-1","source_id":"source-1","excerpt":"short supporting passage","locator":"string","provenance":"string"}}],"editorial_angles":["string"]}}
+Rules: search the web; use current reputable sources; every factual claim must cite source_ids and evidence_ids; every evidence item must identify its source and a concrete supporting excerpt; never invent URLs; keep claims atomic; state scope and meaningful known_unknowns; return source metadata for sources actually used.
 Prior reusable knowledge is context, not proof. Re-check it against current sources before relying on it, and do not cite prior knowledge IDs as source_ids:
 {prior_json}
 USER BRIEF:
