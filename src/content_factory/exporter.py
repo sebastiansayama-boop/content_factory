@@ -51,7 +51,10 @@ class ContentExporter:
 
         export_dir = self.root / "exports" / run_id
         export_dir.mkdir(parents=True, exist_ok=True)
-        package_path = export_dir / ("final" + (source.suffix or ".mp4"))
+        if rendered.renderer == "package":
+            package_path = export_dir / "content-package.json"
+        else:
+            package_path = export_dir / ("final" + (source.suffix or ".mp4"))
         if source.resolve() != package_path.resolve():
             shutil.copy2(source, package_path)
 
@@ -63,6 +66,7 @@ class ContentExporter:
             "source_output_id": production.get("output", {}).get("output_id"),
             "source_video": rendered.final_video,
             "artifact": package_path.name,
+            "artifact_type": "content_package" if rendered.renderer == "package" else "video",
             "bytes": package_path.stat().st_size,
             "sha256": self._sha256(package_path),
             "renderer_manifest": rendered.manifest,
