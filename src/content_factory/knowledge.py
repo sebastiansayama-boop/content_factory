@@ -191,8 +191,10 @@ class KnowledgeStore:
                     raise ValueError("every evidence item requires id, valid source_id, and excerpt")
                 stable_source_id = source_map[source_id]
                 existing = self._connection.execute(
-                    "SELECT evidence_id FROM knowledge_evidence WHERE evidence_id = ?",
-                    (evidence_id,),
+                    """SELECT e.evidence_id FROM knowledge_evidence e
+                    JOIN knowledge_sources s ON s.source_id=e.source_id
+                    WHERE s.url=? AND e.excerpt=? AND e.locator=?""",
+                    (str(sources[[s.get("id") for s in sources].index(source_id)].get("url") or ""), excerpt, locator),
                 ).fetchone()
                 if existing:
                     stable_evidence_id = str(existing["evidence_id"])
