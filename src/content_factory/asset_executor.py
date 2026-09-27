@@ -161,7 +161,10 @@ class AssetExecutor:
     def _write_sapi_voice(path: Path, job: AssetJob) -> None:
         if os.name != "nt":
             raise AssetExecutionError("local_media voice requires Windows SAPI")
-        text_value = f"Scene {job.script_unit_id.replace('unit-', '')}. Evidence-grounded narration. The story stays within the supplied evidence and its stated limits."
+        text_value = job.input_text or (
+            f"Scene {job.script_unit_id.replace('unit-', '')}. Evidence-grounded narration. "
+            "The story stays within the supplied evidence and its stated limits."
+        )
         escaped = text_value.replace("'", "''")
         target = str(path.resolve()).replace("'", "''")
         script = textwrap.dedent(f"""
