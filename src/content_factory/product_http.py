@@ -158,8 +158,8 @@ class ProductHandler(Handler):
                 if run is None:
                     self._json(404, {"error": "content run not found"})
                     return
-                if run.status != "APPROVED":
-                    raise ValueError("only APPROVED runs can be published")
+                if run.status != "EXPORTED":
+                    raise ValueError("only EXPORTED runs can be published")
                 payload = self._body()
                 channel = str(payload.get("channel", "")).strip()
                 if not channel:
@@ -340,6 +340,13 @@ class ProductHandler(Handler):
                 payload = self._body()
                 decision_ref = str(payload.get("decision_ref", "")).strip()
                 updated = self.content_runs.approve(run_id, decision_ref=decision_ref)
+                self.service.control.record(
+                    run_id,
+                    "approval.completed",
+                    status="APPROVED",
+                    actor=decision_ref,
+                    output_refs=(str((updated.result or {}).get("approval", {}).get("decision_ref") or ""),),
+                )
                 self._json(200, updated.to_dict())
                 return
 
@@ -614,7 +621,9 @@ class ProductHandler(Handler):
         except ValueError as exc:
             self._json(400, {"error": str(exc)})
         except Exception as exc:
-            self._json(400, {"error": str(exc)})
+            import logging
+            logging.getLogger(__name__).exception("product API request failed", exc_info=exc)
+            self._json(500, {"error": "internal server error"})
 
 
 def main() -> None:
