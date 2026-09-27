@@ -48,7 +48,7 @@ const $=id=>document.getElementById(id);let analysis=null,selected=null,lastPack
 function setStatus(t){$("status").textContent=t}function error(t){$("error").textContent=t;$("error").classList.remove("hidden")}function clearError(){$("error").classList.add("hidden")}
 $("source").addEventListener("input",()=>{$("sourceCount").textContent=`${$("source").value.length.toLocaleString()} chars`});
 $("sample").onclick=()=>{$("title").value="Why animals evolve similar solutions";$("source").value="Different animal lineages can independently evolve similar traits when they face similar environmental pressures. This is called convergent evolution. Wings in bats and birds are an example of analogous structures: both enable powered flight, but their underlying evolutionary histories differ. Similar ecological problems can therefore produce similar functional solutions without a shared recent origin for the trait."; $("source").dispatchEvent(new Event("input"));clearError();setStatus("Sample loaded")};
-async function api(path,body){const token=$("token").value.trim()||localStorage.getItem("factory_token")||"";if(!token)throw new Error("Enter FACTORY_API_TOKEN.");localStorage.setItem("factory_token",token);const r=await fetch(path,{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${token}`},body:JSON.stringify(body)});let data={};try{data=await r.json()}catch{}if(!r.ok)throw new Error(data.error||`HTTP ${r.status}`);return data}
+async function api(path,body){const token=$("token").value.trim()||localStorage.getItem("factory_token")||"";if(!token)throw new Error("Enter FACTORY_API_TOKEN.");localStorage.setItem("factory_token",token);const r=await fetch(path,{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${token}`},body:JSON.stringify(body)});let data={};try{data=await r.json()}catch{}if(!r.ok){const e=new Error(data.error||`HTTP ${r.status}`);e.data=data;e.status=r.status;throw e}return data}
 $("runFactory").onclick=async()=>{
   clearError();
   const brief=$("source").value.trim();
@@ -69,12 +69,34 @@ $("runFactory").onclick=async()=>{
     renderFactoryRun(updated.run);
     renderTimeline(updated.events||[]);
     setStatus(updated.run.status==="REVIEW"?"QC passed · awaiting approval":"Factory finished");
-  }catch(e){error(e.message);setStatus("Factory error")}
-  finally{$("runFactory").disabled=false}
+  }catch(e){
+    if(e.status===409 && e.data?.run){
+      currentRunId=e.data.run.run_id;
+      renderFactoryRun(e.data.run);
+      renderKnowledgeReview(e.data.candidates||[]);
+      setStatus("Research complete · knowledge review required");
+    }else{error(e.message);setStatus("Factory error")}
+  }finally{$("runFactory").disabled=false}
 };
 function renderTimeline(events){
   $("timeline").classList.remove("hidden");
   $("timeline").innerHTML="<strong>Run timeline</strong><div style='margin-top:8px'>"+events.map(e=>"<div>✓ "+esc(e.event_type)+" <span class='key'>"+esc(e.status)+"</span></div>").join("")+"</div>";
+}
+function renderKnowledgeReview(candidates){
+  const box=$("package");
+  const items=(candidates||[]).map(c=>`<div class="asset"><div class="format">knowledge candidate</div><h4>${esc(c.claim_id)}</h4><div>${esc(c.text)}</div><div class="key">Confidence: ${esc(c.confidence||"")} · Evidence: ${esc((c.evidence_ids||[]).join(", "))}</div><button class="btn" style="margin-top:8px" data-claim="${esc(c.claim_id)}">Promote</button></div>`).join("");
+  box.innerHTML=items||"<div class='notice'>No candidate claims were returned.</div>";
+  box.querySelectorAll("[data-claim]").forEach(button=>button.onclick=async()=>{
+    button.disabled=true;
+    try{
+      await api("/api/knowledge/"+encodeURIComponent(button.dataset.claim)+"/promote",{decision_ref:"browser-knowledge-review"});
+      button.closest(".asset").remove();
+      setStatus("Knowledge promoted · running Factory…");
+      const data=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/factory",{});
+      renderFactoryRun(data.run);renderTimeline(data.events||[]);
+      setStatus(data.run.status==="REVIEW"?"QC passed · awaiting approval":"Factory finished");
+    }catch(e){error(e.message);button.disabled=false}
+  });
 }
 function renderFactoryRun(run){
   $("runResult").classList.remove("hidden");
