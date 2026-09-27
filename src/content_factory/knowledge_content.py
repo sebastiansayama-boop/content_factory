@@ -40,6 +40,7 @@ class ContentSpec:
     constraints: tuple[str, ...]
     claim_refs: tuple[str, ...]
     evidence_refs: tuple[str, ...]
+    style_bible: dict[str, str] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self) | {
@@ -47,6 +48,7 @@ class ContentSpec:
             "constraints": list(self.constraints),
             "claim_refs": list(self.claim_refs),
             "evidence_refs": list(self.evidence_refs),
+            "style_bible": dict(self.style_bible or {}),
         }
 
 
@@ -208,6 +210,7 @@ USER CONSTRAINTS:
             constraints=tuple(str(v) for v in _refs(spec_raw.get("constraints"), "constraints")),
             claim_refs=tuple(spec_claims),
             evidence_refs=tuple(spec_evidence),
+            style_bible={str(key): str(value).strip() for key, value in (spec_raw.get("style_bible") or {}).items() if str(key).strip() and str(value).strip()},
         )
         if not spec.spec_id or not spec.title or not spec.objective:
             raise WorkspaceError("content spec requires id, title and objective")
@@ -273,7 +276,9 @@ CONTENT SPEC:
         production_plan = {
             "production_plan_id": f"production-{run_id}",
             "format": spec.format,
+            "style_bible": spec.style_bible or {},
             "asset_requests": asset_requests,
+            "render": {"aspect_ratio": "9:16", "resolution": "1080x1920"},
         }
         result = {
             "editorial": {
