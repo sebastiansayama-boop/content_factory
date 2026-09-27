@@ -28,7 +28,7 @@ class ContentAssembler:
 
         assets = self.registry.list_for_run(run_id)
         by_request = {asset.asset_request_id: asset for asset in assets}
-        by_unit = {asset.script_unit_id: asset for asset in assets}
+        by_unit_type = {(asset.script_unit_id, asset.asset_type): asset for asset in assets}
         sequence = []
         for index, unit in enumerate(units, start=1):
             if not isinstance(unit, dict):
@@ -36,29 +36,51 @@ class ContentAssembler:
             unit_id = str(unit.get("unit_id") or "").strip()
             if not unit_id:
                 raise AssemblyError("script unit requires unit_id")
-            request = next(
-                (item for item in requests
-                 if isinstance(item, dict) and str(item.get("script_unit_id") or "") == unit_id),
+
+            visual_request = next(
+                (
+                    item
+                    for item in requests
+                    if isinstance(item, dict)
+                    and str(item.get("script_unit_id") or "") == unit_id
+                    and str(item.get("type") or "") == "visual"
+                ),
                 None,
             )
-            if request is None:
-                raise AssemblyError(f"no asset request for script unit {unit_id}")
-            request_id = str(request.get("asset_request_id") or "")
-            asset = by_request.get(request_id) or by_unit.get(unit_id)
-            if asset is None:
-                raise AssemblyError(f"no registered asset for script unit {unit_id}")
+            voice_request = next(
+                (
+                    item
+                    for item in requests
+                    if isinstance(item, dict)
+                    and str(item.get("script_unit_id") or "") == unit_id
+                    and str(item.get("type") or "") == "voice"
+                ),
+                None,
+            )
+            if visual_request is None or voice_request is None:
+                raise AssemblyError(f"visual and voice asset requests are required for script unit {unit_id}")
+
+            visual_id = str(visual_request.get("asset_request_id") or "")
+            voice_id = str(voice_request.get("asset_request_id") or "")
+            visual = by_request.get(visual_id) or by_unit_type.get((unit_id, "visual"))
+            voice = by_request.get(voice_id) or by_unit_type.get((unit_id, "voice"))
+            if visual is None or voice is None:
+                raise AssemblyError(f"visual and voice assets are required for script unit {unit_id}")
+
             sequence.append({
                 "position": index,
                 "script_unit_id": unit_id,
                 "kind": str(unit.get("kind") or ""),
                 "text": str(unit.get("text") or ""),
                 "visual_intent": str(unit.get("visual_intent") or ""),
-                "asset_id": asset.asset_id,
-                "asset_uri": asset.uri,
-                "asset_type": asset.asset_type,
-                "voice_uri": str(asset.metadata.get("voice_uri") or ""),
-                "claim_refs": list(dict.fromkeys(asset.claim_refs)),
-                "evidence_refs": list(dict.fromkeys(asset.evidence_refs)),
+                "asset_id": visual.asset_id,
+                "asset_uri": visual.uri,
+                "asset_type": visual.asset_type,
+                "voice_asset_id": voice.asset_id,
+                "voice_uri": voice.uri,
+                "voice_asset_type": voice.asset_type,
+                "claim_refs": list(dict.fromkeys(visual.claim_refs + voice.claim_refs)),
+                "evidence_refs": list(dict.fromkeys(visual.evidence_refs + voice.evidence_refs)),
             })
 
         output_dir = self.root / "outputs" / run_id
