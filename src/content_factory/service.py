@@ -22,6 +22,7 @@ from .asset_registry import AssetRegistry
 from .factory_control import FactoryControlStore
 from .gemini_adapter import GeminiOpenAICompatibleAdapter
 from .knowledge import KnowledgeStore
+from .local_adapter import LocalTextAdapter
 from .openai_capability import openai_text_capability
 from .runtime import (
     AcceptanceDecision,
@@ -126,7 +127,7 @@ class FactoryService:
     @staticmethod
     def _build_provider() -> tuple[str, Capability]:
         configured = os.environ.get("FACTORY_PROVIDER", "").strip().lower()
-        provider = configured or ("gemini" if os.environ.get("GEMINI_API_KEY", "").strip() else "openai")
+        provider = configured or ("gemini" if os.environ.get("GEMINI_API_KEY", "").strip() else ("openai" if os.environ.get("OPENAI_API_KEY", "").strip() else "local"))
         if provider == "gemini":
             adapter = GeminiOpenAICompatibleAdapter()
             capability = text_generation_capability(
@@ -138,7 +139,16 @@ class FactoryService:
             return provider, capability
         if provider == "openai":
             return provider, openai_text_capability()
-        raise ValueError("FACTORY_PROVIDER must be 'gemini' or 'openai'")
+        if provider == "local":
+            adapter = LocalTextAdapter()
+            capability = text_generation_capability(
+                capability_id="local.text.generate",
+                provider=adapter,
+                generate=adapter.generate,
+                response_text=adapter.response_text,
+            )
+            return provider, capability
+        raise ValueError("FACTORY_PROVIDER must be 'gemini', 'openai', or 'local'" )
 
     @property
     def content_runs(self) -> ContentRunStore:
