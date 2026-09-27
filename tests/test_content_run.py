@@ -178,3 +178,56 @@ def test_get_missing_run_returns_404(tmp_path):
     assert handler.status == 404
     assert handler.body["error"] == "content run not found"
     store.close()
+
+
+def test_execute_persists_durable_knowledge_refs(tmp_path, monkeypatch):
+    from content_factory import product_http
+
+    store = ContentRunStore(tmp_path / "runs.sqlite3")
+    created = store.create(title="Future cities", brief="Research future cities", formats=("article",))
+
+    class FakeKnowledge:
+        def counts(self):
+            return {"sources": 1, "evidence": 1, "claims": 1, "accepted_claims": 1, "candidate_claims": 0, "editorial_angles": 0, "runs": 1}
+
+    class FakeService:
+        knowledge = FakeKnowledge()
+
+    class FakeResult:
+        run_id = created.run_id
+        brief = created.brief
+        research = {
+            "claims": [{"id": "claim-1", "text": "A durable claim"}],
+            "sources": [{"id": "source-1", "title": "Source", "url": "https://example.com"}],
+            "knowledge_refs": {
+                "claims": {"claim-1": "kc-durable"},
+                "sources": {"source-1": "ks-durable"},
+                "evidence": {"evidence-1": "ke-durable"},
+            },
+        }
+        package = {"topic": "Future cities", "package": [{"id": "asset-1", "format": "article", "content": "draft", "claim_refs": ["claim-1"], "source_refs": ["source-1"]}]}
+        quality = {"status": "PASS"}
+
+    class FakeSlice:
+        def __init__(self, knowledge_store=None):
+            assert knowledge_store is not None
+        def run(self, **kwargs):
+            assert kwargs["run_id"] == created.run_id
+            return FakeResult()
+        @staticmethod
+        def to_dict(result):
+            return {"run_id": result.run_id, "brief": result.brief, "research": result.research, "package": result.package, "quality": result.quality}
+
+    handler = DummyRunsHandler(f"/api/runs/{created.run_id}/execute")
+    handler.content_runs = store
+    handler.service = FakeService()
+    monkeypatch.setattr(product_http, "ContentFactoryVerticalSlice", FakeSlice)
+
+    ProductHandler.do_POST(handler)
+
+    assert handler.status == 200
+    persisted = store.get(created.run_id)
+    assert persisted is not None
+    assert persisted.status == "REVIEW"
+    assert persisted.result["research"]["knowledge_refs"] == FakeResult.research["knowledge_refs"]
+    store.close()
