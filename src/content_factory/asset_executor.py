@@ -7,6 +7,8 @@ import struct
 import wave
 import zlib
 import urllib.request
+import subprocess
+import textwrap
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -106,9 +108,72 @@ class AssetExecutor:
                     "path": str(path),
                 },
             )
+        if provider == "local_media":
+            return self._execute_local_media(job)
         if provider == "higgsfield":
             return self._submit_higgsfield(job)
         raise AssetExecutionError("FACTORY_ASSET_PROVIDER must be 'stub' or 'higgsfield'")
+
+    def _execute_local_media(self, job: AssetJob) -> AssetExecution:
+        """Create useful local media without cloud credentials."""
+        digest = hashlib.sha256(f"{job.run_id}:{job.asset_request_id}:{job.script_unit_id}".encode()).hexdigest()[:16]
+        directory = self.root / "asset_jobs" / job.run_id
+        directory.mkdir(parents=True, exist_ok=True)
+        if job.asset_type == "visual":
+            path = directory / f"{job.asset_request_id}.png"
+            self._write_editorial_visual(path, job)
+        elif job.asset_type == "voice":
+            path = directory / f"{job.asset_request_id}.wav"
+            self._write_sapi_voice(path, job)
+        else:
+            raise AssetExecutionError("local_media supports visual and voice assets only")
+        return AssetExecution(provider="local_media", state="COMPLETED", result={"asset_id": f"asset-{digest}", "job_id": job.job_id, "type": job.asset_type, "status": "DRAFT", "claim_refs": list(job.claim_refs), "evidence_refs": list(job.evidence_refs), "acceptance_criteria": list(job.acceptance_criteria), "provider": "local_media", "path": str(path)})
+
+    @staticmethod
+    def _write_editorial_visual(path: Path, job: AssetJob) -> None:
+        from PIL import Image, ImageDraw, ImageFont
+        width, height = 1080, 1920
+        digest = hashlib.sha256(f"{job.run_id}:{job.asset_request_id}".encode()).digest()
+        base = (18 + digest[0] % 18, 22 + digest[1] % 18, 30 + digest[2] % 18)
+        accent = (80 + digest[3] % 80, 110 + digest[4] % 80, 150 + digest[5] % 70)
+        image = Image.new("RGB", (width, height), base)
+        draw = ImageDraw.Draw(image)
+        for y in range(height):
+            ratio = y / (height - 1)
+            color = tuple(int(base[i] * (1 - ratio) + accent[i] * ratio) for i in range(3))
+            draw.line((0, y, width, y), fill=color)
+        draw.ellipse((700, 180, 1260, 740), fill=accent)
+        draw.rectangle((70, 1450, 1010, 1510), fill=(235, 235, 235))
+        font_path = Path("C:/Windows/Fonts/arial.ttf")
+        font = ImageFont.truetype(str(font_path), 62) if font_path.is_file() else ImageFont.load_default()
+        small = ImageFont.truetype(str(font_path), 38) if font_path.is_file() else ImageFont.load_default()
+        scene = job.script_unit_id.replace("unit-", "") or "1"
+        draw.text((70, 180), f"SCENE {scene}", font=font, fill=(250, 250, 250))
+        lines = textwrap.wrap(" · ".join(job.acceptance_criteria) or "evidence-grounded production", width=32)
+        y = 1580
+        for line in lines[:4]:
+            draw.text((70, y), line, font=small, fill=(245, 245, 245))
+            y += 52
+        image.save(path, format="PNG")
+
+    @staticmethod
+    def _write_sapi_voice(path: Path, job: AssetJob) -> None:
+        if os.name != "nt":
+            raise AssetExecutionError("local_media voice requires Windows SAPI")
+        text_value = f"Scene {job.script_unit_id.replace('unit-', '')}. Evidence-grounded narration. The story stays within the supplied evidence and its stated limits."
+        escaped = text_value.replace("'", "''")
+        target = str(path.resolve()).replace("'", "''")
+        script = textwrap.dedent(f"""
+            Add-Type -AssemblyName System.Speech
+            $s = New-Object System.Speech.Synthesis.SpeechSynthesizer
+            $s.SetOutputToWaveFile('{target}')
+            $s.Speak('{escaped}')
+            $s.Dispose()
+        """).strip()
+        completed = subprocess.run(["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", script], capture_output=True, text=True, encoding="utf-8", errors="replace")
+        if completed.returncode != 0 or not path.is_file() or path.stat().st_size == 0:
+            detail = (completed.stderr or completed.stdout or "unknown SAPI error").strip()
+            raise AssetExecutionError(f"Windows SAPI voice generation failed: {detail}")
 
     @staticmethod
     def _write_stub_png(path: Path, seed: str) -> None:
