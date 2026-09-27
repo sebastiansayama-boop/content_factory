@@ -80,6 +80,14 @@ class ProductHandler(Handler):
             run_id = self.path.removeprefix("/api/runs/").strip("/")
             if run_id.endswith("/plan"):
                 run_id = run_id.removesuffix("/plan").strip("/")
+            if run_id.endswith("/jobs"):
+                run_id = run_id.removesuffix("/jobs").strip("/")
+                run = self.content_runs.get(run_id)
+                if run is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                self._json(200, {"run_id": run_id, "jobs": [job.to_dict() for job in self.service.asset_jobs.list_for_run(run_id)]})
+                return
             run = self.content_runs.get(run_id)
             if run is None:
                 self._json(404, {"error": "content run not found"})
@@ -93,8 +101,9 @@ class ProductHandler(Handler):
         is_run_plan = self.path.startswith("/api/runs/") and self.path.endswith("/plan")
         is_run_execute = self.path.startswith("/api/runs/") and self.path.endswith("/execute")
         is_run_build = self.path.startswith("/api/runs/") and self.path.endswith("/build")
+        is_run_produce = self.path.startswith("/api/runs/") and self.path.endswith("/produce")
         is_knowledge_promote = self.path.startswith("/api/knowledge/") and self.path.endswith("/promote")
-        if self.path not in {"/api/analyze", "/api/produce", "/api/regenerate", "/api/runs"} and not is_run_plan and not is_run_execute and not is_knowledge_promote and not is_run_build:
+        if self.path not in {"/api/analyze", "/api/produce", "/api/regenerate", "/api/runs"} and not is_run_plan and not is_run_execute and not is_knowledge_promote and not is_run_build and not is_run_produce:
             super().do_POST()
             return
 
@@ -145,6 +154,37 @@ class ProductHandler(Handler):
                     self.content_runs.mark_failed(run_id)
                     raise
                 self._json(200, updated.to_dict())
+                return
+
+            if is_run_produce:
+                run_id = self.path.removeprefix("/api/runs/").removesuffix("/produce").strip("/")
+                if not run_id:
+                    raise ValueError("content run id is required")
+                run = self.content_runs.get(run_id)
+                if run is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                result = run.result or {}
+                production_plan = result.get("production_plan") if isinstance(result, dict) else None
+                if not isinstance(production_plan, dict):
+                    raise ValueError("content run has no production plan; run /build first")
+                self.content_runs.start_producing(run_id)
+                try:
+                    jobs = self.service.asset_jobs.create_from_plan(run_id, production_plan)
+                    updated = self.content_runs.save_production_result(run_id, {
+                        **result,
+                        "production": {
+                            "status": "QUEUED",
+                            "job_ids": [job.job_id for job in jobs],
+                        },
+                    })
+                except Exception:
+                    self.content_runs.mark_failed(run_id)
+                    raise
+                self._json(200, {
+                    "run": updated.to_dict(),
+                    "jobs": [job.to_dict() for job in jobs],
+                })
                 return
 
             if is_run_execute:
