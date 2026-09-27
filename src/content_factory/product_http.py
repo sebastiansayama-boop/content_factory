@@ -51,7 +51,7 @@ class ProductHandler(Handler):
             self.wfile.write(raw)
             return
 
-        if self.path == "/api/runs" or self.path.startswith("/api/runs/"):
+        if self.path == "/api/knowledge" or self.path == "/api/runs" or self.path.startswith("/api/runs/"):
             if not self._protect_product_api():
                 return
             if self.path == "/api/regenerate":
@@ -69,6 +69,9 @@ class ProductHandler(Handler):
                     changed_claim_ids=changed_claim_ids,
                 )
                 self._json(200, result)
+                return
+            if self.path == "/api/knowledge":
+                self._json(200, {"counts": self.service.knowledge.counts()})
                 return
             if self.path == "/api/runs":
                 self._json(200, {"runs": [run.to_dict() for run in self.content_runs.list()]})
@@ -106,7 +109,7 @@ class ProductHandler(Handler):
                     return
                 self.content_runs.start_execution(run_id)
                 try:
-                    result = ContentFactoryVerticalSlice().run(
+                    result = ContentFactoryVerticalSlice(knowledge_store=self.service.knowledge).run(
                         run_id=run.run_id,
                         brief=run.brief,
                         formats=list(run.formats) or ["article", "social_post", "visual_card"],
