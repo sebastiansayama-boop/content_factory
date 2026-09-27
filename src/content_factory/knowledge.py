@@ -17,7 +17,7 @@ def _now() -> str:
 def _tokens(value: str) -> set[str]:
     return {
         token
-        for token in re.findall(r"[\\w-]{3,}", value.lower())
+        for token in re.findall(r"[\w-]{3,}", value.lower())
         if token not in {"the", "and", "for", "with", "that", "this", "from"}
     }
 
