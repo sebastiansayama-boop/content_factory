@@ -230,6 +230,23 @@ class ContentRunStore:
         assert run is not None
         return run
 
+    def save_research_result(self, run_id: str, result: dict[str, object]) -> ContentRun:
+        now = _now()
+        with self._connection:
+            cursor = self._connection.execute(
+                """
+                UPDATE content_runs
+                SET status = 'RESEARCH_READY', result_json = ?, updated_at = ?
+                WHERE run_id = ?
+                """,
+                (json.dumps(result, ensure_ascii=False), now, run_id),
+            )
+        if cursor.rowcount != 1:
+            raise ValueError("content run not found")
+        run = self.get(run_id)
+        assert run is not None
+        return run
+
     def save_result(self, run_id: str, result: dict[str, object]) -> ContentRun:
         now = _now()
         with self._connection:
