@@ -110,8 +110,14 @@ class ProductHandler(Handler):
         is_run_qc = self.path.startswith("/api/runs/") and self.path.endswith("/qc")
         is_run_approve = self.path.startswith("/api/runs/") and self.path.endswith("/approve")
         is_run_export = self.path.startswith("/api/runs/") and self.path.endswith("/export")
+        is_run_factory = self.path.startswith("/api/runs/") and self.path.endswith("/factory")
+        is_run_publish = self.path.startswith("/api/runs/") and self.path.endswith("/publish")
+        is_run_observe = self.path.startswith("/api/runs/") and self.path.endswith("/observe")
+        is_run_learn = self.path.startswith("/api/runs/") and self.path.endswith("/learn")
+        is_learning_promote = self.path.startswith("/api/learning/") and self.path.endswith("/promote")
+        is_run_replay = self.path.startswith("/api/runs/") and self.path.endswith("/replay")
         is_knowledge_promote = self.path.startswith("/api/knowledge/") and self.path.endswith("/promote")
-        if self.path not in {"/api/analyze", "/api/produce", "/api/regenerate", "/api/runs"} and not is_run_plan and not is_run_execute and not is_knowledge_promote and not is_run_build and not is_run_produce and not is_run_produce_execute and not is_run_produce_poll and not is_run_assemble and not is_run_qc and not is_run_approve and not is_run_export:
+        if self.path not in {"/api/analyze", "/api/produce", "/api/regenerate", "/api/runs"} and not is_run_plan and not is_run_execute and not is_knowledge_promote and not is_run_build and not is_run_produce and not is_run_produce_execute and not is_run_produce_poll and not is_run_assemble and not is_run_qc and not is_run_approve and not is_run_export and not is_run_factory and not is_run_publish and not is_run_observe and not is_run_learn and not is_learning_promote and not is_run_replay:
             super().do_POST()
             return
 
