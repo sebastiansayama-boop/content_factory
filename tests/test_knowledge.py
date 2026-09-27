@@ -105,3 +105,17 @@ def test_search_empty_query_returns_empty(tmp_path):
     store = KnowledgeStore(tmp_path / "knowledge.sqlite3")
     assert store.search("x") == {"claims": [], "sources": [], "editorial_angles": []}
     store.close()
+
+
+def test_resolve_research_refs_returns_durable_ids(tmp_path):
+    store = KnowledgeStore(tmp_path / "knowledge.sqlite3")
+    payload = research_payload()
+    store.capture(run_id="run-refs", research=payload)
+
+    refs = store.resolve_research_refs(payload)
+
+    assert set(refs) == {"claims", "sources", "evidence"}
+    assert refs["claims"]["claim-1"].startswith("kc-")
+    assert refs["sources"]["source-1"].startswith("ks-")
+    assert refs["evidence"]["evidence-1"].startswith("ke-")
+    store.close()
