@@ -19,6 +19,7 @@ from .asset_jobs import AssetJobStore
 from .asset_executor import AssetExecutor
 from .asset_poller import AssetJobPoller
 from .asset_registry import AssetRegistry
+from .factory_control import FactoryControlStore
 from .gemini_adapter import GeminiOpenAICompatibleAdapter
 from .knowledge import KnowledgeStore
 from .openai_capability import openai_text_capability
@@ -112,6 +113,7 @@ class FactoryService:
         self._asset_executor = AssetExecutor(self._asset_jobs, root)
         self._asset_poller = AssetJobPoller(self._asset_jobs)
         self._asset_registry = AssetRegistry(root / "assets.sqlite3")
+        self._control = FactoryControlStore(root / "factory_control.sqlite3")
         publisher_url = os.environ.get("PUBLISH_URL", "").strip()
         self._external_publisher_configured = bool(publisher_url)
         publisher = WebhookPublisher(publisher_url, os.environ.get("PUBLISH_AUTH_TOKEN")) if publisher_url else LocalReleasePublisher()
@@ -162,11 +164,16 @@ class FactoryService:
     def asset_registry(self) -> AssetRegistry:
         return self._asset_registry
 
+    @property
+    def control(self) -> FactoryControlStore:
+        return self._control
+
     def close(self) -> None:
         self._content_runs.close()
         self._knowledge.close()
         self._asset_jobs.close()
         self._asset_registry.close()
+        self._control.close()
         self._store.close()
 
     def health(self) -> dict[str, Any]:
