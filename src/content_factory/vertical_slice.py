@@ -95,7 +95,7 @@ class ContentFactoryVerticalSlice:
         if not brief.strip():
             raise ValueError("brief must not be empty")
         requested_formats = formats or ["article", "social_post", "visual_card"]
-        prior_knowledge = self.knowledge_store.search(brief) if self.knowledge_store else {
+        prior_knowledge = self.knowledge_store.search(brief, include_candidates=True) if self.knowledge_store else {
             "claims": [], "sources": [], "editorial_angles": []
         }
         prior_json = json.dumps(prior_knowledge, ensure_ascii=False)
