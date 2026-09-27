@@ -210,6 +210,8 @@ class AssetJobStore:
             claim_refs=tuple(json.loads(row["claim_refs_json"])),
             evidence_refs=tuple(json.loads(row["evidence_refs_json"])),
             acceptance_criteria=tuple(json.loads(row["acceptance_criteria_json"])),
+            input_text=row["input_text"] if "input_text" in row.keys() else "",
+            visual_intent=row["visual_intent"] if "visual_intent" in row.keys() else "",
             result=json.loads(row["result_json"]) if row["result_json"] else None,
             created_at=row["created_at"],
             updated_at=row["updated_at"],
