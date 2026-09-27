@@ -4,14 +4,32 @@ from content_factory.research import OpenAIWebResearchAdapter
 from content_factory.vertical_slice import ContentFactoryVerticalSlice, quality_check
 
 
-class PromptRecordingFakeResearchAdapter(FakeResearchAdapter):
+class PromptRecordingFakeResearchAdapter:
     def __init__(self):
-        super().__init__()
+        self.calls = 0
         self.prompts = []
 
     def research(self, prompt: str) -> ExternalCallResult:
+        self.calls += 1
         self.prompts.append(prompt)
-        return super().research(prompt)
+        if self.calls == 1:
+            text = '{"topic":"Convergent evolution","summary":"Similar pressures can produce similar traits.","claims":[{"id":"claim-1","text":"Similar environmental pressures can produce similar traits.","confidence":"high","source_ids":["source-1"]}],"sources":[{"id":"source-1","title":"Example source","url":"https://example.com/source"}],"editorial_angles":["similar problems can produce similar biological solutions"]}'
+        else:
+            text = '{"title":"Generated asset","content":"A grounded draft.","claim_refs":["claim-1"],"source_refs":["source-1"]}'
+        return ExternalCallResult(
+            integration_id="fake.research",
+            status_code=200,
+            response_id=f"resp-{self.calls}",
+            payload={"output":[{"type":"message","content":[{"type":"output_text","text":text}]}]},
+        )
+
+    @staticmethod
+    def text(result: ExternalCallResult) -> str:
+        return OpenAIWebResearchAdapter.text(result)
+
+    @staticmethod
+    def sources(result: ExternalCallResult) -> list[dict[str, str]]:
+        return []
 
 
 class FakeResearchAdapter:
