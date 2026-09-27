@@ -210,6 +210,26 @@ class ContentRunStore:
         assert run is not None
         return run
 
+    def start_producing(self, run_id: str) -> ContentRun:
+        now = _now()
+        with self._connection:
+            cursor = self._connection.execute(
+                """
+                UPDATE content_runs
+                SET status = 'PRODUCING', updated_at = ?
+                WHERE run_id = ? AND status IN ('REVIEW', 'PLANNING', 'FAILED')
+                """,
+                (now, run_id),
+            )
+        if cursor.rowcount != 1:
+            run = self.get(run_id)
+            if run is None:
+                raise ValueError("content run not found")
+            raise ValueError(f"content run cannot start production from status {run.status}")
+        run = self.get(run_id)
+        assert run is not None
+        return run
+
     def save_result(self, run_id: str, result: dict[str, object]) -> ContentRun:
         now = _now()
         with self._connection:
