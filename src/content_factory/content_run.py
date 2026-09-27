@@ -160,7 +160,7 @@ class ContentRunStore:
                 """
                 UPDATE content_runs
                 SET status = 'PLANNING', updated_at = ?
-                WHERE run_id = ? AND status IN ('DRAFT', 'FAILED')
+                WHERE run_id = ? AND status IN ('DRAFT', 'FAILED', 'RESEARCH_READY')
                 """,
                 (now, run_id),
             )
