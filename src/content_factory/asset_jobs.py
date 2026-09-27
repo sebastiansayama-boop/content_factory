@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-JOB_STATUSES = {"QUEUED", "RUNNING", "COMPLETED", "FAILED"}
+JOB_STATUSES = {"QUEUED", "RUNNING", "SUBMITTED", "COMPLETED", "FAILED"}
 
 
 def _now() -> str:
@@ -156,7 +156,8 @@ class AssetJobStore:
             raise ValueError("asset job not found")
         allowed = {
             "QUEUED": {"RUNNING", "FAILED"},
-            "RUNNING": {"COMPLETED", "FAILED"},
+            "RUNNING": {"SUBMITTED", "COMPLETED", "FAILED"},
+            "SUBMITTED": {"COMPLETED", "FAILED"},
             "COMPLETED": set(),
             "FAILED": {"RUNNING"},
         }
