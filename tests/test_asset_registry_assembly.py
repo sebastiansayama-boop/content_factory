@@ -13,18 +13,27 @@ def test_completed_jobs_become_registered_assets_and_assemble(tmp_path, monkeypa
         "format": "short_video",
         "asset_requests": [
             {
-                "asset_request_id": "request-1",
+                "asset_request_id": "request-visual",
                 "script_unit_id": "unit-1",
                 "type": "visual",
                 "claim_refs": ["kc-1"],
                 "evidence_refs": ["ke-1"],
                 "acceptance_criteria": ["preserve provenance"],
-            }
+            },
+            {
+                "asset_request_id": "request-voice",
+                "script_unit_id": "unit-1",
+                "type": "voice",
+                "claim_refs": ["kc-1"],
+                "evidence_refs": ["ke-1"],
+                "acceptance_criteria": ["preserve provenance"],
+            },
         ],
     }
     jobs.create_from_plan("run-1", plan)
     completed = AssetExecutor(jobs, tmp_path).execute_run("run-1")
-    asset = registry.register_completed_job(completed[0])
+    assets = [registry.register_completed_job(job) for job in completed]
+    asset = next(item for item in assets if item.asset_type == "visual")
 
     output = ContentAssembler(registry, tmp_path).assemble(
         run_id="run-1",
@@ -47,12 +56,13 @@ def test_completed_jobs_become_registered_assets_and_assemble(tmp_path, monkeypa
     assert output["status"] == "ASSEMBLED"
     assert output["sequence"][0]["asset_id"] == asset.asset_id
     assert output["sequence"][0]["claim_refs"] == ["kc-1"]
+    assert output["sequence"][0]["voice_uri"].endswith(".wav")
 
     qc = QualityGate().evaluate(
         run_id="run-1",
         script={"units": [{"unit_id": "unit-1"}]},
         production_plan=plan,
-        assets=[asset],
+        assets=assets,
         output=output,
     )
     assert qc["passed"] is True
