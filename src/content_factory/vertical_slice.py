@@ -133,8 +133,11 @@ USER BRIEF:
             if not isinstance(refs, list) or not refs or not set(refs).issubset(source_ids):
                 raise ValueError(f"claim {claim.get('id')} has invalid source_ids")
         knowledge_capture = None
+        knowledge_refs = None
         if self.knowledge_store is not None:
             knowledge_capture = self.knowledge_store.capture(run_id=run_id, research=research)
+            knowledge_refs = self.knowledge_store.resolve_research_refs(research)
+            research["knowledge_refs"] = knowledge_refs
 
         topic = str(research.get("topic") or brief).strip()
         summary = str(research.get("summary") or "").strip()
