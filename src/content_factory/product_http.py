@@ -57,22 +57,6 @@ class ProductHandler(Handler):
         if self.path == "/api/knowledge" or self.path == "/api/runs" or self.path.startswith("/api/runs/"):
             if not self._protect_product_api():
                 return
-            if self.path == "/api/regenerate":
-                if not isinstance(payload.get("story"), dict):
-                    raise ValueError("story must be an object")
-                if not isinstance(payload.get("package"), dict):
-                    raise ValueError("package must be an object")
-                changed_claim_ids = payload.get("changed_claim_ids")
-                if not isinstance(changed_claim_ids, list) or not all(isinstance(value, str) for value in changed_claim_ids):
-                    raise ValueError("changed_claim_ids must be an array of strings")
-                result = self.workspace.regenerate(
-                    source=str(payload.get("source", "")),
-                    story=payload["story"],
-                    package=payload["package"],
-                    changed_claim_ids=changed_claim_ids,
-                )
-                self._json(200, result)
-                return
             if self.path == "/api/knowledge":
                 self._json(200, {"counts": self.service.knowledge.counts()})
                 return
@@ -89,6 +73,27 @@ class ProductHandler(Handler):
                     self._json(404, {"error": "content run not found"})
                     return
                 self._json(200, {"run_id": run_id, "jobs": [job.to_dict() for job in self.service.asset_jobs.list_for_run(run_id)]})
+                return
+            if run_id.endswith("/timeline"):
+                run_id = run_id.removesuffix("/timeline").strip("/")
+                if self.content_runs.get(run_id) is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                self._json(200, {"run_id": run_id, "events": [event.to_dict() for event in self.service.control.timeline(run_id)]})
+                return
+            if run_id.endswith("/publications"):
+                run_id = run_id.removesuffix("/publications").strip("/")
+                if self.content_runs.get(run_id) is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                self._json(200, {"run_id": run_id, "publications": self.service.control.list_publications(run_id)})
+                return
+            if run_id.endswith("/observations"):
+                run_id = run_id.removesuffix("/observations").strip("/")
+                if self.content_runs.get(run_id) is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                self._json(200, {"run_id": run_id, "observations": self.service.control.observations(run_id)})
                 return
             run = self.content_runs.get(run_id)
             if run is None:
