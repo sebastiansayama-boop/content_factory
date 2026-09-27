@@ -136,7 +136,7 @@ class WhisperStudioRenderer:
             "--language",
             "ru",
             "--duration",
-            "60",
+            str(len(shots) * 2),
             "--shots",
             str(len(shots)),
             "--resolution",
