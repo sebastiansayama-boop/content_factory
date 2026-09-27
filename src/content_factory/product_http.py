@@ -103,8 +103,9 @@ class ProductHandler(Handler):
         is_run_build = self.path.startswith("/api/runs/") and self.path.endswith("/build")
         is_run_produce = self.path.startswith("/api/runs/") and self.path.endswith("/produce")
         is_run_produce_execute = self.path.startswith("/api/runs/") and self.path.endswith("/produce/execute")
+        is_run_produce_poll = self.path.startswith("/api/runs/") and self.path.endswith("/produce/poll")
         is_knowledge_promote = self.path.startswith("/api/knowledge/") and self.path.endswith("/promote")
-        if self.path not in {"/api/analyze", "/api/produce", "/api/regenerate", "/api/runs"} and not is_run_plan and not is_run_execute and not is_knowledge_promote and not is_run_build and not is_run_produce and not is_run_produce_execute:
+        if self.path not in {"/api/analyze", "/api/produce", "/api/regenerate", "/api/runs"} and not is_run_plan and not is_run_execute and not is_knowledge_promote and not is_run_build and not is_run_produce and not is_run_produce_execute and not is_run_produce_poll:
             super().do_POST()
             return
 
@@ -155,6 +156,31 @@ class ProductHandler(Handler):
                     self.content_runs.mark_failed(run_id)
                     raise
                 self._json(200, updated.to_dict())
+                return
+
+            if is_run_produce_poll:
+                run_id = self.path.removeprefix("/api/runs/").removesuffix("/produce/poll").strip("/")
+                if not run_id:
+                    raise ValueError("content run id is required")
+                run = self.content_runs.get(run_id)
+                if run is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                jobs = self.service.asset_poller.poll_run(run_id)
+                statuses = [job.status for job in jobs]
+                overall = "COMPLETED" if jobs and all(status == "COMPLETED" for status in statuses) else (
+                    "FAILED" if any(status == "FAILED" for status in statuses) else "SUBMITTED"
+                )
+                result = {
+                    **(run.result or {}),
+                    "production": {
+                        **((run.result or {}).get("production") or {}),
+                        "status": overall,
+                        "jobs": [job.to_dict() for job in jobs],
+                    },
+                }
+                updated = self.content_runs.save_production_result(run_id, result)
+                self._json(200, {"run": updated.to_dict(), "jobs": [job.to_dict() for job in jobs]})
                 return
 
             if is_run_produce_execute:
