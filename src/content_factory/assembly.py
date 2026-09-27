@@ -56,6 +56,7 @@ class ContentAssembler:
                 "asset_id": asset.asset_id,
                 "asset_uri": asset.uri,
                 "asset_type": asset.asset_type,
+                "voice_uri": str(asset.metadata.get("voice_uri") or ""),
                 "claim_refs": list(dict.fromkeys(asset.claim_refs)),
                 "evidence_refs": list(dict.fromkeys(asset.evidence_refs)),
             })
