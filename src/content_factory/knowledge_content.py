@@ -250,20 +250,30 @@ CONTENT SPEC:
         if not script.script_id:
             raise WorkspaceError("script requires script_id")
 
+        asset_requests = []
+        for index, unit in enumerate(script.units, start=1):
+            common = {
+                "script_unit_id": unit.unit_id,
+                "claim_refs": list(unit.claim_refs),
+                "evidence_refs": list(unit.evidence_refs),
+                "acceptance_criteria": ["preserve script intent", "preserve provenance"],
+            }
+            asset_requests.extend(
+                [
+                    common | {
+                        "asset_request_id": f"asset-request-{run_id}-{index}-visual",
+                        "type": "visual",
+                    },
+                    common | {
+                        "asset_request_id": f"asset-request-{run_id}-{index}-voice",
+                        "type": "voice",
+                    },
+                ]
+            )
         production_plan = {
             "production_plan_id": f"production-{run_id}",
             "format": spec.format,
-            "asset_requests": [
-                {
-                    "asset_request_id": f"asset-request-{run_id}-{index + 1}",
-                    "script_unit_id": unit.unit_id,
-                    "type": "visual" if unit.visual_intent else "text",
-                    "claim_refs": list(unit.claim_refs),
-                    "evidence_refs": list(unit.evidence_refs),
-                    "acceptance_criteria": ["preserve script intent", "preserve provenance"],
-                }
-                for index, unit in enumerate(script.units)
-            ],
+            "asset_requests": asset_requests,
         }
         result = {
             "editorial": {
