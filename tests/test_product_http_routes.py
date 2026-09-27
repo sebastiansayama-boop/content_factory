@@ -153,5 +153,30 @@ def test_factory_research_review_then_builds_production(tmp_path, monkeypatch):
         assert result["production"]["status"] == "READY_FOR_REVIEW"
         assert second.response["qc"]["status"] == "PASSED"
         assert service.content_runs.get(run.run_id).status == "REVIEW"
+
+        approve = DummyHandler(f"/api/runs/{run.run_id}/approve", {"decision_ref": "TEST-HUMAN-APPROVAL"})
+        approve.content_runs = service.content_runs
+        approve.service = service
+        approve.workspace = handler.workspace
+        ProductHandler.do_POST(approve)
+        assert approve.status == 200, approve.response
+        assert approve.response["status"] == "APPROVED"
+
+        export = DummyHandler(f"/api/runs/{run.run_id}/export", {})
+        export.content_runs = service.content_runs
+        export.service = service
+        export.workspace = handler.workspace
+        ProductHandler.do_POST(export)
+        assert export.status == 200, export.response
+        assert export.response["export"]["artifact_type"] == "content_package"
+        assert service.content_runs.get(run.run_id).status == "EXPORTED"
+
+        publish = DummyHandler(f"/api/runs/{run.run_id}/publish", {"channel": "local"})
+        publish.content_runs = service.content_runs
+        publish.service = service
+        publish.workspace = handler.workspace
+        ProductHandler.do_POST(publish)
+        assert publish.status == 200, publish.response
+        assert publish.response["externally_observable"] is False
     finally:
         service.close()
