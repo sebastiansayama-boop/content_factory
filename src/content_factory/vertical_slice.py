@@ -7,6 +7,7 @@ from typing import Any
 
 from .knowledge import KnowledgeStore
 from .research import OpenAIWebResearchAdapter, parse_research_json
+from .local_research import LocalResearchAdapter
 
 
 @dataclass(frozen=True)
@@ -88,7 +89,7 @@ class ContentFactoryVerticalSlice:
         research_adapter: OpenAIWebResearchAdapter | None = None,
         knowledge_store: KnowledgeStore | None = None,
     ) -> None:
-        self.research_adapter = research_adapter or OpenAIWebResearchAdapter()
+        self.research_adapter = research_adapter or (OpenAIWebResearchAdapter() if __import__("os").getenv("OPENAI_API_KEY") else LocalResearchAdapter())
         self.knowledge_store = knowledge_store
 
     def run(self, *, run_id: str, brief: str, formats: list[str] | None = None) -> VerticalSliceResult:
