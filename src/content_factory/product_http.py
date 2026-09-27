@@ -125,6 +125,130 @@ class ProductHandler(Handler):
             return
 
         try:
+            if is_learning_promote:
+                learning_id = self.path.removeprefix("/api/learning/").removesuffix("/promote").strip("/")
+                payload = self._body()
+                result = self.service.control.promote_learning(learning_id, str(payload.get("decision_ref", "")))
+                self._json(200, result)
+                return
+
+            if is_run_replay:
+                run_id = self.path.removeprefix("/api/runs/").removesuffix("/replay").strip("/")
+                run = self.content_runs.get(run_id)
+                if run is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                payload = self._body()
+                changed = payload.get("changed_claim_ids", [])
+                if not isinstance(changed, list) or not all(isinstance(v, str) for v in changed):
+                    raise ValueError("changed_claim_ids must be an array of strings")
+                result = self.service.control.replay_plan(run.to_dict(), changed_claim_ids=changed, changes=payload.get("changes"))
+                self.service.control.record(run_id, "replay.planned", input_refs=tuple(changed), output_refs=tuple(result["regenerate_asset_ids"]))
+                self._json(200, result)
+                return
+
+            if is_run_publish:
+                run_id = self.path.removeprefix("/api/runs/").removesuffix("/publish").strip("/")
+                run = self.content_runs.get(run_id)
+                if run is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                if run.status != "APPROVED":
+                    raise ValueError("only APPROVED runs can be published")
+                payload = self._body()
+                channel = str(payload.get("channel", "")).strip()
+                if not channel:
+                    raise ValueError("channel is required")
+                content_ref = str(payload.get("content_ref") or (run.result or {}).get("export", {}).get("artifact") or run_id)
+                prepared = self.service.control.prepare_publication(run_id, channel, content_ref, payload.get("content") if isinstance(payload.get("content"), dict) else (run.result or {}))
+                published = self.service.control.publish(
+                    prepared["publication_id"],
+                    url=os.environ.get("PUBLISH_URL", "").strip() or None,
+                    token=os.environ.get("PUBLISH_AUTH_TOKEN"),
+                )
+                self._json(200, published)
+                return
+
+            if is_run_observe:
+                run_id = self.path.removeprefix("/api/runs/").removesuffix("/observe").strip("/")
+                if self.content_runs.get(run_id) is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                payload = self._body()
+                publication_id = str(payload.get("publication_id", "")).strip()
+                metrics = payload.get("metrics")
+                if not publication_id or not isinstance(metrics, dict):
+                    raise ValueError("publication_id and metrics object are required")
+                result = self.service.control.observe(publication_id, metrics, str(payload.get("source") or "api"))
+                self._json(201, result)
+                return
+
+            if is_run_learn:
+                run_id = self.path.removeprefix("/api/runs/").removesuffix("/learn").strip("/")
+                if self.content_runs.get(run_id) is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                payload = self._body()
+                observations = payload.get("observation_ids", [])
+                if not isinstance(observations, list) or not all(isinstance(v, str) for v in observations):
+                    raise ValueError("observation_ids must be an array of strings")
+                result = self.service.control.create_learning(
+                    run_id, observations, str(payload.get("hypothesis", "")),
+                    payload.get("proposed_changes") if isinstance(payload.get("proposed_changes"), dict) else {},
+                )
+                self._json(201, result)
+                return
+
+            if is_run_factory:
+                run_id = self.path.removeprefix("/api/runs/").removesuffix("/factory").strip("/")
+                run = self.content_runs.get(run_id)
+                if run is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                try:
+                    if run.status == "DRAFT":
+                        self.content_runs.start_planning(run_id)
+                        run = self.content_runs.get(run_id)
+                    self.service.control.record(run_id, "factory.started", status="RUNNING", actor="api")
+                    result = KnowledgeContentBuilder(self.workspace, self.service.knowledge).build(
+                        run_id=run_id, topic=run.title or run.brief, audience=run.audience,
+                        goal=run.goal, formats=list(run.formats), constraints=list(run.constraints),
+                    )
+                    run = self.content_runs.save_result(run_id, {"run_id": run_id, "brief": run.brief, **result})
+                    self.service.control.record(run_id, "editorial.built", output_refs=("content_spec", "script", "production_plan"))
+                    self.content_runs.start_producing(run_id)
+                    jobs = self.service.asset_jobs.create_from_plan(run_id, result["production_plan"])
+                    run = self.content_runs.save_production_result(run_id, {
+                        **(run.result or {}),
+                        "production": {"status": "QUEUED", "job_ids": [j.job_id for j in jobs]},
+                    })
+                    self.service.control.record(run_id, "production.queued", output_refs=tuple(j.job_id for j in jobs))
+                    jobs = self.service.asset_executor.execute_run(run_id)
+                    run = self.content_runs.save_production_result(run_id, {
+                        **(run.result or {}),
+                        "production": {"status": "COMPLETED", "jobs": [j.to_dict() for j in jobs]},
+                    })
+                    self.service.control.record(run_id, "production.completed", output_refs=tuple(j.job_id for j in jobs))
+                    assets = [self.service.asset_registry.register_completed_job(j).to_dict() for j in jobs]
+                    output = ContentAssembler(self.service.asset_registry, os.environ.get("FACTORY_DATA_DIR", "./data")).assemble(
+                        run_id=run_id, script=run.result.get("script") or {}, production_plan=run.result.get("production_plan") or {}
+                    )
+                    run = self.content_runs.save_production_result(run_id, {
+                        **(run.result or {}), "production": {"status": "ASSEMBLED", "jobs": [j.to_dict() for j in jobs], "assets": assets, "output": output},
+                    })
+                    self.service.control.record(run_id, "assembly.completed", output_refs=(output["output_id"],))
+                    qc = QualityGate().evaluate(run_id=run_id, script=run.result.get("script") or {},
+                        production_plan=run.result.get("production_plan") or {}, assets=self.service.asset_registry.list_for_run(run_id), output=output)
+                    final = {**(run.result or {}), "production": {**(run.result.get("production") or {}), "status": "READY_FOR_REVIEW" if qc["passed"] else "QC_FAILED", "qc": qc}}
+                    run = self.content_runs.save_result(run_id, final) if qc["passed"] else self.content_runs.save_production_result(run_id, final)
+                    self.service.control.record(run_id, "qc.completed", status="COMPLETED" if qc["passed"] else "FAILED", output_refs=(qc["qc_id"],), evidence=qc)
+                    self._json(200, {"run": run.to_dict(), "qc": qc, "events": [e.to_dict() for e in self.service.control.timeline(run_id)]})
+                except Exception:
+                    self.content_runs.mark_failed(run_id)
+                    self.service.control.record(run_id, "factory.failed", status="FAILED", actor="api")
+                    raise
+                return
+
             if is_knowledge_promote:
                 claim_id = self.path.removeprefix("/api/knowledge/").removesuffix("/promote").strip("/")
                 if not claim_id:
