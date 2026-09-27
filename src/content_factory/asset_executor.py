@@ -48,8 +48,8 @@ class AssetExecutor:
             running = self.jobs.mark_running(job.job_id)
             try:
                 execution = self._execute(running)
-                if execution.state == "COMPLETED":
-                    output.append(self.jobs.complete(job.job_id, execution.result))
+                if execution.state == "SUBMITTED":
+                    output.append(self.jobs._transition(job.job_id, "SUBMITTED", execution.result))
                 else:
                     output.append(self.jobs.complete(job.job_id, execution.result))
             except Exception as exc:
@@ -132,7 +132,7 @@ class AssetExecutor:
             raise AssetExecutionError("higgsfield response did not contain request_id")
         return AssetExecution(
             provider="higgsfield",
-            state="COMPLETED",
+            state="SUBMITTED",
             result={
                 "provider": "higgsfield",
                 "provider_request_id": str(request_id),
