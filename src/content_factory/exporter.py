@@ -6,38 +6,52 @@ import shutil
 from pathlib import Path
 from typing import Any
 
+from .renderer import Renderer, build_renderer
+
 
 class ExportError(ValueError):
     pass
 
 
 class ContentExporter:
-    """Create a durable, hashable export package from an approved run."""
+    """Render an approved run and create a durable, hashable export manifest."""
 
-    def __init__(self, root: str | Path) -> None:
+    def __init__(self, root: str | Path, renderer: Renderer | None = None) -> None:
         self.root = Path(root)
+        self.renderer = renderer or build_renderer(self.root)
 
     def export(self, *, run_id: str, result: dict[str, Any]) -> dict[str, Any]:
         approval = result.get("approval")
         if not isinstance(approval, dict) or approval.get("status") != "APPROVED":
             raise ExportError("content run must have an explicit APPROVED decision")
+
         production = result.get("production")
         if not isinstance(production, dict):
             raise ExportError("production result is missing")
-        output = production.get("output")
-        if not isinstance(output, dict):
-            raise ExportError("assembled output is missing")
+        script = result.get("script")
+        if not isinstance(script, dict):
+            raise ExportError("script is missing")
 
-        source_uri = str(output.get("uri") or "").strip()
-        if not source_uri:
-            raise ExportError("assembled output has no uri")
-        source = Path(source_uri)
+        content_spec = result.get("content_spec")
+        title = (
+            str(content_spec.get("title"))
+            if isinstance(content_spec, dict) and content_spec.get("title")
+            else str(result.get("editorial", {}).get("selected_idea", {}).get("title") or run_id)
+        )
+        rendered = self.renderer.render(
+            run_id=run_id,
+            title=title,
+            script=script,
+            production=production,
+        )
+
+        source = Path(rendered.final_video)
         if not source.is_file():
-            raise ExportError("assembled output file does not exist")
+            raise ExportError("renderer returned a missing final video")
 
         export_dir = self.root / "exports" / run_id
         export_dir.mkdir(parents=True, exist_ok=True)
-        package_path = export_dir / source.name
+        package_path = export_dir / ("final" + (source.suffix or ".mp4"))
         if source.resolve() != package_path.resolve():
             shutil.copy2(source, package_path)
 
@@ -45,10 +59,14 @@ class ContentExporter:
             "export_id": f"export-{run_id}",
             "run_id": run_id,
             "decision_ref": approval.get("decision_ref"),
-            "source_output_id": output.get("output_id"),
+            "renderer": rendered.renderer,
+            "source_output_id": production.get("output", {}).get("output_id"),
+            "source_video": rendered.final_video,
             "artifact": package_path.name,
             "bytes": package_path.stat().st_size,
             "sha256": self._sha256(package_path),
+            "renderer_manifest": rendered.manifest,
+            "renderer_artifacts": rendered.artifacts,
             "status": "EXPORTED",
         }
         manifest_path = export_dir / "manifest.json"
