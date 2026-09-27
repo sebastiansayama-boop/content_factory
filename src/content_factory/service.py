@@ -16,6 +16,7 @@ from uuid import uuid4
 from .artifacts import ArtifactStore
 from .content_run import ContentRunStore
 from .asset_jobs import AssetJobStore
+from .asset_executor import AssetExecutor
 from .gemini_adapter import GeminiOpenAICompatibleAdapter
 from .knowledge import KnowledgeStore
 from .openai_capability import openai_text_capability
@@ -106,6 +107,7 @@ class FactoryService:
         self._content_runs = ContentRunStore(root / "content_runs.sqlite3")
         self._knowledge = KnowledgeStore(root / "knowledge.sqlite3")
         self._asset_jobs = AssetJobStore(root / "asset_jobs.sqlite3")
+        self._asset_executor = AssetExecutor(self._asset_jobs, root)
         publisher_url = os.environ.get("PUBLISH_URL", "").strip()
         self._external_publisher_configured = bool(publisher_url)
         publisher = WebhookPublisher(publisher_url, os.environ.get("PUBLISH_AUTH_TOKEN")) if publisher_url else LocalReleasePublisher()
@@ -143,6 +145,10 @@ class FactoryService:
     @property
     def asset_jobs(self) -> AssetJobStore:
         return self._asset_jobs
+
+    @property
+    def asset_executor(self) -> AssetExecutor:
+        return self._asset_executor
 
     def close(self) -> None:
         self._content_runs.close()
