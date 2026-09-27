@@ -356,14 +356,16 @@ class KnowledgeStore:
             first_seen_at=row["first_seen_at"],
         )
 
-    def search(self, query: str, *, limit: int = 8) -> dict[str, list[dict[str, Any]]]:
+    def search(self, query: str, *, limit: int = 8, include_candidates: bool = False) -> dict[str, list[dict[str, Any]]]:
         terms = _tokens(query)
         if not terms:
             return {"claims": [], "sources": [], "editorial_angles": []}
 
+        statuses = (self.ACCEPTED, self.CANDIDATE) if include_candidates else (self.ACCEPTED,)
+        placeholders = ",".join("?" for _ in statuses)
         claim_rows = self._connection.execute(
-            "SELECT claim_id,text,confidence,revision_id,scope FROM knowledge_claims WHERE status=?",
-            (self.ACCEPTED,),
+            f"SELECT claim_id,text,confidence,revision_id,scope,status FROM knowledge_claims WHERE status IN ({placeholders})",
+            statuses,
         ).fetchall()
         scored_claims: list[tuple[int, sqlite3.Row]] = []
         for row in claim_rows:
@@ -396,6 +398,7 @@ class KnowledgeStore:
                 "confidence": row["confidence"],
                 "revision_id": row["revision_id"],
                 "scope": row["scope"],
+                "status": row["status"],
                 "source_ids": [ref["source_id"] for ref in refs],
                 "evidence_ids": [ref["evidence_id"] for ref in evidence_refs],
             })
