@@ -177,6 +177,7 @@ def test_factory_research_review_then_builds_production(tmp_path, monkeypatch):
         publish.workspace = handler.workspace
         ProductHandler.do_POST(publish)
         assert publish.status == 200, publish.response
-        assert publish.response["externally_observable"] is False
+        assert publish.response["status"] == "PUBLISHED"
+        assert publish.response["external_id"].startswith("local-")
     finally:
         service.close()
