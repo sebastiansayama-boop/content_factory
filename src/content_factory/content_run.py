@@ -264,6 +264,73 @@ class ContentRunStore:
         assert run is not None
         return run
 
+    def approve(self, run_id: str, *, decision_ref: str) -> ContentRun:
+        decision_ref = decision_ref.strip()
+        if not decision_ref:
+            raise ValueError("decision_ref is required")
+        now = _now()
+        with self._connection:
+            cursor = self._connection.execute(
+                """
+                UPDATE content_runs
+                SET status = 'APPROVED', result_json = ?, updated_at = ?
+                WHERE run_id = ? AND status = 'REVIEW'
+                """,
+                (
+                    json.dumps(
+                        {
+                            **((self.get(run_id) or ContentRun("", "", "", "", "", (), (), "", None, None, "", "")).result or {}),
+                            "approval": {
+                                "status": "APPROVED",
+                                "decision_ref": decision_ref,
+                                "approved_at": now,
+                            },
+                        },
+                        ensure_ascii=False,
+                    ),
+                    now,
+                    run_id,
+                ),
+            )
+        if cursor.rowcount != 1:
+            run = self.get(run_id)
+            if run is None:
+                raise ValueError("content run not found")
+            raise ValueError(f"content run cannot be approved from status {run.status}")
+        run = self.get(run_id)
+        assert run is not None
+        return run
+
+    def mark_exported(self, run_id: str, export: dict[str, object]) -> ContentRun:
+        now = _now()
+        with self._connection:
+            cursor = self._connection.execute(
+                """
+                UPDATE content_runs
+                SET status = 'EXPORTED', result_json = ?, updated_at = ?
+                WHERE run_id = ? AND status = 'APPROVED'
+                """,
+                (
+                    json.dumps(
+                        {
+                            **((self.get(run_id) or ContentRun("", "", "", "", "", (), (), "", None, None, "", "")).result or {}),
+                            "export": export,
+                        },
+                        ensure_ascii=False,
+                    ),
+                    now,
+                    run_id,
+                ),
+            )
+        if cursor.rowcount != 1:
+            run = self.get(run_id)
+            if run is None:
+                raise ValueError("content run not found")
+            raise ValueError(f"content run cannot be exported from status {run.status}")
+        run = self.get(run_id)
+        assert run is not None
+        return run
+
     def mark_failed(self, run_id: str) -> ContentRun:
         now = _now()
         with self._connection:
