@@ -40,7 +40,7 @@
 </div>
 <button id="produce" class="btn" disabled>Produce package</button>
 <div id="package" class="package" style="margin-top:12px"></div>
-<div id="review" class="review hidden"><strong>Run review</strong><div id="reviewState" class="review-state">Not reviewed</div><div class="row"><button id="approve" class="btn">Approve</button><button id="export" class="btn secondary" disabled>Render & export</button><button id="publish" class="btn secondary" disabled>Publish</button></div><div class="key">Approval, export and publication are separate durable actions.</div></div><div class="row"><button id="approve" class="btn">Approve draft</button><button id="regenerate" class="btn secondary">Regenerate</button><button id="reject" class="btn secondary">Reject</button></div><div class="key">Review here controls the browser draft state only. Publication is not automated by this workspace.</div></div>
+<div id="review" class="review hidden"><strong>Run review</strong><div id="reviewState" class="review-state">Not reviewed</div><div class="row"><button id="approve" class="btn">Approve</button><button id="export" class="btn secondary" disabled>Render & export</button><button id="publish" class="btn secondary" disabled>Publish</button></div><div class="key">Approval, export and publication are separate durable actions.</div></div>
 </section>
 </div></div>
 <script>
@@ -120,8 +120,6 @@ function renderPackage(data){$("package").innerHTML=(data.package||[]).map(a=>`<
 $("approve").onclick=async()=>{try{const run=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/approve",{decision_ref:"browser-human-review"});renderFactoryRun(run);setStatus("Approved · render/export available")}catch(e){error(e.message)}};
 $("export").onclick=async()=>{try{const data=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/export",{});renderFactoryRun(data.run);setStatus("Exported: "+(data.export?.artifact||"artifact"))}catch(e){error(e.message)}};
 $("publish").onclick=async()=>{try{const data=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/publish",{channel:"webhook"});setStatus("Published · "+(data.external_id||data.publication_id))}catch(e){error(e.message)}};
-$("regenerate").onclick=()=>{if(currentRunId)setStatus("Use replay API for incremental regeneration")};
-$("reject").onclick=()=>{setStatus("Rejected in browser; no external effect")};
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 </script>
 </body></html>
