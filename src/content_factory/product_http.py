@@ -327,6 +327,7 @@ class ProductHandler(Handler):
                 except Exception:
                     self.content_runs.mark_failed(run_id)
                     raise
+                self.service.control.record(run_id, "export.completed", output_refs=(export.get("artifact", ""),), evidence=export)
                 self._json(200, {"run": updated.to_dict(), "export": export})
                 return
             if is_run_assemble:
@@ -358,6 +359,7 @@ class ProductHandler(Handler):
                 except Exception:
                     self.content_runs.mark_failed(run_id)
                     raise
+                self.service.control.record(run_id, "assembly.completed", output_refs=(output.get("output_id", ""),))
                 self._json(200, {"run": updated.to_dict(), "output": output})
                 return
 
@@ -389,6 +391,7 @@ class ProductHandler(Handler):
                     "production": {**production, "status": "READY_FOR_REVIEW" if qc["passed"] else "QC_FAILED", "qc": qc},
                 }
                 updated = self.content_runs.save_result(run_id, final_result) if qc["passed"] else self.content_runs.save_production_result(run_id, final_result)
+                self.service.control.record(run_id, "qc.completed", status="COMPLETED" if qc["passed"] else "FAILED", output_refs=(qc.get("qc_id", ""),), evidence=qc)
                 self._json(200, {"run": updated.to_dict(), "qc": qc})
                 return
             if is_run_produce_poll:
