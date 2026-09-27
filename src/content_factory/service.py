@@ -102,6 +102,7 @@ class FactoryService:
         self._store = RuntimeStore(root / "runtime.sqlite3")
         self._artifacts = ArtifactStore(root / "artifacts")
         self._content_runs = ContentRunStore(root / "content_runs.sqlite3")
+        self._knowledge = KnowledgeStore(root / "knowledge.sqlite3")
         publisher_url = os.environ.get("PUBLISH_URL", "").strip()
         self._external_publisher_configured = bool(publisher_url)
         publisher = WebhookPublisher(publisher_url, os.environ.get("PUBLISH_AUTH_TOKEN")) if publisher_url else LocalReleasePublisher()
@@ -132,8 +133,13 @@ class FactoryService:
     def content_runs(self) -> ContentRunStore:
         return self._content_runs
 
+    @property
+    def knowledge(self) -> KnowledgeStore:
+        return self._knowledge
+
     def close(self) -> None:
         self._content_runs.close()
+        self._knowledge.close()
         self._store.close()
 
     def health(self) -> dict[str, Any]:
