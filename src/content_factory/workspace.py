@@ -116,7 +116,11 @@ class ContentWorkspace:
         )
         execution = runtime.executions.get(item.work_item_id)
         if execution is None:
-            raise WorkspaceError(f"product work item did not produce an execution: {runtime.states[item.work_item_id].value}")
+            state = runtime.states[item.work_item_id].value
+            attempts = runtime.attempts.get(item.work_item_id, [])
+            reason = attempts[-1].get("error") if attempts else None
+            detail = f": {reason}" if reason else ""
+            raise WorkspaceError(f"product work item did not produce an execution: {state}{detail}")
         return {
             "work_item_id": item.work_item_id,
             "operation_id": item.operation_id,
