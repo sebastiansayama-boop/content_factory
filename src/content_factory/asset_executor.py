@@ -112,7 +112,7 @@ class AssetExecutor:
             return self._execute_local_media(job)
         if provider == "higgsfield":
             return self._submit_higgsfield(job)
-        raise AssetExecutionError("FACTORY_ASSET_PROVIDER must be 'stub' or 'higgsfield'")
+        raise AssetExecutionError("FACTORY_ASSET_PROVIDER must be 'stub', 'local_media' or 'higgsfield'")
 
     def _execute_local_media(self, job: AssetJob) -> AssetExecution:
         """Create useful local media without cloud credentials."""
