@@ -260,6 +260,8 @@ CONTENT SPEC:
                 "claim_refs": list(unit.claim_refs),
                 "evidence_refs": list(unit.evidence_refs),
                 "acceptance_criteria": ["preserve script intent", "preserve provenance"],
+                "text": unit.text,
+                "visual_intent": unit.visual_intent,
             }
             asset_requests.extend(
                 [
