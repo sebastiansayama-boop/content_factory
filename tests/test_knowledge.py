@@ -119,3 +119,43 @@ def test_resolve_research_refs_returns_durable_ids(tmp_path):
     assert refs["sources"]["source-1"].startswith("ks-")
     assert refs["evidence"]["evidence-1"].startswith("ke-")
     store.close()
+
+
+def test_accepted_knowledge_usage_is_explicit_and_candidates_are_blocked(tmp_path):
+    store = KnowledgeStore(tmp_path / "knowledge.sqlite3")
+    store.capture(run_id="run-1", research=research_payload())
+    claim_id = store._connection.execute(
+        "SELECT claim_id FROM knowledge_claims"
+    ).fetchone()["claim_id"]
+
+    try:
+        store.record_usage(
+            run_id="run-2",
+            target_ref="content-run:run-2",
+            claim_ids=[claim_id],
+        )
+    except ValueError as exc:
+        assert "cannot be used as reusable knowledge" in str(exc)
+    else:
+        raise AssertionError("candidate knowledge must not be recorded as reusable usage")
+
+    promoted = store.promote_claim(claim_id, decision_ref="DEC-TEST-002")
+    assert promoted.decision_ref == "DEC-TEST-002"
+    assert promoted.promoted_at
+
+    assert store.record_usage(
+        run_id="run-2",
+        target_ref="content-run:run-2",
+        claim_ids=[claim_id],
+    ) == 1
+    assert store.record_usage(
+        run_id="run-2",
+        target_ref="content-run:run-2",
+        claim_ids=[claim_id],
+    ) == 0
+
+    usages = store.usages_for_claim(claim_id)
+    assert len(usages) == 1
+    assert usages[0]["run_id"] == "run-2"
+    assert usages[0]["target_ref"] == "content-run:run-2"
+    store.close()
