@@ -13,7 +13,7 @@ class PromptRecordingFakeResearchAdapter:
         self.calls += 1
         self.prompts.append(prompt)
         if self.calls == 1:
-            text = '{"topic":"Convergent evolution","summary":"Similar pressures can produce similar traits.","claims":[{"id":"claim-1","text":"Similar environmental pressures can produce similar traits.","confidence":"high","source_ids":["source-1"]}],"sources":[{"id":"source-1","title":"Example source","url":"https://example.com/source"}],"editorial_angles":["similar problems can produce similar biological solutions"]}'
+            text = '{"topic":"Convergent evolution","summary":"Similar pressures can produce similar traits.","claims":[{"id":"claim-1","text":"Similar environmental pressures can produce similar traits.","confidence":"high","source_ids":["source-1"],"evidence_ids":["evidence-1"],"scope":"bounded evolutionary examples","known_unknowns":["This does not establish a universal law."]}],"sources":[{"id":"source-1","title":"Example source","url":"https://example.com/source"}],"evidence":[{"id":"evidence-1","source_id":"source-1","excerpt":"Similar environmental pressures can produce similar traits.","locator":"example passage","provenance":"example-source"}],"editorial_angles":["similar problems can produce similar biological solutions"]}'
         else:
             text = '{"title":"Generated asset","content":"A grounded draft.","claim_refs":["claim-1"],"source_refs":["source-1"]}'
         return ExternalCallResult(
@@ -39,7 +39,7 @@ class FakeResearchAdapter:
     def research(self, prompt: str) -> ExternalCallResult:
         self.calls += 1
         if self.calls == 1:
-            text = '{"topic":"Convergent evolution","summary":"Similar pressures can produce similar traits.","claims":[{"id":"claim-1","text":"Similar environmental pressures can produce similar traits.","confidence":"high","source_ids":["source-1"]}],"sources":[{"id":"source-1","title":"Example source","url":"https://example.com/source"}],"editorial_angles":["similar problems can produce similar biological solutions"]}'
+            text = '{"topic":"Convergent evolution","summary":"Similar pressures can produce similar traits.","claims":[{"id":"claim-1","text":"Similar environmental pressures can produce similar traits.","confidence":"high","source_ids":["source-1"],"evidence_ids":["evidence-1"],"scope":"bounded evolutionary examples","known_unknowns":["This does not establish a universal law."]}],"sources":[{"id":"source-1","title":"Example source","url":"https://example.com/source"}],"evidence":[{"id":"evidence-1","source_id":"source-1","excerpt":"Similar environmental pressures can produce similar traits.","locator":"example passage","provenance":"example-source"}],"editorial_angles":["similar problems can produce similar biological solutions"]}'
         else:
             text = '{"title":"Generated asset","content":"A grounded draft.","claim_refs":["claim-1"],"source_refs":["source-1"]}'
         return ExternalCallResult(
