@@ -208,20 +208,24 @@ external evidence
 
 Research and production documents must not be treated as proof of execution. External scientific claims require external evidence; repository text is the state of the work, not the source of truth for science.
 
-## Current status
+## v1.0 status
 
 ```text
-semantic / research chain       COMPLETE FOR BOUNDED V0
-factory runtime                 COMPLETE
-persistent runtime state        COMPLETE
-real provider boundary          IMPLEMENTED
-HTTP deployment surface         IMPLEMENTED
-end-user workspace              IMPLEMENTED (text-source vertical slice)
-container                        IMPLEMENTED
-CI / container verification      IMPLEMENTED
-live hosted instance             NOT YET DEPLOYED
-real external destination        NOT YET CONFIGURED
-real external proof              PENDING DEPLOYMENT + DESTINATION
+core web workflow               COMPLETE
+research → knowledge review     COMPLETE
+editorial → production → QC     COMPLETE
+approval → export → publication COMPLETE
+observation → learning          COMPLETE
+incremental replay              COMPLETE
+protected product API           COMPLETE
+local credential-free smoke path COMPLETE
+CI / container verification     COMPLETE
+hosted Render preview           DEPLOYED
+persistent hosted storage       REQUIRES /data disk deployment
+real external media renderer    OPTIONAL (Whisper Studio)
+real external publication       OPTIONAL (HTTPS webhook)
 ```
 
-The repository is now deployable, but it is not truthful to call it live until a hosting account actually creates the service, the secrets are provisioned, `/health` passes, and one real authorized Work Item reaches a real destination.
+The application is v1.0 for personal/local use. The repository's production deployment definition uses a persistent `/data` disk; the current lightweight Render preview service uses ephemeral filesystem storage and therefore must not be treated as the durable production deployment until that storage configuration is applied.
+
+See `docs/v1.0_release.md` for the release contract and explicit non-goals.

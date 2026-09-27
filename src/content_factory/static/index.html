@@ -19,13 +19,13 @@
 <div class="muted">Paste a transcript, interview, podcast notes, research, lecture, or other substantive source material.</div>
 <input id="title" class="input" style="margin:12px 0 8px" placeholder="Source title">
 <textarea id="source" class="source" placeholder="Paste the source material here..."></textarea>
-<div class="row" style="margin-top:10px"><button id="sample" class="btn secondary">Load sample</button><button id="analyze" class="btn">Analyze source</button><span id="sourceCount" class="key">0 chars</span></div>
+<div class="row" style="margin-top:10px"><button id="sample" class="btn secondary">Load sample</button><button id="analyze" class="btn">Analyze source</button><button id="runFactory" class="btn">Run Factory</button><span id="sourceCount" class="key">0 chars</span></div>
 <div class="token"><input id="token" class="input" type="password" placeholder="FACTORY_API_TOKEN"><small>Stored only in this browser. Required by the protected product API.</small></div>
 </section>
 <section class="panel">
 <h2>2. Explore</h2>
 <div id="exploreEmpty" class="notice">Analyze a source to discover themes, stories, evidence, and moments.</div>
-<div id="summary" class="muted"></div><div id="themes" class="chips" style="margin:10px 0"></div><div id="stories" class="stories"></div>
+<div id="runResult" class="notice hidden"></div><div id="timeline" class="notice hidden"></div><div id="summary" class="muted"></div><div id="themes" class="chips" style="margin:10px 0"></div><div id="stories" class="stories"></div>
 <h3>Moments</h3><div id="moments" class="muted"></div>
 </section>
 <section class="panel">
@@ -40,20 +40,108 @@
 </div>
 <button id="produce" class="btn" disabled>Produce package</button>
 <div id="package" class="package" style="margin-top:12px"></div>
-<div id="review" class="review hidden"><strong>Draft review</strong><div id="reviewState" class="review-state">Not reviewed</div><div class="row"><button id="approve" class="btn">Approve draft</button><button id="regenerate" class="btn secondary">Regenerate</button><button id="reject" class="btn secondary">Reject</button></div><div class="key">Review here controls the browser draft state only. Publication is not automated by this workspace.</div></div>
+<div id="review" class="review hidden"><strong>Run review</strong><div id="reviewState" class="review-state">Not reviewed</div><div class="row"><button id="approve" class="btn">Approve</button><button id="export" class="btn secondary" disabled>Render & export</button><button id="publish" class="btn secondary" disabled>Publish</button></div><div class="key">Approval, export and publication are separate durable actions.</div></div>
 </section>
 </div></div>
 <script>
-const $=id=>document.getElementById(id);let analysis=null,selected=null,lastPackage=null;
+const $=id=>document.getElementById(id);let analysis=null,selected=null,lastPackage=null,currentRunId=null;
 function setStatus(t){$("status").textContent=t}function error(t){$("error").textContent=t;$("error").classList.remove("hidden")}function clearError(){$("error").classList.add("hidden")}
 $("source").addEventListener("input",()=>{$("sourceCount").textContent=`${$("source").value.length.toLocaleString()} chars`});
 $("sample").onclick=()=>{$("title").value="Why animals evolve similar solutions";$("source").value="Different animal lineages can independently evolve similar traits when they face similar environmental pressures. This is called convergent evolution. Wings in bats and birds are an example of analogous structures: both enable powered flight, but their underlying evolutionary histories differ. Similar ecological problems can therefore produce similar functional solutions without a shared recent origin for the trait."; $("source").dispatchEvent(new Event("input"));clearError();setStatus("Sample loaded")};
-async function api(path,body){const token=$("token").value.trim()||localStorage.getItem("factory_token")||"";if(!token)throw new Error("Enter FACTORY_API_TOKEN.");localStorage.setItem("factory_token",token);const r=await fetch(path,{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${token}`},body:JSON.stringify(body)});let data={};try{data=await r.json()}catch{}if(!r.ok)throw new Error(data.error||`HTTP ${r.status}`);return data}
+async function api(path,body){const token=$("token").value.trim()||sessionStorage.getItem("factory_token")||"";if(!token)throw new Error("Enter FACTORY_API_TOKEN.");sessionStorage.setItem("factory_token",token);const r=await fetch(path,{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${token}`},body:JSON.stringify(body)});let data={};try{data=await r.json()}catch{}if(!r.ok){const e=new Error(data.error||`HTTP ${r.status}`);e.data=data;e.status=r.status;throw e}return data}
+$("runFactory").onclick=async()=>{
+  clearError();
+  const brief=$("source").value.trim();
+  if(!brief)return error("Add a topic or brief first.");
+  $("runFactory").disabled=true;
+  setStatus("Factory running: research → editorial → production → assembly → QC…");
+  try{
+    const created=await api("/api/runs",{
+      title:$("title").value||"Content Factory run",
+      brief,
+      audience:"",
+      goal:"Create a publishable short-form content asset",
+      formats:["short_video"],
+      constraints:[]
+    });
+    currentRunId=created.run_id;
+    const updated=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/factory",{});
+    renderFactoryRun(updated.run);
+    renderTimeline(updated.events||[]);
+    setStatus(updated.run.status==="REVIEW"?"QC passed · awaiting approval":"Factory finished");
+  }catch(e){
+    if(e.status===409 && e.data?.run){
+      currentRunId=e.data.run.run_id;
+      renderFactoryRun(e.data.run);
+      renderKnowledgeReview(e.data.candidates||[]);
+      setStatus("Research complete · knowledge review required");
+    }else{error(e.message);setStatus("Factory error")}
+  }finally{$("runFactory").disabled=false}
+};
+function renderTimeline(events){
+  $("timeline").classList.remove("hidden");
+  $("timeline").innerHTML="<strong>Run timeline</strong><div style='margin-top:8px'>"+events.map(e=>"<div>✓ "+esc(e.event_type)+" <span class='key'>"+esc(e.status)+"</span></div>").join("")+"</div>";
+}
+function renderKnowledgeReview(candidates){
+  const box=$("package");
+  const items=(candidates||[]).map(c=>`<div class="asset"><div class="format">knowledge candidate</div><h4>${esc(c.claim_id)}</h4><div>${esc(c.text)}</div><div class="key">Confidence: ${esc(c.confidence||"")} · Evidence: ${esc((c.evidence_ids||[]).join(", "))}</div><button class="btn" style="margin-top:8px" data-claim="${esc(c.claim_id)}">Promote</button></div>`).join("");
+  box.innerHTML=items||"<div class='notice'>No candidate claims were returned.</div>";
+  box.querySelectorAll("[data-claim]").forEach(button=>button.onclick=async()=>{
+    button.disabled=true;
+    try{
+      await api("/api/knowledge/"+encodeURIComponent(button.dataset.claim)+"/promote",{decision_ref:"browser-knowledge-review"});
+      button.closest(".asset").remove();
+      setStatus("Knowledge promoted · running Factory…");
+      const data=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/factory",{});
+      renderFactoryRun(data.run);renderTimeline(data.events||[]);
+      setStatus(data.run.status==="REVIEW"?"QC passed · awaiting approval":"Factory finished");
+    }catch(e){error(e.message);button.disabled=false}
+  });
+}
+function renderFactoryRun(run){
+  $("runResult").classList.remove("hidden");
+  const r=run.result||{}, p=r.production||{}, q=p.qc||{};
+  $("runResult").innerHTML="<strong>"+esc(run.run_id)+"</strong><br>Status: "+esc(run.status)+" · Claims: "+esc(String((r.research?.claims||[]).length))+" · Jobs: "+esc(String((p.jobs||[]).length))+" · QC: "+esc(q.status||"UNKNOWN");
+  $("summary").textContent=r.content_spec?.logline||r.editorial?.selected_idea?.angle||"";
+  $("package").innerHTML="<div class='asset'><div class='format'>script</div><h4>"+esc(r.content_spec?.title||r.script?.title||run.title)+"</h4><pre>"+esc((r.script?.units||[]).map(u=>u.text||"").join("\\n\\n"))+"</pre></div>";
+  $("review").classList.remove("hidden");
+  $("reviewState").textContent=run.status==="REVIEW"?"QC passed · approval required":run.status;
+  $("approve").disabled=run.status!=="REVIEW";
+  $("export").disabled=run.status!=="APPROVED";
+  $("publish").disabled=run.status!=="EXPORTED";
+}
+function renderVerticalResult(result){
+  const qc=result.quality||{};
+  $("runResult").classList.remove("hidden");
+  $("runResult").innerHTML=
+    "<strong>Run "+esc(result.run_id)+"</strong><br>"+
+    "Research: "+esc(String((result.research?.claims||[]).length))+" claims · "+
+    esc(String((result.research?.sources||[]).length))+" sources · "+
+    "Assets: "+esc(String((result.package?.package||[]).length))+
+    " · QC: "+esc(qc.status||"UNKNOWN");
+  $("summary").textContent=result.research?.summary||"";
+  $("themes").innerHTML=(result.research?.editorial_angles||[]).map(x=>`<span class="chip">${esc(x)}</span>`).join("");
+  $("stories").innerHTML=(result.package?.package||[]).map(a=>
+    `<div class="story"><div class="story-title">${esc(a.title||a.format||"asset")}</div><div class="story-angle">${esc(a.format||"")}</div><div class="evidence">${esc(a.content||"")}</div></div>`
+  ).join("");
+  $("moments").innerHTML=(result.research?.claims||[]).map(c=>
+    `<div style="margin-bottom:8px"><strong>${esc(c.id)}</strong><br>${esc(c.text||"")}</div>`
+  ).join("");
+  $("selected").classList.add("hidden");
+  $("produceEmpty").classList.add("hidden");
+  $("package").innerHTML=(result.package?.package||[]).map(a=>
+    `<div class="asset"><div class="format">${esc(a.format||"asset")}</div><h4>${esc(a.title||"")}</h4><pre>${esc(a.content||"")}</pre><div class="key">Claims: ${esc((a.claim_refs||[]).join(", ")||"none")} · Sources: ${esc((a.source_refs||[]).join(", ")||"none")}</div></div>`
+  ).join("");
+  $("review").classList.remove("hidden");
+  $("reviewState").textContent="Run completed; draft requires review";
+}
 $("analyze").onclick=async()=>{clearError();const source=$("source").value.trim();if(!source)return error("Add source material first.");$("analyze").disabled=true;setStatus("Analyzing…");try{analysis=await api("/api/analyze",{title:$("title").value||"Untitled source",source});selected=null;renderAnalysis()}catch(e){error(e.message);setStatus("Error")}finally{$("analyze").disabled=false}};
 function renderAnalysis(){setStatus("Source mapped");$("exploreEmpty").classList.add("hidden");$("summary").textContent=analysis.summary||"";$("themes").innerHTML=(analysis.themes||[]).map(x=>`<span class="chip">${esc(x)}</span>`).join("");$("stories").innerHTML=(analysis.stories||[]).map((s,i)=>`<div class="story ${selected?.id===s.id?"selected":""}" data-i="${i}"><div class="story-title">${esc(s.title)}</div><div class="story-angle">${esc(s.angle||"")}</div><div class="evidence">${esc((s.evidence||[]).map(e=>e.quote).join(" · "))}</div></div>`).join("");document.querySelectorAll(".story").forEach(el=>el.onclick=()=>{selected=analysis.stories[Number(el.dataset.i)];renderAnalysis();$("selected").innerHTML=`<strong>${esc(selected.title)}</strong><div class="muted">${esc(selected.angle||"")}</div>`;$("selected").classList.remove("hidden");$("produceEmpty").classList.add("hidden");$("produce").disabled=false;$("package").innerHTML="";$("review").classList.add("hidden")});$("moments").innerHTML=(analysis.moments||[]).map(m=>`<div style="margin-bottom:8px"><strong>${esc(m.title)}</strong><br>${esc(m.description||"")}</div>`).join("")}
 $("produce").onclick=async()=>{clearError();if(!selected)return;const formats=[...document.querySelectorAll("#formats input:checked")].map(x=>x.value);if(!formats.length)return error("Select at least one format.");$("produce").disabled=true;setStatus("Producing…");try{lastPackage=await api("/api/produce",{source:$("source").value,title:$("title").value,story:selected,formats});renderPackage(lastPackage);setStatus("Package ready for review")}catch(e){error(e.message);setStatus("Error")}finally{$("produce").disabled=false}};
 function renderPackage(data){$("package").innerHTML=(data.package||[]).map(a=>`<div class="asset"><div class="format">${esc(a.format||"asset")}</div><h4>${esc(a.title||"")}</h4><pre>${esc(a.content||"")}</pre><div class="key">Source refs: ${esc((a.source_refs||[]).join(", ")||"none")}</div></div>`).join("");$("review").classList.remove("hidden");$("reviewState").textContent="Not reviewed"} 
-$("approve").onclick=()=>{$("reviewState").textContent="Approved for manual publication";setStatus("Draft approved")};$("reject").onclick=()=>{$("reviewState").textContent="Rejected";setStatus("Draft rejected")};$("regenerate").onclick=()=>{$("produce").click()};
+$("approve").onclick=async()=>{try{const run=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/approve",{decision_ref:"browser-human-review"});renderFactoryRun(run);setStatus("Approved · render/export available")}catch(e){error(e.message)}};
+$("export").onclick=async()=>{try{const data=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/export",{});renderFactoryRun(data.run);setStatus("Exported: "+(data.export?.artifact||"artifact"))}catch(e){error(e.message)}};
+$("publish").onclick=async()=>{try{const data=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/publish",{channel:"webhook"});setStatus("Published · "+(data.external_id||data.publication_id))}catch(e){error(e.message)}};
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 </script>
 </body></html>

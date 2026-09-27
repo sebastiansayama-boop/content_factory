@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "content-factory"
-version = "0.1.0"
-description = "Executable Content Factory v0"
+version = "1.0.0"
+description = "Personal Content Factory web application"
 requires-python = ">=3.10"
 dependencies = ["Pillow>=10", "truststore>=0.10"]
 

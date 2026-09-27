@@ -15,7 +15,14 @@ from uuid import uuid4
 
 from .artifacts import ArtifactStore
 from .content_run import ContentRunStore
+from .asset_jobs import AssetJobStore
+from .asset_executor import AssetExecutor
+from .asset_poller import AssetJobPoller
+from .asset_registry import AssetRegistry
+from .factory_control import FactoryControlStore
 from .gemini_adapter import GeminiOpenAICompatibleAdapter
+from .knowledge import KnowledgeStore
+from .local_adapter import LocalTextAdapter
 from .openai_capability import openai_text_capability
 from .runtime import (
     AcceptanceDecision,
@@ -102,6 +109,12 @@ class FactoryService:
         self._store = RuntimeStore(root / "runtime.sqlite3")
         self._artifacts = ArtifactStore(root / "artifacts")
         self._content_runs = ContentRunStore(root / "content_runs.sqlite3")
+        self._knowledge = KnowledgeStore(root / "knowledge.sqlite3")
+        self._asset_jobs = AssetJobStore(root / "asset_jobs.sqlite3")
+        self._asset_executor = AssetExecutor(self._asset_jobs, root)
+        self._asset_poller = AssetJobPoller(self._asset_jobs)
+        self._asset_registry = AssetRegistry(root / "assets.sqlite3")
+        self._control = FactoryControlStore(root / "factory_control.sqlite3")
         publisher_url = os.environ.get("PUBLISH_URL", "").strip()
         self._external_publisher_configured = bool(publisher_url)
         publisher = WebhookPublisher(publisher_url, os.environ.get("PUBLISH_AUTH_TOKEN")) if publisher_url else LocalReleasePublisher()
@@ -114,7 +127,7 @@ class FactoryService:
     @staticmethod
     def _build_provider() -> tuple[str, Capability]:
         configured = os.environ.get("FACTORY_PROVIDER", "").strip().lower()
-        provider = configured or ("gemini" if os.environ.get("GEMINI_API_KEY", "").strip() else "openai")
+        provider = configured or ("gemini" if os.environ.get("GEMINI_API_KEY", "").strip() else ("openai" if os.environ.get("OPENAI_API_KEY", "").strip() else "local"))
         if provider == "gemini":
             adapter = GeminiOpenAICompatibleAdapter()
             capability = text_generation_capability(
@@ -126,14 +139,51 @@ class FactoryService:
             return provider, capability
         if provider == "openai":
             return provider, openai_text_capability()
-        raise ValueError("FACTORY_PROVIDER must be 'gemini' or 'openai'")
+        if provider == "local":
+            adapter = LocalTextAdapter()
+            capability = text_generation_capability(
+                capability_id="local.text.generate",
+                provider=adapter,
+                generate=adapter.generate,
+                response_text=adapter.response_text,
+            )
+            return provider, capability
+        raise ValueError("FACTORY_PROVIDER must be 'gemini', 'openai', or 'local'" )
 
     @property
     def content_runs(self) -> ContentRunStore:
         return self._content_runs
 
+    @property
+    def knowledge(self) -> KnowledgeStore:
+        return self._knowledge
+
+    @property
+    def asset_jobs(self) -> AssetJobStore:
+        return self._asset_jobs
+
+    @property
+    def asset_executor(self) -> AssetExecutor:
+        return self._asset_executor
+
+    @property
+    def asset_poller(self) -> AssetJobPoller:
+        return self._asset_poller
+
+    @property
+    def asset_registry(self) -> AssetRegistry:
+        return self._asset_registry
+
+    @property
+    def control(self) -> FactoryControlStore:
+        return self._control
+
     def close(self) -> None:
         self._content_runs.close()
+        self._knowledge.close()
+        self._asset_jobs.close()
+        self._asset_registry.close()
+        self._control.close()
         self._store.close()
 
     def health(self) -> dict[str, Any]:

@@ -178,3 +178,120 @@ def test_get_missing_run_returns_404(tmp_path):
     assert handler.status == 404
     assert handler.body["error"] == "content run not found"
     store.close()
+
+
+def test_execute_persists_durable_knowledge_refs(tmp_path, monkeypatch):
+    from content_factory import product_http
+
+    store = ContentRunStore(tmp_path / "runs.sqlite3")
+    created = store.create(title="Future cities", brief="Research future cities", formats=("article",))
+
+    class FakeKnowledge:
+        def counts(self):
+            return {"sources": 1, "evidence": 1, "claims": 1, "accepted_claims": 1, "candidate_claims": 0, "editorial_angles": 0, "runs": 1}
+
+    class FakeService:
+        knowledge = FakeKnowledge()
+
+    class FakeResult:
+        run_id = created.run_id
+        brief = created.brief
+        research = {
+            "claims": [{"id": "claim-1", "text": "A durable claim"}],
+            "sources": [{"id": "source-1", "title": "Source", "url": "https://example.com"}],
+            "knowledge_refs": {
+                "claims": {"claim-1": "kc-durable"},
+                "sources": {"source-1": "ks-durable"},
+                "evidence": {"evidence-1": "ke-durable"},
+            },
+        }
+        package = {"topic": "Future cities", "package": [{"id": "asset-1", "format": "article", "content": "draft", "claim_refs": ["claim-1"], "source_refs": ["source-1"]}]}
+        quality = {"status": "PASS"}
+
+    class FakeSlice:
+        def __init__(self, knowledge_store=None):
+            assert knowledge_store is not None
+        def run(self, **kwargs):
+            assert kwargs["run_id"] == created.run_id
+            return FakeResult()
+        @staticmethod
+        def to_dict(result):
+            return {"run_id": result.run_id, "brief": result.brief, "research": result.research, "package": result.package, "quality": result.quality}
+
+    handler = DummyRunsHandler(f"/api/runs/{created.run_id}/execute")
+    handler.content_runs = store
+    handler.service = FakeService()
+    monkeypatch.setattr(product_http, "ContentFactoryVerticalSlice", FakeSlice)
+
+    ProductHandler.do_POST(handler)
+
+    assert handler.status == 200
+    persisted = store.get(created.run_id)
+    assert persisted is not None
+    assert persisted.status == "REVIEW"
+    assert persisted.result["research"]["knowledge_refs"] == FakeResult.research["knowledge_refs"]
+    store.close()
+
+
+def test_promote_knowledge_endpoint_requires_decision_and_returns_revision(tmp_path):
+    from content_factory.knowledge import KnowledgeStore
+
+    knowledge = KnowledgeStore(tmp_path / "knowledge.sqlite3")
+    payload = {
+        "claims": [{
+            "id": "claim-1",
+            "text": "Automobiles changed expectations about urban mobility.",
+            "confidence": "high",
+            "source_ids": ["source-1"],
+            "evidence_ids": ["evidence-1"],
+            "scope": "urban mobility",
+            "known_unknowns": [],
+        }],
+        "sources": [{
+            "id": "source-1",
+            "title": "Example",
+            "url": "https://example.com/cities",
+        }],
+        "evidence": [{
+            "id": "evidence-1",
+            "source_id": "source-1",
+            "excerpt": "Automobiles changed expectations about urban mobility.",
+            "locator": "paragraph",
+            "provenance": "example",
+        }],
+    }
+    knowledge.capture(run_id="run-promotion", research=payload)
+    claim_id = knowledge._connection.execute(
+        "SELECT claim_id FROM knowledge_claims"
+    ).fetchone()["claim_id"]
+
+    class Service:
+        pass
+
+    service = Service()
+    service.knowledge = knowledge
+    handler = DummyRunsHandler(f"/api/knowledge/{claim_id}/promote")
+    handler.service = service
+    handler.payload = {"decision_ref": "DEC-HTTP-001"}
+
+    ProductHandler.do_POST(handler)
+
+    assert handler.status == 200
+    assert handler.body["claim_id"] == claim_id
+    assert handler.body["status"] == "ACCEPTED"
+    assert handler.body["decision_ref"] == "DEC-HTTP-001"
+    assert handler.body["revision_id"].startswith(f"{claim_id}-r")
+    assert handler.body["promoted_at"]
+    knowledge.close()
+
+
+def test_research_ready_run_can_resume_planning_after_knowledge_review(tmp_path):
+    store = ContentRunStore(tmp_path / "runs.sqlite3")
+    created = store.create(title="One", brief="Brief")
+    store.save_research_result(created.run_id, {"research": {"knowledge_refs": {"claims": {"x": "kc-x"}}}})
+
+    resumed = store.start_planning(created.run_id)
+
+    assert resumed.status == "PLANNING"
+    assert resumed.result["research"]["knowledge_refs"]["claims"]["x"] == "kc-x"
+    store.close()
