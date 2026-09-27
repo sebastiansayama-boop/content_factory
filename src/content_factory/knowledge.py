@@ -299,6 +299,59 @@ class KnowledgeStore:
             "angles_added": angle_count,
         }
 
+    def resolve_research_refs(self, research: dict[str, Any]) -> dict[str, dict[str, str]]:
+        """Resolve ephemeral research IDs to durable knowledge IDs."""
+        claims = research.get("claims", [])
+        sources = research.get("sources", [])
+        evidence = research.get("evidence", [])
+        if not isinstance(claims, list) or not isinstance(sources, list) or not isinstance(evidence, list):
+            raise ValueError("research claims, sources and evidence must be arrays")
+
+        source_rows = {
+            str(row["url"]): str(row["source_id"])
+            for row in self._connection.execute("SELECT source_id,url FROM knowledge_sources")
+        }
+        evidence_rows = {
+            (str(row["source_url"]), str(row["excerpt"]), str(row["locator"])): str(row["evidence_id"])
+            for row in self._connection.execute(
+                """SELECT e.evidence_id,s.url AS source_url,e.excerpt,e.locator
+                   FROM knowledge_evidence e JOIN knowledge_sources s ON s.source_id=e.source_id"""
+            )
+        }
+        claim_rows = {
+            str(row["text"]): str(row["claim_id"])
+            for row in self._connection.execute("SELECT claim_id,text FROM knowledge_claims")
+        }
+
+        result: dict[str, dict[str, str]] = {"claims": {}, "sources": {}, "evidence": {}}
+        for source in sources:
+            if not isinstance(source, dict):
+                continue
+            local_id = str(source.get("id") or "").strip()
+            url = str(source.get("url") or "").strip()
+            if local_id and url in source_rows:
+                result["sources"][local_id] = source_rows[url]
+        source_urls = {
+            str(source.get("id")): str(source.get("url"))
+            for source in sources if isinstance(source, dict)
+        }
+        for item in evidence:
+            if not isinstance(item, dict):
+                continue
+            local_id = str(item.get("id") or "").strip()
+            source_url = source_urls.get(str(item.get("source_id")), "")
+            key = (source_url, str(item.get("excerpt") or "").strip(), str(item.get("locator") or "").strip())
+            if local_id and key in evidence_rows:
+                result["evidence"][local_id] = evidence_rows[key]
+        for claim in claims:
+            if not isinstance(claim, dict):
+                continue
+            local_id = str(claim.get("id") or "").strip()
+            claim_text = str(claim.get("text") or "").strip()
+            if local_id and claim_text in claim_rows:
+                result["claims"][local_id] = claim_rows[claim_text]
+        return result
+
     def promote_claim(self, claim_id: str, *, decision_ref: str) -> KnowledgeClaim:
         if not decision_ref.strip():
             raise ValueError("decision_ref must not be empty")
