@@ -148,6 +148,9 @@ class AssetJobStore:
     def complete(self, job_id: str, result: dict[str, object]) -> AssetJob:
         return self._transition(job_id, "COMPLETED", result)
 
+    def retry(self, job_id: str) -> AssetJob:
+        return self._transition(job_id, "RUNNING", None)
+
     def fail(self, job_id: str, result: dict[str, object]) -> AssetJob:
         return self._transition(job_id, "FAILED", result)
 
