@@ -134,10 +134,22 @@ USER BRIEF:
                 raise ValueError(f"claim {claim.get('id')} has invalid source_ids")
         knowledge_capture = None
         knowledge_refs = None
+        knowledge_usage = 0
         if self.knowledge_store is not None:
             knowledge_capture = self.knowledge_store.capture(run_id=run_id, research=research)
             knowledge_refs = self.knowledge_store.resolve_research_refs(research)
             research["knowledge_refs"] = knowledge_refs
+            accepted_claim_ids = [
+                str(item["claim_id"])
+                for item in prior_knowledge.get("claims", [])
+                if isinstance(item, dict) and item.get("status") == KnowledgeStore.ACCEPTED
+            ]
+            if accepted_claim_ids:
+                knowledge_usage = self.knowledge_store.record_usage(
+                    run_id=run_id,
+                    target_ref=f"content-run:{run_id}",
+                    claim_ids=accepted_claim_ids,
+                )
 
         topic = str(research.get("topic") or brief).strip()
         summary = str(research.get("summary") or "").strip()
@@ -179,6 +191,7 @@ Sources:
                 "reusable_context_counts": {
                     key: len(value) for key, value in prior_knowledge.items()
                 },
+                "accepted_usage_count": knowledge_usage,
             }
         return VerticalSliceResult(run_id=run_id, brief=brief, research=research, package=package, quality=quality)
 
