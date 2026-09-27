@@ -25,6 +25,8 @@ class AssetJob:
     claim_refs: tuple[str, ...]
     evidence_refs: tuple[str, ...]
     acceptance_criteria: tuple[str, ...]
+    input_text: str
+    visual_intent: str
     result: dict[str, object] | None
     created_at: str
     updated_at: str
@@ -62,6 +64,8 @@ class AssetJobStore:
                 claim_refs_json TEXT NOT NULL,
                 evidence_refs_json TEXT NOT NULL,
                 acceptance_criteria_json TEXT NOT NULL,
+                input_text TEXT NOT NULL DEFAULT '',
+                visual_intent TEXT NOT NULL DEFAULT '',
                 result_json TEXT,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL,
@@ -69,6 +73,11 @@ class AssetJobStore:
             )
             """
         )
+        columns = {row["name"] for row in self._connection.execute("PRAGMA table_info(asset_jobs)").fetchall()}
+        if "input_text" not in columns:
+            self._connection.execute("ALTER TABLE asset_jobs ADD COLUMN input_text TEXT NOT NULL DEFAULT ''")
+        if "visual_intent" not in columns:
+            self._connection.execute("ALTER TABLE asset_jobs ADD COLUMN visual_intent TEXT NOT NULL DEFAULT ''")
         self._connection.execute(
             "CREATE INDEX IF NOT EXISTS idx_asset_jobs_run ON asset_jobs(run_id, created_at)"
         )
@@ -93,6 +102,8 @@ class AssetJobStore:
                 claim_refs = self._strings(request.get("claim_refs"), "claim_refs")
                 evidence_refs = self._strings(request.get("evidence_refs"), "evidence_refs")
                 criteria = self._strings(request.get("acceptance_criteria"), "acceptance_criteria")
+                input_text = str(request.get("text") or "").strip()
+                visual_intent = str(request.get("visual_intent") or "").strip()
                 job = AssetJob(
                     job_id=f"job-{run_id}-{request_id}",
                     run_id=run_id,
@@ -112,14 +123,14 @@ class AssetJobStore:
                     INSERT OR IGNORE INTO asset_jobs(
                         job_id, run_id, asset_request_id, script_unit_id, asset_type,
                         status, claim_refs_json, evidence_refs_json,
-                        acceptance_criteria_json, result_json, created_at, updated_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        acceptance_criteria_json, input_text, visual_intent, result_json, created_at, updated_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         job.job_id, job.run_id, job.asset_request_id, job.script_unit_id,
                         job.asset_type, job.status, json.dumps(job.claim_refs),
                         json.dumps(job.evidence_refs), json.dumps(job.acceptance_criteria),
-                        None, job.created_at, job.updated_at,
+                        input_text, visual_intent, None, job.created_at, job.updated_at,
                     ),
                 )
                 stored = self.get(job.job_id)
