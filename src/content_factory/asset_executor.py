@@ -3,6 +3,9 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import struct
+import wave
+import zlib
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
@@ -64,26 +67,91 @@ class AssetExecutor:
             ).hexdigest()[:16]
             directory = self.root / "asset_jobs" / job.run_id
             directory.mkdir(parents=True, exist_ok=True)
-            path = directory / f"{job.asset_request_id}.json"
-            payload = {
-                "asset_id": f"asset-{digest}",
-                "job_id": job.job_id,
-                "type": job.asset_type,
-                "status": "DRAFT",
-                "claim_refs": list(job.claim_refs),
-                "evidence_refs": list(job.evidence_refs),
-                "acceptance_criteria": list(job.acceptance_criteria),
-                "provider": "stub",
-            }
-            path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+            extension = ".png" if job.asset_type == "visual" else ".wav" if job.asset_type == "voice" else ".json"
+            path = directory / f"{job.asset_request_id}{extension}"
+            if job.asset_type == "visual":
+                self._write_stub_png(path, f"{job.run_id}:{job.asset_request_id}")
+            elif job.asset_type == "voice":
+                self._write_stub_voice(path, f"{job.run_id}:{job.asset_request_id}")
+            else:
+                path.write_text(
+                    json.dumps(
+                        {
+                            "asset_id": f"asset-{digest}",
+                            "job_id": job.job_id,
+                            "type": job.asset_type,
+                            "status": "DRAFT",
+                            "claim_refs": list(job.claim_refs),
+                            "evidence_refs": list(job.evidence_refs),
+                            "acceptance_criteria": list(job.acceptance_criteria),
+                            "provider": "stub",
+                        },
+                        ensure_ascii=False,
+                        indent=2,
+                    ),
+                    encoding="utf-8",
+                )
             return AssetExecution(
                 provider="stub",
                 state="COMPLETED",
-                result=payload | {"path": str(path)},
+                result={
+                    "asset_id": f"asset-{digest}",
+                    "job_id": job.job_id,
+                    "type": job.asset_type,
+                    "status": "DRAFT",
+                    "claim_refs": list(job.claim_refs),
+                    "evidence_refs": list(job.evidence_refs),
+                    "acceptance_criteria": list(job.acceptance_criteria),
+                    "provider": "stub",
+                    "path": str(path),
+                },
             )
         if provider == "higgsfield":
             return self._submit_higgsfield(job)
         raise AssetExecutionError("FACTORY_ASSET_PROVIDER must be 'stub' or 'higgsfield'")
+
+    @staticmethod
+    def _write_stub_png(path: Path, seed: str) -> None:
+        width, height = 720, 1280
+        digest = hashlib.sha256(seed.encode()).digest()
+        pixel = bytes((digest[0], digest[1], digest[2]))
+        raw = b"".join(b"\x00" + pixel * width for _ in range(height))
+
+        def chunk(kind: bytes, data: bytes) -> bytes:
+            return (
+                struct.pack(">I", len(data))
+                + kind
+                + data
+                + struct.pack(">I", zlib.crc32(kind + data) & 0xFFFFFFFF)
+            )
+
+        png = (
+            b"\x89PNG\r\n\x1a\n"
+            + chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0))
+            + chunk(b"IDAT", zlib.compress(raw, 9))
+            + chunk(b"IEND", b"")
+        )
+        path.write_bytes(png)
+
+    @staticmethod
+    def _write_stub_voice(path: Path, seed: str) -> None:
+        digest = hashlib.sha256(seed.encode()).digest()
+        frequency = 180 + digest[0]
+        sample_rate = 48_000
+        duration = 1.5
+        frames = int(sample_rate * duration)
+        amplitude = 2600
+        import math
+
+        with wave.open(str(path), "wb") as handle:
+            handle.setnchannels(1)
+            handle.setsampwidth(2)
+            handle.setframerate(sample_rate)
+            samples = bytearray()
+            for index in range(frames):
+                value = int(amplitude * math.sin(2 * math.pi * frequency * index / sample_rate))
+                samples.extend(struct.pack("<h", value))
+            handle.writeframes(samples)
 
     @staticmethod
     def _submit_higgsfield(job: AssetJob) -> AssetExecution:
