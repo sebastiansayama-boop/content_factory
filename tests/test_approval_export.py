@@ -51,6 +51,7 @@ def test_approval_requires_review_and_export_requires_approval(tmp_path):
     ).export(run_id=run.run_id, result=approved.result)
     assert export["status"] == "EXPORTED"
     assert export["artifact"] == "final.mp4"
+    assert export["artifact_type"] == "video"
     assert Path(export["manifest_uri"]).is_file()
     assert export["renderer"] == "fake"
 
