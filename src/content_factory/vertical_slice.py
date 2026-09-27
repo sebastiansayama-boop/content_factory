@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass
 from typing import Any
 
+from .knowledge import KnowledgeStore
 from .research import OpenAIWebResearchAdapter, parse_research_json
 
 
@@ -81,17 +83,28 @@ def quality_check(package: dict[str, Any], research: dict[str, Any]) -> dict[str
 class ContentFactoryVerticalSlice:
     """First product slice: live research -> production -> visual -> QC."""
 
-    def __init__(self, research_adapter: OpenAIWebResearchAdapter | None = None) -> None:
+    def __init__(
+        self,
+        research_adapter: OpenAIWebResearchAdapter | None = None,
+        knowledge_store: KnowledgeStore | None = None,
+    ) -> None:
         self.research_adapter = research_adapter or OpenAIWebResearchAdapter()
+        self.knowledge_store = knowledge_store
 
     def run(self, *, run_id: str, brief: str, formats: list[str] | None = None) -> VerticalSliceResult:
         if not brief.strip():
             raise ValueError("brief must not be empty")
         requested_formats = formats or ["article", "social_post", "visual_card"]
+        prior_knowledge = self.knowledge_store.search(brief) if self.knowledge_store else {
+            "claims": [], "sources": [], "editorial_angles": []
+        }
+        prior_json = json.dumps(prior_knowledge, ensure_ascii=False)
         research_prompt = f"""You are the research stage of a content production system.
 Research the user's brief using live web search. Return ONLY JSON:
 {{"topic":"string","summary":"string","claims":[{{"id":"claim-1","text":"atomic factual claim","confidence":"high|medium|low","source_ids":["source-1"]}}],"sources":[{{"id":"source-1","title":"string","url":"https://..."}}],"editorial_angles":["string"]}}
 Rules: search the web; use current reputable sources; every factual claim must cite source_ids; never invent URLs; keep claims atomic; return source metadata for sources actually used.
+Prior reusable knowledge is context, not proof. Re-check it against current sources before relying on it, and do not cite prior knowledge IDs as source_ids:
+{prior_json}
 USER BRIEF:
 {brief}
 """
@@ -119,6 +132,10 @@ USER BRIEF:
             refs = claim.get("source_ids")
             if not isinstance(refs, list) or not refs or not set(refs).issubset(source_ids):
                 raise ValueError(f"claim {claim.get('id')} has invalid source_ids")
+        knowledge_capture = None
+        if self.knowledge_store is not None:
+            knowledge_capture = self.knowledge_store.capture(run_id=run_id, research=research)
+
         topic = str(research.get("topic") or brief).strip()
         summary = str(research.get("summary") or "").strip()
         claim_lines = "\n".join(f"- {c['id']}: {c['text']}" for c in claims if isinstance(c, dict))
@@ -152,6 +169,14 @@ Sources:
                 asset["claim_refs"] = all_claim_ids
                 asset["source_refs"] = all_source_ids
         quality = quality_check(package, research)
+        if knowledge_capture is not None:
+            research["knowledge"] = {
+                "captured": True,
+                "capture": knowledge_capture,
+                "reusable_context_counts": {
+                    key: len(value) for key, value in prior_knowledge.items()
+                },
+            }
         return VerticalSliceResult(run_id=run_id, brief=brief, research=research, package=package, quality=quality)
 
     @staticmethod
