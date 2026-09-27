@@ -114,6 +114,8 @@ class AssetJobStore:
                     claim_refs=tuple(claim_refs),
                     evidence_refs=tuple(evidence_refs),
                     acceptance_criteria=tuple(criteria),
+                    input_text=input_text,
+                    visual_intent=visual_intent,
                     result=None,
                     created_at=now,
                     updated_at=now,
