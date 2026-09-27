@@ -103,4 +103,15 @@ def test_vertical_slice_captures_and_reuses_knowledge(tmp_path):
     assert second.research["knowledge"]["reusable_context_counts"]["claims"] == 1
     assert "Prior reusable knowledge" in second_adapter.prompts[0]
     assert '"claims"' in second_adapter.prompts[0]
+    claim_id = first.research["knowledge_refs"]["claims"]["claim-1"]
+    store.promote_claim(claim_id, decision_ref="DEC-RESEARCH-001")
+
+    third_adapter = PromptRecordingFakeResearchAdapter()
+    third = ContentFactoryVerticalSlice(third_adapter, store).run(
+        run_id="run-knowledge-3",
+        brief="Explain why unrelated animals can evolve similar traits.",
+        formats=["article"],
+    )
+    assert third.research["knowledge"]["accepted_usage_count"] == 1
+    assert store.usages_for_claim(claim_id)[0]["run_id"] == "run-knowledge-3"
     store.close()
