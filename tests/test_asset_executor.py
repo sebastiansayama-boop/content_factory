@@ -34,7 +34,7 @@ def test_local_media_executor_materializes_authored_visual_and_voice(tmp_path, m
     monkeypatch.setenv("FACTORY_ASSET_PROVIDER", "local_media")
     jobs = AssetJobStore(tmp_path / "jobs.sqlite3")
     plan = {"asset_requests": [
-        {"asset_request_id": "visual-1", "script_unit_id": "unit-1", "type": "visual", "claim_refs": ["kc-1"], "evidence_refs": ["ke-1"], "acceptance_criteria": ["preserve provenance"]},
+        {"asset_request_id": "visual-1", "script_unit_id": "unit-1", "type": "visual", "claim_refs": ["kc-1"], "evidence_refs": ["ke-1"], "acceptance_criteria": ["preserve provenance"], "text": "A real local narration.", "visual_intent": "A documentary scene about evidence."},
         {"asset_request_id": "voice-1", "script_unit_id": "unit-1", "type": "voice", "claim_refs": ["kc-1"], "evidence_refs": ["ke-1"], "acceptance_criteria": ["preserve provenance"]},
     ]}
     jobs.create_from_plan("run-local-media", plan)
