@@ -215,6 +215,30 @@ class ProductHandler(Handler):
                         self.content_runs.start_planning(run_id)
                         run = self.content_runs.get(run_id)
                     self.service.control.record(run_id, "factory.started", status="RUNNING", actor="api")
+                    prior = self.service.knowledge.search(run.brief)
+                    if not prior["claims"]:
+                        self.content_runs.start_execution(run_id)
+                        research_result = ContentFactoryVerticalSlice(knowledge_store=self.service.knowledge).run(
+                            run_id=run_id,
+                            brief=run.brief,
+                            formats=list(run.formats) or ["article", "social_post", "visual_card"],
+                        )
+                        research_dict = ContentFactoryVerticalSlice.to_dict(research_result)
+                        ready = self.content_runs.save_research_result(run_id, research_dict)
+                        self.service.control.record(
+                            run_id,
+                            "research.completed",
+                            output_refs=tuple(research_dict.get("research", {}).get("knowledge_refs", {}).get("claims", {}).values()),
+                            evidence=research_dict.get("quality", {}),
+                        )
+                        candidates = self.service.knowledge.search(run.brief, include_candidates=True)["claims"]
+                        self._json(409, {
+                            "error": "knowledge review required",
+                            "run": ready.to_dict(),
+                            "candidates": candidates,
+                            "next": "promote accepted claims, then call /api/runs/{run_id}/factory again",
+                        })
+                        return
                     result = KnowledgeContentBuilder(self.workspace, self.service.knowledge).build(
                         run_id=run_id, topic=run.title or run.brief, audience=run.audience,
                         goal=run.goal, formats=list(run.formats), constraints=list(run.constraints),
