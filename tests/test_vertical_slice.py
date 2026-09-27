@@ -86,6 +86,14 @@ def test_vertical_slice_captures_and_reuses_knowledge(tmp_path):
     assert first.research["knowledge"]["captured"] is True
     assert store.counts()["claims"] == 1
 
+    refs = first.research["knowledge_refs"]
+    assert refs["claims"]["claim-1"].startswith("kc-")
+    assert refs["sources"]["source-1"].startswith("ks-")
+    assert refs["evidence"]["evidence-1"].startswith("ke-")
+    assert refs["claims"]["claim-1"] != "claim-1"
+    assert refs["sources"]["source-1"] != "source-1"
+    assert refs["evidence"]["evidence-1"] != "evidence-1"
+
     second_adapter = PromptRecordingFakeResearchAdapter()
     second = ContentFactoryVerticalSlice(second_adapter, store).run(
         run_id="run-knowledge-2",
