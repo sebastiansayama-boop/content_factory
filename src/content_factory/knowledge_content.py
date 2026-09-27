@@ -189,7 +189,7 @@ ACCEPTED KNOWLEDGE:
             revision_id="content-spec-v1",
             objective="turn a content idea into an executable content specification",
             prompt=f"""Create one executable ContentSpec for the selected idea.
-Return JSON: {{"spec_id":"spec-1","title":"string","objective":"string","audience":"string","format":"string","tone":"string","structure":["step"],"constraints":["constraint"],"claim_refs":["kc-*"],"evidence_refs":["ke-*"]}}
+Return JSON: {{"spec_id":"spec-1","title":"string","objective":"string","audience":"string","format":"string","tone":"string","structure":["step"],"constraints":["constraint"],"claim_refs":["kc-*"],"evidence_refs":["ke-*"],"style_bible":{{"visual_style":"string","palette":"string","lighting":"string","subject_continuity":"string","negative_constraints":"string","voice":"string","pace":"string","music":"string"}}}}
 Preserve provenance exactly from the idea. Do not invent claims.
 SELECTED IDEA:
 {selected_json}
