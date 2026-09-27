@@ -1,3 +1,4 @@
+from pathlib import Path
 from content_factory.asset_executor import AssetExecutor
 from content_factory.asset_jobs import AssetJobStore
 
