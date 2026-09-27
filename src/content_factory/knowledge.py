@@ -148,6 +148,8 @@ class KnowledgeStore:
                 ON knowledge_claims(status);
             CREATE INDEX IF NOT EXISTS idx_knowledge_angles_status
                 ON knowledge_angles(status);
+            CREATE UNIQUE INDEX IF NOT EXISTS idx_knowledge_usages_unique
+                ON knowledge_usages(claim_id, run_id, target_ref, purpose);
             """
         )
         self._connection.commit()
