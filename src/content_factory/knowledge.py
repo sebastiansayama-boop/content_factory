@@ -133,6 +133,15 @@ class KnowledgeStore:
                 run_id TEXT PRIMARY KEY,
                 captured_at TEXT NOT NULL
             );
+            CREATE TABLE IF NOT EXISTS knowledge_usages (
+                usage_id TEXT PRIMARY KEY,
+                claim_id TEXT NOT NULL,
+                run_id TEXT NOT NULL,
+                target_ref TEXT NOT NULL,
+                purpose TEXT NOT NULL,
+                used_at TEXT NOT NULL,
+                FOREIGN KEY (claim_id) REFERENCES knowledge_claims(claim_id)
+            );
             CREATE INDEX IF NOT EXISTS idx_knowledge_claims_status
                 ON knowledge_claims(status);
             CREATE INDEX IF NOT EXISTS idx_knowledge_angles_status
@@ -351,6 +360,50 @@ class KnowledgeStore:
             if local_id and claim_text in claim_rows:
                 result["claims"][local_id] = claim_rows[claim_text]
         return result
+
+    def record_usage(
+        self,
+        *,
+        run_id: str,
+        target_ref: str,
+        claim_ids: list[str] | tuple[str, ...],
+        purpose: str = "research_context",
+    ) -> int:
+        """Record downstream consumption of accepted knowledge claims."""
+        if not run_id.strip() or not target_ref.strip() or not purpose.strip():
+            raise ValueError("run_id, target_ref and purpose must not be empty")
+        unique_claims = tuple(dict.fromkeys(claim_ids))
+        if not all(isinstance(claim_id, str) and claim_id.strip() for claim_id in unique_claims):
+            raise ValueError("claim_ids must contain non-empty strings")
+        recorded = 0
+        with self._connection:
+            for claim_id in unique_claims:
+                row = self._connection.execute(
+                    "SELECT status FROM knowledge_claims WHERE claim_id=?",
+                    (claim_id,),
+                ).fetchone()
+                if row is None:
+                    raise ValueError(f"knowledge claim not found: {claim_id}")
+                if row["status"] != self.ACCEPTED:
+                    raise ValueError(
+                        f"knowledge claim {claim_id} cannot be used as reusable knowledge from status {row['status']}"
+                    )
+                cursor = self._connection.execute(
+                    """INSERT OR IGNORE INTO knowledge_usages(
+                        usage_id,claim_id,run_id,target_ref,purpose,used_at
+                    ) VALUES(?,?,?,?,?,?)""",
+                    (f"ku-{uuid4().hex[:16]}", claim_id, run_id, target_ref, purpose, _now()),
+                )
+                recorded += cursor.rowcount
+        return recorded
+
+    def usages_for_claim(self, claim_id: str) -> list[dict[str, str]]:
+        rows = self._connection.execute(
+            """SELECT usage_id,claim_id,run_id,target_ref,purpose,used_at
+               FROM knowledge_usages WHERE claim_id=? ORDER BY used_at""",
+            (claim_id,),
+        ).fetchall()
+        return [dict(row) for row in rows]
 
     def promote_claim(self, claim_id: str, *, decision_ref: str) -> KnowledgeClaim:
         if not decision_ref.strip():
