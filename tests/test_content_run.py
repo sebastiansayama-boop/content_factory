@@ -283,3 +283,15 @@ def test_promote_knowledge_endpoint_requires_decision_and_returns_revision(tmp_p
     assert handler.body["revision_id"].startswith(f"{claim_id}-r")
     assert handler.body["promoted_at"]
     knowledge.close()
+
+
+def test_research_ready_run_can_resume_planning_after_knowledge_review(tmp_path):
+    store = ContentRunStore(tmp_path / "runs.sqlite3")
+    created = store.create(title="One", brief="Brief")
+    store.save_research_result(created.run_id, {"research": {"knowledge_refs": {"claims": {"x": "kc-x"}}})
+
+    resumed = store.start_planning(created.run_id)
+
+    assert resumed.status == "PLANNING"
+    assert resumed.result["research"]["knowledge_refs"]["claims"]["x"] == "kc-x"
+    store.close()
