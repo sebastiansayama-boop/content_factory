@@ -253,6 +253,7 @@ CONTENT SPEC:
         if not script.script_id:
             raise WorkspaceError("script requires script_id")
 
+        requires_voice = any(value in {"short_video", "long_video", "shorts", "video"} for value in formats)
         asset_requests = []
         for index, unit in enumerate(script.units, start=1):
             common = {
@@ -263,23 +264,25 @@ CONTENT SPEC:
                 "text": unit.text,
                 "visual_intent": unit.visual_intent,
             }
-            asset_requests.extend(
-                [
-                    common | {
-                        "asset_request_id": f"asset-request-{run_id}-{index}-visual",
-                        "type": "visual",
-                    },
+            asset_requests.append(
+                common | {
+                    "asset_request_id": f"asset-request-{run_id}-{index}-visual",
+                    "type": "visual",
+                }
+            )
+            if requires_voice:
+                asset_requests.append(
                     common | {
                         "asset_request_id": f"asset-request-{run_id}-{index}-voice",
                         "type": "voice",
-                    },
-                ]
-            )
+                    }
+                )
         production_plan = {
             "production_plan_id": f"production-{run_id}",
             "format": spec.format,
             "style_bible": spec.style_bible or {},
             "asset_requests": asset_requests,
+            "requires_voice": requires_voice,
             "render": {"aspect_ratio": "9:16", "resolution": "1080x1920"},
         }
         result = {
