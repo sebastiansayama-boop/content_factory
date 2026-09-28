@@ -10,9 +10,7 @@ from content_factory.writing import (
 def test_writing_profile_can_be_derived_from_reference_texts():
     profile = WritingProfile.from_texts(
         [
-            "Это короткая фраза. А это немного более длинное предложение с примером.
-
-"
+            "Это короткая фраза. А это немного более длинное предложение с примером.\n\n"
             "Ещё один абзац с несколькими словами."
         ],
         profile_id="personal-v1",
