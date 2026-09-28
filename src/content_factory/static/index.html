@@ -100,15 +100,25 @@ function renderKnowledgeReview(candidates){
 }
 function renderFactoryRun(run){
   $("runResult").classList.remove("hidden");
-  const r=run.result||{}, p=r.production||{}, q=p.qc||{};
-  $("runResult").innerHTML="<strong>"+esc(run.run_id)+"</strong><br>Status: "+esc(run.status)+" · Claims: "+esc(String((r.research?.claims||[]).length))+" · Jobs: "+esc(String((p.jobs||[]).length))+" · QC: "+esc(q.status||"UNKNOWN");
+  const r=run.result||{}, p=r.production||{}, q=p.qc||{}, pkg=p.output?.content_package;
+  $("runResult").innerHTML="<strong>"+esc(run.run_id)+"</strong><br>Status: "+esc(run.status)+" · Claims: "+esc(String((r.research?.claims||[]).length))+" · Images: "+esc(String(pkg?.image_count||0))+" · QC: "+esc(q.status||"UNKNOWN");
   $("summary").textContent=r.content_spec?.logline||r.editorial?.selected_idea?.angle||"";
-  $("package").innerHTML="<div class='asset'><div class='format'>script</div><h4>"+esc(r.content_spec?.title||r.script?.title||run.title)+"</h4><pre>"+esc((r.script?.units||[]).map(u=>u.text||"").join("\\n\\n"))+"</pre></div>";
+  renderContentPackage(pkg);
   $("review").classList.remove("hidden");
   $("reviewState").textContent=run.status==="REVIEW"?"QC passed · approval required":run.status;
   $("approve").disabled=run.status!=="REVIEW";
   $("export").disabled=run.status!=="APPROVED";
   $("publish").disabled=run.status!=="EXPORTED";
+}
+function renderContentPackage(pkg){
+  if(!pkg){$("package").innerHTML="<div class='notice'>Content Package is not assembled yet.</div>";return}
+  const images=pkg.images||[], text=pkg.text||"";
+  $("package").innerHTML="<div class='asset'><div class='format'>content package</div><h4>"+esc(pkg.package_id||"")+"</h4><pre>"+esc(text)+"</pre></div>"+
+    images.map((image,index)=>{
+      const src=String(image.uri||"");
+      const browserSrc=src.startsWith("http://")||src.startsWith("https://")?src:"/api/runs/"+encodeURIComponent(pkg.run_id)+"/assets/"+encodeURIComponent(image.asset_id);
+      return "<div class='asset'><div class='format'>image "+(index+1)+" · "+esc(image.script_unit_id||"")+"</div><img src='"+esc(browserSrc)+"' alt='"+esc(image.visual_intent||"")+"' style='width:100%;display:block;border-radius:8px;margin:8px 0' loading='lazy'><div class='key'>"+esc(image.visual_intent||"")+"<br>Claims: "+esc((image.claim_refs||[]).join(", ")||"none")+" · Evidence: "+esc((image.evidence_refs||[]).join(", ")||"none")+"</div></div>";
+    }).join("");
 }
 function renderVerticalResult(result){
   const qc=result.quality||{};
