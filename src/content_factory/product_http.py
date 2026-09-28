@@ -610,6 +610,10 @@ class ProductHandler(Handler):
                 brief = str(payload.get("brief", "")).strip()
                 audience = str(payload.get("audience", "")).strip()
                 goal = str(payload.get("goal", "")).strip()
+                tone = str(payload.get("tone", "")).strip()
+                tone_strength = str(payload.get("tone_strength", "balanced")).strip().lower() or "balanced"
+                if tone_strength not in {"subtle", "balanced", "strong"}:
+                    raise ValueError("tone_strength must be subtle, balanced, or strong")
                 formats = payload.get("formats", [])
                 constraints = payload.get("constraints", [])
                 if not title:
@@ -629,6 +633,8 @@ class ProductHandler(Handler):
                     brief=brief,
                     audience=audience,
                     goal=goal,
+                    tone=tone,
+                    tone_strength=tone_strength,
                     formats=tuple(value.strip() for value in formats if value.strip()),
                     constraints=tuple(value.strip() for value in constraints if value.strip()),
                 )
