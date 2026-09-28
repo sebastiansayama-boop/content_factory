@@ -10,6 +10,7 @@ import urllib.request
 from typing import Any
 
 from .integrations import ExternalCallResult
+from .research_quality import is_relevant_source
 
 
 class LocalResearchAdapter:
@@ -192,8 +193,16 @@ class LocalResearchAdapter:
             if len(ranked) >= 10:
                 break
 
+        ranked = [
+            item for item in ranked
+            if is_relevant_source(
+                brief=brief,
+                title=item[1],
+                extract=str(item[2].get("extract", "")),
+            )
+        ]
         if not ranked:
-            raise ValueError("public research provider returned no usable sources")
+            raise ValueError("research relevance gate found no relevant public sources")
 
         sources: list[dict[str, str]] = []
         evidence: list[dict[str, str]] = []
