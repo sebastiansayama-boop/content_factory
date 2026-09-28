@@ -30,6 +30,7 @@ class ContentAssembler:
         by_request = {asset.asset_request_id: asset for asset in assets}
         by_unit_type = {(asset.script_unit_id, asset.asset_type): asset for asset in assets}
         sequence = []
+        requires_voice = bool(production_plan.get("requires_voice", True))
         for index, unit in enumerate(units, start=1):
             if not isinstance(unit, dict):
                 raise AssemblyError("script unit must be an object")
@@ -57,17 +58,17 @@ class ContentAssembler:
                 ),
                 None,
             )
-            if visual_request is None or voice_request is None:
-                raise AssemblyError(f"visual and voice asset requests are required for script unit {unit_id}")
+            if visual_request is None or (requires_voice and voice_request is None):
+                raise AssemblyError(f"visual asset request is required for script unit {unit_id}" if not requires_voice else f"visual and voice asset requests are required for script unit {unit_id}")
 
             visual_id = str(visual_request.get("asset_request_id") or "")
-            voice_id = str(voice_request.get("asset_request_id") or "")
+            voice_id = str(voice_request.get("asset_request_id") or "") if voice_request else ""
             visual = by_request.get(visual_id) or by_unit_type.get((unit_id, "visual"))
-            voice = by_request.get(voice_id) or by_unit_type.get((unit_id, "voice"))
-            if visual is None or voice is None:
-                raise AssemblyError(f"visual and voice assets are required for script unit {unit_id}")
+            voice = (by_request.get(voice_id) or by_unit_type.get((unit_id, "voice"))) if requires_voice else None
+            if visual is None or (requires_voice and voice is None):
+                raise AssemblyError(f"visual asset is required for script unit {unit_id}" if not requires_voice else f"visual and voice assets are required for script unit {unit_id}")
 
-            sequence.append({
+            item = {
                 "position": index,
                 "script_unit_id": unit_id,
                 "kind": str(unit.get("kind") or ""),
@@ -76,12 +77,16 @@ class ContentAssembler:
                 "asset_id": visual.asset_id,
                 "asset_uri": visual.uri,
                 "asset_type": visual.asset_type,
-                "voice_asset_id": voice.asset_id,
-                "voice_uri": voice.uri,
-                "voice_asset_type": voice.asset_type,
-                "claim_refs": list(dict.fromkeys(visual.claim_refs + voice.claim_refs)),
-                "evidence_refs": list(dict.fromkeys(visual.evidence_refs + voice.evidence_refs)),
-            })
+                "claim_refs": list(dict.fromkeys(visual.claim_refs + (voice.claim_refs if voice else ()))),
+                "evidence_refs": list(dict.fromkeys(visual.evidence_refs + (voice.evidence_refs if voice else ()))),
+            }
+            if voice is not None:
+                item.update({
+                    "voice_asset_id": voice.asset_id,
+                    "voice_uri": voice.uri,
+                    "voice_asset_type": voice.asset_type,
+                })
+            sequence.append(item)
 
         output_dir = self.root / "outputs" / run_id
         output_dir.mkdir(parents=True, exist_ok=True)
