@@ -140,6 +140,8 @@ class KnowledgeContentBuilder:
         constraints: list[str],
         writing_profile: WritingProfile | None = None,
         context_profile: ContextProfile | None = None,
+        tone: str = "",
+        tone_strength: str = "balanced",
     ) -> dict[str, Any]:
         context = self.knowledge.search(topic)
         claims = context["claims"]
@@ -155,6 +157,8 @@ class KnowledgeContentBuilder:
             audience=audience,
             goal=goal,
             platform=formats[0] if formats else "article",
+            tone=tone,
+            tone_strength=tone_strength,
         )
         writing_spec = build_writing_spec(
             writing_profile=profile,
