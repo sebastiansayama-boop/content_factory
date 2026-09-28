@@ -565,7 +565,7 @@ async function createMaterials(){
   if(!currentRun)return;
   const approved=candidates.filter(c=>String(c.status||"").toUpperCase()==="ACCEPTED").length;
   if(!approved)return;
-  setStep("production");setPrimary("Создаём материалы…",true);$("progress").classList.remove("hidden");$("progressBar").style.width="68%";
+  setStep("production");setPrimary("Создаём материалы…",true,"create");$("progress").classList.remove("hidden");$("progressBar").style.width="68%";
   $("centerEyebrow").textContent="Сейчас: производство";
   $("centerTitle").textContent="Создаём текст и изображения";
   $("centerSub").textContent="Используем одобренные факты и сохраняем связь с источниками.";
@@ -596,7 +596,8 @@ function renderReady(run){
     :'<div class="notice action"><strong>Проверка качества ещё не завершена.</strong></div>';
   renderContentPackage(output);
   const assets=(output?.images||[]).length;
-  renderSummary(qc.status==="PASSED"?"Готово":"Требует проверки",result.research?.claims?.length||candidates.length,(result.research?.claims||[]).length,assets);
+  const approvedCount=(candidates||[]).filter(c=>String(c.status||"").toUpperCase()==="ACCEPTED").length;
+  renderSummary(qc.status==="PASSED"?"Готово":"Требует проверки",result.research?.claims?.length||candidates.length,approvedCount,assets);
   setStep("done");
   $("rightHint").textContent="Материалы и следующие действия";
   setPrimary(qc.status==="PASSED"?"Утвердить":"Обновить статус",qc.status!=="PASSED",qc.status==="PASSED"?"approve":"noop");
@@ -671,13 +672,13 @@ function renderSourceAnalysis(){
     setStep("production");setPrimary("Создать материалы",false,"create");$("actionReason").textContent="Выбрана история для производства.";
     $("summaryState").textContent="Готово к производству";$("summaryClaims").textContent=String((selectedStory.evidence||[]).length);$("summaryApproved").textContent="—";$("summaryAssets").textContent="—";
   });
-  $("progress").classList.add("hidden");setStatus("Материал проанализирован");setPrimary("Создать материалы",true);
+  $("progress").classList.add("hidden");setStatus("Материал проанализирован");setPrimary("Создать материалы",true,"produce");
 }
 async function produceSource(){
   clearError();if(!selectedStory)return;
   const formats=[...document.querySelectorAll("#formatsBlock input:checked")].map(x=>x.value);
   if(!formats.length)return showError("Выберите хотя бы один формат.");
-  setPrimary("Создаём материалы…",true);setStatus("Создание материалов");
+  setPrimary("Создаём материалы…",true,"produce");setStatus("Создание материалов");
   try{
     const data=await api("/api/produce",{source:$("sourceMaterial").value,title:$("title").value,story:selectedStory,formats});
     $("progress").classList.add("hidden");$("sourceExplore").classList.add("hidden");$("resultSection").classList.remove("hidden");
@@ -685,7 +686,7 @@ async function produceSource(){
     $("resultNotice").innerHTML='<div class="notice success">Материалы готовы.</div>';
     $("package").innerHTML=(data.package||[]).map(a=>`<article class="asset"><div class="format">${esc(a.format||"Материал")}</div><h4>${esc(a.title||"")}</h4><pre>${esc(a.content||"")}</pre></article>`).join("");
     setStep("done");renderSummary("Готово","—","—",String((data.package||[]).length));setPrimary("Готово",true,"noop");
-  }catch(e){showError(e.message);setPrimary("Создать материалы",false,"create");setStatus("Ошибка")}
+  }catch(e){showError(e.message);setPrimary("Создать материалы",false,"produce");setStatus("Ошибка")}
 }
 $("primaryAction").onclick=async()=>{
   if(mode==="topic"){
