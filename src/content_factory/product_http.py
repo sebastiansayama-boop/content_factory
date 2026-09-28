@@ -267,7 +267,7 @@ class ProductHandler(Handler):
                             output_refs=tuple(research_dict.get("research", {}).get("knowledge_refs", {}).get("claims", {}).values()),
                             evidence=research_dict.get("quality", {}),
                         )
-                        candidates = self.service.knowledge.search(run.brief, include_candidates=True)["claims"]
+                        candidates = self.service.knowledge.candidates_for_run(run_id)
                         self._json(409, {
                             "error": "knowledge review required",
                             "run": ready.to_dict(),
