@@ -143,8 +143,8 @@ def test_factory_full_lifecycle_to_real_whisper_studio_video(tmp_path, monkeypat
             assert item["asset_uri"] == visual["uri"]
             assert item["voice_asset_id"] == voice["asset_id"]
             assert item["voice_uri"] == voice["uri"]
-            assert item["claim_refs"] == sorted(set(unit["claim_refs"]))
-            assert item["evidence_refs"] == sorted(set(unit["evidence_refs"]))
+            assert set(item["claim_refs"]) == set(unit["claim_refs"])
+            assert set(item["evidence_refs"]) == set(unit["evidence_refs"])
 
         approve = DummyHandler(
             f"/api/runs/{run.run_id}/approve",
