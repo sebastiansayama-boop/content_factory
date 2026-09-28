@@ -117,7 +117,7 @@ class ContentFactoryVerticalSlice:
         research_prompt = f"""You are the research stage of a content production system.
 Research the user's brief using live web search. Return ONLY JSON:
 {{"topic":"string","summary":"string","claims":[{{"id":"claim-1","text":"atomic factual claim","confidence":"high|medium|low","source_ids":["source-1"],"evidence_ids":["evidence-1"],"scope":"string","known_unknowns":["string"]}}],"sources":[{{"id":"source-1","title":"string","url":"https://..."}}],"evidence":[{{"id":"evidence-1","source_id":"source-1","excerpt":"short supporting passage","locator":"string","provenance":"string"}}],"editorial_angles":["string"]}}
-Rules: search the web; use current reputable sources; every factual claim must cite source_ids and evidence_ids; every evidence item must identify its source and a concrete supporting excerpt; never invent URLs; keep claims atomic; state scope and meaningful known_unknowns; return source metadata for sources actually used.
+Rules: search the web; use reputable and, where possible, primary or institutional sources; every factual claim must be supported by evidence; every claim must include source_urls containing URLs returned by the grounded search; every claim must include evidence items with source_url and a concrete supporting excerpt; never invent URLs; keep claims atomic; distinguish primary evidence from secondary interpretation; state scope and meaningful known_unknowns. For this historical-futures topic, cover multiple periods rather than clustering on one modern literary topic.
 Prior reusable knowledge is context, not proof. Re-check it against current sources before relying on it, and do not cite prior knowledge IDs as source_ids:
 {prior_json}
 USER BRIEF:
@@ -129,6 +129,11 @@ USER BRIEF:
         research_text = self.research_adapter.text(result)
         research = parse_research_json(research_text)
         provider_sources = self.research_adapter.sources(result)
+        if isinstance(self.research_adapter, GeminiGoogleSearchResearchAdapter):
+            research = GeminiGoogleSearchResearchAdapter.normalize_research(
+                research,
+                provider_sources,
+            )
         provider_search_queries = []
         if hasattr(self.research_adapter, "search_queries"):
             provider_search_queries = list(self.research_adapter.search_queries(result))
