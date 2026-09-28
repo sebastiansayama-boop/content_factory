@@ -1,5 +1,8 @@
+import os
 from pathlib import Path
 import wave
+
+import pytest
 from content_factory.asset_executor import AssetExecutor
 from content_factory.asset_jobs import AssetJobStore
 
@@ -32,6 +35,7 @@ def test_stub_executor_materializes_asset_candidate(tmp_path, monkeypatch):
     jobs.close()
 
 
+@pytest.mark.skipif(os.name != "nt", reason="local_media voice requires Windows SAPI")
 def test_local_media_executor_materializes_authored_visual_and_voice(tmp_path, monkeypatch):
     monkeypatch.setenv("FACTORY_ASSET_PROVIDER", "local_media")
     jobs = AssetJobStore(tmp_path / "jobs.sqlite3")
