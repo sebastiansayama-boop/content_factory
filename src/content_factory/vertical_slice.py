@@ -173,8 +173,6 @@ USER BRIEF:
         research["sources"] = declared
         if provider_search_queries:
             research["search_queries"] = provider_search_queries
-        if self.provider_fallback is not None:
-            research["provider_fallback"] = self.provider_fallback
         research_quality = validate_research_relevance(brief=brief, research=research)
         research["quality"] = research_quality
         if research_quality["status"] != "PASS":
@@ -237,6 +235,8 @@ Sources:
             asset["id"] = f"{_slug(topic)}-{fmt}-v1"
             asset["format"] = fmt
             package["package"].append(asset)
+        if self.provider_fallback is not None:
+            research["provider_fallback"] = self.provider_fallback
         all_claim_ids = [c["id"] for c in claims if isinstance(c, dict)]
         all_source_ids = sorted({sid for c in claims if isinstance(c, dict) for sid in c.get("source_ids", [])})
         for asset in package["package"]:
