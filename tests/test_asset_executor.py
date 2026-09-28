@@ -35,6 +35,24 @@ def test_stub_executor_materializes_asset_candidate(tmp_path, monkeypatch):
     jobs.close()
 
 
+def test_local_media_executor_persists_provider_metadata_for_visual(tmp_path, monkeypatch):
+    monkeypatch.setenv("FACTORY_ASSET_PROVIDER", "local_media")
+    jobs = AssetJobStore(tmp_path / "jobs.sqlite3")
+    plan = {"asset_requests": [
+        {"asset_request_id": "visual-provider", "script_unit_id": "unit-1", "type": "visual",
+         "claim_refs": ["kc-1"], "evidence_refs": ["ke-1"],
+         "acceptance_criteria": ["preserve provenance"], "text": "Provider metadata test.",
+         "visual_intent": "A simple editorial image."},
+    ]}
+    jobs.create_from_plan("run-provider", plan)
+    result = AssetExecutor(jobs, tmp_path).execute_run("run-provider")
+    assert len(result) == 1
+    assert result[0].status == "COMPLETED"
+    assert result[0].result["provider"] == "local_media"
+    assert Path(result[0].result["path"]).is_file()
+    jobs.close()
+
+
 @pytest.mark.skipif(os.name != "nt", reason="local_media voice requires Windows SAPI")
 def test_local_media_executor_materializes_authored_visual_and_voice(tmp_path, monkeypatch):
     monkeypatch.setenv("FACTORY_ASSET_PROVIDER", "local_media")
