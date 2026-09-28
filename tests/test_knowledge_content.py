@@ -98,7 +98,7 @@ def test_knowledge_content_builder_creates_editorial_spec_script_and_plan(tmp_pa
     assert result["script"]["units"][0]["claim_refs"] == [claim_id]
     assert result["production_plan"]["asset_requests"][0]["script_unit_id"] == "unit-1"
     assert result["writing_spec"]["writing_profile"]["profile_id"] == "personal-default"
-    assert result["writing_spec"]["context_profile"]["domain"] == "business" or result["writing_spec"]["context_profile"]["domain"] == "general"
+    assert result["writing_spec"]["context_profile"]["domain"] == "general"
     assert result["style_qc"]["passed"] is True
     assert len(store.usages_for_claim(claim_id)) == 2
     factory._store.close()
