@@ -7,6 +7,7 @@ from typing import Any
 
 from .knowledge import KnowledgeStore
 from .research import OpenAIWebResearchAdapter, parse_research_json
+from .gemini_research import GeminiGoogleSearchResearchAdapter
 from .local_research import LocalResearchAdapter
 from .research_quality import validate_research_relevance
 
@@ -90,7 +91,19 @@ class ContentFactoryVerticalSlice:
         research_adapter: OpenAIWebResearchAdapter | None = None,
         knowledge_store: KnowledgeStore | None = None,
     ) -> None:
-        self.research_adapter = research_adapter or (OpenAIWebResearchAdapter() if __import__("os").getenv("OPENAI_API_KEY") else LocalResearchAdapter())
+        if research_adapter is not None:
+            self.research_adapter = research_adapter
+        else:
+            import os
+            configured = os.environ.get("FACTORY_RESEARCH_PROVIDER", "").strip().lower()
+            if configured == "gemini":
+                self.research_adapter = GeminiGoogleSearchResearchAdapter()
+            elif configured == "openai":
+                self.research_adapter = OpenAIWebResearchAdapter()
+            elif os.environ.get("OPENAI_API_KEY"):
+                self.research_adapter = OpenAIWebResearchAdapter()
+            else:
+                self.research_adapter = LocalResearchAdapter()
         self.knowledge_store = knowledge_store
 
     def run(self, *, run_id: str, brief: str, formats: list[str] | None = None) -> VerticalSliceResult:
@@ -113,8 +126,12 @@ USER BRIEF:
         result = self.research_adapter.research(research_prompt)
         if result.status_code < 200 or result.status_code >= 300:
             raise ValueError(f"research provider returned HTTP {result.status_code}")
-        research = parse_research_json(self.research_adapter.text(result))
+        research_text = self.research_adapter.text(result)
+        research = parse_research_json(research_text)
         provider_sources = self.research_adapter.sources(result)
+        provider_search_queries = []
+        if hasattr(self.research_adapter, "search_queries"):
+            provider_search_queries = list(self.research_adapter.search_queries(result))
         declared = research.get("sources")
         if not isinstance(declared, list):
             declared = []
@@ -124,6 +141,8 @@ USER BRIEF:
                 declared.append({"id": f"source-{len(declared) + 1}", "title": source["title"], "url": source["url"]})
                 known_urls.add(source["url"])
         research["sources"] = declared
+        if provider_search_queries:
+            research["search_queries"] = provider_search_queries
         research_quality = validate_research_relevance(brief=brief, research=research)
         research["quality"] = research_quality
         if research_quality["status"] != "PASS":
