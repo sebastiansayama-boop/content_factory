@@ -278,6 +278,7 @@ class ProductHandler(Handler):
                     result = KnowledgeContentBuilder(self.workspace, self.service.knowledge).build(
                         run_id=run_id, topic=run.brief, audience=run.audience,
                         goal=run.goal, formats=list(run.formats), constraints=list(run.constraints),
+                        tone=run.tone, tone_strength=run.tone_strength,
                     )
                     run = self.content_runs.save_result(run_id, {"run_id": run_id, "brief": run.brief, **result})
                     self.service.control.record(run_id, "editorial.built", output_refs=("content_spec", "script", "production_plan"))
@@ -347,6 +348,7 @@ class ProductHandler(Handler):
                         goal=run.goal,
                         formats=list(run.formats),
                         constraints=list(run.constraints),
+                        tone=run.tone, tone_strength=run.tone_strength,
                     )
                     updated = self.content_runs.save_result(run_id, {
                         "run_id": run_id,
