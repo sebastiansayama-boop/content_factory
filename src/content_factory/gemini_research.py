@@ -127,6 +127,105 @@ class GeminiGoogleSearchResearchAdapter:
         search_queries = [q for q in queries if isinstance(q, str) and q.strip()] if isinstance(queries, list) else []
         return text, sources, search_queries
 
+
+    @staticmethod
+    def normalize_research(
+        research: dict[str, Any],
+        grounded_sources: list[dict[str, str]],
+    ) -> dict[str, Any]:
+        """Normalize model JSON against URLs actually returned by Google Search grounding."""
+        allowed = {
+            source["url"]: source
+            for source in grounded_sources
+            if isinstance(source, dict) and isinstance(source.get("url"), str)
+        }
+        raw_claims = research.get("claims")
+        if not isinstance(raw_claims, list) or not raw_claims:
+            raise ValueError("Gemini grounded research must contain claims")
+
+        normalized_sources: list[dict[str, str]] = []
+        source_ids: dict[str, str] = {}
+        evidence_items: list[dict[str, str]] = []
+        normalized_claims: list[dict[str, Any]] = []
+
+        for index, claim in enumerate(raw_claims, start=1):
+            if not isinstance(claim, dict):
+                continue
+            urls = claim.get("source_urls", [])
+            if not isinstance(urls, list):
+                raise ValueError(f"Gemini claim {claim.get('id', index)} source_urls must be an array")
+            valid_urls = [url for url in urls if isinstance(url, str) and url in allowed]
+            if not valid_urls:
+                raise ValueError(
+                    f"Gemini claim {claim.get('id', index)} has no source URL returned by grounding"
+                )
+
+            normalized_source_refs: list[str] = []
+            for url in valid_urls:
+                if url not in source_ids:
+                    source_ids[url] = f"source-{len(source_ids) + 1}"
+                    normalized_sources.append(
+                        {
+                            "id": source_ids[url],
+                            "title": allowed[url]["title"],
+                            "url": url,
+                        }
+                    )
+                normalized_source_refs.append(source_ids[url])
+
+            raw_evidence = claim.get("evidence", [])
+            if not isinstance(raw_evidence, list):
+                raw_evidence = []
+            claim_evidence_refs: list[str] = []
+            for item in raw_evidence:
+                if not isinstance(item, dict):
+                    continue
+                url = item.get("source_url")
+                excerpt = str(item.get("excerpt") or "").strip()
+                if url not in allowed or not excerpt or url not in valid_urls:
+                    continue
+                evidence_id = f"evidence-{len(evidence_items) + 1}"
+                evidence_items.append(
+                    {
+                        "id": evidence_id,
+                        "source_id": source_ids[url],
+                        "excerpt": excerpt[:1200],
+                        "locator": "Gemini Google Search grounding",
+                        "provenance": "gemini-google-search-grounding",
+                    }
+                )
+                claim_evidence_refs.append(evidence_id)
+
+            if not claim_evidence_refs:
+                raise ValueError(
+                    f"Gemini claim {claim.get('id', index)} has no valid evidence excerpt"
+                )
+
+            normalized_claims.append(
+                {
+                    "id": str(claim.get("id") or f"claim-{index}"),
+                    "text": str(claim.get("text") or "").strip(),
+                    "confidence": str(claim.get("confidence") or "medium").lower(),
+                    "source_ids": normalized_source_refs,
+                    "evidence_ids": claim_evidence_refs,
+                    "scope": str(claim.get("scope") or "grounded web research").strip(),
+                    "known_unknowns": (
+                        claim.get("known_unknowns", [])
+                        if isinstance(claim.get("known_unknowns", []), list)
+                        else []
+                    ),
+                }
+            )
+
+        if not normalized_claims:
+            raise ValueError("Gemini grounded research produced no usable claims")
+
+        normalized = dict(research)
+        normalized["claims"] = normalized_claims
+        normalized["sources"] = normalized_sources
+        normalized["evidence"] = evidence_items
+        return normalized
+
     @staticmethod
     def text(result: ExternalCallResult) -> str:
         text, _, _ = GeminiGoogleSearchResearchAdapter._text_and_grounding(result)
