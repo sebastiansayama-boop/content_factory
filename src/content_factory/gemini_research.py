@@ -20,6 +20,15 @@ class GeminiResearchConfig:
     secret_env: str = "GEMINI_API_KEY"
 
 
+class GeminiResearchError(ValueError):
+    """Structured Gemini provider failure suitable for deterministic fallback."""
+
+    def __init__(self, message: str, *, http_status: int | None = None, kind: str = "provider_error") -> None:
+        super().__init__(message)
+        self.http_status = http_status
+        self.kind = kind
+
+
 class GeminiGoogleSearchResearchAdapter:
     """Gemini research adapter using Google Search grounding."""
 
@@ -60,9 +69,30 @@ class GeminiGoogleSearchResearchAdapter:
                 status = int(response.status)
         except urllib.error.HTTPError as exc:
             raw = exc.read().decode("utf-8", errors="replace")
-            raise ValueError(
-                f"Gemini research provider returned HTTP {exc.code}: {raw[:1000]}"
-            ) from exc
+            kind = "provider_error"
+            try:
+                error_body = json.loads(raw) if raw else {}
+            except json.JSONDecodeError:
+                error_body = {}
+            error = error_body.get("error") if isinstance(error_body, dict) else None
+            status_name = error.get("status") if isinstance(error, dict) else None
+            provider_code = error.get("code") if isinstance(error, dict) else None
+            message = error.get("message") if isinstance(error, dict) else None
+            if exc.code == 429:
+                resource_exhausted = str(status_name).upper() == "RESOURCE_EXHAUSTED"
+                message_lower = str(message or raw).lower()
+                quota_markers = ("quota", "exceeded your current", "resource_exhausted")
+                kind = "quota_exhausted" if resource_exhausted or any(marker in message_lower for marker in quota_markers) else "rate_limited"
+            details = f"Gemini research provider returned HTTP {exc.code}"
+            if status_name:
+                details += f" ({status_name})"
+            if provider_code and str(provider_code) != str(exc.code):
+                details += f" code={provider_code}"
+            if message:
+                details += f": {message}"
+            elif raw:
+                details += f": {raw[:1000]}"
+            raise GeminiResearchError(details, http_status=exc.code, kind=kind) from exc
         except urllib.error.URLError as exc:
             raise ValueError(
                 f"Gemini research provider connection failed: {exc.reason}"
