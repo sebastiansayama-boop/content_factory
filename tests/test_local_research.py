@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import urllib.parse
 
 from content_factory.local_research import LocalResearchAdapter
 
@@ -26,27 +27,12 @@ def test_local_research_web_mode_uses_public_sources(monkeypatch):
         url = request.full_url
         calls.append(url)
         if "list=search" in url:
-            return _Response(
-                {
-                    "query": {
-                        "search": [
-                            {"title": "History of ideas"},
-                            {"title": "Futurism"},
-                        ]
-                    }
-                }
-            )
-        if "History_of_ideas" in url:
-            return _Response(
-                {
-                    "title": "History of ideas",
-                    "extract": "Historians have studied changing ideas about the future.",
-                }
-            )
+            return _Response({"query": {"search": [{"title": "History of ideas"}]}})
+        title = urllib.parse.unquote(url.rsplit("/", 1)[-1]).replace("_", " ")
         return _Response(
             {
-                "title": "Futurism",
-                "extract": "Futurism was an artistic and social movement focused on modernity and technology.",
+                "title": title,
+                "extract": f"{title} documents a historical development related to ideas about the future.",
             }
         )
 
@@ -54,15 +40,17 @@ def test_local_research_web_mode_uses_public_sources(monkeypatch):
     adapter = LocalResearchAdapter(fixture=False)
     result = adapter.research(
         "You are the research stage. Research the user's brief using live web search. "
-        "USER BRIEF: how people in the past imagined the future"
+        "USER BRIEF: how people in the past imagined the future across ancient and modern history"
     )
     data = json.loads(adapter.text(result))
+    titles = {source["title"] for source in data["sources"]}
 
     assert result.integration_id == "wikipedia-public-research"
-    assert len(data["claims"]) == 2
-    assert len(data["sources"]) == 2
+    assert len(data["claims"]) >= 2
+    assert len(data["sources"]) >= 2
     assert data["claims"][0]["source_ids"] == ["source-1"]
     assert data["claims"][0]["evidence_ids"] == ["evidence-1"]
+    assert "History of science fiction" in titles
     assert any("wikipedia.org" in url for url in calls)
 
 
