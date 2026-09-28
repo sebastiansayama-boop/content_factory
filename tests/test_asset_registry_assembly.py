@@ -119,3 +119,39 @@ def test_qc_rejects_missing_provenance(tmp_path):
 
     jobs.close()
     registry.close()
+
+
+def test_assemble_image_only_package_without_voice(tmp_path, monkeypatch):
+    monkeypatch.setenv("FACTORY_ASSET_PROVIDER", "local_media")
+    jobs = AssetJobStore(tmp_path / "jobs.sqlite3")
+    registry = AssetRegistry(tmp_path / "assets.sqlite3")
+    plan = {
+        "production_plan_id": "production-image-only",
+        "format": "article",
+        "requires_voice": False,
+        "asset_requests": [{
+            "asset_request_id": "request-visual",
+            "script_unit_id": "unit-1",
+            "type": "visual",
+            "claim_refs": ["kc-1"],
+            "evidence_refs": ["ke-1"],
+            "acceptance_criteria": ["preserve provenance"],
+            "text": "A short caption.",
+            "visual_intent": "A documentary image.",
+        }],
+    }
+    jobs.create_from_plan("run-image-only", plan)
+    completed = AssetExecutor(jobs, tmp_path).execute_run("run-image-only")
+    assets = [registry.register_completed_job(job) for job in completed]
+    output = ContentAssembler(registry, tmp_path).assemble(
+        run_id="run-image-only",
+        script={"script_id": "script-1", "title": "Image package", "units": [{
+            "unit_id": "unit-1", "kind": "beat", "text": "A short caption.", "visual_intent": "A documentary image."
+        }]},
+        production_plan=plan,
+    )
+    assert output["sequence"][0]["asset_type"] == "visual"
+    assert "voice_uri" not in output["sequence"][0]
+    assert Path(output["sequence"][0]["asset_uri"]).is_file()
+    jobs.close()
+    registry.close()
