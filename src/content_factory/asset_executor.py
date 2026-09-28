@@ -7,8 +7,10 @@ import struct
 import wave
 import zlib
 import urllib.request
+import urllib.parse
 import subprocess
 import textwrap
+from io import BytesIO
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -112,9 +114,13 @@ class AssetExecutor:
             )
         if provider == "local_media":
             return self._execute_local_media(job)
+        if provider == "openverse":
+            return self._execute_openverse(job)
         if provider == "higgsfield":
             return self._submit_higgsfield(job)
-        raise AssetExecutionError("FACTORY_ASSET_PROVIDER must be 'stub', 'local_media' or 'higgsfield'")
+        raise AssetExecutionError(
+            "FACTORY_ASSET_PROVIDER must be 'stub', 'local_media', 'openverse' or 'higgsfield'"
+        )
 
     def _execute_local_media(self, job: AssetJob) -> AssetExecution:
         """Create useful local media without cloud credentials."""
@@ -130,6 +136,121 @@ class AssetExecutor:
         else:
             raise AssetExecutionError("local_media supports visual and voice assets only")
         return AssetExecution(provider="local_media", state="COMPLETED", result={"asset_id": f"asset-{digest}", "job_id": job.job_id, "type": job.asset_type, "status": "DRAFT", "claim_refs": list(job.claim_refs), "evidence_refs": list(job.evidence_refs), "acceptance_criteria": list(job.acceptance_criteria), "provider": "local_media", "path": str(path)})
+
+    def _execute_openverse(self, job: AssetJob) -> AssetExecution:
+        """Acquire an openly licensed image from Openverse without credentials."""
+        if job.asset_type != "visual":
+            raise AssetExecutionError("openverse provider currently supports visual jobs only")
+
+        query = (job.visual_intent or job.input_text).strip()
+        if not query:
+            raise AssetExecutionError("openverse visual job requires visual_intent or input_text")
+
+        from PIL import Image
+
+        params = urllib.parse.urlencode(
+            {
+                "q": query[:300],
+                "page_size": "10",
+            }
+        )
+        api_url = f"https://api.openverse.org/v1/images/?{params}"
+        request = urllib.request.Request(
+            api_url,
+            headers={"User-Agent": "ContentFactory/1.0 (+https://github.com/sebastiansayama-boop/content_factory)"},
+            method="GET",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=20) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+        except Exception as exc:
+            raise AssetExecutionError(f"openverse search failed: {exc}") from exc
+
+        results = payload.get("results") if isinstance(payload, dict) else None
+        if not isinstance(results, list):
+            raise AssetExecutionError("openverse returned an invalid results payload")
+
+        selected = None
+        for candidate in results:
+            if not isinstance(candidate, dict):
+                continue
+            source_url = str(candidate.get("url") or "").strip()
+            if source_url.startswith(("https://", "http://")):
+                selected = candidate
+                break
+        if selected is None:
+            raise AssetExecutionError("openverse returned no downloadable image")
+
+        source_url = str(selected.get("url") or "").strip()
+        try:
+            image_request = urllib.request.Request(
+                source_url,
+                headers={
+                    "User-Agent": "ContentFactory/1.0 (+https://github.com/sebastiansayama-boop/content_factory)",
+                },
+                method="GET",
+            )
+            with urllib.request.urlopen(image_request, timeout=20) as response:
+                raw = response.read(12 * 1024 * 1024 + 1)
+        except Exception as exc:
+            raise AssetExecutionError(f"openverse image download failed: {exc}") from exc
+
+        if len(raw) > 12 * 1024 * 1024:
+            raise AssetExecutionError("openverse image exceeds 12 MiB limit")
+
+        try:
+            image = Image.open(BytesIO(raw))
+            image.load()
+            width, height = image.size
+            if width < 256 or height < 256:
+                raise AssetExecutionError("openverse image is too small")
+            image = image.convert("RGB")
+        except AssetExecutionError:
+            raise
+        except Exception as exc:
+            raise AssetExecutionError(f"openverse returned invalid image data: {exc}") from exc
+
+        source_id = str(selected.get("id") or selected.get("foreign_landing_url") or source_url)
+        digest = hashlib.sha256(
+            f"{job.run_id}:{job.asset_request_id}:{source_id}".encode("utf-8")
+        ).hexdigest()[:16]
+        directory = self.root / "asset_jobs" / job.run_id
+        directory.mkdir(parents=True, exist_ok=True)
+        path = directory / f"{job.asset_request_id}.png"
+        image.save(path, format="PNG")
+
+        metadata = {
+            "source": "openverse",
+            "source_id": source_id,
+            "source_url": source_url,
+            "foreign_landing_url": str(selected.get("foreign_landing_url") or ""),
+            "title": str(selected.get("title") or ""),
+            "creator": str(selected.get("creator") or ""),
+            "license": str(selected.get("license") or ""),
+            "license_version": str(selected.get("license_version") or ""),
+            "license_url": str(selected.get("license_url") or ""),
+            "thumbnail": str(selected.get("thumbnail") or ""),
+            "width": width,
+            "height": height,
+            "query": query,
+            "license_verification_required": True,
+        }
+        return AssetExecution(
+            provider="openverse",
+            state="COMPLETED",
+            result={
+                "asset_id": f"asset-{digest}",
+                "job_id": job.job_id,
+                "type": job.asset_type,
+                "status": "DRAFT",
+                "claim_refs": list(job.claim_refs),
+                "evidence_refs": list(job.evidence_refs),
+                "acceptance_criteria": list(job.acceptance_criteria),
+                "provider": "openverse",
+                "path": str(path),
+                "metadata": metadata,
+            },
+        )
 
     @staticmethod
     def _write_editorial_visual(path: Path, job: AssetJob) -> None:
