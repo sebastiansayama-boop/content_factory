@@ -130,6 +130,7 @@ class ContentAssembler:
                 "package_id": package["package_id"],
                 "uri": str(package_path),
                 "text": text,
+                "images": images,
                 "image_count": len(images),
             },
             "status": "ASSEMBLED",
