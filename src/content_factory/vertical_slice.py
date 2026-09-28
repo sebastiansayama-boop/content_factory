@@ -8,6 +8,7 @@ from typing import Any
 from .knowledge import KnowledgeStore
 from .research import OpenAIWebResearchAdapter, parse_research_json
 from .local_research import LocalResearchAdapter
+from .research_quality import validate_research_relevance
 
 
 @dataclass(frozen=True)
@@ -123,6 +124,13 @@ USER BRIEF:
                 declared.append({"id": f"source-{len(declared) + 1}", "title": source["title"], "url": source["url"]})
                 known_urls.add(source["url"])
         research["sources"] = declared
+        research_quality = validate_research_relevance(brief=brief, research=research)
+        research["quality"] = research_quality
+        if research_quality["status"] != "PASS":
+            raise ValueError(
+                "research relevance gate failed: "
+                + str(research_quality.get("reason", "insufficient relevance"))
+            )
         claims = research.get("claims")
         if not isinstance(claims, list) or not claims:
             raise ValueError("research claims must be a non-empty array")
