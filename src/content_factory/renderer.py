@@ -209,9 +209,9 @@ class WhisperStudioRenderer:
             "-v",
             "error",
             "-show_entries",
-            "stream=codec_type",
+            "stream=codec_type,codec_name,duration",
             "-show_entries",
-            "format=duration",
+            "format=format_name,duration",
             "-of",
             "json",
             str(path),
@@ -234,19 +234,34 @@ class WhisperStudioRenderer:
             raise RenderError("ffprobe returned invalid JSON") from exc
 
         streams = payload.get("streams", [])
-        stream_types = {
-            str(stream.get("codec_type"))
-            for stream in streams
-            if isinstance(stream, dict)
-        }
+        video_stream = next(
+            (stream for stream in streams if isinstance(stream, dict) and stream.get("codec_type") == "video"),
+            None,
+        )
+        audio_stream = next(
+            (stream for stream in streams if isinstance(stream, dict) and stream.get("codec_type") == "audio"),
+            None,
+        )
         try:
             duration = float(payload.get("format", {}).get("duration") or 0)
         except (TypeError, ValueError):
             duration = 0.0
+
+        def stream_duration(stream: dict[str, Any] | None) -> float:
+            try:
+                return float(stream.get("duration") or 0) if stream else 0.0
+            except (TypeError, ValueError):
+                return 0.0
+
         return {
-            "video": "video" in stream_types,
-            "audio": "audio" in stream_types,
+            "video": video_stream is not None,
+            "audio": audio_stream is not None,
             "duration": duration,
+            "video_duration": stream_duration(video_stream),
+            "audio_duration": stream_duration(audio_stream),
+            "video_codec": str((video_stream or {}).get("codec_name") or ""),
+            "audio_codec": str((audio_stream or {}).get("codec_name") or ""),
+            "container": str(payload.get("format", {}).get("format_name") or ""),
         }
 
 
