@@ -32,6 +32,8 @@ class ContentRun:
     brief: str
     audience: str
     goal: str
+    tone: str
+    tone_strength: str
     formats: tuple[str, ...]
     constraints: tuple[str, ...]
     status: str
@@ -70,6 +72,8 @@ class ContentRunStore:
                 goal TEXT NOT NULL,
                 formats_json TEXT NOT NULL,
                 constraints_json TEXT NOT NULL,
+                tone TEXT NOT NULL DEFAULT '',
+                tone_strength TEXT NOT NULL DEFAULT 'balanced',
                 status TEXT NOT NULL,
                 plan_json TEXT,
                 result_json TEXT,
@@ -86,6 +90,10 @@ class ContentRunStore:
             self._connection.execute("ALTER TABLE content_runs ADD COLUMN plan_json TEXT")
         if "result_json" not in columns:
             self._connection.execute("ALTER TABLE content_runs ADD COLUMN result_json TEXT")
+        if "tone" not in columns:
+            self._connection.execute("ALTER TABLE content_runs ADD COLUMN tone TEXT NOT NULL DEFAULT ''")
+        if "tone_strength" not in columns:
+            self._connection.execute("ALTER TABLE content_runs ADD COLUMN tone_strength TEXT NOT NULL DEFAULT 'balanced'")
         self._connection.execute(
             "CREATE INDEX IF NOT EXISTS idx_content_runs_updated_at ON content_runs(updated_at DESC)"
         )
@@ -98,6 +106,8 @@ class ContentRunStore:
         brief: str,
         audience: str = "",
         goal: str = "",
+        tone: str = "",
+        tone_strength: str = "balanced",
         formats: tuple[str, ...] = (),
         constraints: tuple[str, ...] = (),
     ) -> ContentRun:
@@ -108,6 +118,8 @@ class ContentRunStore:
             brief=brief,
             audience=audience,
             goal=goal,
+            tone=tone,
+            tone_strength=tone_strength,
             formats=formats,
             constraints=constraints,
             status="DRAFT",
@@ -121,8 +133,8 @@ class ContentRunStore:
                 """
                 INSERT INTO content_runs(
                     run_id, title, brief, audience, goal, formats_json,
-                    constraints_json, status, plan_json, result_json, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    constraints_json, tone, tone_strength, status, plan_json, result_json, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     run.run_id,
@@ -132,6 +144,8 @@ class ContentRunStore:
                     run.goal,
                     json.dumps(run.formats, ensure_ascii=False),
                     json.dumps(run.constraints, ensure_ascii=False),
+                    run.tone,
+                    run.tone_strength,
                     run.status,
                     None,
                     None,
@@ -369,6 +383,8 @@ class ContentRunStore:
             brief=row["brief"],
             audience=row["audience"],
             goal=row["goal"],
+            tone=row["tone"] if "tone" in row.keys() else "",
+            tone_strength=row["tone_strength"] if "tone_strength" in row.keys() else "balanced",
             formats=tuple(json.loads(row["formats_json"])),
             constraints=tuple(json.loads(row["constraints_json"])),
             status=row["status"],
