@@ -114,17 +114,7 @@ def validate_research_relevance(*, brief: str, research: dict[str, Any]) -> dict
         if isinstance(item, dict) and item.get("id")
     }
 
-    relevant_sources = 0
-    for source in sources:
-        if not isinstance(source, dict):
-            continue
-        if is_relevant_source(
-            brief=brief,
-            title=str(source.get("title", "")),
-            extract=str(source.get("extract", "")),
-        ):
-            relevant_sources += 1
-
+    relevant_source_ids: set[str] = set()
     relevant_claims = 0
     rejected_claim_ids: list[str] = []
     for claim in claims:
@@ -141,6 +131,9 @@ def validate_research_relevance(*, brief: str, research: dict[str, Any]) -> dict
             evidence=" ".join(excerpts),
         ):
             relevant_claims += 1
+            for source_id in claim.get("source_ids", []):
+                if str(source_id) in source_by_id:
+                    relevant_source_ids.add(str(source_id))
         elif claim.get("id"):
             rejected_claim_ids.append(str(claim["id"]))
 
@@ -149,12 +142,12 @@ def validate_research_relevance(*, brief: str, research: dict[str, Any]) -> dict
     )
     min_claims = 3 if future_history else 1
     min_sources = 3 if future_history else 1
-    passed = relevant_claims >= min_claims and relevant_sources >= min_sources
+    passed = relevant_claims >= min_claims and len(relevant_source_ids) >= min_sources
 
     return {
         "status": "PASS" if passed else "FAIL",
         "relevant_claim_count": relevant_claims,
-        "relevant_source_count": relevant_sources,
+        "relevant_source_count": len(relevant_source_ids),
         "claim_count": len(claims),
         "source_count": len(sources),
         "rejected_claim_ids": rejected_claim_ids,
