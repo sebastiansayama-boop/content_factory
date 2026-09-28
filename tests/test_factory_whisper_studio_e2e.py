@@ -96,15 +96,55 @@ def test_factory_full_lifecycle_to_real_whisper_studio_video(tmp_path, monkeypat
 
         assets = result["production"]["assets"]
         assert len(assets) >= len(result["script"]["units"]) * 2
+
+        units_by_id = {unit["unit_id"]: unit for unit in result["script"]["units"]}
+        assets_by_unit_type = {
+            (asset["script_unit_id"], asset["asset_type"]): asset
+            for asset in assets
+        }
+        jobs = service.asset_jobs.list_for_run(run.run_id)
+
+        for unit in result["script"]["units"]:
+            unit_id = unit["unit_id"]
+            visual = assets_by_unit_type.get((unit_id, "visual"))
+            voice = assets_by_unit_type.get((unit_id, "voice"))
+            assert visual is not None, unit_id
+            assert voice is not None, unit_id
+            assert visual["claim_refs"] == voice["claim_refs"] == unit["claim_refs"]
+            assert visual["evidence_refs"] == voice["evidence_refs"] == unit["evidence_refs"]
+
+            voice_job = next(
+                job for job in jobs
+                if job.script_unit_id == unit_id and job.asset_type == "voice"
+            )
+            assert voice_job.input_text == unit["text"]
+            assert voice_job.visual_intent == unit["visual_intent"]
+
         for asset in assets:
             asset_path = Path(asset["uri"])
             assert asset_path.is_file(), asset
             assert asset["claim_refs"]
             assert asset["evidence_refs"]
+            assert asset["script_unit_id"] in units_by_id
             if asset["asset_type"] == "voice":
                 with wave.open(str(asset_path), "rb") as handle:
                     assert handle.getnchannels() == 1
                     assert handle.getnframes() > 0
+
+        sequence = result["production"]["output"]["sequence"]
+        assert len(sequence) == len(result["script"]["units"])
+        for item in sequence:
+            unit = units_by_id[item["script_unit_id"]]
+            visual = assets_by_unit_type[(item["script_unit_id"], "visual")]
+            voice = assets_by_unit_type[(item["script_unit_id"], "voice")]
+            assert item["text"] == unit["text"]
+            assert item["visual_intent"] == unit["visual_intent"]
+            assert item["asset_id"] == visual["asset_id"]
+            assert item["asset_uri"] == visual["uri"]
+            assert item["voice_asset_id"] == voice["asset_id"]
+            assert item["voice_uri"] == voice["uri"]
+            assert item["claim_refs"] == sorted(set(unit["claim_refs"]))
+            assert item["evidence_refs"] == sorted(set(unit["evidence_refs"]))
 
         approve = DummyHandler(
             f"/api/runs/{run.run_id}/approve",
@@ -133,6 +173,13 @@ def test_factory_full_lifecycle_to_real_whisper_studio_video(tmp_path, monkeypat
         assert media_probe["video"] is True
         assert media_probe["audio"] is True
         assert media_probe["duration"] > 0
+        assert media_probe["video_duration"] > 0
+        assert media_probe["audio_duration"] > 0
+        assert media_probe["video_codec"]
+        assert media_probe["audio_codec"]
+        assert "mp4" in media_probe["container"].split(",")
+        assert abs(media_probe["video_duration"] - media_probe["audio_duration"]) <= 0.5
+        assert abs(media_probe["duration"] - media_probe["video_duration"]) <= 0.5
 
         artifact = Path(tmp_path) / "exports" / run.run_id / payload["artifact"]
         manifest = Path(tmp_path) / "exports" / run.run_id / "manifest.json"
