@@ -174,6 +174,47 @@ class LocalResearchAdapter:
 
         return collected
 
+    @staticmethod
+    def _abstract_from_inverted_index(value: Any) -> str:
+        if not isinstance(value, dict):
+            return ""
+        words: dict[int, str] = {}
+        for token, positions in value.items():
+            if not isinstance(token, str) or not isinstance(positions, list):
+                continue
+            for position in positions:
+                if isinstance(position, int):
+                    words[position] = token
+        return " ".join(words[index] for index in sorted(words))
+
+    def _openalex_works(self, brief: str) -> list[dict[str, str]]:
+        query = "history future prophecy eschatology science fiction futurism" if self._is_future_history_brief(brief) else brief[:180]
+        url = "https://api.openalex.org/works?" + urllib.parse.urlencode({"search": query, "per-page": "8"})
+        try:
+            payload = self._request_json(url)
+        except ValueError:
+            return []
+        results = payload.get("results")
+        if not isinstance(results, list):
+            return []
+        works: list[dict[str, str]] = []
+        for item in results:
+            if not isinstance(item, dict):
+                continue
+            title = item.get("display_name")
+            if not isinstance(title, str) or not title.strip():
+                continue
+            abstract = self._abstract_from_inverted_index(item.get("abstract_inverted_index"))
+            if not abstract.strip():
+                continue
+            location = item.get("primary_location")
+            landing = location.get("landing_page_url") if isinstance(location, dict) else None
+            openalex_url = item.get("id")
+            source_url = landing if isinstance(landing, str) and landing.startswith("http") else openalex_url
+            if not isinstance(source_url, str) or not source_url.startswith("http"):
+                continue
+            works.append({"title": title.strip(), "url": source_url, "abstract": abstract.strip(), "year": str(item.get("publication_year") or "")})
+        return works
     def _web_research(self, brief: str) -> ExternalCallResult:
         roots = ["https://en.wikipedia.org"]
         if not self._is_future_history_brief(brief):
@@ -248,6 +289,23 @@ class LocalResearchAdapter:
             )
             seen_urls.add(page_url)
 
+        for item in self._openalex_works(brief):
+            if not is_relevant_source(brief=brief, title=item["title"], extract=item["abstract"]):
+                continue
+            source_id = f"source-{len(sources) + 1}"
+            evidence_id = f"evidence-{len(evidence) + 1}"
+            claim_id = f"claim-{len(claims) + 1}"
+            if item["url"] in seen_urls:
+                continue
+            abstract = item["abstract"]
+            first_sentence = re.split(r"(?<=[.!?])\\s+", abstract, maxsplit=1)[0].strip() or abstract[:500]
+            sources.append({"id": source_id, "title": item["title"], "url": item["url"]})
+            evidence.append({"id": evidence_id, "source_id": source_id, "excerpt": abstract[:1000], "locator": f"OpenAlex-indexed abstract ({item['year'] or 'year unknown'})", "provenance": "openalex-public-api"})
+            claims.append({"id": claim_id, "text": first_sentence, "confidence": "medium", "source_ids": [source_id], "evidence_ids": [evidence_id], "scope": "scholarly work indexed by OpenAlex", "known_unknowns": ["The indexed abstract supports the paper's stated argument; it is not independent verification of every historical claim."]})
+            seen_urls.add(item["url"])
+            if len(claims) >= 10:
+                break
+
         if not claims:
             raise ValueError("public research provider produced no claims")
 
@@ -276,7 +334,7 @@ class LocalResearchAdapter:
         }
         digest = hashlib.sha256(brief.encode("utf-8")).hexdigest()[:16]
         return ExternalCallResult(
-            integration_id="wikipedia-public-research",
+            integration_id="public-research-wikipedia-openalex",
             status_code=200,
             response_id=f"wikipedia-{digest}",
             payload={"output_text": json.dumps(body, ensure_ascii=False)},
