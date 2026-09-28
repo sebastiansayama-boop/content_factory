@@ -159,3 +159,20 @@ def test_accepted_knowledge_usage_is_explicit_and_candidates_are_blocked(tmp_pat
     assert usages[0]["run_id"] == "run-2"
     assert usages[0]["target_ref"] == "content-run:run-2"
     store.close()
+
+
+def test_candidates_for_run_ignores_text_similarity_and_returns_all_run_claims(tmp_path):
+    store = KnowledgeStore(tmp_path / "knowledge.sqlite3")
+    payload = research_payload()
+    payload["claims"][0]["text"] = "A claim using vocabulary unrelated to the run brief."
+    store.capture(run_id="run-specific", research=payload)
+
+    claims = store.candidates_for_run("run-specific")
+
+    assert len(claims) == 1
+    assert claims[0]["claim_id"].startswith("kc-")
+    assert claims[0]["status"] == KnowledgeStore.CANDIDATE
+    assert claims[0]["text"] == payload["claims"][0]["text"]
+
+    assert store.candidates_for_run("different-run") == []
+    store.close()
