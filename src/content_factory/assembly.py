@@ -102,6 +102,8 @@ class ContentAssembler:
                 "visual_intent": item["visual_intent"],
                 "claim_refs": item["claim_refs"],
                 "evidence_refs": item["evidence_refs"],
+                "provider": visual.provider,
+                "metadata": dict(visual.metadata),
             }
             for item in sequence
         ]
@@ -163,7 +165,12 @@ class QualityGate:
         check("content_package_present", isinstance(package, dict), "Content Package is present")
         check("content_package_text_present", isinstance(package, dict) and bool(str(package.get("text") or "").strip()), "Content Package contains text")
         package_images = package.get("images") if isinstance(package, dict) else None
-        check("content_package_images_present", isinstance(package_images, list) and len(package_images) == len(sequence), "Content Package contains one image per script unit")
+        expected_images = len(units) if isinstance(units, list) else 0
+        check(
+            "content_package_images_present",
+            isinstance(package_images, list) and len(package_images) == expected_images,
+            "Content Package contains one image per script unit",
+        )
 
         if isinstance(units, list):
             asset_units = {asset.script_unit_id for asset in assets}
