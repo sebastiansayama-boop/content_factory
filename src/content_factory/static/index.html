@@ -54,14 +54,14 @@ $("runFactory").onclick=async()=>{
   const brief=$("source").value.trim();
   if(!brief)return error("Add a topic or brief first.");
   $("runFactory").disabled=true;
-  setStatus("Factory running: research → editorial → production → assembly → QC…");
+  setStatus("Factory running: research → editorial → text + images → QC…");
   try{
     const created=await api("/api/runs",{
       title:$("title").value||"Content Factory run",
       brief,
       audience:"",
-      goal:"Create a publishable short-form content asset",
-      formats:["short_video"],
+      goal:"Prepare a publishable content package with text and images",
+      formats:["article","visual"],
       constraints:[]
     });
     currentRunId=created.run_id;
