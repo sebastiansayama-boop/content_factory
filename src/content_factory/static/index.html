@@ -117,7 +117,8 @@ function renderContentPackage(pkg){
     images.map((image,index)=>{
       const src=String(image.uri||"");
       const browserSrc=src.startsWith("http://")||src.startsWith("https://")?src:"/api/runs/"+encodeURIComponent(pkg.run_id)+"/assets/"+encodeURIComponent(image.asset_id);
-      return "<div class='asset'><div class='format'>image "+(index+1)+" · "+esc(image.script_unit_id||"")+"</div><img src='"+esc(browserSrc)+"' alt='"+esc(image.visual_intent||"")+"' style='width:100%;display:block;border-radius:8px;margin:8px 0' loading='lazy'><div class='key'>"+esc(image.visual_intent||"")+"<br>Claims: "+esc((image.claim_refs||[]).join(", ")||"none")+" · Evidence: "+esc((image.evidence_refs||[]).join(", ")||"none")+"</div></div>";
+      const meta=image.metadata||{}, attribution=meta.attribution_url ? "<a href='"+esc(meta.attribution_url)+"' target='_blank' rel='noreferrer noopener'>"+esc(meta.attribution_text||"View source")+"</a>" : esc(meta.attribution_text||"");
+      return "<div class='asset'><div class='format'>image "+(index+1)+" · "+esc(image.script_unit_id||"")+"</div><img src='"+esc(browserSrc)+"' alt='"+esc(image.visual_intent||"")+"' style='width:100%;display:block;border-radius:8px;margin:8px 0' loading='lazy'><div class='key'>"+esc(image.visual_intent||"")+"<br>Claims: "+esc((image.claim_refs||[]).join(", ")||"none")+" · Evidence: "+esc((image.evidence_refs||[]).join(", ")||"none")+"<br>"+attribution+"</div></div>";
     }).join("");
 }
 function renderVerticalResult(result){
