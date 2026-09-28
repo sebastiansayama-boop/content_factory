@@ -19,6 +19,14 @@
 <div class="muted">Paste a transcript, interview, podcast notes, research, lecture, or other substantive source material.</div>
 <input id="title" class="input" style="margin:12px 0 8px" placeholder="Source title">
 <textarea id="source" class="source" placeholder="Paste the source material here..."></textarea>
+<div class="row" style="margin-top:10px;flex-wrap:wrap">
+<label class="key">Tone <select id="tone" class="input" style="width:auto;min-width:150px">
+<option value="">Auto</option><option value="neutral">Neutral</option><option value="analytical">Analytical</option><option value="conversational">Conversational</option><option value="storytelling">Storytelling</option><option value="dramatic">Dramatic</option><option value="educational">Educational</option><option value="professional">Professional</option>
+</select></label>
+<label class="key">Strength <select id="toneStrength" class="input" style="width:auto;min-width:130px">
+<option value="subtle">Subtle</option><option value="balanced" selected>Balanced</option><option value="strong">Strong</option>
+</select></label>
+</div>
 <div class="row" style="margin-top:10px"><button id="sample" class="btn secondary">Load sample</button><button id="analyze" class="btn">Analyze source</button><button id="runFactory" class="btn">Run Factory</button><span id="sourceCount" class="key">0 chars</span></div>
 <div class="token"><input id="token" class="input" type="password" placeholder="FACTORY_API_TOKEN"><small>Stored only in this browser. Required by the protected product API.</small></div>
 </section>
@@ -61,6 +69,8 @@ $("runFactory").onclick=async()=>{
       brief,
       audience:"",
       goal:"Prepare a publishable content package with text and images",
+      tone:$("tone").value,
+      tone_strength:$("toneStrength").value,
       formats:["article","visual"],
       constraints:[]
     });
@@ -101,7 +111,7 @@ function renderKnowledgeReview(candidates){
 function renderFactoryRun(run){
   $("runResult").classList.remove("hidden");
   const r=run.result||{}, p=r.production||{}, q=p.qc||{}, pkg=p.output?.content_package;
-  $("runResult").innerHTML="<strong>"+esc(run.run_id)+"</strong><br>Status: "+esc(run.status)+" · Claims: "+esc(String((r.research?.claims||[]).length))+" · Images: "+esc(String(pkg?.image_count||0))+" · QC: "+esc(q.status||"UNKNOWN");
+  $("runResult").innerHTML="<strong>"+esc(run.run_id)+"</strong><br>Status: "+esc(run.status)+" · Tone: "+esc(run.tone||"auto")+" ("+esc(run.tone_strength||"balanced")+") · Claims: "+esc(String((r.research?.claims||[]).length))+" · Images: "+esc(String(pkg?.image_count||0))+" · QC: "+esc(q.status||"UNKNOWN");
   $("summary").textContent=r.content_spec?.logline||r.editorial?.selected_idea?.angle||"";
   renderContentPackage(pkg);
   $("review").classList.remove("hidden");
