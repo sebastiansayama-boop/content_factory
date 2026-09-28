@@ -27,7 +27,12 @@ class LocalResearchAdapter:
     def _request_json(url: str) -> dict[str, Any]:
         request = urllib.request.Request(
             url,
-            headers={"User-Agent": "ContentFactory/1.0 (+https://github.com/sebastiansayama-boop/content_factory)"},
+            headers={
+                "User-Agent": (
+                    "ContentFactory/1.0 "
+                    "(+https://github.com/sebastiansayama-boop/content_factory)"
+                )
+            },
         )
         try:
             with urllib.request.urlopen(request, timeout=20.0) as response:
@@ -41,27 +46,67 @@ class LocalResearchAdapter:
         return payload
 
     @staticmethod
-    def _queries(brief: str) -> list[str]:
+    def _is_future_history_brief(brief: str) -> bool:
+        lowered = brief.lower()
+        future_terms = ("будущ", "future", "прогноз", "prediction", "prophecy", "пророч")
+        history_terms = ("истори", "past", "древ", "ancient", "эпох", "centur", "врем")
+        return any(token in lowered for token in future_terms) and any(
+            token in lowered for token in history_terms
+        )
+
+    @classmethod
+    def _queries(cls, brief: str) -> list[str]:
         compact = re.sub(r"\s+", " ", brief).strip()
-        queries = [compact[:240]]
         lowered = compact.lower()
-        if any(token in lowered for token in ("будущ", "future", "пророч", "prophecy", "утоп", "utopia")):
+        queries: list[str] = []
+
+        if cls._is_future_history_brief(compact):
             queries.extend(
                 [
-                    "history of ideas about the future prophecy utopia",
-                    "history of future studies futurism science fiction",
-                ]
-            )
-        if any(token in lowered for token in ("верн", "verne", "уэллс", "wells", "робида", "robida", "уоткинс", "watkins")):
-            queries.extend(
-                [
-                    "Jules Verne From the Earth to the Moon",
-                    "H. G. Wells Anticipations",
+                    "history of ideas about the future",
+                    "ancient conceptions of the future prophecy time",
+                    "eschatology history concept of future",
+                    "utopia history future society",
+                    "history of science fiction future",
+                    "Jules Verne future technology",
+                    "H. G. Wells Anticipations future",
                     "Albert Robida future Paris",
                     "John Elfreth Watkins predictions 2000",
+                    "history of futurism",
                 ]
             )
+
+        queries.append(compact[:240])
+
+        if any(token in lowered for token in ("верн", "verne")):
+            queries.append("Jules Verne From the Earth to the Moon")
+        if any(token in lowered for token in ("уэллс", "wells")):
+            queries.append("H. G. Wells Anticipations")
+        if any(token in lowered for token in ("робида", "robida")):
+            queries.append("Albert Robida future Paris")
+        if any(token in lowered for token in ("уоткинс", "watkins")):
+            queries.append("John Elfreth Watkins predictions 2000")
+
         return list(dict.fromkeys(q for q in queries if q))
+
+    @classmethod
+    def _preferred_titles(cls, brief: str) -> list[str]:
+        if not cls._is_future_history_brief(brief):
+            return []
+        return [
+            "History of science fiction",
+            "Utopia",
+            "Eschatology",
+            "Prophecy",
+            "Jules Verne",
+            "H. G. Wells",
+            "Albert Robida",
+            "John Elfreth Watkins",
+            "Futurism",
+            "Epic of Gilgamesh",
+            "Augustine of Hippo",
+            "Joachim of Fiore",
+        ]
 
     def _search(self, api_root: str, query: str) -> list[dict[str, Any]]:
         url = f"{api_root}/w/api.php?" + urllib.parse.urlencode(
@@ -72,6 +117,7 @@ class LocalResearchAdapter:
                 "format": "json",
                 "utf8": "1",
                 "srlimit": "6",
+                "srprop": "snippet",
             }
         )
         payload = self._request_json(url)
@@ -88,31 +134,59 @@ class LocalResearchAdapter:
             return None
         return payload
 
+    def _collect_titles(self, root: str, brief: str) -> list[tuple[str, str, dict[str, Any]]]:
+        language = "ru" if root.startswith("https://ru.") else "en"
+        collected: list[tuple[str, str, dict[str, Any]]] = []
+        seen: set[str] = set()
+
+        for title in self._preferred_titles(brief):
+            try:
+                summary = self._summary(root, title)
+            except ValueError:
+                continue
+            if summary is not None:
+                key = title.lower()
+                if key not in seen:
+                    seen.add(key)
+                    collected.append((language, title, summary))
+
+        for query in self._queries(brief):
+            for result in self._search(root, query):
+                title = result.get("title")
+                if not isinstance(title, str) or not title.strip():
+                    continue
+                key = title.lower()
+                if key in seen:
+                    continue
+                try:
+                    summary = self._summary(root, title)
+                except ValueError:
+                    continue
+                if summary is None:
+                    continue
+                seen.add(key)
+                collected.append((language, title, summary))
+                if len(collected) >= 14:
+                    break
+            if len(collected) >= 14:
+                break
+
+        return collected
+
     def _web_research(self, brief: str) -> ExternalCallResult:
-        # Use the Russian project brief for discovery when possible, then add
-        # English canonical queries for the specific future-history slice.
-        roots = ["https://ru.wikipedia.org", "https://en.wikipedia.org"]
+        roots = ["https://en.wikipedia.org"]
+        if not self._is_future_history_brief(brief):
+            roots = ["https://en.wikipedia.org", "https://ru.wikipedia.org"]
+
         ranked: list[tuple[str, str, dict[str, Any]]] = []
         seen_titles: set[tuple[str, str]] = set()
         for root in roots:
-            language = "ru" if root.startswith("https://ru.") else "en"
-            for query in self._queries(brief):
-                for result in self._search(root, query):
-                    title = result.get("title")
-                    if not isinstance(title, str) or not title.strip():
-                        continue
-                    key = (language, title)
-                    if key in seen_titles:
-                        continue
-                    seen_titles.add(key)
-                    try:
-                        summary = self._summary(root, title)
-                    except ValueError:
-                        continue
-                    if summary is not None:
-                        ranked.append((language, title, summary))
-                    if len(ranked) >= 10:
-                        break
+            for language, title, summary in self._collect_titles(root, brief):
+                key = (language, title.lower())
+                if key in seen_titles:
+                    continue
+                seen_titles.add(key)
+                ranked.append((language, title, summary))
                 if len(ranked) >= 10:
                     break
             if len(ranked) >= 10:
@@ -128,25 +202,24 @@ class LocalResearchAdapter:
 
         for index, (language, title, summary) in enumerate(ranked[:8], start=1):
             extract = str(summary.get("extract", "")).strip()
-            page_url = f"https://{'ru' if language == 'ru' else 'en'}.wikipedia.org/wiki/{urllib.parse.quote(title.replace(' ', '_'))}"
-            if page_url in seen_urls or not extract:
+            if not extract:
                 continue
+            page_url = (
+                f"https://{'ru' if language == 'ru' else 'en'}.wikipedia.org/wiki/"
+                f"{urllib.parse.quote(title.replace(' ', '_'))}"
+            )
+            if page_url in seen_urls:
+                continue
+
             source_id = f"source-{index}"
             evidence_id = f"evidence-{index}"
             claim_id = f"claim-{index}"
-            sources.append(
-                {
-                    "id": source_id,
-                    "title": title,
-                    "url": page_url,
-                }
-            )
-            excerpt = extract[:800]
+            sources.append({"id": source_id, "title": title, "url": page_url})
             evidence.append(
                 {
                     "id": evidence_id,
                     "source_id": source_id,
-                    "excerpt": excerpt,
+                    "excerpt": extract[:800],
                     "locator": "Wikipedia article lead",
                     "provenance": "wikipedia-public-api",
                 }
@@ -169,19 +242,28 @@ class LocalResearchAdapter:
         if not claims:
             raise ValueError("public research provider produced no claims")
 
+        if self._is_future_history_brief(brief):
+            angles = [
+                "Future as prophecy versus future as possibility",
+                "From cyclical and theological futures to open historical futures",
+                "From utopian speculation to technological extrapolation",
+                "Why predicted functions can outlive predicted machines",
+            ]
+        else:
+            angles = ["Evidence-led source synthesis"]
+
         topic = brief.split(". ", 1)[0].strip() or brief[:180]
-        summary_text = "Research discovered from public Wikipedia sources: " + "; ".join(s["title"] for s in sources[:5])
+        summary_text = (
+            "Research discovered from public Wikipedia sources: "
+            + "; ".join(s["title"] for s in sources[:6])
+        )
         body = {
             "topic": topic,
             "summary": summary_text,
             "claims": claims,
             "sources": sources,
             "evidence": evidence,
-            "editorial_angles": [
-                "Future as prophecy versus future as possibility",
-                "From utopian speculation to technological extrapolation",
-                "Why predicted functions outlive predicted machines",
-            ],
+            "editorial_angles": angles,
         }
         digest = hashlib.sha256(brief.encode("utf-8")).hexdigest()[:16]
         return ExternalCallResult(
@@ -234,7 +316,11 @@ class LocalResearchAdapter:
         claim_rows = [line.strip()[2:] for line in claims_text.splitlines() if line.strip().startswith("- ")]
         claim_ids = [row.split(":", 1)[0].strip() for row in claim_rows if ":" in row]
         source_match = re.search(r"Sources:\n(.+)$", prompt, flags=re.S)
-        source_rows = [line.strip()[2:] for line in source_match.group(1).splitlines() if line.strip().startswith("- ")] if source_match else []
+        source_rows = (
+            [line.strip()[2:] for line in source_match.group(1).splitlines() if line.strip().startswith("- ")]
+            if source_match
+            else []
+        )
         source_ids = [row.split(":", 1)[0].strip() for row in source_rows if ":" in row]
 
         if "one article" in prompt:
