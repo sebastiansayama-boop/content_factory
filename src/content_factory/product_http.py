@@ -63,7 +63,42 @@ class ProductHandler(Handler):
             if self.path == "/api/runs":
                 self._json(200, {"runs": [run.to_dict() for run in self.content_runs.list()]})
                 return
-            run_id = self.path.removeprefix("/api/runs/").strip("/")
+            run_path = self.path.removeprefix("/api/runs/").strip("/")
+            if run_path.count("/") >= 2 and run_path.split("/")[1] == "assets":
+                parts = run_path.split("/")
+                run_id, asset_id = parts[0], parts[2]
+                run = self.content_runs.get(run_id)
+                asset = self.service.asset_registry.get(asset_id) if run is not None else None
+                if asset is None or asset.run_id != run_id:
+                    self._json(404, {"error": "asset not found"})
+                    return
+                path = Path(asset.uri)
+                if not path.is_file():
+                    self._json(404, {"error": "asset file not found"})
+                    return
+                mime = "image/png" if path.suffix.lower() == ".png" else "application/octet-stream"
+                raw = path.read_bytes()
+                self.send_response(200)
+                self.send_header("Content-Type", mime)
+                self.send_header("Content-Length", str(len(raw)))
+                self.send_header("Cache-Control", "private, max-age=3600")
+                self.end_headers()
+                self.wfile.write(raw)
+                return
+            run_id = run_path
+            if run_id.endswith("/package"):
+                run_id = run_id.removesuffix("/package").strip("/")
+                run = self.content_runs.get(run_id)
+                if run is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                output = ((run.result or {}).get("production") or {}).get("output")
+                package = output.get("content_package") if isinstance(output, dict) else None
+                if not isinstance(package, dict):
+                    self._json(404, {"error": "content package not found"})
+                    return
+                self._json(200, package)
+                return
             if run_id.endswith("/plan"):
                 run_id = run_id.removesuffix("/plan").strip("/")
             if run_id.endswith("/jobs"):
