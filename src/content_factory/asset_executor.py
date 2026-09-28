@@ -116,10 +116,12 @@ class AssetExecutor:
             return self._execute_local_media(job)
         if provider == "openverse":
             return self._execute_openverse(job)
+        if provider == "pexels":
+            return self._execute_pexels(job)
         if provider == "higgsfield":
             return self._submit_higgsfield(job)
         raise AssetExecutionError(
-            "FACTORY_ASSET_PROVIDER must be 'stub', 'local_media', 'openverse' or 'higgsfield'"
+            "FACTORY_ASSET_PROVIDER must be 'stub', 'local_media', 'openverse', 'pexels' or 'higgsfield'"
         )
 
     def _execute_local_media(self, job: AssetJob) -> AssetExecution:
@@ -344,6 +346,190 @@ class AssetExecutor:
                 value = int(amplitude * math.sin(2 * math.pi * frequency * index / sample_rate))
                 samples.extend(struct.pack("<h", value))
             handle.writeframes(samples)
+
+    def _execute_pexels(self, job: AssetJob) -> AssetExecution:
+        """Acquire a Pexels photo or video using the free API."""
+        key = os.environ.get("PEXELS_API_KEY", "").strip()
+        if not key:
+            raise AssetExecutionError("PEXELS_API_KEY is required for FACTORY_ASSET_PROVIDER=pexels")
+
+        query = (job.visual_intent or job.input_text).strip()
+        if not query:
+            raise AssetExecutionError("pexels media job requires visual_intent or input_text")
+
+        if job.asset_type == "visual":
+            endpoint = "https://api.pexels.com/v1/search"
+            params = urllib.parse.urlencode(
+                {
+                    "query": query[:300],
+                    "orientation": "portrait",
+                    "per_page": "15",
+                    "locale": "en-US",
+                }
+            )
+            payload = self._pexels_get_json(f"{endpoint}?{params}", key)
+            candidates = payload.get("photos") if isinstance(payload, dict) else None
+            if not isinstance(candidates, list):
+                raise AssetExecutionError("pexels returned an invalid photo search payload")
+
+            selected = next(
+                (
+                    item for item in candidates
+                    if isinstance(item, dict)
+                    and isinstance(item.get("src"), dict)
+                    and str(item["src"].get("original") or "").startswith(("https://", "http://"))
+                ),
+                None,
+            )
+            if selected is None:
+                raise AssetExecutionError("pexels returned no downloadable photo")
+
+            source_url = str(selected["src"].get("original") or "")
+            media_kind = "photo"
+            attribution_url = str(selected.get("url") or "")
+            creator = str(selected.get("photographer") or "")
+            creator_url = str(selected.get("photographer_url") or "")
+            title = str(selected.get("alt") or "")
+            width = int(selected.get("width") or 0)
+            height = int(selected.get("height") or 0)
+            source_id = str(selected.get("id") or source_url)
+            extension = ".jpg"
+        elif job.asset_type == "video":
+            endpoint = "https://api.pexels.com/v1/videos/search"
+            params = urllib.parse.urlencode(
+                {
+                    "query": query[:300],
+                    "orientation": "portrait",
+                    "per_page": "15",
+                    "locale": "en-US",
+                }
+            )
+            payload = self._pexels_get_json(f"{endpoint}?{params}", key)
+            candidates = payload.get("videos") if isinstance(payload, dict) else None
+            if not isinstance(candidates, list):
+                raise AssetExecutionError("pexels returned an invalid video search payload")
+
+            selected = None
+            selected_file = None
+            for item in candidates:
+                if not isinstance(item, dict):
+                    continue
+                files = item.get("video_files")
+                if not isinstance(files, list):
+                    continue
+                usable = [
+                    f for f in files
+                    if isinstance(f, dict)
+                    and str(f.get("link") or "").startswith(("https://", "http://"))
+                    and str(f.get("file_type") or "").lower() in {"video/mp4", "video/quicktime"}
+                ]
+                usable.sort(key=lambda f: (int(f.get("width") or 0), int(f.get("height") or 0)), reverse=True)
+                if usable:
+                    selected = item
+                    selected_file = usable[0]
+                    break
+
+            if selected is None or selected_file is None:
+                raise AssetExecutionError("pexels returned no downloadable video")
+
+            source_url = str(selected_file.get("link") or "")
+            media_kind = "video"
+            attribution_url = str(selected.get("url") or "")
+            creator = str(selected.get("user", {}).get("name") or "") if isinstance(selected.get("user"), dict) else ""
+            creator_url = str(selected.get("user", {}).get("url") or "") if isinstance(selected.get("user"), dict) else ""
+            title = f"Pexels video {selected.get('id', '')}".strip()
+            width = int(selected_file.get("width") or selected.get("width") or 0)
+            height = int(selected_file.get("height") or selected.get("height") or 0)
+            source_id = str(selected.get("id") or source_url)
+            extension = ".mp4"
+        else:
+            raise AssetExecutionError("pexels provider supports visual and video assets only")
+
+        raw = self._download_bytes(source_url, key)
+        if len(raw) > 50 * 1024 * 1024:
+            raise AssetExecutionError("pexels media exceeds 50 MiB limit")
+
+        digest = hashlib.sha256(
+            f"{job.run_id}:{job.asset_request_id}:{source_id}".encode("utf-8")
+        ).hexdigest()[:16]
+        directory = self.root / "asset_jobs" / job.run_id
+        directory.mkdir(parents=True, exist_ok=True)
+        path = directory / f"{job.asset_request_id}{extension}"
+        path.write_bytes(raw)
+
+        metadata = {
+            "source": "pexels",
+            "source_id": source_id,
+            "source_url": source_url,
+            "attribution_url": attribution_url,
+            "creator": creator,
+            "creator_url": creator_url,
+            "title": title,
+            "width": width,
+            "height": height,
+            "query": query,
+            "media_kind": media_kind,
+            "attribution_required": True,
+            "attribution_text": (
+                f"Photo by {creator} on Pexels" if media_kind == "photo" and creator
+                else f"Video by {creator} on Pexels" if media_kind == "video" and creator
+                else "Media provided by Pexels"
+            ),
+        }
+        if not source_url:
+            raise AssetExecutionError("pexels returned an empty media URL")
+
+        return AssetExecution(
+            provider="pexels",
+            state="COMPLETED",
+            result={
+                "asset_id": f"asset-{digest}",
+                "job_id": job.job_id,
+                "type": job.asset_type,
+                "status": "DRAFT",
+                "claim_refs": list(job.claim_refs),
+                "evidence_refs": list(job.evidence_refs),
+                "acceptance_criteria": list(job.acceptance_criteria),
+                "provider": "pexels",
+                "path": str(path),
+                "metadata": metadata,
+            },
+        )
+
+    @staticmethod
+    def _pexels_get_json(url: str, key: str) -> dict[str, Any]:
+        request = urllib.request.Request(
+            url,
+            headers={
+                "Authorization": key,
+                "User-Agent": "ContentFactory/1.0 (+https://github.com/sebastiansayama-boop/content_factory)",
+            },
+            method="GET",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=20) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+        except Exception as exc:
+            raise AssetExecutionError(f"pexels search failed: {exc}") from exc
+        if not isinstance(payload, dict):
+            raise AssetExecutionError("pexels returned a non-object payload")
+        return payload
+
+    @staticmethod
+    def _download_bytes(url: str, key: str) -> bytes:
+        request = urllib.request.Request(
+            url,
+            headers={
+                "Authorization": key,
+                "User-Agent": "ContentFactory/1.0 (+https://github.com/sebastiansayama-boop/content_factory)",
+            },
+            method="GET",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return response.read(50 * 1024 * 1024 + 1)
+        except Exception as exc:
+            raise AssetExecutionError(f"pexels media download failed: {exc}") from exc
 
     @staticmethod
     def _submit_higgsfield(job: AssetJob) -> AssetExecution:
