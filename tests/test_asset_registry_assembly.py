@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from content_factory.asset_jobs import AssetJobStore
 from content_factory.asset_registry import AssetRegistry
 from content_factory.asset_executor import AssetExecutor
