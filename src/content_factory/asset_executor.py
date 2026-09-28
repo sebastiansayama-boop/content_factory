@@ -53,10 +53,12 @@ class AssetExecutor:
             running = self.jobs.mark_running(job.job_id)
             try:
                 execution = self._execute(running)
+                result = dict(execution.result)
+                result.setdefault("provider", execution.provider)
                 if execution.state == "SUBMITTED":
-                    output.append(self.jobs.submit(job.job_id, execution.result))
+                    output.append(self.jobs.submit(job.job_id, result))
                 else:
-                    output.append(self.jobs.complete(job.job_id, execution.result))
+                    output.append(self.jobs.complete(job.job_id, result))
             except Exception as exc:
                 output.append(self.jobs.fail(job.job_id, {"error": str(exc)}))
         return output
