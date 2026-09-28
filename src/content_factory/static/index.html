@@ -315,6 +315,7 @@ details summary{cursor:pointer;font-size:12px;font-weight:700;color:#555}
 <script>
 const $=id=>document.getElementById(id);
 let mode="topic";
+let primaryAction="research";
 let currentRun=null;
 let candidates=[];
 let analysis=null;
@@ -357,9 +358,10 @@ function renderSummary(state,claims="—",approved="—",assets="—"){
   $("summaryApproved").textContent=approved;
   $("summaryAssets").textContent=assets;
 }
-function setPrimary(label,disabled=false){
+function setPrimary(label,disabled=false,action=null){
   $("primaryAction").textContent=label;
   $("primaryAction").disabled=disabled;
+  if(action)primaryAction=action;
 }
 function switchMode(next){
   mode=next;
@@ -385,7 +387,7 @@ function switchMode(next){
   $("rightHint").textContent=mode==="topic"?"Настройки будущего материала":"Выберите историю для производства";
   renderSummary("Ожидает задачи");
   setStep("task");
-  setPrimary(mode==="topic"?"Запустить исследование":"Анализировать материал");
+  setPrimary(mode==="topic"?"Запустить исследование":"Анализировать материал",false,mode==="topic"?"research":"analyze");
   setStatus("Готово к работе");
 }
 $("topicMode").onclick=()=>switchMode("topic");
@@ -458,7 +460,7 @@ function renderClaims(run,items){
   updateApprovalAction();
   renderSummary("Нужна проверка",candidates.length,0,"—");
   setStep("review");
-  setPrimary("Создать материалы",true);
+  setPrimary("Создать материалы",true,"create");
   $("actionReason").textContent="Сначала одобрите хотя бы одно утверждение.";
   $("approvalReview").classList.remove("hidden");
   $("approveCurrent").classList.remove("hidden");
@@ -486,10 +488,10 @@ function updateApprovalAction(){
   const approved=(candidates||[]).filter(c=>String(c.status||"").toUpperCase()==="ACCEPTED").length;
   $("summaryApproved").textContent=approved;
   if(approved>0){
-    setPrimary("Создать материалы",false);
+    setPrimary("Создать материалы",false,"create");
     $("actionReason").textContent="Первое одобрение разблокировало создание материалов.";
   }else{
-    setPrimary("Создать материалы",true);
+    setPrimary("Создать материалы",true,"create");
     $("actionReason").textContent="Сначала одобрите хотя бы одно утверждение.";
   }
 }
@@ -523,7 +525,7 @@ async function runFactory(){
   const brief=$("source").value.trim();
   if(!brief)return showError("Опишите задачу в поле слева.");
   setStep("research");
-  setPrimary("Исследуем…",true);
+  setPrimary("Исследуем…",true,"research");
   $("centerEmpty").classList.add("hidden");
   $("researchSection").classList.remove("hidden");
   $("centerEyebrow").textContent="Сейчас: исследование";
@@ -554,7 +556,7 @@ async function runFactory(){
       $("progress").classList.add("hidden");
       setStatus("Исследование завершено · нужна проверка");
     }else{
-      showError(e.message);setStep("task");setPrimary("Запустить исследование");setStatus("Не удалось завершить запуск");
+      showError(e.message);setStep("task");setPrimary("Запустить исследование",false,"research");setStatus("Не удалось завершить запуск");
     }
   }
 }
@@ -574,7 +576,7 @@ async function createMaterials(){
     currentRun=data.run;
     renderReady(data.run);
     await loadHistory();
-  }catch(e){showError(e.message);setStatus("Производство не завершено");setPrimary("Создать материалы");}
+  }catch(e){showError(e.message);setStatus("Производство не завершено");setPrimary("Создать материалы",false,"create");}
 }
 function renderReady(run){
   const result=run?.result||{};
@@ -597,7 +599,7 @@ function renderReady(run){
   renderSummary(qc.status==="PASSED"?"Готово":"Требует проверки",result.research?.claims?.length||candidates.length,(result.research?.claims||[]).length,assets);
   setStep("done");
   $("rightHint").textContent="Материалы и следующие действия";
-  setPrimary(qc.status==="PASSED"?"Утвердить":"Обновить статус",qc.status!=="PASSED");
+  setPrimary(qc.status==="PASSED"?"Утвердить":"Обновить статус",qc.status!=="PASSED",qc.status==="PASSED"?"approve":"noop");
   $("actionReason").textContent=qc.status==="PASSED"?"После утверждения можно экспортировать материал.":"";
   renderTechnical(run);
 }
@@ -642,11 +644,11 @@ async function analyzeSource(){
   clearError();
   const material=$("sourceMaterial").value.trim();
   if(!material)return showError("Вставьте материал слева.");
-  setStep("research");setPrimary("Анализируем…",true);$("progress").classList.remove("hidden");$("progressBar").style.width="40%";setStatus("Анализ материала");
+  setStep("research");setPrimary("Анализируем…",true,"analyze");$("progress").classList.remove("hidden");$("progressBar").style.width="40%";setStatus("Анализ материала");
   try{
     analysis=await api("/api/analyze",{title:$("title").value||"Untitled source",source:material});
     renderSourceAnalysis();
-  }catch(e){showError(e.message);setPrimary("Анализировать материал");setStatus("Не удалось проанализировать")}
+  }catch(e){showError(e.message);setPrimary("Анализировать материал",false,"analyze");setStatus("Не удалось проанализировать")}
 }
 function renderSourceAnalysis(){
   $("centerEmpty").classList.add("hidden");$("researchSection").classList.add("hidden");$("resultSection").classList.add("hidden");$("sourceExplore").classList.remove("hidden");
@@ -666,7 +668,7 @@ function renderSourceAnalysis(){
     selectedStory=analysis.stories[Number(el.dataset.storyIndex)];
     $("selectedStory").classList.remove("hidden");
     $("selectedStoryBox").innerHTML=`<strong>${esc(selectedStory.title)}</strong><div class="small" style="margin-top:4px">${esc(selectedStory.angle||"")}</div>`;
-    setStep("production");setPrimary("Создать материалы",false);$("actionReason").textContent="Выбрана история для производства.";
+    setStep("production");setPrimary("Создать материалы",false,"create");$("actionReason").textContent="Выбрана история для производства.";
     $("summaryState").textContent="Готово к производству";$("summaryClaims").textContent=String((selectedStory.evidence||[]).length);$("summaryApproved").textContent="—";$("summaryAssets").textContent="—";
   });
   $("progress").classList.add("hidden");setStatus("Материал проанализирован");setPrimary("Создать материалы",true);
@@ -682,33 +684,40 @@ async function produceSource(){
     $("centerEyebrow").textContent="Сейчас: готово";$("centerTitle").textContent="Материал готов";$("centerSub").textContent="Проверьте результат перед публикацией.";
     $("resultNotice").innerHTML='<div class="notice success">Материалы готовы.</div>';
     $("package").innerHTML=(data.package||[]).map(a=>`<article class="asset"><div class="format">${esc(a.format||"Материал")}</div><h4>${esc(a.title||"")}</h4><pre>${esc(a.content||"")}</pre></article>`).join("");
-    setStep("done");renderSummary("Готово","—","—",String((data.package||[]).length));setPrimary("Готово",true);
-  }catch(e){showError(e.message);setPrimary("Создать материалы");setStatus("Ошибка")}
+    setStep("done");renderSummary("Готово","—","—",String((data.package||[]).length));setPrimary("Готово",true,"noop");
+  }catch(e){showError(e.message);setPrimary("Создать материалы",false,"create");setStatus("Ошибка")}
 }
 $("primaryAction").onclick=async()=>{
   if(mode==="topic"){
-    const label=$("primaryAction").textContent;
-    if(label==="Запустить исследование")return runFactory();
-    if(label==="Создать материалы")return createMaterials();
-    if(label==="Утвердить")return approveRun();
+    if(primaryAction==="research")return runFactory();
+    if(primaryAction==="create")return createMaterials();
+    if(primaryAction==="approve")return approveRun();
+    if(primaryAction==="export")return exportRun();
   }else{
-    if(!analysis)return analyzeSource();
-    return produceSource();
+    if(primaryAction==="analyze")return analyzeSource();
+    if(primaryAction==="produce")return produceSource();
   }
 };
+async function exportRun(){
+  clearError();
+  try{
+    const out=await api("/api/runs/"+encodeURIComponent(currentRun.run_id)+"/export",{});
+    currentRun=out.run;
+    setPrimary("Экспортировано",true,"noop");
+    setStatus("Материал экспортирован");
+    $("summaryState").textContent="Экспортировано";
+  }catch(e){showError(e.message)}
+}
 async function approveRun(){
   clearError();
   try{
     const data=await api("/api/runs/"+encodeURIComponent(currentRun.run_id)+"/approve",{decision_ref:"browser-human-review"});
     currentRun=data;
-    setPrimary("Экспортировать",false);$("actionReason").textContent="Утверждено. Теперь можно экспортировать.";
-    $("summaryState").textContent="Утверждено";setStep("done");setStatus("Материал утверждён");
-    $("primaryAction").onclick=async()=>{
-      try{
-        const out=await api("/api/runs/"+encodeURIComponent(currentRun.run_id)+"/export",{});
-        currentRun=out.run;setPrimary("Экспортировано",true);setStatus("Материал экспортирован");$("summaryState").textContent="Экспортировано";
-      }catch(e){showError(e.message)}
-    };
+    setPrimary("Экспортировать",false,"export");
+    $("actionReason").textContent="Утверждено. Теперь можно экспортировать.";
+    $("summaryState").textContent="Утверждено";
+    setStep("done");
+    setStatus("Материал утверждён");
   }catch(e){showError(e.message)}
 }
 async function loadHistory(){
