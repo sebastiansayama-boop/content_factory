@@ -214,7 +214,8 @@ class StyleLinter:
     def check(self, text: str) -> StyleLintResult:
         normalized = self.normalize(text)
         words = re.findall(r"\b\w+\b", normalized, flags=re.UNICODE)
-        em_dash_count = text.count("—")
+        em_dash_count = normalized.count("—")
+        original_em_dash_count = text.count("—")
         forbidden_hits = {
             pattern: len(re.findall(re.escape(pattern), normalized, flags=re.IGNORECASE))
             for pattern in self.profile.forbidden_patterns
@@ -243,6 +244,7 @@ class StyleLinter:
             metrics={
                 "word_count": len(words),
                 "em_dash_count": em_dash_count,
+                "original_em_dash_count": original_em_dash_count,
                 "forbidden_pattern_hits": forbidden_hits,
                 "sentence_count": len(sentence_lengths),
                 "average_sentence_words": round(mean(sentence_lengths), 2) if sentence_lengths else 0,
