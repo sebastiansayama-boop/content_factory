@@ -2,58 +2,272 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import re
+import urllib.error
+import urllib.parse
+import urllib.request
+from typing import Any
 
 from .integrations import ExternalCallResult
 
 
 class LocalResearchAdapter:
-    """Deterministic fixture for deployment smoke tests; not live-web research."""
+    """Credential-free research adapter backed by public Wikipedia APIs.
 
-    def research(self, prompt: str) -> ExternalCallResult:
-        if not prompt.strip():
-            raise ValueError("research prompt must not be empty")
-        digest = hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:16]
-        brief = prompt.split("USER BRIEF:", 1)[-1].strip()
-        if "Research the user's brief" in prompt:
-            body = {
-                "topic": brief,
-                "summary": f"Development fixture for: {brief}",
-                "claims": [{
-                    "id": "claim-local-1",
-                    "text": f"Development fixture claim for {brief}.",
-                    "confidence": "low",
-                    "source_ids": ["source-local-1"],
-                    "evidence_ids": ["evidence-local-1"],
-                    "scope": "local smoke test only",
-                    "known_unknowns": ["Not live-web research."],
-                }],
-                "sources": [{
-                    "id": "source-local-1",
-                    "title": "Local development fixture",
-                    "url": "https://example.invalid/content-factory/local",
-                }],
-                "evidence": [{
-                    "id": "evidence-local-1",
-                    "source_id": "source-local-1",
-                    "excerpt": f"Fixture evidence for {brief}.",
-                    "locator": "fixture",
-                    "provenance": "local-research",
-                }],
-                "editorial_angles": ["Development fixture"],
+    Set FACTORY_LOCAL_RESEARCH_MODE=fixture only for deterministic smoke tests.
+    """
+
+    def __init__(self, *, fixture: bool | None = None) -> None:
+        if fixture is None:
+            fixture = os.environ.get("FACTORY_LOCAL_RESEARCH_MODE", "web").strip().lower() == "fixture"
+        self.fixture = fixture
+
+    @staticmethod
+    def _request_json(url: str) -> dict[str, Any]:
+        request = urllib.request.Request(
+            url,
+            headers={"User-Agent": "ContentFactory/1.0 (+https://github.com/sebastiansayama-boop/content_factory)"},
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=20.0) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            raise ValueError(f"public research provider returned HTTP {exc.code}") from exc
+        except urllib.error.URLError as exc:
+            raise ValueError(f"public research provider connection failed: {exc.reason}") from exc
+        if not isinstance(payload, dict):
+            raise ValueError("public research provider returned a non-object response")
+        return payload
+
+    @staticmethod
+    def _queries(brief: str) -> list[str]:
+        compact = re.sub(r"\s+", " ", brief).strip()
+        queries = [compact[:240]]
+        lowered = compact.lower()
+        if any(token in lowered for token in ("будущ", "future", "пророч", "prophecy", "утоп", "utopia")):
+            queries.extend(
+                [
+                    "history of ideas about the future prophecy utopia",
+                    "history of future studies futurism science fiction",
+                ]
+            )
+        if any(token in lowered for token in ("верн", "verne", "уэллс", "wells", "робида", "robida", "уоткинс", "watkins")):
+            queries.extend(
+                [
+                    "Jules Verne From the Earth to the Moon",
+                    "H. G. Wells Anticipations",
+                    "Albert Robida future Paris",
+                    "John Elfreth Watkins predictions 2000",
+                ]
+            )
+        return list(dict.fromkeys(q for q in queries if q))
+
+    def _search(self, api_root: str, query: str) -> list[dict[str, Any]]:
+        url = f"{api_root}/w/api.php?" + urllib.parse.urlencode(
+            {
+                "action": "query",
+                "list": "search",
+                "srsearch": query,
+                "format": "json",
+                "utf8": "1",
+                "srlimit": "6",
             }
-        else:
-            body = {
-                "title": brief,
-                "content": f"Development fixture content for {brief}.",
-                "claim_refs": ["claim-local-1"],
-                "source_refs": ["source-local-1"],
-            }
+        )
+        payload = self._request_json(url)
+        query_block = payload.get("query")
+        if not isinstance(query_block, dict):
+            return []
+        results = query_block.get("search")
+        return [item for item in results if isinstance(item, dict)] if isinstance(results, list) else []
+
+    def _summary(self, api_root: str, title: str) -> dict[str, Any] | None:
+        encoded_title = urllib.parse.quote(title.replace(" ", "_"), safe="_()'!-")
+        payload = self._request_json(f"{api_root}/api/rest_v1/page/summary/{encoded_title}")
+        if not isinstance(payload.get("extract"), str) or not payload["extract"].strip():
+            return None
+        return payload
+
+    def _web_research(self, brief: str) -> ExternalCallResult:
+        # Use the Russian project brief for discovery when possible, then add
+        # English canonical queries for the specific future-history slice.
+        roots = ["https://ru.wikipedia.org", "https://en.wikipedia.org"]
+        ranked: list[tuple[str, str, dict[str, Any]]] = []
+        seen_titles: set[tuple[str, str]] = set()
+        for root in roots:
+            language = "ru" if root.startswith("https://ru.") else "en"
+            for query in self._queries(brief):
+                for result in self._search(root, query):
+                    title = result.get("title")
+                    if not isinstance(title, str) or not title.strip():
+                        continue
+                    key = (language, title)
+                    if key in seen_titles:
+                        continue
+                    seen_titles.add(key)
+                    try:
+                        summary = self._summary(root, title)
+                    except ValueError:
+                        continue
+                    if summary is not None:
+                        ranked.append((language, title, summary))
+                    if len(ranked) >= 10:
+                        break
+                if len(ranked) >= 10:
+                    break
+            if len(ranked) >= 10:
+                break
+
+        if not ranked:
+            raise ValueError("public research provider returned no usable sources")
+
+        sources: list[dict[str, str]] = []
+        evidence: list[dict[str, str]] = []
+        claims: list[dict[str, Any]] = []
+        seen_urls: set[str] = set()
+
+        for index, (language, title, summary) in enumerate(ranked[:8], start=1):
+            extract = str(summary.get("extract", "")).strip()
+            page_url = f"https://{'ru' if language == 'ru' else 'en'}.wikipedia.org/wiki/{urllib.parse.quote(title.replace(' ', '_'))}"
+            if page_url in seen_urls or not extract:
+                continue
+            source_id = f"source-{index}"
+            evidence_id = f"evidence-{index}"
+            claim_id = f"claim-{index}"
+            sources.append(
+                {
+                    "id": source_id,
+                    "title": title,
+                    "url": page_url,
+                }
+            )
+            excerpt = extract[:800]
+            evidence.append(
+                {
+                    "id": evidence_id,
+                    "source_id": source_id,
+                    "excerpt": excerpt,
+                    "locator": "Wikipedia article lead",
+                    "provenance": "wikipedia-public-api",
+                }
+            )
+            claims.append(
+                {
+                    "id": claim_id,
+                    "text": extract.split("\n", 1)[0].strip(),
+                    "confidence": "medium",
+                    "source_ids": [source_id],
+                    "evidence_ids": [evidence_id],
+                    "scope": "public Wikipedia source; discovery-grade evidence",
+                    "known_unknowns": [
+                        "Wikipedia is a secondary source and should be rechecked against primary or institutional sources before publication."
+                    ],
+                }
+            )
+            seen_urls.add(page_url)
+
+        if not claims:
+            raise ValueError("public research provider produced no claims")
+
+        topic = brief.split(". ", 1)[0].strip() or brief[:180]
+        summary_text = "Research discovered from public Wikipedia sources: " + "; ".join(s["title"] for s in sources[:5])
+        body = {
+            "topic": topic,
+            "summary": summary_text,
+            "claims": claims,
+            "sources": sources,
+            "evidence": evidence,
+            "editorial_angles": [
+                "Future as prophecy versus future as possibility",
+                "From utopian speculation to technological extrapolation",
+                "Why predicted functions outlive predicted machines",
+            ],
+        }
+        digest = hashlib.sha256(brief.encode("utf-8")).hexdigest()[:16]
         return ExternalCallResult(
-            integration_id="local-research",
+            integration_id="wikipedia-public-research",
+            status_code=200,
+            response_id=f"wikipedia-{digest}",
+            payload={"output_text": json.dumps(body, ensure_ascii=False)},
+        )
+
+    def _fixture_research(self, brief: str) -> ExternalCallResult:
+        body = {
+            "topic": brief,
+            "summary": f"Development fixture for: {brief}",
+            "claims": [{
+                "id": "claim-local-1",
+                "text": f"Development fixture claim for {brief}.",
+                "confidence": "low",
+                "source_ids": ["source-local-1"],
+                "evidence_ids": ["evidence-local-1"],
+                "scope": "local smoke test only",
+                "known_unknowns": ["Not live-web research."],
+            }],
+            "sources": [{
+                "id": "source-local-1",
+                "title": "Local development fixture",
+                "url": "https://example.invalid/content-factory/local",
+            }],
+            "evidence": [{
+                "id": "evidence-local-1",
+                "source_id": "source-local-1",
+                "excerpt": f"Fixture evidence for {brief}.",
+                "locator": "fixture",
+                "provenance": "local-research-fixture",
+            }],
+            "editorial_angles": ["Development fixture"],
+        }
+        digest = hashlib.sha256(brief.encode("utf-8")).hexdigest()[:16]
+        return ExternalCallResult(
+            integration_id="local-research-fixture",
             status_code=200,
             response_id=f"local-{digest}",
             payload={"output_text": json.dumps(body, ensure_ascii=False)},
         )
+
+    def _production(self, prompt: str) -> ExternalCallResult:
+        topic_match = re.search(r"Topic:\s*(.+)", prompt)
+        topic = topic_match.group(1).strip() if topic_match else "Content Factory"
+        claims_match = re.search(r"Claims:\n(.+?)(?:\nSources:|$)", prompt, flags=re.S)
+        claims_text = claims_match.group(1).strip() if claims_match else ""
+        claim_rows = [line.strip()[2:] for line in claims_text.splitlines() if line.strip().startswith("- ")]
+        claim_ids = [row.split(":", 1)[0].strip() for row in claim_rows if ":" in row]
+        source_match = re.search(r"Sources:\n(.+)$", prompt, flags=re.S)
+        source_rows = [line.strip()[2:] for line in source_match.group(1).splitlines() if line.strip().startswith("- ")] if source_match else []
+        source_ids = [row.split(":", 1)[0].strip() for row in source_rows if ":" in row]
+
+        if "one article" in prompt:
+            paragraphs = [row.split(":", 1)[1].strip() for row in claim_rows if ":" in row]
+            content = f"{topic}\n\n" + "\n\n".join(paragraphs[:6])
+            title = topic
+        else:
+            content = f"{topic}: " + " ".join(
+                row.split(":", 1)[1].strip() for row in claim_rows[:3] if ":" in row
+            )
+            title = topic
+
+        body = {
+            "title": title,
+            "content": content.strip(),
+            "claim_refs": claim_ids,
+            "source_refs": source_ids,
+        }
+        digest = hashlib.sha256(prompt.encode("utf-8")).hexdigest()[:16]
+        return ExternalCallResult(
+            integration_id="local-research-production",
+            status_code=200,
+            response_id=f"local-production-{digest}",
+            payload={"output_text": json.dumps(body, ensure_ascii=False)},
+        )
+
+    def research(self, prompt: str) -> ExternalCallResult:
+        if not prompt.strip():
+            raise ValueError("research prompt must not be empty")
+        brief = prompt.split("USER BRIEF:", 1)[-1].strip()
+        if "Research the user's brief" in prompt:
+            return self._fixture_research(brief) if self.fixture else self._web_research(brief)
+        return self._production(prompt)
 
     @staticmethod
     def text(result: ExternalCallResult) -> str:
