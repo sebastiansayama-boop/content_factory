@@ -129,6 +129,10 @@ def test_factory_full_lifecycle_to_real_whisper_studio_video(tmp_path, monkeypat
         assert payload["renderer"] == "whisper-studio"
         assert payload["artifact_type"] == "video"
         assert payload["status"] == "EXPORTED"
+        media_probe = payload["renderer_artifacts"]["media_probe"]
+        assert media_probe["video"] is True
+        assert media_probe["audio"] is True
+        assert media_probe["duration"] > 0
 
         artifact = Path(tmp_path) / "exports" / run.run_id / payload["artifact"]
         manifest = Path(tmp_path) / "exports" / run.run_id / "manifest.json"
