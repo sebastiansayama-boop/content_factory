@@ -90,13 +90,48 @@ class ContentAssembler:
 
         output_dir = self.root / "outputs" / run_id
         output_dir.mkdir(parents=True, exist_ok=True)
+
+        title = str(script.get("title") or "")
+        text = "\n\n".join(item["text"] for item in sequence if item["text"])
+        images = [
+            {
+                "position": item["position"],
+                "script_unit_id": item["script_unit_id"],
+                "asset_id": item["asset_id"],
+                "uri": item["asset_uri"],
+                "visual_intent": item["visual_intent"],
+                "claim_refs": item["claim_refs"],
+                "evidence_refs": item["evidence_refs"],
+            }
+            for item in sequence
+        ]
+        package = {
+            "package_id": f"package-{run_id}",
+            "run_id": run_id,
+            "title": title,
+            "text": text,
+            "images": images,
+            "sequence": sequence,
+            "status": "READY",
+        }
+        package_path = output_dir / "content-package.json"
+        package_path.write_text(
+            json.dumps(package, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
         manifest_path = output_dir / "sequence.json"
         manifest = {
             "output_id": f"output-{run_id}",
             "run_id": run_id,
-            "title": str(script.get("title") or ""),
+            "title": title,
             "format": str(production_plan.get("format") or ""),
             "sequence": sequence,
+            "content_package": {
+                "package_id": package["package_id"],
+                "uri": str(package_path),
+                "text": text,
+                "image_count": len(images),
+            },
             "status": "ASSEMBLED",
         }
         manifest_path.write_text(
