@@ -184,12 +184,70 @@ class WhisperStudioRenderer:
                 f"Whisper Studio manifest points to missing final video: {final_path}"
             )
 
+        media = self._probe_video(final_path)
+        if not media["video"]:
+            raise RenderError("Whisper Studio output contains no video stream")
+        if not media["audio"]:
+            raise RenderError("Whisper Studio output contains no audio stream")
+        if media["duration"] <= 0:
+            raise RenderError("Whisper Studio output has invalid duration")
+
         return RenderResult(
             renderer="whisper-studio",
             final_video=str(final_path),
             manifest=str(manifest_path),
-            artifacts=manifest.get("artifacts", {}),
+            artifacts={
+                **(manifest.get("artifacts", {}) if isinstance(manifest.get("artifacts", {}), dict) else {}),
+                "media_probe": media,
+            },
         )
+
+    @staticmethod
+    def _probe_video(path: Path) -> dict[str, Any]:
+        command = [
+            "ffprobe",
+            "-v",
+            "error",
+            "-show_entries",
+            "stream=codec_type",
+            "-show_entries",
+            "format=duration",
+            "-of",
+            "json",
+            str(path),
+        ]
+        try:
+            completed = subprocess.run(
+                command,
+                check=True,
+                text=True,
+                capture_output=True,
+                encoding="utf-8",
+                errors="replace",
+            )
+        except (OSError, subprocess.CalledProcessError) as exc:
+            detail = getattr(exc, "stderr", "") or getattr(exc, "stdout", "") or str(exc)
+            raise RenderError(f"ffprobe failed for rendered video: {detail.strip()}") from exc
+        try:
+            payload = json.loads(completed.stdout)
+        except json.JSONDecodeError as exc:
+            raise RenderError("ffprobe returned invalid JSON") from exc
+
+        streams = payload.get("streams", [])
+        stream_types = {
+            str(stream.get("codec_type"))
+            for stream in streams
+            if isinstance(stream, dict)
+        }
+        try:
+            duration = float(payload.get("format", {}).get("duration") or 0)
+        except (TypeError, ValueError):
+            duration = 0.0
+        return {
+            "video": "video" in stream_types,
+            "audio": "audio" in stream_types,
+            "duration": duration,
+        }
 
 
 class PackageRenderer:
