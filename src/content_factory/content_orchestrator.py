@@ -97,14 +97,14 @@ class ContentOrchestrator:
         jobs = self.service.asset_jobs.create_from_plan(run_id, result["production_plan"])
         run = self.content_runs.save_production_result(
             run_id,
-            {**(run.result or {}), "production": {"status": "QUEUED", "job_ids": [j.job_id for j in jobs]},
+            {**(run.result or {}), "production": {"status": "QUEUED", "job_ids": [j.job_id for j in jobs]}} ,
         )
         self.service.control.record(run_id, "production.queued", output_refs=tuple(j.job_id for j in jobs))
 
         jobs = self.service.asset_executor.execute_run(run_id)
         run = self.content_runs.save_production_result(
             run_id,
-            {**(run.result or {}), "production": {"status": "COMPLETED", "jobs": [j.to_dict() for j in jobs]},
+            {**(run.result or {}), "production": {"status": "COMPLETED", "jobs": [j.to_dict() for j in jobs]}} ,
         )
         self.service.control.record(run_id, "production.completed", output_refs=tuple(j.job_id for j in jobs))
         assets = [self.service.asset_registry.register_completed_job(j).to_dict() for j in jobs]
