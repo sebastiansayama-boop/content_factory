@@ -264,7 +264,7 @@ class LocalResearchAdapter:
             source_id = f"source-{index}"
             evidence_id = f"evidence-{index}"
             claim_id = f"claim-{index}"
-            sources.append({"id": source_id, "title": title, "url": page_url})
+            sources.append({"id": source_id, "title": title, "url": page_url, "source_type": "secondary_encyclopedic"})
             evidence.append(
                 {
                     "id": evidence_id,
@@ -272,6 +272,7 @@ class LocalResearchAdapter:
                     "excerpt": extract[:800],
                     "locator": "Wikipedia article lead",
                     "provenance": "wikipedia-public-api",
+                    "source_type": "secondary_encyclopedic",
                 }
             )
             claims.append(
@@ -299,8 +300,8 @@ class LocalResearchAdapter:
                 continue
             abstract = item["abstract"]
             first_sentence = re.split(r"(?<=[.!?])\\s+", abstract, maxsplit=1)[0].strip() or abstract[:500]
-            sources.append({"id": source_id, "title": item["title"], "url": item["url"]})
-            evidence.append({"id": evidence_id, "source_id": source_id, "excerpt": abstract[:1000], "locator": f"OpenAlex-indexed abstract ({item['year'] or 'year unknown'})", "provenance": "openalex-public-api"})
+            sources.append({"id": source_id, "title": item["title"], "url": item["url"], "source_type": "scholarly_index"})
+            evidence.append({"id": evidence_id, "source_id": source_id, "excerpt": abstract[:1000], "locator": f"OpenAlex-indexed abstract ({item['year'] or 'year unknown'})", "provenance": "openalex-public-api", "source_type": "scholarly_index"})
             claims.append({"id": claim_id, "text": first_sentence, "confidence": "medium", "source_ids": [source_id], "evidence_ids": [evidence_id], "scope": "scholarly work indexed by OpenAlex", "known_unknowns": ["The indexed abstract supports the paper's stated argument; it is not independent verification of every historical claim."]})
             seen_urls.add(item["url"])
             if len(claims) >= 10:
@@ -321,8 +322,8 @@ class LocalResearchAdapter:
 
         topic = brief.split(". ", 1)[0].strip() or brief[:180]
         summary_text = (
-            "Research discovered from public Wikipedia sources: "
-            + "; ".join(s["title"] for s in sources[:6])
+            "Research discovered from public web and scholarly-index sources: "
+            + "; ".join(s["title"] for s in sources[:8])
         )
         body = {
             "topic": topic,
