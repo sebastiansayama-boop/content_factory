@@ -111,8 +111,13 @@ def test_decision_loop_records_failed_tool_and_continues():
     registry.register(AgentTool("research.fail", "fail", "researcher", fail))
     os = ContentAgentOS(control, registry)
 
+    registry.register(
+        AgentTool("research.recover", "recover", "researcher", lambda **_: {"recovered": True})
+    )
+
     decisions = iter([
         AgentDecision("research.fail"),
+        AgentDecision("research.recover"),
         AgentDecision("", terminal=True),
     ])
     result = os.run_decision_loop(
@@ -127,7 +132,9 @@ def test_decision_loop_records_failed_tool_and_continues():
     )
 
     assert result.observations[0]["error"] == "temporary failure"
+    assert result.observations[1]["result"] == {"recovered": True}
     assert result.state["last_tool_error"] == "temporary failure"
+    assert result.state["last_tool_result"] == {"recovered": True}
     assert any(event == "agent.tool.failed" for _, event, _ in control.events)
     assert any(event == "agent.observation" and data["status"] == "FAILED" for _, event, data in control.events)
 
@@ -154,3 +161,22 @@ def test_decision_loop_stops_at_max_steps():
         assert "limit of 2" in str(exc)
     else:
         raise AssertionError("expected max-step RuntimeError")
+
+
+def test_json_policy_rejects_premature_terminal_decision():
+    policy = JsonToolDecisionPolicy(
+        lambda _: '{"tool":"","reason":"done","terminal":true}'
+    )
+    tool = AgentTool("content.write", "write", "writer", lambda **_: None)
+    context = type("Context", (), {
+        "observations": [],
+        "snapshot": lambda self, tools: {"available_tools": [tool.name]},
+    })()
+
+    decision = policy(context, (tool,))
+
+    assert decision == AgentDecision(
+        "content.write",
+        "terminal decision rejected before any successful observation; execute the first owned tool",
+        False,
+    )
