@@ -95,6 +95,20 @@ class ContentOrchestrator:
             invoke=invoke,
         )
 
+    @staticmethod
+    def _last_observation_result(context) -> Any:
+        for observation in reversed(context.observations):
+            if "result" in observation:
+                return observation["result"]
+            if "error" in observation:
+                raise RuntimeError(
+                    f"agent {context.agent} tool {observation.get('tool')} failed: "
+                    f"{observation['error']}"
+                )
+        raise RuntimeError(
+            f"agent {context.agent} completed without a successful tool observation"
+        )
+
     def _research(self, run: ContentRun) -> ContentRun:
         def invoke(tool, context):
             current = self.content_runs.get(run.run_id) or run
@@ -214,7 +228,7 @@ class ContentOrchestrator:
                     name="planner", tool=tool, run_id=run_id, run=run
                 ),
             )
-            plan = planner_context.observations[-1]["result"]
+            plan = self._last_observation_result(planner_context)
             self.content_runs.save_plan(run_id, plan)
             self.service.control.record(run_id, "planning.completed", status="COMPLETED", actor="planner")
         run = self.content_runs.get(run_id)
@@ -244,7 +258,7 @@ class ContentOrchestrator:
                     name="writer", tool=tool, run_id=run_id, run=run, review_feedback=feedback
                 ),
             )
-            result = writer_context.observations[-1]["result"]
+            result = self._last_observation_result(writer_context)
             self.content_runs.save_result(run_id, {"run_id": run_id, "brief": run.brief, **result})
             self.service.control.record(
                 run_id,
@@ -263,7 +277,7 @@ class ContentOrchestrator:
                     name="reviewer", tool=tool, run_id=run_id, run=run, result=result
                 ),
             )
-            review = reviewer_context.observations[-1]["result"]
+            review = self._last_observation_result(reviewer_context)
             review["revision"] = revision
             review_history.append(review)
             self.content_runs.save_result(
@@ -314,7 +328,7 @@ class ContentOrchestrator:
                 output=output,
             ),
         )
-        qc = quality_context.observations[-1]["result"]
+        qc = self._last_observation_result(quality_context)
         final = {
             **(produced_run.result or {}),
             "production": {
