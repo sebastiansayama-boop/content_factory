@@ -206,13 +206,6 @@ details summary{cursor:pointer;font-size:12px;font-weight:700;color:#555}
         </details>
       </div>
 
-      <details class="detail-box">
-        <summary>Доступ к API</summary>
-        <div class="field">
-          <input id="token" class="input" type="password" placeholder="FACTORY_API_TOKEN">
-          <div class="footer-note">Токен хранится только в этой вкладке браузера.</div>
-        </div>
-      </details>
     </aside>
 
     <main class="panel center">
@@ -326,12 +319,8 @@ function setStatus(t){$("status").textContent=t}
 function showError(t){$("error").textContent=t;$("error").classList.remove("hidden")}
 function clearError(){$("error").classList.add("hidden")}
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function apiToken(){return $("token").value.trim()||sessionStorage.getItem("factory_token")||""}
 async function api(path,body,method="POST"){
-  const token=apiToken();
-  if(!token)throw new Error("Введите FACTORY_API_TOKEN в разделе «Доступ к API».");
-  sessionStorage.setItem("factory_token",token);
-  const opts={method,headers:{"Content-Type":"application/json","Authorization":`Bearer ${token}`}};
+  const opts={method,headers:{"Content-Type":"application/json"}};
   if(method!=="GET")opts.body=JSON.stringify(body||{});
   const r=await fetch(path,opts);
   let data={};try{data=await r.json()}catch{}
