@@ -114,7 +114,32 @@ class AgentDecisionLoop:
                     "reason": decision.reason,
                 },
             )
-            observation = invoke(decision.tool, context)
+            try:
+                observation = invoke(decision.tool, context)
+            except Exception as exc:
+                observation_record = {
+                    "step": step,
+                    "tool": decision.tool,
+                    "error": str(exc),
+                    "error_type": type(exc).__name__,
+                }
+                context.observations.append(observation_record)
+                context.state["last_tool"] = decision.tool
+                context.state["last_tool_error"] = str(exc)
+                self.control.record(
+                    run_id,
+                    "agent.observation",
+                    status="FAILED",
+                    actor=agent,
+                    evidence={
+                        "step": step,
+                        "tool": decision.tool,
+                        "error": str(exc),
+                        "error_type": type(exc).__name__,
+                    },
+                )
+                continue
+
             observation_record = {
                 "step": step,
                 "tool": decision.tool,
@@ -122,6 +147,8 @@ class AgentDecisionLoop:
                 "result": observation,
             }
             context.observations.append(observation_record)
+            context.state["last_tool"] = decision.tool
+            context.state["last_tool_result"] = observation
 
             self.control.record(
                 run_id,
