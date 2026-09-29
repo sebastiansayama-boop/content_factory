@@ -71,14 +71,14 @@ class ContentOrchestrator:
                 return AgentDecision("", reason="content plan created", terminal=True)
             return AgentDecision("content_run.plan", reason="retry planning after unsuccessful observation")
         if context.agent == "researcher":
+            # A factory run must establish fresh evidence for its brief. Existing
+            # accepted knowledge is reusable context, but it is not current
+            # evidence and must not allow the research stage to terminate early.
             if not observations:
-                return AgentDecision("knowledge.search", reason="check existing accepted knowledge")
-            first = observations[0].get("result")
-            if observations[-1]["tool"] == "knowledge.search":
-                if isinstance(first, dict) and first.get("claims"):
-                    return AgentDecision("", reason="accepted knowledge is sufficient", terminal=True)
-                return AgentDecision("research.public", reason="no accepted knowledge; research public sources")
-            return AgentDecision("", reason="research observation collected", terminal=True)
+                return AgentDecision("research.public", reason="research fresh public evidence for the brief")
+            if observations[-1].get("tool") == "research.public" and "result" in observations[-1]:
+                return AgentDecision("", reason="fresh research observation collected", terminal=True)
+            return AgentDecision("research.public", reason="retry research after unsuccessful observation")
         if context.agent == "producer":
             sequence = ["production.queue", "production.execute", "production.assemble"]
             for tool in sequence:
