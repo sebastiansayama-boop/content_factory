@@ -5,725 +5,81 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Content Factory</title>
 <style>
-:root{
-  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  color:#171717;background:#f6f6f3;line-height:1.45;
-  --border:#deddd8;--muted:#6f6f68;--soft:#f1f1ed;--dark:#191919;--amber:#8a5a00;--amber-bg:#fff5dc;
-  --green:#22643a;--green-bg:#ecf7ef;--red:#9b1c1c;--red-bg:#fff1f1;
-}
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh}
-button,input,textarea,select{font:inherit}
-button{min-height:42px}
-.shell{max-width:1480px;margin:auto;padding:24px}
-.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px}
-.brand{font-weight:800;font-size:21px;letter-spacing:-.02em}
-.top-copy{margin-top:3px;color:var(--muted);font-size:13px}
-.top-actions{display:flex;gap:8px;align-items:center}
-.status{font-size:12px;color:var(--muted)}
-.btn{border:1px solid var(--dark);background:var(--dark);color:#fff;border-radius:9px;padding:10px 15px;font-size:13px;font-weight:700;cursor:pointer}
-.btn.secondary{background:#fff;color:var(--dark);border-color:#c9c8c1}
-.btn.ghost{background:transparent;color:#4f4f49;border-color:transparent}
-.btn:disabled{opacity:.45;cursor:not-allowed}
-.segmented{display:inline-flex;background:#ecece8;border-radius:10px;padding:3px;gap:3px}
-.segmented button{border:0;background:transparent;color:#5b5b55;padding:8px 11px;border-radius:7px;cursor:pointer;min-height:36px;font-size:12px;font-weight:700}
-.segmented button.active{background:#fff;color:var(--dark);box-shadow:0 1px 2px #0000000d}
-.stepper{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:0 0 16px}
-.step{position:relative;padding:10px 12px;border:1px solid var(--border);background:#fff;border-radius:10px;color:#74746e;font-size:12px}
-.step strong{display:block;color:#444;margin-bottom:2px}
-.step.active{border-color:#b6b5ae;box-shadow:0 1px 2px #0000000a}
-.step.active strong{color:var(--dark)}
-.step.done{background:#fbfbf9}
-.step .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#bbb;margin-right:6px}
-.step.active .dot{background:var(--dark)}
-.step.done .dot{background:#3f7752}
-.grid{display:grid;grid-template-columns:260px minmax(0,1fr) 315px;gap:14px;align-items:start}
-.panel{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:0 1px 2px #00000009}
-.panel-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:13px}
-.panel h2{font-size:15px;margin:0}
-.panel h3{font-size:13px;margin:20px 0 8px}
-.muted{color:var(--muted);font-size:13px}
-.small{font-size:12px;color:var(--muted)}
-.input,.source{width:100%;border:1px solid #d3d2cc;border-radius:9px;padding:10px 11px;background:#fff;color:var(--dark)}
-.source{min-height:390px;resize:vertical;font-size:13px}
-.source:focus,.input:focus,button:focus-visible,select:focus-visible{outline:3px solid #d9e7ff;outline-offset:1px}
-.field{margin-top:12px}
-.field label{display:block;font-size:12px;font-weight:700;color:#4d4d47;margin-bottom:6px}
-.source-count{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--muted)}
-.mode-card{border:1px solid var(--border);border-radius:11px;padding:12px;background:#fbfbf9}
-.mode-card strong{display:block;font-size:13px;margin-bottom:3px}
-.mode-card p{margin:0;font-size:12px;color:var(--muted)}
-.left-summary{display:none;border:1px solid var(--border);border-radius:11px;padding:10px;background:#fbfbf9}
-.left-summary strong{display:block;font-size:12px}
-.notice{padding:12px 13px;border-radius:10px;background:var(--soft);color:#555;font-size:12px}
-.notice.action{background:var(--amber-bg);color:#6c4b00;border:1px solid #efd99a}
-.notice.success{background:var(--green-bg);color:var(--green);border:1px solid #c9e6d0}
-.notice.error{background:var(--red-bg);color:var(--red);border:1px solid #eccaca}
-.hidden{display:none!important}
-.error-box{margin-bottom:12px}
-.center-title{font-size:22px;line-height:1.2;letter-spacing:-.02em;margin:2px 0 5px}
-.center-sub{font-size:13px;color:var(--muted);margin-bottom:16px}
-.research-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;background:#f0f0ec;border-radius:999px;font-size:11px;color:#555}
-.badge.green{background:var(--green-bg);color:var(--green)}
-.badge.amber{background:var(--amber-bg);color:#704d00}
-.badge.red{background:var(--red-bg);color:var(--red)}
-.review-bar{display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid #ead6a0;background:var(--amber-bg);border-radius:11px;padding:12px 13px;margin-bottom:12px}
-.review-bar strong{font-size:13px;color:#6b4c00}
-.review-bar span{font-size:12px;color:#795d20}
-.cards{display:grid;gap:10px}
-.claim{border:1px solid var(--border);border-radius:12px;padding:13px;background:#fff}
-.claim.approved{border-color:#b9dabe;background:#fcfffc}
-.claim-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
-.claim-number{font-size:11px;font-weight:800;color:#8b8b83;text-transform:uppercase;letter-spacing:.06em}
-.claim-text{font-size:15px;line-height:1.5;margin:6px 0 10px}
-.claim-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.claim-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
-.claim-details{margin-top:10px;padding-top:10px;border-top:1px solid #ecebe6}
-details summary{cursor:pointer;font-size:12px;font-weight:700;color:#555}
-.source-line{font-size:12px;color:#555;margin-top:8px}
-.source-line a{color:#3a5b86}
-.result-list{display:grid;gap:10px}
-.asset{border:1px solid var(--border);border-radius:11px;padding:12px}
-.asset .format{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#7b7b74;font-weight:800}
-.asset h4{margin:4px 0 8px;font-size:14px}
-.asset pre{white-space:pre-wrap;font:inherit;font-size:12px;margin:0;line-height:1.55}
-.asset img{width:100%;display:block;border-radius:8px;margin-top:9px;background:#f2f2ee}
-.right-sticky{position:sticky;top:14px}
-.setting{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.setting .input{padding:8px}
-.checks{display:grid;gap:7px}
-.check{display:flex;gap:8px;align-items:center;font-size:12px;color:#444;cursor:pointer}
-.check input{width:16px;height:16px}
-.summary-card{border:1px solid var(--border);border-radius:11px;padding:12px;background:#fbfbf9}
-.summary-row{display:flex;justify-content:space-between;gap:12px;padding:6px 0;font-size:12px;border-bottom:1px solid #ecebe6}
-.summary-row:last-child{border-bottom:0}
-.summary-row span:first-child{color:var(--muted)}
-.sticky-action{position:sticky;bottom:0;margin:14px -18px -18px;padding:13px 18px;background:#fffffff2;border-top:1px solid var(--border);border-radius:0 0 14px 14px;backdrop-filter:blur(7px)}
-.sticky-action .btn{width:100%}
-.detail-box{margin-top:14px}
-.detail-box summary{font-size:11px;color:#777}
-.tech{margin-top:8px;font:11px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:#666;background:#f7f7f4;border:1px solid #e9e8e2;border-radius:8px;padding:9px;overflow:auto}
-.empty{padding:28px 12px;text-align:center;border:1px dashed #d4d3cd;border-radius:11px;color:var(--muted);font-size:13px}
-.progress{height:6px;background:#ecece7;border-radius:999px;overflow:hidden;margin:13px 0}
-.progress span{display:block;height:100%;background:#3e3e39;width:0%;transition:width .25s}
-.footer-note{font-size:11px;color:#85857e;margin-top:10px;line-height:1.45}
-.history{margin-top:14px}
-.history details summary{font-size:12px}
-.history-list{display:grid;gap:7px;margin-top:9px}
-.history-item{padding:8px 9px;border:1px solid var(--border);border-radius:8px;background:#fbfbf9;font-size:11px;cursor:pointer}
-@media(max-width:1180px){.grid{grid-template-columns:220px minmax(0,1fr)}.right{grid-column:1 / -1}.right-sticky{position:static}.setting{grid-template-columns:1fr 1fr}}
-@media(max-width:820px){.shell{padding:14px}.stepper{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.left-panel{order:2}.center{order:1}.right{order:3}.source{min-height:250px}.top{flex-direction:column}}
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#171717;background:#f6f6f3;line-height:1.45;--border:#deddd8;--muted:#6f6f68;--soft:#f1f1ed;--dark:#191919;--green:#22643a;--green-bg:#ecf7ef;--amber-bg:#fff5dc}
+*{box-sizing:border-box}body{margin:0;min-height:100vh}button,input,textarea,select{font:inherit}button{min-height:42px;cursor:pointer}.shell{max-width:1180px;margin:auto;padding:28px 20px}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px}.brand{font-weight:800;font-size:22px}.top-copy{color:var(--muted);font-size:13px;margin-top:3px}.status{font-size:12px;color:var(--muted)}.btn{border:1px solid var(--dark);background:var(--dark);color:#fff;border-radius:9px;padding:10px 15px;font-size:13px;font-weight:700}.btn.secondary{background:#fff;color:var(--dark);border-color:#c9c8c1}.btn:disabled{opacity:.45;cursor:not-allowed}.steps{display:flex;gap:8px;margin-bottom:18px}.step{padding:7px 10px;border-radius:999px;background:#ecece8;color:#777;font-size:11px}.step.active{background:#191919;color:#fff}.step.done{background:#e6f1e8;color:#28603b}.layout{display:grid;grid-template-columns:310px minmax(0,1fr);gap:16px}.panel{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 1px 2px #00000008}.panel h2{font-size:15px;margin:0 0 14px}.field{margin-top:15px}.field label{display:block;font-size:12px;font-weight:700;color:#4d4d47;margin-bottom:6px}.input{width:100%;border:1px solid #d3d2cc;border-radius:9px;padding:10px 11px;background:#fff}.source{width:100%;min-height:190px;resize:vertical;border:1px solid #d3d2cc;border-radius:9px;padding:11px;line-height:1.5}.input:focus,.source:focus{outline:3px solid #d9e7ff;outline-offset:1px}.segmented{display:grid;grid-template-columns:1fr 1fr;background:#ecece8;border-radius:10px;padding:3px;gap:3px}.segmented button{border:0;background:transparent;color:#5b5b55;padding:8px;border-radius:7px;min-height:36px;font-size:11px;font-weight:700}.segmented button.active{background:#fff;color:#191919;box-shadow:0 1px 2px #0000000d}.platforms{display:grid;grid-template-columns:1fr 1fr;gap:7px}.platform{border:1px solid var(--border);background:#fff;border-radius:9px;padding:9px;text-align:left;font-size:12px}.platform.active{border-color:#191919;background:#f4f4f1;font-weight:700}.setting{display:grid;grid-template-columns:1fr 1fr;gap:7px}.helper{font-size:11px;color:var(--muted);margin-top:6px}.primary{width:100%;margin-top:18px}.empty{padding:55px 20px;text-align:center;border:1px dashed #d4d3cd;border-radius:11px;color:var(--muted)}.result-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.result-title{font-size:21px;font-weight:750;line-height:1.2}.result-sub{font-size:12px;color:var(--muted);margin-top:5px}.result-actions{display:flex;gap:7px;flex-wrap:wrap}.editor{margin-top:16px}.editor textarea{width:100%;min-height:390px;border:1px solid #d3d2cc;border-radius:10px;padding:15px;font-size:15px;line-height:1.65;resize:vertical}.source-detail{margin-top:15px;border-top:1px solid #ecebe6;padding-top:13px}.source-detail summary{font-size:12px;font-weight:700;cursor:pointer}.source-list{display:grid;gap:7px;margin-top:10px}.source-item{padding:9px;background:#f7f7f4;border-radius:8px;font-size:11px}.source-item a{color:#3a5b86}.notice{padding:11px 12px;border-radius:9px;background:var(--soft);font-size:12px}.notice.success{background:var(--green-bg);color:var(--green)}.notice.error{background:#fff1f1;color:#9b1c1c;border:1px solid #eccaca}.history{margin-top:18px;border-top:1px solid #ecebe6;padding-top:14px}.history summary{font-size:12px;font-weight:700;cursor:pointer}.history-item{padding:8px;border:1px solid var(--border);border-radius:8px;margin-top:7px;font-size:11px;cursor:pointer}.hidden{display:none!important}@media(max-width:800px){.shell{padding:16px}.layout{grid-template-columns:1fr}.steps{overflow:auto}.top{flex-direction:column}.result-actions{margin-top:10px}}
 </style>
 </head>
 <body>
 <div class="shell">
-  <header class="top">
-    <div>
-      <div class="brand">Content Factory</div>
-      <div class="top-copy">Задача → исследование → проверка → материалы</div>
-    </div>
-    <div class="top-actions">
-      <span class="status" id="status">Готово к работе</span>
-      <button id="newRun" class="btn secondary">Новая задача</button>
-    </div>
-  </header>
-
-  <div id="error" class="notice error error-box hidden" role="alert"></div>
-
-  <div class="stepper" aria-label="Этапы">
-    <div class="step active" data-step="task"><span class="dot"></span><strong>Задача</strong>Что создать</div>
-    <div class="step" data-step="research"><span class="dot"></span><strong>Исследование</strong>Ищем и связываем источники</div>
-    <div class="step" data-step="review"><span class="dot"></span><strong>Проверка</strong>Решение пользователя</div>
-    <div class="step" data-step="production"><span class="dot"></span><strong>Производство</strong>Текст и изображения</div>
-    <div class="step" data-step="done"><span class="dot"></span><strong>Готово</strong>Проверить и экспортировать</div>
-  </div>
-
-  <div class="grid">
-    <aside class="panel left-panel">
-      <div class="panel-head">
-        <h2>Вход</h2>
-      </div>
-
-      <div class="segmented" role="tablist" aria-label="Тип входа">
-        <button id="topicMode" class="active" type="button">Исследовать тему</button>
-        <button id="sourceMode" type="button">У меня есть материал</button>
-      </div>
-
-      <div id="topicInput" style="margin-top:14px">
-        <div class="mode-card">
-          <strong>Опишите задачу своими словами</strong>
-          <p>Например: «Исследуй, как люди представляли будущее в разные эпохи».</p>
-        </div>
-        <div class="field">
-          <label for="source">Задача</label>
-          <textarea id="source" class="source" placeholder="Исследуй, как люди представляли будущее в разные эпохи"></textarea>
-          <div class="source-count"><span id="sourceHelp">Можно писать обычным языком</span><span id="sourceCount">0 знаков</span></div>
-        </div>
-      </div>
-
-      <div id="sourceInput" class="hidden" style="margin-top:14px">
-        <div class="mode-card">
-          <strong>Есть готовый материал?</strong>
-          <p>Вставьте транскрипт, заметки, статью или другой источник. Factory извлечёт темы и истории.</p>
-        </div>
-        <div class="field">
-          <label for="title">Название материала <span class="small">(необязательно)</span></label>
-          <input id="title" class="input" placeholder="Например: Интервью о будущем">
-        </div>
-        <div class="field">
-          <label for="sourceMaterial">Материал</label>
-          <textarea id="sourceMaterial" class="source" placeholder="Вставьте материал сюда..."></textarea>
-          <div class="source-count"><span>Текст останется связан с результатом анализа</span><span id="materialCount">0 знаков</span></div>
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="tone">Стиль текста</label>
-        <div class="setting">
-          <select id="tone" class="input">
-            <option value="">Авто</option>
-            <option value="neutral">Нейтральный</option>
-            <option value="analytical">Аналитический</option>
-            <option value="conversational">Разговорный</option>
-            <option value="storytelling">Сторителлинг</option>
-            <option value="dramatic">Драматичный</option>
-            <option value="educational">Объясняющий</option>
-            <option value="professional">Профессиональный</option>
-          </select>
-          <select id="toneStrength" class="input" aria-label="Сила стиля">
-            <option value="subtle">Мягкий</option>
-            <option value="balanced" selected>Сбалансированный</option>
-            <option value="strong">Выраженный</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="history">
-        <details>
-          <summary>Предыдущие запуски</summary>
-          <div id="historyList" class="history-list"><div class="small">Пока нет загруженной истории.</div></div>
-        </details>
-      </div>
-
-    </aside>
-
-    <main class="panel center">
-      <div class="panel-head">
-        <div>
-          <div id="centerEyebrow" class="small">Сейчас: задача</div>
-          <div id="centerTitle" class="center-title">Что исследовать?</div>
-          <div id="centerSub" class="center-sub">Опишите задачу. Factory сама найдёт источники и соберёт факты в проверяемую основу.</div>
-        </div>
-      </div>
-
-      <div id="progress" class="progress hidden"><span id="progressBar"></span></div>
-
-      <div id="centerEmpty" class="empty">
-        Здесь появится результат после запуска.
-      </div>
-
-      <section id="researchSection" class="hidden">
-        <div id="researchNotice"></div>
-        <div id="researchMeta" class="research-meta"></div>
-        <div id="claims" class="cards"></div>
-      </section>
-
-      <section id="sourceExplore" class="hidden">
-        <div id="analysisSummary" class="notice"></div>
-        <div id="themes" class="chips" style="display:flex;gap:6px;flex-wrap:wrap;margin:10px 0"></div>
-        <h3>Истории и углы</h3>
-        <div id="stories" class="cards"></div>
-        <h3>Моменты</h3>
-        <div id="moments" class="cards"></div>
-      </section>
-
-      <section id="resultSection" class="hidden">
-        <div id="resultNotice"></div>
-        <div id="package" class="result-list" style="margin-top:12px"></div>
-      </section>
-
-      <details id="technicalDetails" class="detail-box hidden">
-        <summary>Технические детали</summary>
-        <div id="technical" class="tech"></div>
-      </details>
-    </main>
-
-    <aside class="panel right">
-      <div class="right-sticky">
-        <div class="panel-head">
-          <div>
-            <h2>Результат</h2>
-            <div id="rightHint" class="small" style="margin-top:4px">Настройки будущего материала</div>
-          </div>
-        </div>
-
-        <div id="resultSummary">
-          <div class="summary-card">
-            <div class="summary-row"><span>Состояние</span><strong id="summaryState">Ожидает задачи</strong></div>
-            <div class="summary-row"><span>Найдено</span><strong id="summaryClaims">—</strong></div>
-            <div class="summary-row"><span>Одобрено</span><strong id="summaryApproved">—</strong></div>
-            <div class="summary-row"><span>Материалы</span><strong id="summaryAssets">—</strong></div>
-          </div>
-        </div>
-
-        <div id="formatsBlock" style="margin-top:14px">
-          <h3>Материалы</h3>
-          <div class="checks">
-            <label class="check"><input type="checkbox" value="article" checked> Статья</label>
-            <label class="check"><input type="checkbox" value="social_post" checked> Социальный пост</label>
-            <label class="check"><input type="checkbox" value="visual_card" checked> Изображения</label>
-          </div>
-          <div class="footer-note">Видео остаётся доступным следующим этапом, но сейчас главный результат — качественный текст и изображения.</div>
-        </div>
-
-        <div id="selectedStory" class="hidden" style="margin-top:14px">
-          <h3>Выбранная история</h3>
-          <div id="selectedStoryBox" class="summary-card"></div>
-        </div>
-
-        <div class="sticky-action">
-          <button id="primaryAction" class="btn" type="button">Запустить исследование</button>
-          <div id="actionReason" class="footer-note"></div>
-        </div>
-
-        <div id="secondaryActions" class="hidden" style="margin-top:10px">
-          <div class="row" style="display:flex;gap:7px">
-            <button id="approveCurrent" class="btn secondary" type="button">Одобрить выбранное</button>
-            <button id="resetReview" class="btn ghost" type="button">Сбросить</button>
-          </div>
-        </div>
-
-        <div id="approvalReview" class="hidden" style="margin-top:12px">
-          <div class="notice action">
-            <strong>Нужна ваша проверка.</strong>
-            <div id="approvalCopy" style="margin-top:4px">Выберите утверждения, которым доверяете, и одобрите их для создания материалов.</div>
-          </div>
-        </div>
-      </div>
-    </aside>
-  </div>
+<header class="top">
+  <div><div class="brand">Content Factory</div><div class="top-copy">Дай тему — получи готовый контент.</div></div>
+  <div><span id="status" class="status">Готово к работе</span> <button id="newRun" class="btn secondary">Новая задача</button></div>
+</header>
+<div class="steps">
+  <span class="step active" data-step="task">Тема</span><span class="step" data-step="research">Исследование</span><span class="step" data-step="production">Создание</span><span class="step" data-step="done">Готово</span>
 </div>
-
+<div id="error" class="notice error hidden" style="margin-bottom:14px"></div>
+<div class="layout">
+<aside class="panel">
+  <h2>Что создать?</h2>
+  <div class="segmented"><button id="topicMode" class="active">Исследовать тему</button><button id="sourceMode">У меня есть материал</button></div>
+  <div id="topicInput">
+    <div class="field"><label for="source">Тема или задача</label><textarea id="source" class="source" placeholder="Например: «Как люди представляли будущее в разные эпохи?»"></textarea></div>
+  </div>
+  <div id="sourceInput" class="hidden">
+    <div class="field"><label for="title">Название</label><input id="title" class="input" placeholder="Например: Интервью о будущем"></div>
+    <div class="field"><label for="sourceMaterial">Материал</label><textarea id="sourceMaterial" class="source" placeholder="Вставьте текст, транскрипт или заметки..."></textarea></div>
+  </div>
+  <div class="field"><label>Для чего?</label>
+    <div class="platforms">
+      <button class="platform active" data-platform="telegram">Telegram</button>
+      <button class="platform" data-platform="instagram">Instagram</button>
+      <button class="platform" data-platform="x">X / Twitter</button>
+      <button class="platform" data-platform="article">Статья</button>
+      <button class="platform" data-platform="youtube">YouTube</button>
+    </div>
+    <div class="helper">Формат влияет на структуру, длину и подачу.</div>
+  </div>
+  <div class="field"><label for="tone">Стиль</label><div class="setting"><select id="tone" class="input"><option value="">Авто</option><option value="neutral">Нейтральный</option><option value="analytical">Аналитический</option><option value="conversational">Разговорный</option><option value="storytelling">Сторителлинг</option><option value="educational">Объясняющий</option><option value="professional">Профессиональный</option></select><select id="toneStrength" class="input"><option value="subtle">Мягкий</option><option value="balanced" selected>Сбалансированный</option><option value="strong">Выраженный</option></select></div></div>
+  <button id="primaryAction" class="btn primary">Создать материал</button>
+  <div id="actionReason" class="helper"></div>
+  <div class="history"><details><summary>Предыдущие материалы</summary><div id="historyList"><div class="helper">Загрузка...</div></div></details></div>
+</aside>
+<main class="panel">
+  <div id="empty" class="empty"><strong>Готово к созданию</strong><div style="margin-top:6px">Введите тему, выберите платформу и нажмите «Создать материал».</div></div>
+  <section id="working" class="hidden"><div class="notice" id="workingText">Factory исследует тему и готовит материал.</div></section>
+  <section id="result" class="hidden">
+    <div class="result-head"><div><div class="result-title" id="resultTitle">Материал готов</div><div class="result-sub" id="resultSub"></div></div><div class="result-actions"><button id="regenerate" class="btn secondary">Перегенерировать</button><button id="save" class="btn">Сохранить изменения</button></div></div>
+    <div class="editor"><textarea id="editor"></textarea></div>
+    <div style="display:flex;gap:7px;margin-top:9px;flex-wrap:wrap"><button id="shorten" class="btn secondary">Сократить</button><button id="expand" class="btn secondary">Расширить</button><button id="casual" class="btn secondary">Более разговорный</button><button id="formal" class="btn secondary">Более формальный</button></div>
+    <details class="source-detail"><summary>Исследование и источники</summary><div id="researchInfo" class="source-list"></div></details>
+  </section>
+</main>
+</div>
+</div>
 <script>
-const $=id=>document.getElementById(id);
-let mode="topic";
-let primaryAction="research";
-let currentRun=null;
-let candidates=[];
-let analysis=null;
-let selectedStory=null;
-let selectedClaims=new Set();
-
-function setStatus(t){$("status").textContent=t}
-function showError(t){$("error").textContent=t;$("error").classList.remove("hidden")}
-function clearError(){$("error").classList.add("hidden")}
-function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-async function api(path,body,method="POST"){
-  const opts={method,headers:{"Content-Type":"application/json"}};
-  if(method!=="GET")opts.body=JSON.stringify(body||{});
-  const r=await fetch(path,opts);
-  let data={};try{data=await r.json()}catch{}
-  if(!r.ok){const e=new Error(data.error||`HTTP ${r.status}`);e.status=r.status;e.data=data;throw e}
-  return data
-}
-function titleFromTask(text){
-  const clean=text.replace(/\s+/g," ").trim();
-  if(!clean)return "Content Factory run";
-  return clean.length>120?clean.slice(0,117)+"...":clean;
-}
-function currentTone(){return $("tone").value}
-function setStep(step){
-  const order=["task","research","review","production","done"], idx=order.indexOf(step);
-  document.querySelectorAll(".step").forEach(el=>{
-    const i=order.indexOf(el.dataset.step);
-    el.classList.toggle("active",i===idx);
-    el.classList.toggle("done",i<idx);
-  });
-}
-function renderSummary(state,claims="—",approved="—",assets="—"){
-  $("summaryState").textContent=state;
-  $("summaryClaims").textContent=claims;
-  $("summaryApproved").textContent=approved;
-  $("summaryAssets").textContent=assets;
-}
-function setPrimary(label,disabled=false,action=null){
-  $("primaryAction").textContent=label;
-  $("primaryAction").disabled=disabled;
-  if(action)primaryAction=action;
-}
-function switchMode(next){
-  mode=next;
-  $("topicMode").classList.toggle("active",mode==="topic");
-  $("sourceMode").classList.toggle("active",mode==="source");
-  $("topicInput").classList.toggle("hidden",mode!=="topic");
-  $("sourceInput").classList.toggle("hidden",mode!=="source");
-  $("source").value=mode==="topic"?$("source").value:"";
-  $("sourceCount").textContent="0 знаков";
-  $("centerEmpty").classList.remove("hidden");
-  $("researchSection").classList.add("hidden");
-  $("sourceExplore").classList.add("hidden");
-  $("resultSection").classList.add("hidden");
-  $("technicalDetails").classList.add("hidden");
-  $("approvalReview").classList.add("hidden");
-  $("selectedStory").classList.add("hidden");
-  $("secondaryActions").classList.add("hidden");
-  $("centerEyebrow").textContent=mode==="topic"?"Сейчас: задача":"Сейчас: материал";
-  $("centerTitle").textContent=mode==="topic"?"Что исследовать?":"Что находится в материале?";
-  $("centerSub").textContent=mode==="topic"
-    ?"Опишите задачу. Factory сама найдёт источники и соберёт факты в проверяемую основу."
-    :"Вставьте материал. Factory извлечёт темы, истории, доказательства и ключевые моменты.";
-  $("rightHint").textContent=mode==="topic"?"Настройки будущего материала":"Выберите историю для производства";
-  renderSummary("Ожидает задачи");
-  setStep("task");
-  setPrimary(mode==="topic"?"Запустить исследование":"Анализировать материал",false,mode==="topic"?"research":"analyze");
-  setStatus("Готово к работе");
-}
-$("topicMode").onclick=()=>switchMode("topic");
-$("sourceMode").onclick=()=>switchMode("source");
-$("source").addEventListener("input",()=>{$("sourceCount").textContent=`${$("source").value.length.toLocaleString()} знаков`});
-$("sourceMaterial").addEventListener("input",()=>{$("materialCount").textContent=`${$("sourceMaterial").value.length.toLocaleString()} знаков`});
-$("newRun").onclick=()=>{switchMode("topic");$("source").value="";$("sourceMaterial").value="";$("title").value="";clearError();$("historyList").innerHTML="<div class='small'>Пока нет загруженной истории.</div>"};
-
-function renderTechnical(run){
-  const research=run?.result?.research||{};
-  const details={
-    run_id:run?.run_id||null,
-    status:run?.status||null,
-    tone:run?.tone||"auto",
-    tone_strength:run?.tone_strength||"balanced",
-    provider_fallback:research.provider_fallback||null,
-    research_quality:research.quality||null
-  };
-  $("technical").textContent=JSON.stringify(details,null,2);
-  $("technicalDetails").classList.remove("hidden");
-}
-function renderClaims(run,items){
-  currentRun=run||currentRun;
-  candidates=Array.isArray(items)?items:[];
-  selectedClaims=new Set();
-  $("centerEmpty").classList.add("hidden");
-  $("sourceExplore").classList.add("hidden");
-  $("resultSection").classList.add("hidden");
-  $("researchSection").classList.remove("hidden");
-  $("centerEyebrow").textContent="Сейчас: проверка";
-  $("centerTitle").textContent="Проверьте найденные утверждения";
-  $("centerSub").textContent=`Исследование завершено. Выберите утверждения, которым доверяете, и одобрите их для создания материалов.`;
-  $("researchNotice").innerHTML=`<div class="review-bar"><div><strong>${candidates.length} утверждений ждут решения</strong><div><span>Найдены источники и доказательства. Система сама не считает их окончательно подтверждёнными.</span></div></div><span>${candidates.length? "Выберите нужные":"Нет доступных утверждений"}</span></div>`;
-  $("researchMeta").innerHTML=[
-    `<span class="badge">${candidates.length} утверждений</span>`,
-    `<span class="badge">${esc((run?.result?.research?.sources||[]).length)} источников</span>`,
-    `<span class="badge">${esc((run?.result?.research?.evidence||[]).length)} доказательств</span>`
-  ].join("");
-  $("claims").innerHTML=candidates.map((c,i)=>{
-    const approved=String(c.status||"").toUpperCase()==="ACCEPTED";
-    const checked=selectedClaims.has(c.claim_id);
-    return `<article class="claim ${approved?"approved":""}">
-      <div class="claim-top">
-        <div class="claim-number">Утверждение ${i+1}</div>
-        <span class="badge ${c.confidence==="high"?"green":c.confidence==="low"?"red":"amber"}">${confidenceLabel(c.confidence)}</span>
-      </div>
-      <div class="claim-text">${esc(c.text)}</div>
-      <div class="claim-meta">
-        <span class="badge">${(c.source_ids||[]).length} ${plural((c.source_ids||[]).length,"источник","источника","источников")}</span>
-        <span class="badge">${(c.evidence_ids||[]).length} ${plural((c.evidence_ids||[]).length,"доказательство","доказательства","доказательств")}</span>
-        ${approved?'<span class="badge green">Одобрено</span>':''}
-      </div>
-      <div class="claim-actions">
-        ${approved?"":"<label class='check'><input type='checkbox' data-select-claim='"+esc(c.claim_id)+"' "+(checked?"checked":"")+"> Выбрать</label>"}
-        ${approved?"":"<button class='btn secondary' type='button' data-promote='"+esc(c.claim_id)+"'>Одобрить</button>"}
-      </div>
-      <div class="claim-details">
-        <details>
-          <summary>Показать доказательства</summary>
-          ${renderEvidence(run,c)}
-        </details>
-      </div>
-    </article>`
-  }).join("")||`<div class="empty">Система не вернула утверждения для проверки.</div>`;
-  document.querySelectorAll("[data-select-claim]").forEach(input=>input.onchange=()=>{
-    if(input.checked)selectedClaims.add(input.dataset.selectClaim);else selectedClaims.delete(input.dataset.selectClaim);
-    updateApprovalAction();
-  });
-  document.querySelectorAll("[data-promote]").forEach(button=>button.onclick=()=>promoteClaim(button.dataset.promote));
-  updateApprovalAction();
-  renderSummary("Нужна проверка",candidates.length,0,"—");
-  setStep("review");
-  setPrimary("Создать материалы",true,"create");
-  $("actionReason").textContent="Сначала одобрите хотя бы одно утверждение.";
-  $("approvalReview").classList.remove("hidden");
-  $("approveCurrent").classList.remove("hidden");
-  renderTechnical(run);
-}
-function renderEvidence(run,c){
-  const research=run?.result?.research||{};
-  const evidence=(research.evidence||[]).filter(e=>(c.evidence_ids||[]).includes(e.id));
-  const sources=research.sources||[];
-  if(!evidence.length)return "<div class='small' style='margin-top:8px'>Доказательство сохранено, но подробности для этого утверждения не отображены на экране.</div>";
-  return evidence.map(e=>{
-    const source=sources.find(s=>s.id===e.source_id);
-    return `<div class="source-line"><strong>${esc(source?.title||"Источник")}</strong>${source?.url?` · <a href="${esc(source.url)}" target="_blank" rel="noreferrer noopener">Открыть источник</a>`:""}<br>${esc(e.excerpt||"")}</div>`
-  }).join("");
-}
-function confidenceLabel(v){
-  const x=String(v||"medium").toLowerCase();
-  return x==="high"?"Уверенность: высокая":x==="low"?"Уверенность: низкая":"Уверенность: средняя";
-}
-function plural(n,a,b,c){return n===1?a:(n%10>=2&&n%10<=4&&!(n%100>=12&&n%100<=14)?b:c)}
-function updateApprovalAction(){
-  const n=selectedClaims.size;
-  $("approveCurrent").textContent=n?(`Одобрить выбранные (${n})`):"Одобрить выбранное";
-  $("approveCurrent").disabled=!n;
-  const approved=(candidates||[]).filter(c=>String(c.status||"").toUpperCase()==="ACCEPTED").length;
-  $("summaryApproved").textContent=approved;
-  if(approved>0){
-    setPrimary("Создать материалы",false,"create");
-    $("actionReason").textContent="Первое одобрение разблокировало создание материалов.";
-  }else{
-    setPrimary("Создать материалы",true,"create");
-    $("actionReason").textContent="Сначала одобрите хотя бы одно утверждение.";
-  }
-}
-async function promoteClaim(id){
-  clearError();
-  try{
-    await api("/api/knowledge/"+encodeURIComponent(id)+"/promote",{decision_ref:"browser-human-review"});
-    candidates=candidates.map(c=>c.claim_id===id?({...c,status:"ACCEPTED"}):c);
-    selectedClaims.delete(id);
-    renderClaims(currentRun,candidates);
-    setStatus("Утверждение одобрено");
-  }catch(e){showError(e.message)}
-}
-$("approveCurrent").onclick=async()=>{
-  clearError();
-  const ids=[...selectedClaims];
-  if(!ids.length)return;
-  $("approveCurrent").disabled=true;
-  try{
-    for(const id of ids)await api("/api/knowledge/"+encodeURIComponent(id)+"/promote",{decision_ref:"browser-human-review"});
-    candidates=candidates.map(c=>selectedClaims.has(c.claim_id)?({...c,status:"ACCEPTED"}):c);
-    selectedClaims=new Set();
-    renderClaims(currentRun,candidates);
-    setStatus(`${ids.length} утверждени${ids.length===1?"е":"я"} одобрено`);
-  }catch(e){showError(e.message);updateApprovalAction()}
-};
-$("resetReview").onclick=()=>{selectedClaims=new Set();renderClaims(currentRun,candidates)};
-
-async function runFactory(){
-  clearError();
-  const brief=$("source").value.trim();
-  if(!brief)return showError("Опишите задачу в поле слева.");
-  setStep("research");
-  setPrimary("Исследуем…",true,"research");
-  $("centerEmpty").classList.add("hidden");
-  $("researchSection").classList.remove("hidden");
-  $("centerEyebrow").textContent="Сейчас: исследование";
-  $("centerTitle").textContent="Ищем и проверяем источники";
-  $("centerSub").textContent="Factory собирает факты, связывает их с доказательствами и проверяет релевантность.";
-  $("researchNotice").innerHTML='<div class="notice">Исследование выполняется. Можно не нажимать другие кнопки.</div>';
-  $("claims").innerHTML="";
-  $("progress").classList.remove("hidden");$("progressBar").style.width="35%";
-  renderSummary("Исследуем…");
-  setStatus("Исследование запущено");
-  try{
-    const created=await api("/api/runs",{
-      title:titleFromTask(brief),
-      brief,
-      audience:"",
-      goal:"Prepare a publishable content package with text and images",
-      tone:currentTone(),
-      tone_strength:$("toneStrength").value,
-      formats:["article","social_post","visual_card"],
-      constraints:[]
-    });
-    currentRun=created;
-    const data=await api("/api/runs/"+encodeURIComponent(created.run_id)+"/factory",{});
-    renderFactoryResult(data.run);
-  }catch(e){
-    if(e.status===409&&e.data?.run){
-      renderClaims(e.data.run,e.data.candidates||[]);
-      $("progress").classList.add("hidden");
-      setStatus("Исследование завершено · нужна проверка");
-    }else{
-      showError(e.message);setStep("task");setPrimary("Запустить исследование",false,"research");setStatus("Не удалось завершить запуск");
-    }
-  }
-}
-async function createMaterials(){
-  clearError();
-  if(!currentRun)return;
-  const approved=candidates.filter(c=>String(c.status||"").toUpperCase()==="ACCEPTED").length;
-  if(!approved)return;
-  setStep("production");setPrimary("Создаём материалы…",true,"create");$("progress").classList.remove("hidden");$("progressBar").style.width="68%";
-  $("centerEyebrow").textContent="Сейчас: производство";
-  $("centerTitle").textContent="Создаём текст и изображения";
-  $("centerSub").textContent="Используем одобренные факты и сохраняем связь с источниками.";
-  renderSummary("Создаём…",candidates.length,approved,"—");
-  setStatus("Производство запущено");
-  try{
-    const data=await api("/api/runs/"+encodeURIComponent(currentRun.run_id)+"/factory",{});
-    currentRun=data.run;
-    renderReady(data.run);
-    await loadHistory();
-  }catch(e){showError(e.message);setStatus("Производство не завершено");setPrimary("Создать материалы",false,"create");}
-}
-function renderReady(run){
-  const result=run?.result||{};
-  const production=result.production||{};
-  const output=production.output?.content_package;
-  const qc=production.qc||{};
-  $("progressBar").style.width="100%";
-  $("progress").classList.remove("hidden");
-  $("researchSection").classList.add("hidden");
-  $("sourceExplore").classList.add("hidden");
-  $("resultSection").classList.remove("hidden");
-  $("centerEyebrow").textContent="Сейчас: готово";
-  $("centerTitle").textContent="Материалы готовы";
-  $("centerSub").textContent="Проверьте текст и изображения. Ссылки на источники сохранены внутри результата.";
-  $("resultNotice").innerHTML=qc.status==="PASSED"
-    ?'<div class="notice success"><strong>Проверка качества пройдена.</strong><div style="margin-top:3px">Материал можно утвердить перед экспортом.</div></div>'
-    :'<div class="notice action"><strong>Проверка качества ещё не завершена.</strong></div>';
-  renderContentPackage(output);
-  const assets=(output?.images||[]).length;
-  const approvedCount=(candidates||[]).filter(c=>String(c.status||"").toUpperCase()==="ACCEPTED").length;
-  renderSummary(qc.status==="PASSED"?"Готово":"Требует проверки",result.research?.claims?.length||candidates.length,approvedCount,assets);
-  setStep("done");
-  $("rightHint").textContent="Материалы и следующие действия";
-  setPrimary(qc.status==="PASSED"?"Утвердить":"Обновить статус",qc.status!=="PASSED",qc.status==="PASSED"?"approve":"noop");
-  $("actionReason").textContent=qc.status==="PASSED"?"После утверждения можно экспортировать материал.":"";
-  renderTechnical(run);
-}
-function renderContentPackage(pkg){
-  if(!pkg){$("package").innerHTML='<div class="empty">Content Package ещё не сформирован.</div>';return}
-  const images=pkg.images||[];
-  const text=pkg.text||"";
-  $("package").innerHTML=`
-    <article class="asset">
-      <div class="format">Текст</div>
-      <h4>${esc(pkg.package_id||"Материал")}</h4>
-      <pre>${esc(text)}</pre>
-    </article>
-  `+images.map((image,index)=>{
-    const src=String(image.uri||"");
-    const browserSrc=(src.startsWith("http://")||src.startsWith("https://"))
-      ?src
-      :"/api/runs/"+encodeURIComponent(pkg.run_id||currentRun?.run_id||"")+"/assets/"+encodeURIComponent(image.asset_id);
-    const meta=image.metadata||{};
-    const attribution=meta.attribution_url?`<a href="${esc(meta.attribution_url)}" target="_blank" rel="noreferrer noopener">${esc(meta.attribution_text||"Источник изображения")}</a>`:esc(meta.attribution_text||"");
-    return `<article class="asset">
-      <div class="format">Изображение ${index+1}</div>
-      <img src="${esc(browserSrc)}" alt="${esc(image.visual_intent||"Иллюстрация")}" loading="lazy">
-      <div class="small" style="margin-top:8px">${esc(image.visual_intent||"")}</div>
-      ${attribution?`<div class="small" style="margin-top:5px">${attribution}</div>`:""}
-    </article>`
-  }).join("");
-}
-function renderFactoryResult(run){
-  currentRun=run;
-  renderTechnical(run);
-  const research=run?.result?.research||{};
-  const candidatesFromRun=run?.result?.knowledge_candidates;
-  if(run.status==="REVIEW" || run.status==="RESEARCH_READY" || candidates.length){
-    const list=Array.isArray(candidatesFromRun)?candidatesFromRun:candidates;
-    renderClaims(run,list);
-    return;
-  }
-  renderReady(run);
-}
-async function analyzeSource(){
-  clearError();
-  const material=$("sourceMaterial").value.trim();
-  if(!material)return showError("Вставьте материал слева.");
-  setStep("research");setPrimary("Анализируем…",true,"analyze");$("progress").classList.remove("hidden");$("progressBar").style.width="40%";setStatus("Анализ материала");
-  try{
-    analysis=await api("/api/analyze",{title:$("title").value||"Untitled source",source:material});
-    renderSourceAnalysis();
-  }catch(e){showError(e.message);setPrimary("Анализировать материал",false,"analyze");setStatus("Не удалось проанализировать")}
-}
-function renderSourceAnalysis(){
-  $("centerEmpty").classList.add("hidden");$("researchSection").classList.add("hidden");$("resultSection").classList.add("hidden");$("sourceExplore").classList.remove("hidden");
-  $("centerEyebrow").textContent="Сейчас: проверка";
-  $("centerTitle").textContent="Выберите историю или тему";
-  $("centerSub").textContent="Factory нашла несколько направлений. Выберите то, из которого хотите собрать материалы.";
-  $("analysisSummary").textContent=analysis.summary||"Анализ завершён.";
-  $("themes").innerHTML=(analysis.themes||[]).map(x=>`<span class="badge">${esc(x)}</span>`).join("");
-  $("stories").innerHTML=(analysis.stories||[]).map((s,i)=>`
-    <button class="claim" data-story-index="${i}" style="text-align:left">
-      <div class="claim-number">Вариант ${i+1}</div>
-      <div class="claim-text">${esc(s.title||"Без названия")}</div>
-      <div class="small">${esc(s.angle||"")}</div>
-      <div class="claim-details"><div class="small">${esc((s.evidence||[]).map(e=>e.quote).join(" · "))}</div></div>
-    </button>`).join("")||'<div class="empty">Историй не найдено.</div>';
-  document.querySelectorAll("[data-story-index]").forEach(el=>el.onclick=()=>{
-    selectedStory=analysis.stories[Number(el.dataset.storyIndex)];
-    $("selectedStory").classList.remove("hidden");
-    $("selectedStoryBox").innerHTML=`<strong>${esc(selectedStory.title)}</strong><div class="small" style="margin-top:4px">${esc(selectedStory.angle||"")}</div>`;
-    setStep("production");setPrimary("Создать материалы",false,"create");$("actionReason").textContent="Выбрана история для производства.";
-    $("summaryState").textContent="Готово к производству";$("summaryClaims").textContent=String((selectedStory.evidence||[]).length);$("summaryApproved").textContent="—";$("summaryAssets").textContent="—";
-  });
-  $("progress").classList.add("hidden");setStatus("Материал проанализирован");setPrimary("Создать материалы",true,"produce");
-}
-async function produceSource(){
-  clearError();if(!selectedStory)return;
-  const formats=[...document.querySelectorAll("#formatsBlock input:checked")].map(x=>x.value);
-  if(!formats.length)return showError("Выберите хотя бы один формат.");
-  setPrimary("Создаём материалы…",true,"produce");setStatus("Создание материалов");
-  try{
-    const data=await api("/api/produce",{source:$("sourceMaterial").value,title:$("title").value,story:selectedStory,formats});
-    $("progress").classList.add("hidden");$("sourceExplore").classList.add("hidden");$("resultSection").classList.remove("hidden");
-    $("centerEyebrow").textContent="Сейчас: готово";$("centerTitle").textContent="Материал готов";$("centerSub").textContent="Проверьте результат перед публикацией.";
-    $("resultNotice").innerHTML='<div class="notice success">Материалы готовы.</div>';
-    $("package").innerHTML=(data.package||[]).map(a=>`<article class="asset"><div class="format">${esc(a.format||"Материал")}</div><h4>${esc(a.title||"")}</h4><pre>${esc(a.content||"")}</pre></article>`).join("");
-    setStep("done");renderSummary("Готово","—","—",String((data.package||[]).length));setPrimary("Готово",true,"noop");
-  }catch(e){showError(e.message);setPrimary("Создать материалы",false,"produce");setStatus("Ошибка")}
-}
-$("primaryAction").onclick=async()=>{
-  if(mode==="topic"){
-    if(primaryAction==="research")return runFactory();
-    if(primaryAction==="create")return createMaterials();
-    if(primaryAction==="approve")return approveRun();
-    if(primaryAction==="export")return exportRun();
-  }else{
-    if(primaryAction==="analyze")return analyzeSource();
-    if(primaryAction==="produce")return produceSource();
-  }
-};
-async function exportRun(){
-  clearError();
-  try{
-    const out=await api("/api/runs/"+encodeURIComponent(currentRun.run_id)+"/export",{});
-    currentRun=out.run;
-    setPrimary("Экспортировано",true,"noop");
-    setStatus("Материал экспортирован");
-    $("summaryState").textContent="Экспортировано";
-  }catch(e){showError(e.message)}
-}
-async function approveRun(){
-  clearError();
-  try{
-    const data=await api("/api/runs/"+encodeURIComponent(currentRun.run_id)+"/approve",{decision_ref:"browser-human-review"});
-    currentRun=data;
-    setPrimary("Экспортировать",false,"export");
-    $("actionReason").textContent="Утверждено. Теперь можно экспортировать.";
-    $("summaryState").textContent="Утверждено";
-    setStep("done");
-    setStatus("Материал утверждён");
-  }catch(e){showError(e.message)}
-}
-async function loadHistory(){
-  try{
-    const data=await api("/api/runs",{}, "GET");
-    const runs=data.runs||[];
-    $("historyList").innerHTML=runs.slice(0,8).map(r=>`<div class="history-item" data-history="${esc(r.run_id)}"><strong>${esc(r.title||"Без названия")}</strong><br><span class="small">${esc(r.status||"")}</span></div>`).join("")||'<div class="small">Пока нет запусков.</div>';
-    document.querySelectorAll("[data-history]").forEach(el=>el.onclick=async()=>{
-      try{const run=await api("/api/runs/"+encodeURIComponent(el.dataset.history),{}, "GET");currentRun=run;renderFactoryResult(run);setStatus("Запуск загружен")}catch(e){showError(e.message)}
-    });
-  }catch(e){}
-}
-window.addEventListener("load",()=>{
-  switchMode("topic");
-  loadHistory();
-});
+const $=id=>document.getElementById(id);let mode="topic",platform="telegram",currentRun=null,baseText="";
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+async function api(path,body={},method="POST"){const o={method,headers:{"Content-Type":"application/json"}};if(method!=="GET")o.body=JSON.stringify(body);const r=await fetch(path,o);let d={};try{d=await r.json()}catch{}if(!r.ok){const e=new Error(d.error||("HTTP "+r.status));e.status=r.status;e.data=d;throw e}return d}
+function error(t){$("error").textContent=t;$("error").classList.remove("hidden")}function clearError(){$("error").classList.add("hidden")}
+function status(t){$("status").textContent=t}
+function step(s){const order=["task","research","production","done"],n=order.indexOf(s);document.querySelectorAll(".step").forEach(x=>{const i=order.indexOf(x.dataset.step);x.classList.toggle("active",i===n);x.classList.toggle("done",i<n)})}
+function title(){const t=(mode==="topic"?$("source").value:$("title").value).replace(/\s+/g," ").trim();return t? t.slice(0,117):"Content Factory"}
+function selectedFormats(){return platform==="article"?["article","visual_card"]:platform==="youtube"?["short_video","visual_card"]:["social_post","visual_card"]}
+function platformLabel(){return ({telegram:"Telegram",instagram:"Instagram",x:"X / Twitter",article:"Статья",youtube:"YouTube"})[platform]}
+document.querySelectorAll(".platform").forEach(b=>b.onclick=()=>{platform=b.dataset.platform;document.querySelectorAll(".platform").forEach(x=>x.classList.toggle("active",x===b))});
+$("topicMode").onclick=()=>{mode="topic";$("topicMode").classList.add("active");$("sourceMode").classList.remove("active");$("topicInput").classList.remove("hidden");$("sourceInput").classList.add("hidden")};
+$("sourceMode").onclick=()=>{mode="source";$("sourceMode").classList.add("active");$("topicMode").classList.remove("active");$("topicInput").classList.add("hidden");$("sourceInput").classList.remove("hidden")};
+$("newRun").onclick=()=>{currentRun=null;baseText="";$("source").value="";$("sourceMaterial").value="";$("title").value="";$("editor").value="";$("result").classList.add("hidden");$("working").classList.add("hidden");$("empty").classList.remove("hidden");$("actionReason").textContent="";step("task");status("Готово к работе");clearError()};
+function contentText(run){const p=run?.result?.production?.output?.content_package;return p?.text||run?.result?.script?.units?.map(x=>x.text).join("\n\n")||""}
+function renderResearch(run){const r=run?.result?.research||{};const sources=r.sources||[];const claims=r.claims||[];$("researchInfo").innerHTML='<div class="notice">Материал построен на '+claims.length+' проверенных тезисах и '+sources.length+' источниках. Подробные доказательства сохранены внутри запуска.</div>'+sources.slice(0,12).map(s=>'<div class="source-item"><strong>'+esc(s.title||"Источник")+'</strong><br><a href="'+esc(s.url||"#")+'" target="_blank" rel="noopener noreferrer">'+esc(s.url||"")+'</a></div>').join("")}
+function renderReady(run){currentRun=run;baseText=contentText(run);$("editor").value=baseText;$("resultTitle").textContent=run?.result?.content_spec?.title||run?.title||"Материал готов";$("resultSub").textContent=platformLabel()+" · исследование выполнено";renderResearch(run);$("empty").classList.add("hidden");$("working").classList.add("hidden");$("result").classList.remove("hidden");step("done");status("Материал готов");$("actionReason").textContent="Можно редактировать текст или создать новую версию."}
+async function create(){clearError();const brief=mode==="topic"?$("source").value.trim():$("sourceMaterial").value.trim();if(!brief)return error(mode==="topic"?"Введите тему или задачу.":"Вставьте материал.");$("empty").classList.add("hidden");$("result").classList.add("hidden");$("working").classList.remove("hidden");$("workingText").textContent="Factory исследует тему, проверяет источники и собирает готовый "+platformLabel()+" материал.";step("research");status("Исследование и создание…");$("primaryAction").disabled=true;try{const created=await api("/api/runs",{title:title(),brief:mode==="topic"?brief:"Создайте материал на основе следующего источника:\n"+brief,audience:"",goal:"Create a ready-to-publish "+platformLabel()+" content asset",tone:$("tone").value,tone_strength:$("toneStrength").value,formats:selectedFormats(),constraints:["platform:"+platform]});currentRun=created;const data=await api("/api/runs/"+encodeURIComponent(created.run_id)+"/factory",{});renderReady(data.run);await loadHistory()}catch(e){error(e.message);$("working").classList.add("hidden");$("empty").classList.remove("hidden");step("task");status("Не удалось создать материал")}finally{$("primaryAction").disabled=false}}
+async function regenerate(){if(!currentRun)return;clearError();$("primaryAction").disabled=true;status("Создаём новую версию…");step("production");try{const data=await api("/api/runs/"+encodeURIComponent(currentRun.run_id)+"/factory",{});renderReady(data.run)}catch(e){error(e.message);status("Перегенерация не завершена")}finally{$("primaryAction").disabled=false}}
+async function saveEdit(){if(!currentRun)return;clearError();const text=$("editor").value.trim();if(!text)return error("Материал не может быть пустым.");try{const data=await api("/api/runs/"+encodeURIComponent(currentRun.run_id)+"/edit",{text});currentRun=data.run;baseText=text;status("Изменения сохранены")}catch(e){error(e.message)}}
+async function transform(kind){const text=$("editor").value.trim();if(!text)return;const instruction={shorten:"Сократи текст, сохранив ключевые факты.",expand:"Расширь текст, добавив контекст только из исследования.",casual:"Сделай текст более разговорным.",formal:"Сделай текст более формальным."}[kind];$("editor").disabled=true;status("Изменяем текст…");try{const data=await api("/api/runs/"+encodeURIComponent(currentRun.run_id)+"/edit",{text,instruction});currentRun=data.run;$("editor").value=contentText(currentRun);status("Версия обновлена")}catch(e){error(e.message)}finally{$("editor").disabled=false}}
+$("primaryAction").onclick=create;$("regenerate").onclick=regenerate;$("save").onclick=saveEdit;$("shorten").onclick=()=>transform("shorten");$("expand").onclick=()=>transform("expand");$("casual").onclick=()=>transform("casual");$("formal").onclick=()=>transform("formal");
+async function loadHistory(){try{const d=await api("/api/runs",{}, "GET");$("historyList").innerHTML=(d.runs||[]).slice(0,8).map(r=>'<div class="history-item" data-run="'+esc(r.run_id)+'"><strong>'+esc(r.title||"Без названия")+'</strong><br><span>'+esc(r.status||"")+'</span></div>').join("")||'<div class="helper">Пока нет материалов.</div>';document.querySelectorAll("[data-run]").forEach(x=>x.onclick=async()=>{try{const r=await api("/api/runs/"+encodeURIComponent(x.dataset.run),{}, "GET");renderReady(r)}catch(e){error(e.message)}})}catch{}}
+loadHistory();
 </script>
-</body>
-</html>
+</body></html>
