@@ -166,6 +166,21 @@ class ContentOrchestrator:
                 raise ValueError("content run disappeared during planning")
 
         self.service.control.record(run_id, "factory.started", status="RUNNING", actor="orchestrator")
+        if run.status == "PLANNING" and not run.plan:
+            plan = self.planner.plan(
+                run_id=run.run_id,
+                title=run.title,
+                brief=run.brief,
+                audience=run.audience,
+                goal=run.goal,
+                formats=list(run.formats),
+                constraints=list(run.constraints),
+            )
+            self.content_runs.save_plan(run_id, plan)
+            self.service.control.record(run_id, "planning.completed", status="COMPLETED", actor="planner")
+        run = self.content_runs.get(run_id)
+        if run is None:
+            raise ValueError("content run not found after planning")
         run = self._research(run)
 
         review_history: list[dict[str, Any]] = []
