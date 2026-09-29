@@ -105,3 +105,65 @@ def test_research_relevance_fails_on_irrelevant_claims():
     assert result["status"] == "FAIL"
     assert result["relevant_claim_count"] == 0
     assert result["rejected_claim_ids"] == ["c1"]
+
+
+def test_future_history_research_requires_source_diversity():
+    from content_factory.research_quality import validate_research_relevance
+
+    research = {
+        "claims": [
+            {"id": "c1", "text": "Historical ideas about the future included prophecy and prediction.", "source_ids": ["s1"], "evidence_ids": ["e1"]},
+            {"id": "c2", "text": "Utopian writing imagined future societies.", "source_ids": ["s2"], "evidence_ids": ["e2"]},
+            {"id": "c3", "text": "Science fiction developed ideas about technological futures.", "source_ids": ["s3"], "evidence_ids": ["e3"]},
+        ],
+        "sources": [
+            {"id": "s1", "title": "History of science fiction", "source_type": "secondary_encyclopedic"},
+            {"id": "s2", "title": "Utopia", "source_type": "secondary_encyclopedic"},
+            {"id": "s3", "title": "Futurism", "source_type": "secondary_encyclopedic"},
+        ],
+        "evidence": [
+            {"id": "e1", "source_id": "s1", "excerpt": "History of future prophecy and prediction."},
+            {"id": "e2", "source_id": "s2", "excerpt": "Utopian future society."},
+            {"id": "e3", "source_id": "s3", "excerpt": "Technological futures and science fiction."},
+        ],
+    }
+
+    result = validate_research_relevance(
+        brief="how people in the past imagined the future across ancient and modern history",
+        research=research,
+    )
+
+    assert result["status"] == "FAIL"
+    assert result["relevant_source_count"] == 3
+    assert result["relevant_source_types"] == ["secondary_encyclopedic"]
+    assert result["minimum_source_types"] == 2
+
+
+def test_future_history_research_passes_with_scholarly_source_diversity():
+    from content_factory.research_quality import validate_research_relevance
+
+    research = {
+        "claims": [
+            {"id": "c1", "text": "Historical ideas about the future included prophecy and prediction.", "source_ids": ["s1"], "evidence_ids": ["e1"]},
+            {"id": "c2", "text": "Utopian writing imagined future societies.", "source_ids": ["s2"], "evidence_ids": ["e2"]},
+            {"id": "c3", "text": "Science fiction developed ideas about technological futures.", "source_ids": ["s3"], "evidence_ids": ["e3"]},
+        ],
+        "sources": [
+            {"id": "s1", "title": "History of science fiction", "source_type": "secondary_encyclopedic"},
+            {"id": "s2", "title": "Utopia", "source_type": "secondary_encyclopedic"},
+            {"id": "s3", "title": "Historical study of imagined futures", "source_type": "scholarly_index"},
+        ],
+        "evidence": [
+            {"id": "e1", "source_id": "s1", "excerpt": "History of future prophecy and prediction."},
+            {"id": "e2", "source_id": "s2", "excerpt": "Utopian future society."},
+            {"id": "e3", "source_id": "s3", "excerpt": "Historical study of technological futures."},
+        ],
+    }
+
+    result = validate_research_relevance(
+        brief="how people in the past imagined the future across ancient and modern history",
+        research=research,
+    )
+
+    assert result["status"] == "PASS"
+    assert result["relevant_source_types"] == ["scholarly_index", "secondary_encyclopedic"]
