@@ -167,3 +167,16 @@ def test_future_history_research_passes_with_scholarly_source_diversity():
 
     assert result["status"] == "PASS"
     assert result["relevant_source_types"] == ["scholarly_index", "secondary_encyclopedic"]
+
+def test_russian_future_history_source_relevance():
+    brief = "Когда у человечества возникло представление о будущем как об отдельной области времени? От пророчеств и судьбы к планированию и прогнозированию в древних обществах"
+    assert is_relevant_source(
+        brief=brief,
+        title="История представлений о будущем",
+        extract="Исторические представления о будущем связаны с пророчествами, предсказаниями и изменением отношения ко времени."
+    )
+    assert not is_relevant_source(
+        brief=brief,
+        title="История кулинарии",
+        extract="История приготовления пищи и развитие кухонных традиций."
+    )
