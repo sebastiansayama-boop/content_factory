@@ -21,11 +21,16 @@ class LocalTextAdapter:
             raise ValueError("prompt must not be empty")
         claim, evidence = self._refs(prompt)
         if '"research_questions":' in prompt:
+            formats_match = re.search(r"Requested formats:\s*(\[[^\n]*\])", prompt)
+            try:
+                requested_formats = json.loads(formats_match.group(1)) if formats_match else ["article"]
+            except json.JSONDecodeError:
+                requested_formats = ["article"]
             value = {
                 "objective": "Turn the user brief into an evidence-grounded content plan",
                 "research_questions": ["What evidence is needed to answer the user's brief?"],
                 "source_requirements": ["reliable primary or authoritative sources relevant to the brief"],
-                "deliverables": [{"format": "article", "purpose": "provide the requested content"}],
+                "deliverables": [{"format": str(fmt), "purpose": "provide the requested content"} for fmt in requested_formats],
                 "editorial_constraints": [],
                 "quality_checks": ["all factual claims must be supported by accepted evidence"],
             }
