@@ -89,6 +89,22 @@ class AgentDecisionLoop:
             decision = decide(context, tools)
             allowed = {tool.name for tool in tools}
             if decision.terminal:
+                successful = next(
+                    (item for item in reversed(context.observations) if "result" in item),
+                    None,
+                )
+                if successful is None:
+                    self.control.record(
+                        run_id,
+                        "agent.decision.rejected",
+                        status="FAILED",
+                        actor=agent,
+                        evidence={
+                            "step": step,
+                            "reason": "terminal decision requires a successful tool observation",
+                        },
+                    )
+                    continue
                 self.control.record(
                     run_id,
                     "agent.decision.terminal",
