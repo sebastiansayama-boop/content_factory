@@ -56,7 +56,7 @@ class LocalTextAdapter:
             # first identifier encountered anywhere in the prompt. The prompt
             # also contains metadata and accepted knowledge.
             spec_match = re.search(
-                r'CONTENT SPEC:\\s*(\\{.*?\\})\\s*ACCEPTED KNOWLEDGE:',
+                r'CONTENT SPEC:\s*(\{.*?\})\s*ACCEPTED KNOWLEDGE:',
                 prompt,
                 flags=re.DOTALL,
             )
@@ -76,7 +76,7 @@ class LocalTextAdapter:
             ]
 
             matches = re.findall(
-                r'"claim_id"\\s*:\\s*"([^"]+)"\\s*,\\s*"text"\\s*:\\s*"((?:\\\\.|[^"\\\\])*)"',
+                r'"claim_id"\s*:\s*"([^"]+)"\s*,\s*"text"\s*:\s*"((?:\\.|[^"\\])*)"',
                 prompt,
             )
             claim_rows_by_id = {}
