@@ -1,3 +1,4 @@
+from content_factory.agent_decision import AgentDecision
 from content_factory.agent_tools import AgentTool
 from content_factory.content_orchestrator import ContentOrchestrator
 from content_factory.content_run import ContentRunStore
@@ -115,3 +116,22 @@ def test_orchestrator_runs_bounded_review_loop(tmp_path):
     assert final_run.result["review_history"][1]["status"] == "PASS"
     assert qc["passed"] is True
     store.close()
+
+
+def test_deterministic_planner_runs_tool_then_terminates():
+    service = FakeService()
+    orchestrator = ContentOrchestrator(
+        service=service,
+        workspace=object(),
+        content_runs=ContentRunStore(":memory:"),
+        planner=FakePlanner(),
+    )
+    tools = orchestrator.agent_os.available_tools("planner")
+    context = type("Context", (), {"agent": "planner", "observations": []})()
+
+    first = orchestrator._deterministic_decision(context, tools)
+    assert first == AgentDecision("content_run.plan", "turn the brief into an executable content plan", False)
+
+    context.observations.append({"step": 1, "tool": "content_run.plan", "result": {"objective": "test"}})
+    second = orchestrator._deterministic_decision(context, tools)
+    assert second == AgentDecision("", "content plan created", True)
