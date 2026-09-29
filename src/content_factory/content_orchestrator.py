@@ -3,7 +3,10 @@ from __future__ import annotations
 import os
 from typing import Any
 
+from .agent_decision import AgentDecision, JsonToolDecisionPolicy
 from .agent_os import AgentManager, ContentAgentOS
+from .gemini_adapter import GeminiOpenAICompatibleAdapter
+from .openai_adapter import OpenAIResponsesAdapter
 from .agent_tools import AgentToolRegistry, register_content_tools
 from .assembly import ContentAssembler, QualityGate
 from .content_reviewer import ContentReviewer
@@ -45,43 +48,81 @@ class ContentOrchestrator:
         )
         self.agent_os = ContentAgentOS(service.control, self.tool_registry)
         self.agent_manager = AgentManager(self.agent_os)
+        self._decision_policy = self._build_decision_policy()
+
+    def _build_decision_policy(self):
+        provider = os.environ.get("FACTORY_AGENT_DECISION_PROVIDER", "local").strip().lower()
+        if provider == "openai" and os.environ.get("OPENAI_API_KEY", "").strip():
+            adapter = OpenAIResponsesAdapter()
+            return JsonToolDecisionPolicy(lambda prompt: adapter.response_text(adapter.generate(prompt)))
+        if provider == "gemini" and os.environ.get("GEMINI_API_KEY", "").strip():
+            adapter = GeminiOpenAICompatibleAdapter()
+            return JsonToolDecisionPolicy(lambda prompt: adapter.response_text(adapter.generate(prompt)))
+        return self._deterministic_decision
+
+    @staticmethod
+    def _deterministic_decision(context, tools):
+        names = [tool.name for tool in tools]
+        observations = context.observations
+        if context.agent == "researcher":
+            if not observations:
+                return AgentDecision("knowledge.search", reason="check existing accepted knowledge")
+            first = observations[0].get("result")
+            if observations[-1]["tool"] == "knowledge.search":
+                if isinstance(first, dict) and first.get("claims"):
+                    return AgentDecision("", reason="accepted knowledge is sufficient", terminal=True)
+                return AgentDecision("research.public", reason="no accepted knowledge; research public sources")
+            return AgentDecision("", reason="research observation collected", terminal=True)
+        if context.agent == "producer":
+            sequence = ["production.queue", "production.execute", "production.assemble"]
+            for tool in sequence:
+                if tool in names and not any(item["tool"] == tool for item in observations):
+                    return AgentDecision(tool, reason=f"continue production with {tool}")
+            return AgentDecision("", reason="production package assembled", terminal=True)
+        if not observations and names:
+            return AgentDecision(names[0], reason="perform the specialist action")
+        return AgentDecision("", reason="specialist objective complete", terminal=True)
+
+    def _run_agent_loop(self, *, agent, run, objective, state, invoke):
+        evidence = [event.to_dict() for event in self.service.control.timeline(run.run_id)[-12:]]
+        return self.agent_os.run_decision_loop(
+            name=agent,
+            run_id=run.run_id,
+            objective=objective,
+            state=state,
+            evidence=evidence,
+            decide=self._decision_policy,
+            invoke=invoke,
+        )
 
     def _research(self, run: ContentRun) -> ContentRun:
-        prior = self.agent_os.invoke_tool(
-            name="researcher",
-            tool="knowledge.search",
-            run_id=run.run_id,
-            run=run,
-        )
-        if prior["claims"]:
-            self.service.control.record(
-                run.run_id,
-                "research.reused_knowledge",
-                status="COMPLETED",
-                actor="researcher",
-                evidence={"claims": len(prior["claims"])},
+        def invoke(tool, context):
+            current = self.content_runs.get(run.run_id) or run
+            result = self.agent_os.invoke_tool(
+                name="researcher", tool=tool, run_id=run.run_id, run=current
             )
-            return run
-        if run.status in {"DRAFT", "FAILED", "PLANNING"}:
-            self.content_runs.start_execution(run.run_id)
-        research_result = self.agent_os.invoke_tool(
-            name="researcher",
-            tool="research.public",
-            run_id=run.run_id,
-            run=run,
+            if tool == "research.public":
+                if current.status in {"DRAFT", "FAILED", "PLANNING"}:
+                    self.content_runs.start_execution(run.run_id)
+                research_dict = ContentFactoryVerticalSlice.to_dict(result)
+                self.content_runs.save_research_result(run.run_id, research_dict)
+                self.service.control.record(
+                    run.run_id, "research.completed", status="COMPLETED", actor="researcher",
+                    evidence={"claims": len(research_dict.get("claims") or []), "sources": len(research_dict.get("sources") or [])},
+                )
+            return result
+
+        context = self._run_agent_loop(
+            agent="researcher", run=run, objective="obtain sufficient evidence for the content brief",
+            state=run.to_dict(), invoke=invoke,
         )
-        research_dict = ContentFactoryVerticalSlice.to_dict(research_result)
-        saved = self.content_runs.save_research_result(run.run_id, research_dict)
-        self.service.control.record(
-            run.run_id,
-            "research.completed",
-            status="COMPLETED",
-            actor="researcher",
-            evidence={
-                "claims": len(research_dict.get("claims") or []),
-                "sources": len(research_dict.get("sources") or []),
-            },
-        )
+        if context.observations and context.observations[0]["tool"] == "knowledge.search":
+            prior = context.observations[0]["result"]
+            if isinstance(prior, dict) and prior.get("claims"):
+                self.service.control.record(run.run_id, "research.reused_knowledge", status="COMPLETED", actor="researcher", evidence={"claims": len(prior["claims"])})
+        saved = self.content_runs.get(run.run_id)
+        if saved is None:
+            raise ValueError("content run not found after research")
         return saved
 
     def _write(self, run: ContentRun, *, review_feedback: list[str] | None = None) -> dict[str, Any]:
