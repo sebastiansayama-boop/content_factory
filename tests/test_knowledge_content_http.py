@@ -103,7 +103,7 @@ def test_edit_endpoint_persists_generated_text(tmp_path):
     })()
     handler.payload = {"text": "Edited Telegram post"}
 
-    ProductHandler._body = lambda self: self.payload
+    handler._body = lambda: handler.payload
     ProductHandler.do_POST(handler)
 
     assert handler.status == 200
