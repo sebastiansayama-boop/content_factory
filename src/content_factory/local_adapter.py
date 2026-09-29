@@ -55,7 +55,7 @@ class LocalTextAdapter:
             # Keep the credential-free provider useful: scripts must quote the
             # accepted knowledge supplied by the writer, not a generic placeholder.
             matches = re.findall(
-                r'"claim_id"\\s*:\\s*"([^"]+)"\\s*,\\s*"text"\\s*:\\s*"((?:\\\\.|[^"\\\\])*)"',
+                r'"claim_id"\s*:\s*"([^"]+)"\s*,\s*"text"\s*:\s*"((?:\\.|[^"\\])*)"',
                 prompt,
             )
             claim_rows = []
@@ -67,7 +67,7 @@ class LocalTextAdapter:
             if not claim_rows:
                 claim_rows = [(claim, "The available evidence supports this claim.")]
             evidence_matches = re.findall(
-                r'"evidence_ids"\\s*:\\s*\\[\\s*"([^"]+)"',
+                r'"evidence_ids"\s*:\s*\[\s*"([^"]+)"',
                 prompt,
             )
             evidence_id = evidence_matches[0] if evidence_matches else evidence
