@@ -64,6 +64,12 @@ class ContentOrchestrator:
     def _deterministic_decision(context, tools):
         names = [tool.name for tool in tools]
         observations = context.observations
+        if context.agent == "planner":
+            if not observations:
+                return AgentDecision("content_run.plan", reason="turn the brief into an executable content plan")
+            if observations[-1].get("tool") == "content_run.plan" and "result" in observations[-1]:
+                return AgentDecision("", reason="content plan created", terminal=True)
+            return AgentDecision("content_run.plan", reason="retry planning after unsuccessful observation")
         if context.agent == "researcher":
             if not observations:
                 return AgentDecision("knowledge.search", reason="check existing accepted knowledge")
