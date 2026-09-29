@@ -67,3 +67,46 @@ def test_build_endpoint_persists_knowledge_content_graph(tmp_path, monkeypatch):
     assert handler.body["result"]["script"]["script_id"] == "script-1"
     assert handler.body["result"]["production_plan"]["production_plan_id"] == "production-1"
     store.close()
+
+
+def test_edit_endpoint_persists_generated_text(tmp_path):
+    store = ContentRunStore(tmp_path / "runs.sqlite3")
+    created = store.create(
+        title="Future",
+        brief="How humans imagined the future.",
+        audience="General audience",
+        goal="Create a Telegram post",
+        formats=("social_post",),
+        constraints=("platform:telegram",),
+    )
+    store.save_result(
+        created.run_id,
+        {
+            "run_id": created.run_id,
+            "production": {
+                "output": {
+                    "content_package": {
+                        "run_id": created.run_id,
+                        "text": "Original draft",
+                    }
+                }
+            },
+        },
+    )
+
+    handler = DummyBuildHandler(f"/api/runs/{created.run_id}/edit")
+    handler.content_runs = store
+    handler.service = type("Service", (), {
+        "control": type("Control", (), {
+            "record": lambda self, *args, **kwargs: None,
+        })()
+    })()
+    handler.payload = {"text": "Edited Telegram post"}
+
+    ProductHandler._body = lambda self: self.payload
+    ProductHandler.do_POST(handler)
+
+    assert handler.status == 200
+    assert handler.body["run"]["result"]["production"]["output"]["content_package"]["text"] == "Edited Telegram post"
+    assert handler.body["run"]["result"]["edited_text"] == "Edited Telegram post"
+    store.close()
