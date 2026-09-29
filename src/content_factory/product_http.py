@@ -32,7 +32,11 @@ class ProductHandler(Handler):
 
     def _protect_product_api(self) -> bool:
         now = time.monotonic()
-        if self._rate_limited(self._authorized_requests, 10, now, 60.0):
+        # The browser product UI performs several authenticated requests per run
+        # (create, factory, polling/history, review actions). Keep the product
+        # endpoint protected, but do not make normal single-user interaction hit
+        # the generic service API limit of 10 requests/minute.
+        if self._rate_limited(self._authorized_requests, 60, now, 60.0):
             self._json(429, {"error": "product rate limit exceeded"}, retry_after=60)
             return False
         return True
