@@ -4,6 +4,7 @@ import os
 from typing import Any
 
 from .agent_os import AgentManager, ContentAgentOS
+from .agent_tools import AgentToolRegistry, register_content_tools
 from .assembly import ContentAssembler, QualityGate
 from .content_reviewer import ContentReviewer
 from .content_run import ContentRun, ContentRunStore
@@ -35,61 +36,44 @@ class ContentOrchestrator:
         self.content_runs = content_runs
         self.planner = planner or ContentRunPlanner(workspace)
         self.reviewer = reviewer or ContentReviewer(workspace)
-        self.agent_os = ContentAgentOS(service.control)
+        self.tool_registry = AgentToolRegistry()
+        register_content_tools(self.tool_registry, service=service, workspace=workspace)
+        self.agent_os = ContentAgentOS(service.control, self.tool_registry)
         self.agent_manager = AgentManager(self.agent_os)
 
     def _research(self, run: ContentRun) -> ContentRun:
-        prior = self.service.knowledge.search(run.brief)
+        prior = self.agent_os.invoke_tool(
+            name="researcher",
+            tool="knowledge.search",
+            run_id=run.run_id,
+            run=run,
+        )
         if prior["claims"]:
+            self.service.control.record(
+                run.run_id,
+                "research.reused_knowledge",
+                status="COMPLETED",
+                actor="researcher",
+                evidence={"claims": len(prior["claims"])},
+            )
             return run
         if run.status in {"DRAFT", "FAILED", "PLANNING"}:
             self.content_runs.start_execution(run.run_id)
-        research_result = ContentFactoryVerticalSlice(knowledge_store=self.service.knowledge).run(
+        research_result = self.agent_os.invoke_tool(
+            name="researcher",
+            tool="research.public",
             run_id=run.run_id,
-            brief=run.brief,
-            formats=list(run.formats) or ["article", "social_post", "visual_card"],
+            run=run,
         )
         research_dict = ContentFactoryVerticalSlice.to_dict(research_result)
-        self.content_runs.save_research_result(run.run_id, research_dict)
-        self.service.control.record(
-            run.run_id,
-            "research.completed",
-            output_refs=tuple(
-                research_dict.get("research", {}).get("knowledge_refs", {}).get("claims", {}).values()
-            ),
-            evidence=research_dict.get("quality", {}),
-        )
-        candidates = self.service.knowledge.candidates_for_run(run.run_id)
-        for candidate in candidates:
-            claim_id = str(candidate.get("claim_id") or "").strip()
-            if claim_id and str(candidate.get("status") or "").upper() != "ACCEPTED":
-                self.service.knowledge.promote_claim(
-                    claim_id,
-                    decision_ref=f"factory-research-qc:{run.run_id}",
-                )
-        self.service.control.record(
-            run.run_id,
-            "research.accepted_for_generation",
-            status="COMPLETED",
-            actor="factory-research-qc",
-            output_refs=tuple(c.get("claim_id", "") for c in candidates if c.get("claim_id")),
-            evidence=research_dict.get("quality", {}),
-        )
-        updated = self.content_runs.get(run.run_id)
-        if updated is None:
-            raise ValueError("content run not found after research")
-        return updated
 
     def _write(self, run: ContentRun, *, review_feedback: list[str] | None = None) -> dict[str, Any]:
-        return KnowledgeContentBuilder(self.workspace, self.service.knowledge).build(
+        return self.agent_os.invoke_tool(
+            name="writer",
+            tool="content.write",
             run_id=run.run_id,
-            topic=run.brief,
-            audience=run.audience,
-            goal=run.goal,
-            formats=list(run.formats),
-            constraints=list(run.constraints) + list(review_feedback or ()),
-            tone=run.tone,
-            tone_strength=run.tone_strength,
+            run=run,
+            review_feedback=list(review_feedback or ()),
         )
 
     def _production(self, run_id: str, result: dict[str, Any]) -> tuple[ContentRun, dict[str, Any]]:
@@ -224,12 +208,12 @@ class ContentOrchestrator:
                 name="reviewer",
                 run_id=run_id,
                 operation=f"review-revision-{revision}",
-                action=lambda: self.reviewer.review(
-                run_id=run_id,
-                brief=run.brief,
-                audience=run.audience,
-                goal=run.goal,
-                result=result,
+                action=lambda: self.agent_os.invoke_tool(
+                    name="reviewer",
+                    tool="content.review",
+                    run_id=run_id,
+                    run=run,
+                    result=result,
                 ),
             )
             review["revision"] = revision
