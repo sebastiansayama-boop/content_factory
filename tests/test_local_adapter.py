@@ -42,3 +42,18 @@ CONTENT SPEC:
     texts = [unit["text"] for unit in value["units"]]
     assert any("Ancient societies used myths" in item for item in texts)
     assert all("supplied claim" not in item for item in texts)
+
+
+def test_local_adapter_script_uses_content_spec_provenance_not_first_prompt_ref():
+    prompt = '''Return JSON: {"script_id":"script-1","title":"string","units":[]}
+WORK ITEM METADATA: unrelated claim kc-unrelated and evidence ke-unrelated
+CONTENT SPEC:
+{"claim_refs":["kc-real"],"evidence_refs":["ke-real"]}
+ACCEPTED KNOWLEDGE:
+{"claims":[{"claim_id":"kc-real","text":"Real grounded fact from the accepted knowledge.","evidence_ids":["ke-real"]}]}
+'''
+    adapter = LocalTextAdapter()
+    value = _json_from_text(adapter.response_text(adapter.generate(prompt)))
+    assert value["units"]
+    assert all(unit["claim_refs"] == ["kc-real"] for unit in value["units"])
+    assert all(unit["evidence_refs"] == ["ke-real"] for unit in value["units"])
