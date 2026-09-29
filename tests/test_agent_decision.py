@@ -75,3 +75,82 @@ def test_json_tool_decision_policy_requires_strict_json():
     )
 
     assert decision == AgentDecision("content.write", "write now", False)
+
+
+def test_decision_loop_updates_state_from_tool_result():
+    control = Control()
+    registry = AgentToolRegistry()
+    registry.register(AgentTool("research.observe", "observe", "researcher", lambda **_: {"claim_count": 3}))
+    os = ContentAgentOS(control, registry)
+
+    result = os.run_decision_loop(
+        name="researcher",
+        run_id="run-state-1",
+        objective="observe",
+        state={"phase": "research"},
+        decide=lambda context, tools: (
+            AgentDecision("research.observe") if not context.observations
+            else AgentDecision("", terminal=True)
+        ),
+        invoke=lambda tool, context: registry.invoke(
+            tool, actor="researcher", run_id="run-state-1", control=control
+        ),
+    )
+
+    assert result.state["last_tool"] == "research.observe"
+    assert result.state["last_tool_result"] == {"claim_count": 3}
+
+
+def test_decision_loop_records_failed_tool_and_continues():
+    control = Control()
+    registry = AgentToolRegistry()
+
+    def fail(**_):
+        raise RuntimeError("temporary failure")
+
+    registry.register(AgentTool("research.fail", "fail", "researcher", fail))
+    os = ContentAgentOS(control, registry)
+
+    decisions = iter([
+        AgentDecision("research.fail"),
+        AgentDecision("", terminal=True),
+    ])
+    result = os.run_decision_loop(
+        name="researcher",
+        run_id="run-failure-1",
+        objective="recover",
+        state={},
+        decide=lambda context, tools: next(decisions),
+        invoke=lambda tool, context: registry.invoke(
+            tool, actor="researcher", run_id="run-failure-1", control=control
+        ),
+    )
+
+    assert result.observations[0]["error"] == "temporary failure"
+    assert result.state["last_tool_error"] == "temporary failure"
+    assert any(event == "agent.tool.failed" for _, event, _ in control.events)
+    assert any(event == "agent.observation" and data["status"] == "FAILED" for _, event, data in control.events)
+
+
+def test_decision_loop_stops_at_max_steps():
+    control = Control()
+    registry = AgentToolRegistry()
+    registry.register(AgentTool("research.repeat", "repeat", "researcher", lambda **_: {"ok": True}))
+    os = ContentAgentOS(control, registry)
+
+    try:
+        os.run_decision_loop(
+            name="researcher",
+            run_id="run-max-1",
+            objective="bounded",
+            state={},
+            decide=lambda context, tools: AgentDecision("research.repeat"),
+            invoke=lambda tool, context: registry.invoke(
+                tool, actor="researcher", run_id="run-max-1", control=control
+            ),
+            max_steps=2,
+        )
+    except RuntimeError as exc:
+        assert "limit of 2" in str(exc)
+    else:
+        raise AssertionError("expected max-step RuntimeError")
