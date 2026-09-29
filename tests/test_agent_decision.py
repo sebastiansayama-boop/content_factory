@@ -18,10 +18,14 @@ def test_decision_loop_selects_owned_tools_and_keeps_observations():
     registry.register(AgentTool("research.b", "second", "researcher", lambda **_: {"done": True}))
     os = ContentAgentOS(control, registry)
 
-    choices = iter(["research.a", "research.b"])
+    choices = iter([
+        AgentDecision("research.a", reason="step-1"),
+        AgentDecision("research.b", reason="step-2"),
+        AgentDecision("", reason="objective complete", terminal=True),
+    ])
 
     def decide(context, tools):
-        return AgentDecision(next(choices), reason=f"step-{len(context.observations) + 1}")
+        return next(choices)
 
     result = os.run_decision_loop(
         name="researcher",
