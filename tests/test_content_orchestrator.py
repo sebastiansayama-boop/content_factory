@@ -1,3 +1,4 @@
+from content_factory.agent_tools import AgentTool
 from content_factory.content_orchestrator import ContentOrchestrator
 from content_factory.content_run import ContentRunStore
 
@@ -63,7 +64,7 @@ def test_orchestrator_runs_bounded_review_loop(tmp_path):
     orchestrator._research = lambda current: current
     writes = []
 
-    def fake_write(current, *, review_feedback=None):
+    def fake_write_tool(*, run, review_feedback):
         writes.append(list(review_feedback or []))
         return {
             "editorial": {},
@@ -73,7 +74,25 @@ def test_orchestrator_runs_bounded_review_loop(tmp_path):
             "knowledge": {"claim_refs": []},
         }
 
-    orchestrator._write = fake_write
+    orchestrator.tool_registry._tools["content.write"] = AgentTool(
+        "content.write", "test writer", "writer", fake_write_tool
+    )
+
+    def fake_review_tool(*, run, result):
+        reviewer.calls += 1
+        status = "REVISE" if reviewer.calls == 1 else "PASS"
+        return {
+            "status": status,
+            "issues": ["issue"] if status == "REVISE" else [],
+            "required_changes": ["make it clearer"] if status == "REVISE" else [],
+            "checked_claims": [],
+            "confidence": 0.8 if status == "REVISE" else 0.95,
+        }
+
+    orchestrator.tool_registry._tools["content.review"] = AgentTool(
+        "content.review", "test reviewer", "reviewer", fake_review_tool
+    )
+
     orchestrator._production = lambda run_id, result: (
         store.save_result(run_id, {**result, "review_history": result["review_history"]}),
         {"qc_id": "qc-1", "passed": True, "status": "PASSED"},
