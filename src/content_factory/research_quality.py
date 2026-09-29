@@ -115,6 +115,7 @@ def validate_research_relevance(*, brief: str, research: dict[str, Any]) -> dict
     }
 
     relevant_source_ids: set[str] = set()
+    relevant_source_types: set[str] = set()
     relevant_claims = 0
     rejected_claim_ids: list[str] = []
     for claim in claims:
@@ -134,6 +135,8 @@ def validate_research_relevance(*, brief: str, research: dict[str, Any]) -> dict
             for source_id in claim.get("source_ids", []):
                 if str(source_id) in source_by_id:
                     relevant_source_ids.add(str(source_id))
+                    source_type = str(source_by_id[str(source_id)].get("source_type", "unknown"))
+                    relevant_source_types.add(source_type)
         elif claim.get("id"):
             rejected_claim_ids.append(str(claim["id"]))
 
@@ -142,12 +145,13 @@ def validate_research_relevance(*, brief: str, research: dict[str, Any]) -> dict
     )
     min_claims = 3 if future_history else 1
     min_sources = 3 if future_history else 1
-    passed = relevant_claims >= min_claims and len(relevant_source_ids) >= min_sources
+    min_source_types = 2 if future_history else 1
+    passed = (\n        relevant_claims >= min_claims\n        and len(relevant_source_ids) >= min_sources\n        and len(relevant_source_types) >= min_source_types\n    )
 
     return {
         "status": "PASS" if passed else "FAIL",
         "relevant_claim_count": relevant_claims,
-        "relevant_source_count": len(relevant_source_ids),
+        "relevant_source_count": len(relevant_source_ids),\n        "relevant_source_types": sorted(relevant_source_types),\n        "minimum_source_types": min_source_types,
         "claim_count": len(claims),
         "source_count": len(sources),
         "rejected_claim_ids": rejected_claim_ids,
@@ -156,6 +160,6 @@ def validate_research_relevance(*, brief: str, research: dict[str, Any]) -> dict
         "reason": (
             "research is sufficiently relevant to the requested brief"
             if passed
-            else "research does not contain enough relevant claims and sources"
+            else "research does not contain enough relevant claims, sources, and source diversity"
         ),
     }
