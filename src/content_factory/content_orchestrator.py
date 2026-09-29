@@ -37,7 +37,7 @@ class ContentOrchestrator:
         self.planner = planner or ContentRunPlanner(workspace)
         self.reviewer = reviewer or ContentReviewer(workspace)
         self.tool_registry = AgentToolRegistry()
-        register_content_tools(self.tool_registry, service=service, workspace=workspace)
+        register_content_tools(\n            self.tool_registry,\n            service=service,\n            workspace=workspace,\n            reviewer=self.reviewer,\n        )
         self.agent_os = ContentAgentOS(service.control, self.tool_registry)
         self.agent_manager = AgentManager(self.agent_os)
 
