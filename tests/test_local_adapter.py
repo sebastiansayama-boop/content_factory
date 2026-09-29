@@ -28,3 +28,17 @@ KNOWLEDGE REFERENCES: ["kc-test"]
     assert value["status"] == "PASS"
     assert value["checked_claims"] == ["kc-test"]
     assert value["confidence"] == 0.9
+
+
+def test_local_adapter_script_uses_supplied_knowledge():
+    prompt = '''Return JSON: {"script_id":"script-1","title":"string","units":[]}
+ACCEPTED KNOWLEDGE:
+{"claims":[{"claim_id":"kc-real","text":"Ancient societies used myths and religious traditions to imagine future events.","evidence_ids":["ke-real"]}]}
+CONTENT SPEC:
+{"claim_refs":["kc-real"],"evidence_refs":["ke-real"]}
+'''
+    adapter = LocalTextAdapter()
+    value = _json_from_text(adapter.response_text(adapter.generate(prompt)))
+    texts = [unit["text"] for unit in value["units"]]
+    assert any("Ancient societies used myths" in item for item in texts)
+    assert all("supplied claim" not in item for item in texts)
