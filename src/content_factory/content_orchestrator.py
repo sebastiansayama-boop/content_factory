@@ -205,20 +205,16 @@ class ContentOrchestrator:
 
         self.service.control.record(run_id, "factory.started", status="RUNNING", actor="orchestrator")
         if run.status == "PLANNING" and not run.plan:
-            plan = self.agent_manager.run(
-                name="planner",
-                run_id=run_id,
-                operation="plan",
-                action=lambda: self.planner.plan(
-                run_id=run.run_id,
-                title=run.title,
-                brief=run.brief,
-                audience=run.audience,
-                goal=run.goal,
-                formats=list(run.formats),
-                constraints=list(run.constraints),
+            planner_context = self._run_agent_loop(
+                agent="planner",
+                run=run,
+                objective="turn the user brief into an executable content plan",
+                state=run.to_dict(),
+                invoke=lambda tool, context: self.agent_os.invoke_tool(
+                    name="planner", tool=tool, run_id=run_id, run=run
                 ),
             )
+            plan = planner_context.observations[-1]["result"]
             self.content_runs.save_plan(run_id, plan)
             self.service.control.record(run_id, "planning.completed", status="COMPLETED", actor="planner")
         run = self.content_runs.get(run_id)
