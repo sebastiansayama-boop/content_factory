@@ -150,6 +150,22 @@ def register_content_tools(
             output=output,
         )
 
+    def plan_content(*, run: Any) -> Any:
+        from .content_run_planner import ContentRunPlanner
+
+        return ContentRunPlanner(workspace).plan(
+            run_id=run.run_id,
+            title=run.title,
+            brief=run.brief,
+            audience=run.audience,
+            goal=run.goal,
+            formats=list(run.formats),
+            constraints=list(run.constraints),
+        )
+
+    registry.register(AgentTool(
+        "content_run.plan", "turn the user brief into an executable content plan", "planner", plan_content
+    ))
     registry.register(AgentTool(
         "knowledge.search", "search accepted knowledge for the current brief", "researcher", knowledge_search
     ))
