@@ -215,8 +215,18 @@ class JsonToolDecisionPolicy:
             raise ValueError("agent decision provider returned invalid JSON") from exc
         if not isinstance(value, dict):
             raise ValueError("agent decision must be a JSON object")
-        return AgentDecision(
+        decision = AgentDecision(
             tool=str(value.get("tool") or "").strip(),
             reason=str(value.get("reason") or "").strip(),
             terminal=bool(value.get("terminal", False)),
         )
+        if decision.terminal and not any(
+            "result" in observation for observation in context.observations
+        ):
+            first_tool = tools[0].name
+            return AgentDecision(
+                first_tool,
+                reason="terminal decision rejected before any successful observation; execute the first owned tool",
+                terminal=False,
+            )
+        return decision
