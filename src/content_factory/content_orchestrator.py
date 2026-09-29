@@ -257,14 +257,17 @@ class ContentOrchestrator:
             run = self.content_runs.get(run_id)
             if run is None:
                 raise ValueError("content run not found before write")
-            result = self.agent_manager.run(
-                name="writer",
-                run_id=run_id,
-                operation=f"write-revision-{revision}",
-                action=lambda: self._write(run, review_feedback=(
-                review_history[-1].get("required_changes", []) if review_history else []
-                )),
+            feedback = review_history[-1].get("required_changes", []) if review_history else []
+            writer_context = self._run_agent_loop(
+                agent="writer",
+                run=run,
+                objective="produce the requested content package",
+                state={**run.to_dict(), "review_feedback": feedback},
+                invoke=lambda tool, context: self.agent_os.invoke_tool(
+                    name="writer", tool=tool, run_id=run_id, run=run, review_feedback=feedback
+                ),
             )
+            result = writer_context.observations[-1]["result"]
             self.content_runs.save_result(run_id, {"run_id": run_id, "brief": run.brief, **result})
             self.service.control.record(
                 run_id,
@@ -274,18 +277,16 @@ class ContentOrchestrator:
                 evidence={"revision": revision},
             )
 
-            review = self.agent_manager.run(
-                name="reviewer",
-                run_id=run_id,
-                operation=f"review-revision-{revision}",
-                action=lambda: self.agent_os.invoke_tool(
-                    name="reviewer",
-                    tool="content.review",
-                    run_id=run_id,
-                    run=run,
-                    result=result,
+            reviewer_context = self._run_agent_loop(
+                agent="reviewer",
+                run=run,
+                objective="evaluate the current content package and decide whether it is acceptable",
+                state={**run.to_dict(), "candidate_result": result},
+                invoke=lambda tool, context: self.agent_os.invoke_tool(
+                    name="reviewer", tool=tool, run_id=run_id, run=run, result=result
                 ),
             )
+            review = reviewer_context.observations[-1]["result"]
             review["revision"] = revision
             review_history.append(review)
             self.content_runs.save_result(
