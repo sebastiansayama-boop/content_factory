@@ -52,25 +52,48 @@ class LocalTextAdapter:
                 ]
             }
         elif '"units":' in prompt:
-            # Keep the credential-free provider useful: scripts must quote the
-            # accepted knowledge supplied by the writer, not a generic placeholder.
+            # Script provenance must come from the ContentSpec, not from the
+            # first identifier encountered anywhere in the prompt. The prompt
+            # also contains metadata and accepted knowledge.
+            spec_match = re.search(
+                r'CONTENT SPEC:\\s*(\\{.*?\\})\\s*ACCEPTED KNOWLEDGE:',
+                prompt,
+                flags=re.DOTALL,
+            )
+            spec_value = {}
+            if spec_match:
+                try:
+                    spec_value = json.loads(spec_match.group(1))
+                except json.JSONDecodeError:
+                    spec_value = {}
+            spec_claims = [
+                str(value) for value in (spec_value.get("claim_refs") or [])
+                if isinstance(value, str) and value
+            ]
+            spec_evidence = [
+                str(value) for value in (spec_value.get("evidence_refs") or [])
+                if isinstance(value, str) and value
+            ]
+
             matches = re.findall(
-                r'"claim_id"\s*:\s*"([^"]+)"\s*,\s*"text"\s*:\s*"((?:\\.|[^"\\])*)"',
+                r'"claim_id"\\s*:\\s*"([^"]+)"\\s*,\\s*"text"\\s*:\\s*"((?:\\\\.|[^"\\\\])*)"',
                 prompt,
             )
-            claim_rows = []
-            for claim_id, claim_text in matches[:4]:
+            claim_rows_by_id = {}
+            for claim_id, claim_text in matches:
                 try:
-                    claim_rows.append((claim_id, json.loads(f'"{claim_text}"')))
+                    claim_rows_by_id[claim_id] = json.loads(f'"{claim_text}"')
                 except json.JSONDecodeError:
-                    claim_rows.append((claim_id, claim_text))
+                    claim_rows_by_id[claim_id] = claim_text
+
+            claim_rows = [
+                (claim_id, claim_rows_by_id[claim_id])
+                for claim_id in spec_claims
+                if claim_id in claim_rows_by_id
+            ]
             if not claim_rows:
                 claim_rows = [(claim, "The available evidence supports this claim.")]
-            evidence_matches = re.findall(
-                r'"evidence_ids"\s*:\s*\[\s*"([^"]+)"',
-                prompt,
-            )
-            evidence_id = evidence_matches[0] if evidence_matches else evidence
+            evidence_id = spec_evidence[0] if spec_evidence else evidence
             units = [{
                 "unit_id": "unit-1",
                 "kind": "hook",
