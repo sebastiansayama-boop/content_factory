@@ -35,7 +35,7 @@ class ContentOrchestrator:
         self.content_runs = content_runs
         self.planner = planner or ContentRunPlanner(workspace)
         self.reviewer = reviewer or ContentReviewer(workspace)
-        self.agent_os = ContentAgentOS(content_runs)
+        self.agent_os = ContentAgentOS(service.control)
         self.agent_manager = AgentManager(self.agent_os)
 
     def _research(self, run: ContentRun) -> ContentRun:
