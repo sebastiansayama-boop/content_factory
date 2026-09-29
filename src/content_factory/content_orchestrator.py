@@ -66,6 +66,18 @@ class ContentOrchestrator:
             run=run,
         )
         research_dict = ContentFactoryVerticalSlice.to_dict(research_result)
+        saved = self.content_runs.save_research_result(run.run_id, research_dict)
+        self.service.control.record(
+            run.run_id,
+            "research.completed",
+            status="COMPLETED",
+            actor="researcher",
+            evidence={
+                "claims": len(research_dict.get("claims") or []),
+                "sources": len(research_dict.get("sources") or []),
+            },
+        )
+        return saved
 
     def _write(self, run: ContentRun, *, review_feedback: list[str] | None = None) -> dict[str, Any]:
         return self.agent_os.invoke_tool(
