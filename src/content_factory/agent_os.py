@@ -123,8 +123,9 @@ class ContentAgentOS:
         decide: Callable[[AgentDecisionContext, tuple[Any, ...]], AgentDecision],
         invoke: Callable[[str, AgentDecisionContext], Any],
         evidence: list[dict[str, Any]] | None = None,
+        max_steps: int = 6,
     ) -> AgentDecisionContext:
-        return self.decision_loop().run(
+        return self.decision_loop(max_steps=max_steps).run(
             agent=name,
             run_id=run_id,
             objective=objective,
