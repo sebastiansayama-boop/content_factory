@@ -3,8 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable
 
-from .agent_tools import AgentToolRegistry
-
+from .agent_decision import AgentDecision, AgentDecisionContext, AgentDecisionLoop
 from .agent_tools import AgentToolRegistry
 
 
@@ -110,6 +109,30 @@ class ContentAgentOS:
 
     def invoke_tool(self, *, name: str, tool: str, run_id: str, **kwargs: Any) -> Any:
         return self.tools.invoke(tool, actor=name, run_id=run_id, control=self.control, **kwargs)
+
+    def decision_loop(self, *, max_steps: int = 6) -> AgentDecisionLoop:
+        return AgentDecisionLoop(self.tools, self.control, max_steps=max_steps)
+
+    def run_decision_loop(
+        self,
+        *,
+        name: str,
+        run_id: str,
+        objective: str,
+        state: dict[str, Any],
+        decide: Callable[[AgentDecisionContext, tuple[Any, ...]], AgentDecision],
+        invoke: Callable[[str, AgentDecisionContext], Any],
+        evidence: list[dict[str, Any]] | None = None,
+    ) -> AgentDecisionContext:
+        return self.decision_loop().run(
+            agent=name,
+            run_id=run_id,
+            objective=objective,
+            state=state,
+            decide=decide,
+            invoke=invoke,
+            evidence=evidence,
+        )
 
     def spec(self, name: str) -> AgentSpec:
         try:
