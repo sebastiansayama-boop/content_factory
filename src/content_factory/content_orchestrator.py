@@ -81,27 +81,37 @@ class ContentOrchestrator:
         if run is None:
             raise ValueError("content run not found")
         self.content_runs.start_producing(run_id)
-        jobs = self.service.asset_jobs.create_from_plan(run_id, result["production_plan"])
+        jobs = self.agent_os.invoke_tool(
+            name="producer",
+            tool="production.queue",
+            run_id=run_id,
+            run=run,
+            result=result,
+        )
         run = self.content_runs.save_production_result(
             run_id,
             {**(run.result or {}), "production": {"status": "QUEUED", "job_ids": [j.job_id for j in jobs]}} ,
         )
         self.service.control.record(run_id, "production.queued", output_refs=tuple(j.job_id for j in jobs))
 
-        jobs = self.service.asset_executor.execute_run(run_id)
+        jobs = self.agent_os.invoke_tool(
+            name="producer",
+            tool="production.execute",
+            run_id=run_id,
+            run=run,
+        )
         run = self.content_runs.save_production_result(
             run_id,
             {**(run.result or {}), "production": {"status": "COMPLETED", "jobs": [j.to_dict() for j in jobs]}} ,
         )
         self.service.control.record(run_id, "production.completed", output_refs=tuple(j.job_id for j in jobs))
         assets = [self.service.asset_registry.register_completed_job(j).to_dict() for j in jobs]
-        output = ContentAssembler(
-            self.service.asset_registry,
-            os.environ.get("FACTORY_DATA_DIR", "./data"),
-        ).assemble(
+        output = self.agent_os.invoke_tool(
+            name="producer",
+            tool="production.assemble",
             run_id=run_id,
-            script=run.result.get("script") or {},
-            production_plan=run.result.get("production_plan") or {},
+            run=run,
+            result=run.result or {},
         )
         run = self.content_runs.save_production_result(
             run_id,
@@ -116,10 +126,12 @@ class ContentOrchestrator:
             },
         )
         self.service.control.record(run_id, "assembly.completed", output_refs=(output["output_id"],))
-        qc = QualityGate().evaluate(
+        qc = self.agent_os.invoke_tool(
+            name="quality",
+            tool="quality.check",
             run_id=run_id,
-            script=run.result.get("script") or {},
-            production_plan=run.result.get("production_plan") or {},
+            run=run,
+            result=run.result or {},
             assets=self.service.asset_registry.list_for_run(run_id),
             output=output,
         )
