@@ -5,39 +5,12 @@ from typing import Any
 
 
 FUTURE_HISTORY_TERMS = {
-    "future",
-    "futures",
-    "prophecy",
-    "prophecies",
-    "prophetic",
-    "eschatology",
-    "utopia",
-    "utopian",
-    "science",
-    "fiction",
-    "futurism",
-    "futurist",
-    "verne",
-    "wells",
-    "robida",
-    "watkins",
-    "ancient",
-    "medieval",
-    "historical",
-    "history",
-    "time",
-    "society",
-    "technology",
-    "technological",
-    "prediction",
-    "predictions",
-    "forecast",
-    "forecasts",
-    "speculation",
-    "speculative",
-    "gilgamesh",
-    "augustine",
-    "joachim",
+    "future", "futures", "prophecy", "prophecies", "prophetic",
+    "eschatology", "utopia", "utopian", "science", "fiction", "futurism",
+    "futurist", "verne", "wells", "robida", "watkins", "ancient", "medieval",
+    "historical", "history", "time", "society", "technology", "technological",
+    "prediction", "predictions", "forecast", "forecasts", "speculation",
+    "speculative", "gilgamesh", "augustine", "joachim",
 }
 
 
@@ -64,14 +37,11 @@ def _generic_relevance(brief: str, text: str) -> float:
 def is_relevant_source(*, brief: str, title: str, extract: str) -> bool:
     material = f"{title} {extract}"
     lowered_brief = brief.lower()
-    lowered = material.lower()
-
     future_history = any(token in lowered_brief for token in ("future", "будущ")) and any(
         token in lowered_brief for token in ("history", "histor", "истори", "древ", "эпох")
     )
     if future_history:
         return _future_history_relevance(material) >= 2
-
     return _generic_relevance(brief, material) >= 0.12
 
 
@@ -82,9 +52,7 @@ def is_relevant_claim(*, brief: str, claim: str, evidence: str) -> bool:
         token in lowered_brief for token in ("history", "histor", "истори", "древ", "эпох")
     )
     if future_history:
-        claim_terms = _future_history_relevance(combined)
-        return claim_terms >= 2
-
+        return _future_history_relevance(combined) >= 2
     return _generic_relevance(brief, combined) >= 0.10
 
 
@@ -118,6 +86,7 @@ def validate_research_relevance(*, brief: str, research: dict[str, Any]) -> dict
     relevant_source_types: set[str] = set()
     relevant_claims = 0
     rejected_claim_ids: list[str] = []
+
     for claim in claims:
         if not isinstance(claim, dict):
             continue
@@ -126,6 +95,7 @@ def validate_research_relevance(*, brief: str, research: dict[str, Any]) -> dict
             item = evidence_by_id.get(str(evidence_id))
             if isinstance(item, dict):
                 excerpts.append(str(item.get("excerpt", "")))
+
         if is_relevant_claim(
             brief=brief,
             claim=str(claim.get("text", "")),
@@ -135,23 +105,34 @@ def validate_research_relevance(*, brief: str, research: dict[str, Any]) -> dict
             for source_id in claim.get("source_ids", []):
                 if str(source_id) in source_by_id:
                     relevant_source_ids.add(str(source_id))
-                    source_type = str(source_by_id[str(source_id)].get("source_type", "unknown"))
+                    source_type = str(
+                        source_by_id[str(source_id)].get("source_type", "unknown")
+                    )
                     relevant_source_types.add(source_type)
         elif claim.get("id"):
             rejected_claim_ids.append(str(claim["id"]))
 
-    future_history = any(token in brief.lower() for token in ("future", "будущ")) and any(
-        token in brief.lower() for token in ("history", "histor", "истори", "древ", "эпох")
+    lowered_brief = brief.lower()
+    future_history = any(token in lowered_brief for token in ("future", "будущ")) and any(
+        token in lowered_brief for token in ("history", "histor", "истори", "древ", "эпох")
     )
+
     min_claims = 3 if future_history else 1
     min_sources = 3 if future_history else 1
     min_source_types = 2 if future_history else 1
-    passed = (\n        relevant_claims >= min_claims\n        and len(relevant_source_ids) >= min_sources\n        and len(relevant_source_types) >= min_source_types\n    )
+
+    passed = (
+        relevant_claims >= min_claims
+        and len(relevant_source_ids) >= min_sources
+        and len(relevant_source_types) >= min_source_types
+    )
 
     return {
         "status": "PASS" if passed else "FAIL",
         "relevant_claim_count": relevant_claims,
-        "relevant_source_count": len(relevant_source_ids),\n        "relevant_source_types": sorted(relevant_source_types),\n        "minimum_source_types": min_source_types,
+        "relevant_source_count": len(relevant_source_ids),
+        "relevant_source_types": sorted(relevant_source_types),
+        "minimum_source_types": min_source_types,
         "claim_count": len(claims),
         "source_count": len(sources),
         "rejected_claim_ids": rejected_claim_ids,
