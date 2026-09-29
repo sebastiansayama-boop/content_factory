@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from typing import Any
 
+from .agent_os import AgentManager, ContentAgentOS
 from .assembly import ContentAssembler, QualityGate
 from .content_reviewer import ContentReviewer
 from .content_run import ContentRun, ContentRunStore
@@ -34,6 +35,8 @@ class ContentOrchestrator:
         self.content_runs = content_runs
         self.planner = planner or ContentRunPlanner(workspace)
         self.reviewer = reviewer or ContentReviewer(workspace)
+        self.agent_os = ContentAgentOS(content_runs)
+        self.agent_manager = AgentManager(self.agent_os)
 
     def _research(self, run: ContentRun) -> ContentRun:
         prior = self.service.knowledge.search(run.brief)
@@ -167,7 +170,11 @@ class ContentOrchestrator:
 
         self.service.control.record(run_id, "factory.started", status="RUNNING", actor="orchestrator")
         if run.status == "PLANNING" and not run.plan:
-            plan = self.planner.plan(
+            plan = self.agent_manager.run(
+                name="planner",
+                run_id=run_id,
+                operation="plan",
+                action=lambda: self.planner.plan(
                 run_id=run.run_id,
                 title=run.title,
                 brief=run.brief,
@@ -175,13 +182,19 @@ class ContentOrchestrator:
                 goal=run.goal,
                 formats=list(run.formats),
                 constraints=list(run.constraints),
+                ),
             )
             self.content_runs.save_plan(run_id, plan)
             self.service.control.record(run_id, "planning.completed", status="COMPLETED", actor="planner")
         run = self.content_runs.get(run_id)
         if run is None:
             raise ValueError("content run not found after planning")
-        run = self._research(run)
+        run = self.agent_manager.run(
+            name="researcher",
+            run_id=run_id,
+            operation="research",
+            action=lambda: self._research(run),
+        )
 
         review_history: list[dict[str, Any]] = []
         result: dict[str, Any] | None = None
@@ -190,9 +203,14 @@ class ContentOrchestrator:
             run = self.content_runs.get(run_id)
             if run is None:
                 raise ValueError("content run not found before write")
-            result = self._write(run, review_feedback=(
+            result = self.agent_manager.run(
+                name="writer",
+                run_id=run_id,
+                operation=f"write-revision-{revision}",
+                action=lambda: self._write(run, review_feedback=(
                 review_history[-1].get("required_changes", []) if review_history else []
-            ))
+                )),
+            )
             self.content_runs.save_result(run_id, {"run_id": run_id, "brief": run.brief, **result})
             self.service.control.record(
                 run_id,
@@ -202,12 +220,17 @@ class ContentOrchestrator:
                 evidence={"revision": revision},
             )
 
-            review = self.reviewer.review(
+            review = self.agent_manager.run(
+                name="reviewer",
+                run_id=run_id,
+                operation=f"review-revision-{revision}",
+                action=lambda: self.reviewer.review(
                 run_id=run_id,
                 brief=run.brief,
                 audience=run.audience,
                 goal=run.goal,
                 result=result,
+                ),
             )
             review["revision"] = revision
             review_history.append(review)
@@ -243,4 +266,9 @@ class ContentOrchestrator:
         result_with_review = dict(run.result or {})
         result_with_review["review_history"] = review_history
         run = self.content_runs.save_result(run_id, result_with_review)
-        return self._production(run_id, result_with_review)
+        return self.agent_manager.run(
+            name="producer",
+            run_id=run_id,
+            operation="production",
+            action=lambda: self._production(run_id, result_with_review),
+        )
