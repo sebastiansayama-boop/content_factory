@@ -51,7 +51,7 @@ def test_local_research_web_mode_uses_public_sources(monkeypatch):
     assert data["claims"][0]["source_ids"] == ["source-1"]
     assert data["claims"][0]["evidence_ids"] == ["evidence-1"]
     assert "History of science fiction" in titles
-    assert any("wikipedia.org" in url for url in calls)
+    assert any(urllib.parse.urlparse(url).hostname == "en.wikipedia.org" for url in calls)
 
 
 def test_local_research_fixture_mode_remains_available(monkeypatch):
