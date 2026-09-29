@@ -92,7 +92,9 @@ class LocalTextAdapter:
                 if claim_id in claim_rows_by_id
             ]
             if not claim_rows:
-                claim_rows = [(claim, "The available evidence supports this claim.")]
+                raise ValueError(
+                    "script generation received no claim text matching the ContentSpec claim_refs"
+                )
             evidence_id = spec_evidence[0] if spec_evidence else evidence
             units = [{
                 "unit_id": "unit-1",
