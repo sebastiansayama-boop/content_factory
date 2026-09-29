@@ -126,9 +126,28 @@ class ContentOrchestrator:
                     self.content_runs.start_execution(run.run_id)
                 research_dict = ContentFactoryVerticalSlice.to_dict(result)
                 self.content_runs.save_research_result(run.run_id, research_dict)
+
+                # A factory run is an explicit production request, so the
+                # research it just validated becomes reusable knowledge for
+                # this run. Promotion is still explicit and auditable; it is
+                # never performed by KnowledgeStore.capture().
+                knowledge_refs = research_dict.get("knowledge_refs") or {}
+                promoted_claims = []
+                for claim_id in (knowledge_refs.get("claims") or {}).values():
+                    claim = self.service.knowledge.promote_claim(
+                        str(claim_id),
+                        decision_ref=f"factory-research-qc:{run.run_id}",
+                    )
+                    promoted_claims.append(claim.claim_id)
+
                 self.service.control.record(
                     run.run_id, "research.completed", status="COMPLETED", actor="researcher",
-                    evidence={"claims": len(research_dict.get("claims") or []), "sources": len(research_dict.get("sources") or [])},
+                    evidence={
+                        "claims": len(research_dict.get("claims") or []),
+                        "sources": len(research_dict.get("sources") or []),
+                        "promoted_claims": len(promoted_claims),
+                        "decision_ref": f"factory-research-qc:{run.run_id}",
+                    },
                 )
             return result
 
