@@ -14,18 +14,41 @@ FUTURE_HISTORY_TERMS = {
 }
 
 
+RUSSIAN_FUTURE_HISTORY_TERMS = (
+    "будущ",
+    "пророч",
+    "эсхат",
+    "утоп",
+    "футур",
+    "истор",
+    "древ",
+    "средневек",
+    "времен",
+    "прогноз",
+    "предсказ",
+    "технолог",
+    "фантаст",
+    "временн",
+    "обществен",
+)
+
+
 def _tokens(value: str) -> set[str]:
     return {
         token
-        for token in re.findall(r"[a-z0-9-]{3,}", value.lower())
-        if token not in {"the", "and", "for", "with", "that", "this", "from", "about", "into"}
+        for token in re.findall(r"[a-zа-яё0-9-]{3,}", value.lower())
+        if token not in {
+            "the", "and", "for", "with", "that", "this", "from", "about", "into",
+            "это", "как", "что", "для", "при", "или", "они", "был", "были",
+        }
     }
 
 
 def _future_history_relevance(text: str) -> int:
-    return len(_tokens(text) & FUTURE_HISTORY_TERMS)
-
-
+    tokens = _tokens(text)
+    latin_hits = len(tokens & FUTURE_HISTORY_TERMS)
+    russian_hits = sum(1 for stem in RUSSIAN_FUTURE_HISTORY_TERMS if stem in text.lower())
+    return latin_hits + russian_hits
 def _generic_relevance(brief: str, text: str) -> float:
     brief_tokens = _tokens(brief)
     text_tokens = _tokens(text)
