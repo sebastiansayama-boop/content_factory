@@ -248,9 +248,11 @@ Return JSON: {{"script_id":"script-1","title":"string","units":[{{"unit_id":"uni
 Every factual unit must retain the relevant durable claim and evidence refs from the ContentSpec. Do not invent facts.
 CONTENT SPEC:
 {json.dumps(spec.to_dict(), ensure_ascii=False)}
+ACCEPTED KNOWLEDGE:
+{context_json}
 WRITING SPEC:
 {writing_spec_json}
-Write naturally for the selected context. Avoid formulaic openings and transitions. Do not use an em dash character.
+Write naturally for the selected context. Use the supplied claim text as the factual basis, while preserving the claim and evidence refs from the ContentSpec. Avoid formulaic openings and transitions. Do not use an em dash character.
 """,
         )
         units_raw = script_raw.get("units")
