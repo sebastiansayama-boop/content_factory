@@ -42,6 +42,19 @@ class AgentDecisionContext:
         }
 
 
+class AgentToolExecutionError(RuntimeError):
+    """A bounded agent tool failed and the loop must stop with its root cause."""
+
+    def __init__(self, *, agent: str, tool: str, cause: Exception) -> None:
+        self.agent = agent
+        self.tool = tool
+        self.cause = cause
+        super().__init__(
+            f"agent {agent} tool {tool} failed: "
+            f"{type(cause).__name__}: {cause}"
+        )
+
+
 class AgentDecisionLoop:
     """Bounded tool-selection loop for a specialist.
 
@@ -147,14 +160,13 @@ class AgentDecisionLoop:
                     "agent.observation",
                     status="FAILED",
                     actor=agent,
-                    evidence={
-                        "step": step,
-                        "tool": decision.tool,
-                        "error": str(exc),
-                        "error_type": type(exc).__name__,
-                    },
+                    evidence=observation_record,
                 )
-                continue
+                raise AgentToolExecutionError(
+                    agent=agent,
+                    tool=decision.tool,
+                    cause=exc,
+                ) from exc
 
             observation_record = {
                 "step": step,
