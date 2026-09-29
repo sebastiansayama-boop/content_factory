@@ -60,9 +60,9 @@ def test_research_relevance_passes_when_claims_link_to_relevant_sources():
             },
         ],
         "sources": [
-            {"id": "s1", "title": "History of ideas", "url": "https://example.com/1"},
-            {"id": "s2", "title": "Utopia", "url": "https://example.com/2"},
-            {"id": "s3", "title": "Science fiction", "url": "https://example.com/3"},
+            {"id": "s1", "title": "History of ideas", "url": "https://example.com/1", "source_type": "secondary_encyclopedic"},
+            {"id": "s2", "title": "Utopia", "url": "https://example.com/2", "source_type": "secondary_encyclopedic"},
+            {"id": "s3", "title": "Science fiction", "url": "https://example.com/3", "source_type": "scholarly_index"},
         ],
         "evidence": [
             {"id": "e1", "source_id": "s1", "excerpt": "Historical writers imagined future societies.", "locator": "lead", "provenance": "test"},
