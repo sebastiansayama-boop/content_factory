@@ -139,77 +139,58 @@ class ContentOrchestrator:
         if run is None:
             raise ValueError("content run not found")
         self.content_runs.start_producing(run_id)
-        jobs = self.agent_os.invoke_tool(
-            name="producer",
-            tool="production.queue",
-            run_id=run_id,
-            run=run,
-            result=result,
-        )
-        run = self.content_runs.save_production_result(
-            run_id,
-            {**(run.result or {}), "production": {"status": "QUEUED", "job_ids": [j.job_id for j in jobs]}} ,
-        )
-        self.service.control.record(run_id, "production.queued", output_refs=tuple(j.job_id for j in jobs))
+        observations: dict[str, Any] = {}
 
-        jobs = self.agent_os.invoke_tool(
-            name="producer",
-            tool="production.execute",
-            run_id=run_id,
+        def invoke(tool, context):
+            current = self.content_runs.get(run_id)
+            if current is None:
+                raise ValueError("content run disappeared during production")
+            if tool == "production.queue":
+                value = self.agent_os.invoke_tool(name="producer", tool=tool, run_id=run_id, run=current, result=result)
+                observations[tool] = value
+                self.content_runs.save_production_result(
+                    run_id,
+                    {**(current.result or {}), "production": {"status": "QUEUED", "job_ids": [j.job_id for j in value]}},
+                )
+                self.service.control.record(run_id, "production.queued", output_refs=tuple(j.job_id for j in value))
+                return value
+            if tool == "production.execute":
+                value = self.agent_os.invoke_tool(name="producer", tool=tool, run_id=run_id, run=current)
+                observations[tool] = value
+                jobs = value
+                self.content_runs.save_production_result(
+                    run_id,
+                    {**(current.result or {}), "production": {"status": "COMPLETED", "jobs": [j.to_dict() for j in jobs]}},
+                )
+                self.service.control.record(run_id, "production.completed", output_refs=tuple(j.job_id for j in jobs))
+                return value
+            if tool == "production.assemble":
+                value = self.agent_os.invoke_tool(name="producer", tool=tool, run_id=run_id, run=current, result=current.result or result)
+                observations[tool] = value
+                jobs = observations.get("production.execute", [])
+                assets = [self.service.asset_registry.register_completed_job(j).to_dict() for j in jobs]
+                self.content_runs.save_production_result(
+                    run_id,
+                    {**(current.result or {}), "production": {"status": "ASSEMBLED", "jobs": [j.to_dict() for j in jobs], "assets": assets, "output": value}},
+                )
+                self.service.control.record(run_id, "assembly.completed", output_refs=(value["output_id"],))
+                return value
+            raise ValueError(f"producer selected unsupported tool: {tool}")
+
+        self._run_agent_loop(
+            agent="producer",
             run=run,
+            objective="materialize the approved content package into production assets and an assembled output",
+            state={**run.to_dict(), "result": result},
+            invoke=invoke,
         )
-        run = self.content_runs.save_production_result(
-            run_id,
-            {**(run.result or {}), "production": {"status": "COMPLETED", "jobs": [j.to_dict() for j in jobs]}} ,
-        )
-        self.service.control.record(run_id, "production.completed", output_refs=tuple(j.job_id for j in jobs))
-        assets = [self.service.asset_registry.register_completed_job(j).to_dict() for j in jobs]
-        output = self.agent_os.invoke_tool(
-            name="producer",
-            tool="production.assemble",
-            run_id=run_id,
-            run=run,
-            result=run.result or {},
-        )
-        run = self.content_runs.save_production_result(
-            run_id,
-            {
-                **(run.result or {}),
-                "production": {
-                    "status": "ASSEMBLED",
-                    "jobs": [j.to_dict() for j in jobs],
-                    "assets": assets,
-                    "output": output,
-                },
-            },
-        )
-        self.service.control.record(run_id, "assembly.completed", output_refs=(output["output_id"],))
-        qc = self.agent_os.invoke_tool(
-            name="quality",
-            tool="quality.check",
-            run_id=run_id,
-            run=run,
-            result=run.result or {},
-            assets=self.service.asset_registry.list_for_run(run_id),
-            output=output,
-        )
-        final = {
-            **(run.result or {}),
-            "production": {
-                **(run.result.get("production") or {}),
-                "status": "READY_FOR_REVIEW" if qc["passed"] else "QC_FAILED",
-                "qc": qc,
-            },
-        }
-        run = self.content_runs.save_result(run_id, final) if qc["passed"] else self.content_runs.save_production_result(run_id, final)
-        self.service.control.record(
-            run_id,
-            "qc.completed",
-            status="COMPLETED" if qc["passed"] else "FAILED",
-            output_refs=(qc["qc_id"],),
-            evidence=qc,
-        )
-        return run, qc
+        final_run = self.content_runs.get(run_id)
+        if final_run is None:
+            raise ValueError("content run not found after production")
+        output = observations.get("production.assemble")
+        if not isinstance(output, dict):
+            raise ValueError("producer did not assemble an output")
+        return final_run, output
 
     def run(self, run_id: str) -> tuple[ContentRun, dict[str, Any]]:
         run = self.content_runs.get(run_id)
@@ -321,9 +302,37 @@ class ContentOrchestrator:
         result_with_review = dict(run.result or {})
         result_with_review["review_history"] = review_history
         run = self.content_runs.save_result(run_id, result_with_review)
-        return self.agent_manager.run(
-            name="producer",
-            run_id=run_id,
-            operation="production",
-            action=lambda: self._production(run_id, result_with_review),
+        produced_run, output = self._production(run_id, result_with_review)
+        quality_context = self._run_agent_loop(
+            agent="quality",
+            run=produced_run,
+            objective="verify the assembled output before exposing it as ready",
+            state={**produced_run.to_dict(), "output": output},
+            invoke=lambda tool, context: self.agent_os.invoke_tool(
+                name="quality",
+                tool=tool,
+                run_id=run_id,
+                run=produced_run,
+                result=produced_run.result or {},
+                assets=self.service.asset_registry.list_for_run(run_id),
+                output=output,
+            ),
         )
+        qc = quality_context.observations[-1]["result"]
+        final = {
+            **(produced_run.result or {}),
+            "production": {
+                **((produced_run.result or {}).get("production") or {}),
+                "status": "READY_FOR_REVIEW" if qc["passed"] else "QC_FAILED",
+                "qc": qc,
+            },
+        }
+        final_run = self.content_runs.save_result(run_id, final) if qc["passed"] else self.content_runs.save_production_result(run_id, final)
+        self.service.control.record(
+            run_id,
+            "qc.completed",
+            status="COMPLETED" if qc["passed"] else "FAILED",
+            output_refs=(qc["qc_id"],),
+            evidence=qc,
+        )
+        return final_run, qc
