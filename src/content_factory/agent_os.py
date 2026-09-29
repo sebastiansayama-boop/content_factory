@@ -5,6 +5,8 @@ from typing import Any, Callable
 
 from .agent_tools import AgentToolRegistry
 
+from .agent_tools import AgentToolRegistry
+
 
 @dataclass(frozen=True)
 class AgentSpec:
@@ -96,6 +98,12 @@ class ContentAgentOS:
                 ("quality_gate",),
             ),
         }
+
+    def available_tools(self, name: str) -> tuple[Any, ...]:
+        return self.tools.for_agent(name)
+
+    def invoke_tool(self, *, name: str, tool: str, run_id: str, **kwargs: Any) -> Any:
+        return self.tools.invoke(tool, actor=name, run_id=run_id, control=self.control, **kwargs)
 
     def available_tools(self, name: str) -> tuple[Any, ...]:
         return self.tools.for_agent(name)
