@@ -204,10 +204,12 @@ class ContentOrchestrator:
                 self.service.control.record(run_id, "production.completed", output_refs=tuple(j.job_id for j in jobs))
                 return value
             if tool == "production.assemble":
-                value = self.agent_os.invoke_tool(name="producer", tool=tool, run_id=run_id, run=current, result=current.result or result)
-                observations[tool] = value
+                # Assembly reads the durable AssetRegistry. Register completed
+                # executor jobs before invoking the assembler, not after it.
                 jobs = observations.get("production.execute", [])
                 assets = [self.service.asset_registry.register_completed_job(j).to_dict() for j in jobs]
+                value = self.agent_os.invoke_tool(name="producer", tool=tool, run_id=run_id, run=current, result=current.result or result)
+                observations[tool] = value
                 self.content_runs.save_production_result(
                     run_id,
                     {**(current.result or {}), "production": {"status": "ASSEMBLED", "jobs": [j.to_dict() for j in jobs], "assets": assets, "output": value}},
