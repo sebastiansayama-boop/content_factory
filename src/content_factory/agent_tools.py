@@ -74,6 +74,7 @@ def register_content_tools(
     *,
     service: Any,
     workspace: Any,
+    reviewer: Any | None = None,
 ) -> None:
     """Bind real Content Factory capabilities to agent-owned tools."""
 
@@ -111,7 +112,8 @@ def register_content_tools(
     def review_content(*, run: Any, result: dict[str, Any]) -> Any:
         from .content_reviewer import ContentReviewer
 
-        return ContentReviewer(workspace).review(
+        review_service = reviewer or ContentReviewer(workspace)
+        return review_service.review(
             run_id=run.run_id,
             brief=run.brief,
             audience=run.audience,
