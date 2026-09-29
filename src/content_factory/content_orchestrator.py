@@ -131,7 +131,7 @@ class ContentOrchestrator:
                 # research it just validated becomes reusable knowledge for
                 # this run. Promotion is still explicit and auditable; it is
                 # never performed by KnowledgeStore.capture().
-                knowledge_refs = research_dict.get("knowledge_refs") or {}
+                knowledge_refs = (research_dict.get("research") or {}).get("knowledge_refs") or {}
                 promoted_claims = []
                 for claim_id in (knowledge_refs.get("claims") or {}).values():
                     claim = self.service.knowledge.promote_claim(
