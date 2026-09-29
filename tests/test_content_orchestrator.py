@@ -93,6 +93,10 @@ def test_orchestrator_runs_bounded_review_loop(tmp_path):
         "content.review", "test reviewer", "reviewer", fake_review_tool
     )
 
+    orchestrator.tool_registry._tools["quality.check"] = AgentTool(
+        "quality.check", "test quality", "quality", lambda **_: {"qc_id": "qc-1", "passed": True, "status": "PASSED"}
+    )
+
     orchestrator._production = lambda run_id, result: (
         store.save_result(run_id, {**result, "review_history": result["review_history"]}),
         {"qc_id": "qc-1", "passed": True, "status": "PASSED"},
