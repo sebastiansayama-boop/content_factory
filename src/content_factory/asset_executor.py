@@ -7,6 +7,10 @@ import struct
 import wave
 import zlib
 import urllib.request
+import urllib.parse
+import subprocess
+import textwrap
+from io import BytesIO
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -51,10 +55,12 @@ class AssetExecutor:
             running = self.jobs.mark_running(job.job_id)
             try:
                 execution = self._execute(running)
+                result = dict(execution.result)
+                result.setdefault("provider", execution.provider)
                 if execution.state == "SUBMITTED":
-                    output.append(self.jobs.submit(job.job_id, execution.result))
+                    output.append(self.jobs.submit(job.job_id, result))
                 else:
-                    output.append(self.jobs.complete(job.job_id, execution.result))
+                    output.append(self.jobs.complete(job.job_id, result))
             except Exception as exc:
                 output.append(self.jobs.fail(job.job_id, {"error": str(exc)}))
         return output
@@ -106,9 +112,197 @@ class AssetExecutor:
                     "path": str(path),
                 },
             )
+        if provider == "local_media":
+            return self._execute_local_media(job)
+        if provider == "openverse":
+            return self._execute_openverse(job)
+        if provider == "pexels":
+            return self._execute_pexels(job)
         if provider == "higgsfield":
             return self._submit_higgsfield(job)
-        raise AssetExecutionError("FACTORY_ASSET_PROVIDER must be 'stub' or 'higgsfield'")
+        raise AssetExecutionError(
+            "FACTORY_ASSET_PROVIDER must be 'stub', 'local_media', 'openverse', 'pexels' or 'higgsfield'"
+        )
+
+    def _execute_local_media(self, job: AssetJob) -> AssetExecution:
+        """Create useful local media without cloud credentials."""
+        digest = hashlib.sha256(f"{job.run_id}:{job.asset_request_id}:{job.script_unit_id}".encode()).hexdigest()[:16]
+        directory = self.root / "asset_jobs" / job.run_id
+        directory.mkdir(parents=True, exist_ok=True)
+        if job.asset_type == "visual":
+            path = directory / f"{job.asset_request_id}.png"
+            self._write_editorial_visual(path, job)
+        elif job.asset_type == "voice":
+            path = directory / f"{job.asset_request_id}.wav"
+            self._write_sapi_voice(path, job)
+        else:
+            raise AssetExecutionError("local_media supports visual and voice assets only")
+        return AssetExecution(provider="local_media", state="COMPLETED", result={"asset_id": f"asset-{digest}", "job_id": job.job_id, "type": job.asset_type, "status": "DRAFT", "claim_refs": list(job.claim_refs), "evidence_refs": list(job.evidence_refs), "acceptance_criteria": list(job.acceptance_criteria), "provider": "local_media", "path": str(path)})
+
+    def _execute_openverse(self, job: AssetJob) -> AssetExecution:
+        """Acquire an openly licensed image from Openverse without credentials."""
+        if job.asset_type != "visual":
+            raise AssetExecutionError("openverse provider currently supports visual jobs only")
+
+        query = (job.visual_intent or job.input_text).strip()
+        if not query:
+            raise AssetExecutionError("openverse visual job requires visual_intent or input_text")
+
+        from PIL import Image
+
+        params = urllib.parse.urlencode(
+            {
+                "q": query[:300],
+                "page_size": "10",
+            }
+        )
+        api_url = f"https://api.openverse.org/v1/images/?{params}"
+        request = urllib.request.Request(
+            api_url,
+            headers={"User-Agent": "ContentFactory/1.0 (+https://github.com/sebastiansayama-boop/content_factory)"},
+            method="GET",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=20) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+        except Exception as exc:
+            raise AssetExecutionError(f"openverse search failed: {exc}") from exc
+
+        results = payload.get("results") if isinstance(payload, dict) else None
+        if not isinstance(results, list):
+            raise AssetExecutionError("openverse returned an invalid results payload")
+
+        selected = None
+        for candidate in results:
+            if not isinstance(candidate, dict):
+                continue
+            source_url = str(candidate.get("url") or "").strip()
+            if source_url.startswith(("https://", "http://")):
+                selected = candidate
+                break
+        if selected is None:
+            raise AssetExecutionError("openverse returned no downloadable image")
+
+        source_url = str(selected.get("url") or "").strip()
+        try:
+            image_request = urllib.request.Request(
+                source_url,
+                headers={
+                    "User-Agent": "ContentFactory/1.0 (+https://github.com/sebastiansayama-boop/content_factory)",
+                },
+                method="GET",
+            )
+            with urllib.request.urlopen(image_request, timeout=20) as response:
+                raw = response.read(12 * 1024 * 1024 + 1)
+        except Exception as exc:
+            raise AssetExecutionError(f"openverse image download failed: {exc}") from exc
+
+        if len(raw) > 12 * 1024 * 1024:
+            raise AssetExecutionError("openverse image exceeds 12 MiB limit")
+
+        try:
+            image = Image.open(BytesIO(raw))
+            image.load()
+            width, height = image.size
+            if width < 256 or height < 256:
+                raise AssetExecutionError("openverse image is too small")
+            image = image.convert("RGB")
+        except AssetExecutionError:
+            raise
+        except Exception as exc:
+            raise AssetExecutionError(f"openverse returned invalid image data: {exc}") from exc
+
+        source_id = str(selected.get("id") or selected.get("foreign_landing_url") or source_url)
+        digest = hashlib.sha256(
+            f"{job.run_id}:{job.asset_request_id}:{source_id}".encode("utf-8")
+        ).hexdigest()[:16]
+        directory = self.root / "asset_jobs" / job.run_id
+        directory.mkdir(parents=True, exist_ok=True)
+        path = directory / f"{job.asset_request_id}.png"
+        image.save(path, format="PNG")
+
+        metadata = {
+            "source": "openverse",
+            "source_id": source_id,
+            "source_url": source_url,
+            "foreign_landing_url": str(selected.get("foreign_landing_url") or ""),
+            "title": str(selected.get("title") or ""),
+            "creator": str(selected.get("creator") or ""),
+            "license": str(selected.get("license") or ""),
+            "license_version": str(selected.get("license_version") or ""),
+            "license_url": str(selected.get("license_url") or ""),
+            "thumbnail": str(selected.get("thumbnail") or ""),
+            "width": width,
+            "height": height,
+            "query": query,
+            "license_verification_required": True,
+        }
+        return AssetExecution(
+            provider="openverse",
+            state="COMPLETED",
+            result={
+                "asset_id": f"asset-{digest}",
+                "job_id": job.job_id,
+                "type": job.asset_type,
+                "status": "DRAFT",
+                "claim_refs": list(job.claim_refs),
+                "evidence_refs": list(job.evidence_refs),
+                "acceptance_criteria": list(job.acceptance_criteria),
+                "provider": "openverse",
+                "path": str(path),
+                "metadata": metadata,
+            },
+        )
+
+    @staticmethod
+    def _write_editorial_visual(path: Path, job: AssetJob) -> None:
+        from PIL import Image, ImageDraw, ImageFont
+        width, height = 1080, 1920
+        digest = hashlib.sha256(f"{job.run_id}:{job.asset_request_id}".encode()).digest()
+        base = (18 + digest[0] % 18, 22 + digest[1] % 18, 30 + digest[2] % 18)
+        accent = (80 + digest[3] % 80, 110 + digest[4] % 80, 150 + digest[5] % 70)
+        image = Image.new("RGB", (width, height), base)
+        draw = ImageDraw.Draw(image)
+        for y in range(height):
+            ratio = y / (height - 1)
+            color = tuple(int(base[i] * (1 - ratio) + accent[i] * ratio) for i in range(3))
+            draw.line((0, y, width, y), fill=color)
+        draw.ellipse((700, 180, 1260, 740), fill=accent)
+        draw.rectangle((70, 1450, 1010, 1510), fill=(235, 235, 235))
+        font_path = Path("C:/Windows/Fonts/arial.ttf")
+        font = ImageFont.truetype(str(font_path), 62) if font_path.is_file() else ImageFont.load_default()
+        small = ImageFont.truetype(str(font_path), 38) if font_path.is_file() else ImageFont.load_default()
+        scene = job.script_unit_id.replace("unit-", "") or "1"
+        draw.text((70, 180), f"SCENE {scene}", font=font, fill=(250, 250, 250))
+        caption = job.visual_intent or job.input_text or "evidence-grounded production"
+        lines = textwrap.wrap(caption, width=32)
+        y = 1580
+        for line in lines[:4]:
+            draw.text((70, y), line, font=small, fill=(245, 245, 245))
+            y += 52
+        image.save(path, format="PNG")
+
+    @staticmethod
+    def _write_sapi_voice(path: Path, job: AssetJob) -> None:
+        if os.name != "nt":
+            raise AssetExecutionError("local_media voice requires Windows SAPI")
+        text_value = job.input_text or (
+            f"Scene {job.script_unit_id.replace('unit-', '')}. Evidence-grounded narration. "
+            "The story stays within the supplied evidence and its stated limits."
+        )
+        escaped = text_value.replace("'", "''")
+        target = str(path.resolve()).replace("'", "''")
+        script = textwrap.dedent(f"""
+            Add-Type -AssemblyName System.Speech
+            $s = New-Object System.Speech.Synthesis.SpeechSynthesizer
+            $s.SetOutputToWaveFile('{target}')
+            $s.Speak('{escaped}')
+            $s.Dispose()
+        """).strip()
+        completed = subprocess.run(["powershell.exe", "-NoProfile", "-NonInteractive", "-Command", script], capture_output=True, text=True, encoding="utf-8", errors="replace")
+        if completed.returncode != 0 or not path.is_file() or path.stat().st_size == 0:
+            detail = (completed.stderr or completed.stdout or "unknown SAPI error").strip()
+            raise AssetExecutionError(f"Windows SAPI voice generation failed: {detail}")
 
     @staticmethod
     def _write_stub_png(path: Path, seed: str) -> None:
@@ -152,6 +346,190 @@ class AssetExecutor:
                 value = int(amplitude * math.sin(2 * math.pi * frequency * index / sample_rate))
                 samples.extend(struct.pack("<h", value))
             handle.writeframes(samples)
+
+    def _execute_pexels(self, job: AssetJob) -> AssetExecution:
+        """Acquire a Pexels photo or video using the free API."""
+        key = os.environ.get("PEXELS_API_KEY", "").strip()
+        if not key:
+            raise AssetExecutionError("PEXELS_API_KEY is required for FACTORY_ASSET_PROVIDER=pexels")
+
+        query = (job.visual_intent or job.input_text).strip()
+        if not query:
+            raise AssetExecutionError("pexels media job requires visual_intent or input_text")
+
+        if job.asset_type == "visual":
+            endpoint = "https://api.pexels.com/v1/search"
+            params = urllib.parse.urlencode(
+                {
+                    "query": query[:300],
+                    "orientation": "portrait",
+                    "per_page": "15",
+                    "locale": "en-US",
+                }
+            )
+            payload = self._pexels_get_json(f"{endpoint}?{params}", key)
+            candidates = payload.get("photos") if isinstance(payload, dict) else None
+            if not isinstance(candidates, list):
+                raise AssetExecutionError("pexels returned an invalid photo search payload")
+
+            selected = next(
+                (
+                    item for item in candidates
+                    if isinstance(item, dict)
+                    and isinstance(item.get("src"), dict)
+                    and str(item["src"].get("original") or "").startswith(("https://", "http://"))
+                ),
+                None,
+            )
+            if selected is None:
+                raise AssetExecutionError("pexels returned no downloadable photo")
+
+            source_url = str(selected["src"].get("original") or "")
+            media_kind = "photo"
+            attribution_url = str(selected.get("url") or "")
+            creator = str(selected.get("photographer") or "")
+            creator_url = str(selected.get("photographer_url") or "")
+            title = str(selected.get("alt") or "")
+            width = int(selected.get("width") or 0)
+            height = int(selected.get("height") or 0)
+            source_id = str(selected.get("id") or source_url)
+            extension = ".jpg"
+        elif job.asset_type == "video":
+            endpoint = "https://api.pexels.com/v1/videos/search"
+            params = urllib.parse.urlencode(
+                {
+                    "query": query[:300],
+                    "orientation": "portrait",
+                    "per_page": "15",
+                    "locale": "en-US",
+                }
+            )
+            payload = self._pexels_get_json(f"{endpoint}?{params}", key)
+            candidates = payload.get("videos") if isinstance(payload, dict) else None
+            if not isinstance(candidates, list):
+                raise AssetExecutionError("pexels returned an invalid video search payload")
+
+            selected = None
+            selected_file = None
+            for item in candidates:
+                if not isinstance(item, dict):
+                    continue
+                files = item.get("video_files")
+                if not isinstance(files, list):
+                    continue
+                usable = [
+                    f for f in files
+                    if isinstance(f, dict)
+                    and str(f.get("link") or "").startswith(("https://", "http://"))
+                    and str(f.get("file_type") or "").lower() in {"video/mp4", "video/quicktime"}
+                ]
+                usable.sort(key=lambda f: (int(f.get("width") or 0), int(f.get("height") or 0)), reverse=True)
+                if usable:
+                    selected = item
+                    selected_file = usable[0]
+                    break
+
+            if selected is None or selected_file is None:
+                raise AssetExecutionError("pexels returned no downloadable video")
+
+            source_url = str(selected_file.get("link") or "")
+            media_kind = "video"
+            attribution_url = str(selected.get("url") or "")
+            creator = str(selected.get("user", {}).get("name") or "") if isinstance(selected.get("user"), dict) else ""
+            creator_url = str(selected.get("user", {}).get("url") or "") if isinstance(selected.get("user"), dict) else ""
+            title = f"Pexels video {selected.get('id', '')}".strip()
+            width = int(selected_file.get("width") or selected.get("width") or 0)
+            height = int(selected_file.get("height") or selected.get("height") or 0)
+            source_id = str(selected.get("id") or source_url)
+            extension = ".mp4"
+        else:
+            raise AssetExecutionError("pexels provider supports visual and video assets only")
+
+        raw = self._download_bytes(source_url, key)
+        if len(raw) > 50 * 1024 * 1024:
+            raise AssetExecutionError("pexels media exceeds 50 MiB limit")
+
+        digest = hashlib.sha256(
+            f"{job.run_id}:{job.asset_request_id}:{source_id}".encode("utf-8")
+        ).hexdigest()[:16]
+        directory = self.root / "asset_jobs" / job.run_id
+        directory.mkdir(parents=True, exist_ok=True)
+        path = directory / f"{job.asset_request_id}{extension}"
+        path.write_bytes(raw)
+
+        metadata = {
+            "source": "pexels",
+            "source_id": source_id,
+            "source_url": source_url,
+            "attribution_url": attribution_url,
+            "creator": creator,
+            "creator_url": creator_url,
+            "title": title,
+            "width": width,
+            "height": height,
+            "query": query,
+            "media_kind": media_kind,
+            "attribution_required": True,
+            "attribution_text": (
+                f"Photo by {creator} on Pexels" if media_kind == "photo" and creator
+                else f"Video by {creator} on Pexels" if media_kind == "video" and creator
+                else "Media provided by Pexels"
+            ),
+        }
+        if not source_url:
+            raise AssetExecutionError("pexels returned an empty media URL")
+
+        return AssetExecution(
+            provider="pexels",
+            state="COMPLETED",
+            result={
+                "asset_id": f"asset-{digest}",
+                "job_id": job.job_id,
+                "type": job.asset_type,
+                "status": "DRAFT",
+                "claim_refs": list(job.claim_refs),
+                "evidence_refs": list(job.evidence_refs),
+                "acceptance_criteria": list(job.acceptance_criteria),
+                "provider": "pexels",
+                "path": str(path),
+                "metadata": metadata,
+            },
+        )
+
+    @staticmethod
+    def _pexels_get_json(url: str, key: str) -> dict[str, Any]:
+        request = urllib.request.Request(
+            url,
+            headers={
+                "Authorization": key,
+                "User-Agent": "ContentFactory/1.0 (+https://github.com/sebastiansayama-boop/content_factory)",
+            },
+            method="GET",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=20) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+        except Exception as exc:
+            raise AssetExecutionError(f"pexels search failed: {exc}") from exc
+        if not isinstance(payload, dict):
+            raise AssetExecutionError("pexels returned a non-object payload")
+        return payload
+
+    @staticmethod
+    def _download_bytes(url: str, key: str) -> bytes:
+        request = urllib.request.Request(
+            url,
+            headers={
+                "Authorization": key,
+                "User-Agent": "ContentFactory/1.0 (+https://github.com/sebastiansayama-boop/content_factory)",
+            },
+            method="GET",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                return response.read(50 * 1024 * 1024 + 1)
+        except Exception as exc:
+            raise AssetExecutionError(f"pexels media download failed: {exc}") from exc
 
     @staticmethod
     def _submit_higgsfield(job: AssetJob) -> AssetExecution:

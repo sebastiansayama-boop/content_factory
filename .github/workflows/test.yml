@@ -2,7 +2,7 @@ name: tests
 
 on:
   push:
-    branches: [main, experiment/research-knowledge-v1]
+    branches: [main, experiment/research-knowledge-v1, feature/local-media-full-e2e]
   pull_request:
 
 jobs:

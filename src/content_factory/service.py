@@ -106,6 +106,7 @@ class FactoryService:
     def __init__(self) -> None:
         root = Path(os.environ.get("FACTORY_DATA_DIR", "./data"))
         root.mkdir(parents=True, exist_ok=True)
+        self._data_dir = root
         self._store = RuntimeStore(root / "runtime.sqlite3")
         self._artifacts = ArtifactStore(root / "artifacts")
         self._content_runs = ContentRunStore(root / "content_runs.sqlite3")

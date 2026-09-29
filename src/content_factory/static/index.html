@@ -1,147 +1,86 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Content Factory</title>
 <style>
-:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#171717;background:#f5f5f2;line-height:1.45}
-*{box-sizing:border-box}body{margin:0}.shell{max-width:1440px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.brand{font-weight:800;font-size:20px}.status{font-size:12px;color:#666}
-.grid{display:grid;grid-template-columns:360px 1fr 390px;gap:16px;min-height:calc(100vh - 110px)}.panel{background:#fff;border:1px solid #dddcd7;border-radius:14px;padding:18px;box-shadow:0 1px 2px #0000000a}.panel h2{font-size:15px;margin:0 0 12px}.panel h3{font-size:14px;margin:18px 0 8px}.muted{color:#777;font-size:13px}.source{width:100%;min-height:430px;resize:vertical;border:1px solid #d8d7d2;border-radius:10px;padding:12px;font:inherit;font-size:13px;background:#fafaf8}.input{width:100%;border:1px solid #d8d7d2;border-radius:8px;padding:9px;font:inherit}.row{display:flex;gap:8px;align-items:center}.btn{border:1px solid #1c1c1c;background:#1c1c1c;color:#fff;border-radius:8px;padding:9px 13px;font:inherit;font-size:13px;cursor:pointer}.btn.secondary{background:#fff;color:#1c1c1c}.btn:disabled{opacity:.45;cursor:default}.stories{display:grid;gap:9px}.story{border:1px solid #dddcd7;border-radius:10px;padding:12px;cursor:pointer}.story:hover,.story.selected{border-color:#222;background:#fafaf8}.story-title{font-weight:700;font-size:14px}.story-angle{font-size:12px;color:#555;margin-top:4px}.evidence{margin-top:8px;padding:8px;background:#f4f4f0;border-radius:7px;font-size:11px;color:#555}.package{display:grid;gap:10px}.asset{border:1px solid #dddcd7;border-radius:10px;padding:12px}.asset .format{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#777}.asset h4{margin:3px 0 7px;font-size:14px}.asset pre{white-space:pre-wrap;font:inherit;font-size:12px;margin:0}.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{background:#f0f0ec;border-radius:999px;padding:4px 8px;font-size:11px}.notice{padding:10px;border-radius:9px;background:#f5f5f2;color:#555;font-size:12px;margin-bottom:10px}.hidden{display:none}.error{color:#9b1c1c;background:#fff1f1;border:1px solid #eccaca;padding:10px;border-radius:9px;font-size:12px}.key{font-size:11px;color:#888;margin-top:7px}.review{border-top:1px solid #dddcd7;margin-top:14px;padding-top:14px}.review-state{font-size:12px;margin:8px 0}.token{margin-top:12px}.token small{display:block;color:#777;margin-top:4px}@media(max-width:1100px){.grid{grid-template-columns:1fr}.source{min-height:260px}}
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#171717;background:#f6f6f3;line-height:1.45;--border:#deddd8;--muted:#6f6f68;--soft:#f1f1ed;--dark:#191919;--green:#22643a;--green-bg:#ecf7ef;--amber-bg:#fff5dc}
+*{box-sizing:border-box}body{margin:0;min-height:100vh}button,input,textarea,select{font:inherit}button{min-height:42px;cursor:pointer}.shell{max-width:1180px;margin:auto;padding:28px 20px}.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px}.brand{font-weight:800;font-size:22px}.top-copy{color:var(--muted);font-size:13px;margin-top:3px}.status{font-size:12px;color:var(--muted)}.btn{border:1px solid var(--dark);background:var(--dark);color:#fff;border-radius:9px;padding:10px 15px;font-size:13px;font-weight:700}.btn.secondary{background:#fff;color:var(--dark);border-color:#c9c8c1}.btn:disabled{opacity:.45;cursor:not-allowed}.steps{display:flex;gap:8px;margin-bottom:18px}.step{padding:7px 10px;border-radius:999px;background:#ecece8;color:#777;font-size:11px}.step.active{background:#191919;color:#fff}.step.done{background:#e6f1e8;color:#28603b}.layout{display:grid;grid-template-columns:310px minmax(0,1fr);gap:16px}.panel{background:#fff;border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 1px 2px #00000008}.panel h2{font-size:15px;margin:0 0 14px}.field{margin-top:15px}.field label{display:block;font-size:12px;font-weight:700;color:#4d4d47;margin-bottom:6px}.input{width:100%;border:1px solid #d3d2cc;border-radius:9px;padding:10px 11px;background:#fff}.source{width:100%;min-height:190px;resize:vertical;border:1px solid #d3d2cc;border-radius:9px;padding:11px;line-height:1.5}.input:focus,.source:focus{outline:3px solid #d9e7ff;outline-offset:1px}.segmented{display:grid;grid-template-columns:1fr 1fr;background:#ecece8;border-radius:10px;padding:3px;gap:3px}.segmented button{border:0;background:transparent;color:#5b5b55;padding:8px;border-radius:7px;min-height:36px;font-size:11px;font-weight:700}.segmented button.active{background:#fff;color:#191919;box-shadow:0 1px 2px #0000000d}.platforms{display:grid;grid-template-columns:1fr 1fr;gap:7px}.platform{border:1px solid var(--border);background:#fff;border-radius:9px;padding:9px;text-align:left;font-size:12px}.platform.active{border-color:#191919;background:#f4f4f1;font-weight:700}.setting{display:grid;grid-template-columns:1fr 1fr;gap:7px}.helper{font-size:11px;color:var(--muted);margin-top:6px}.primary{width:100%;margin-top:18px}.empty{padding:55px 20px;text-align:center;border:1px dashed #d4d3cd;border-radius:11px;color:var(--muted)}.result-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.result-title{font-size:21px;font-weight:750;line-height:1.2}.result-sub{font-size:12px;color:var(--muted);margin-top:5px}.result-actions{display:flex;gap:7px;flex-wrap:wrap}.editor{margin-top:16px}.editor textarea{width:100%;min-height:390px;border:1px solid #d3d2cc;border-radius:10px;padding:15px;font-size:15px;line-height:1.65;resize:vertical}.source-detail{margin-top:15px;border-top:1px solid #ecebe6;padding-top:13px}.source-detail summary{font-size:12px;font-weight:700;cursor:pointer}.source-list{display:grid;gap:7px;margin-top:10px}.source-item{padding:9px;background:#f7f7f4;border-radius:8px;font-size:11px}.source-item a{color:#3a5b86}.notice{padding:11px 12px;border-radius:9px;background:var(--soft);font-size:12px}.notice.success{background:var(--green-bg);color:var(--green)}.notice.error{background:#fff1f1;color:#9b1c1c;border:1px solid #eccaca}.history{margin-top:18px;border-top:1px solid #ecebe6;padding-top:14px}.history summary{font-size:12px;font-weight:700;cursor:pointer}.history-item{padding:8px;border:1px solid var(--border);border-radius:8px;margin-top:7px;font-size:11px;cursor:pointer}.hidden{display:none!important}@media(max-width:800px){.shell{padding:16px}.layout{grid-template-columns:1fr}.steps{overflow:auto}.top{flex-direction:column}.result-actions{margin-top:10px}}
 </style>
 </head>
 <body>
 <div class="shell">
-<div class="top"><div class="brand">Content Factory</div><div class="status" id="status">Ready</div></div>
-<div id="error" class="error hidden"></div>
-<div class="grid">
-<section class="panel">
-<h2>1. Source</h2>
-<div class="muted">Paste a transcript, interview, podcast notes, research, lecture, or other substantive source material.</div>
-<input id="title" class="input" style="margin:12px 0 8px" placeholder="Source title">
-<textarea id="source" class="source" placeholder="Paste the source material here..."></textarea>
-<div class="row" style="margin-top:10px"><button id="sample" class="btn secondary">Load sample</button><button id="analyze" class="btn">Analyze source</button><button id="runFactory" class="btn">Run Factory</button><span id="sourceCount" class="key">0 chars</span></div>
-<div class="token"><input id="token" class="input" type="password" placeholder="FACTORY_API_TOKEN"><small>Stored only in this browser. Required by the protected product API.</small></div>
-</section>
-<section class="panel">
-<h2>2. Explore</h2>
-<div id="exploreEmpty" class="notice">Analyze a source to discover themes, stories, evidence, and moments.</div>
-<div id="runResult" class="notice hidden"></div><div id="timeline" class="notice hidden"></div><div id="summary" class="muted"></div><div id="themes" class="chips" style="margin:10px 0"></div><div id="stories" class="stories"></div>
-<h3>Moments</h3><div id="moments" class="muted"></div>
-</section>
-<section class="panel">
-<h2>3. Produce & Review</h2>
-<div id="produceEmpty" class="notice">Select a story. The Factory will turn the selected angle into a linked multi-format package.</div>
-<div id="selected" class="hidden"></div>
-<div id="formats" class="chips" style="margin:10px 0">
-<label class="chip"><input type="checkbox" value="long_video" checked> long video</label>
-<label class="chip"><input type="checkbox" value="shorts" checked> shorts</label>
-<label class="chip"><input type="checkbox" value="article" checked> article</label>
-<label class="chip"><input type="checkbox" value="social_posts" checked> social posts</label>
+<header class="top">
+  <div><div class="brand">Content Factory</div><div class="top-copy">Дай тему — получи готовый контент.</div></div>
+  <div><span id="status" class="status">Готово к работе</span> <button id="newRun" class="btn secondary">Новая задача</button></div>
+</header>
+<div class="steps">
+  <span class="step active" data-step="task">Тема</span><span class="step" data-step="research">Исследование</span><span class="step" data-step="production">Создание</span><span class="step" data-step="done">Готово</span>
 </div>
-<button id="produce" class="btn" disabled>Produce package</button>
-<div id="package" class="package" style="margin-top:12px"></div>
-<div id="review" class="review hidden"><strong>Run review</strong><div id="reviewState" class="review-state">Not reviewed</div><div class="row"><button id="approve" class="btn">Approve</button><button id="export" class="btn secondary" disabled>Render & export</button><button id="publish" class="btn secondary" disabled>Publish</button></div><div class="key">Approval, export and publication are separate durable actions.</div></div>
-</section>
-</div></div>
+<div id="error" class="notice error hidden" style="margin-bottom:14px"></div>
+<div class="layout">
+<aside class="panel">
+  <h2>Что создать?</h2>
+  <div class="segmented"><button id="topicMode" class="active">Исследовать тему</button><button id="sourceMode">У меня есть материал</button></div>
+  <div id="topicInput">
+    <div class="field"><label for="source">Тема или задача</label><textarea id="source" class="source" placeholder="Например: «Как люди представляли будущее в разные эпохи?»"></textarea></div>
+  </div>
+  <div id="sourceInput" class="hidden">
+    <div class="field"><label for="title">Название</label><input id="title" class="input" placeholder="Например: Интервью о будущем"></div>
+    <div class="field"><label for="sourceMaterial">Материал</label><textarea id="sourceMaterial" class="source" placeholder="Вставьте текст, транскрипт или заметки..."></textarea></div>
+  </div>
+  <div class="field"><label>Для чего?</label>
+    <div class="platforms">
+      <button class="platform active" data-platform="telegram">Telegram</button>
+      <button class="platform" data-platform="instagram">Instagram</button>
+      <button class="platform" data-platform="x">X / Twitter</button>
+      <button class="platform" data-platform="article">Статья</button>
+      <button class="platform" data-platform="youtube">YouTube</button>
+    </div>
+    <div class="helper">Формат влияет на структуру, длину и подачу.</div>
+  </div>
+  <div class="field"><label for="tone">Стиль</label><div class="setting"><select id="tone" class="input"><option value="">Авто</option><option value="neutral">Нейтральный</option><option value="analytical">Аналитический</option><option value="conversational">Разговорный</option><option value="storytelling">Сторителлинг</option><option value="educational">Объясняющий</option><option value="professional">Профессиональный</option></select><select id="toneStrength" class="input"><option value="subtle">Мягкий</option><option value="balanced" selected>Сбалансированный</option><option value="strong">Выраженный</option></select></div></div>
+  <button id="primaryAction" class="btn primary">Создать материал</button>
+  <div id="actionReason" class="helper"></div>
+  <div class="history"><details><summary>Предыдущие материалы</summary><div id="historyList"><div class="helper">Загрузка...</div></div></details></div>
+</aside>
+<main class="panel">
+  <div id="empty" class="empty"><strong>Готово к созданию</strong><div style="margin-top:6px">Введите тему, выберите платформу и нажмите «Создать материал».</div></div>
+  <section id="working" class="hidden"><div class="notice" id="workingText">Factory исследует тему и готовит материал.</div></section>
+  <section id="result" class="hidden">
+    <div class="result-head"><div><div class="result-title" id="resultTitle">Материал готов</div><div class="result-sub" id="resultSub"></div></div><div class="result-actions"><button id="regenerate" class="btn secondary">Перегенерировать</button><button id="save" class="btn">Сохранить изменения</button></div></div>
+    <div class="editor"><textarea id="editor"></textarea></div>
+    <div class="helper" style="margin-top:8px">Измените текст прямо в редакторе. Для полностью новой версии используйте «Перегенерировать».</div>
+    <details class="source-detail"><summary>Исследование и источники</summary><div id="researchInfo" class="source-list"></div></details>
+  </section>
+</main>
+</div>
+</div>
 <script>
-const $=id=>document.getElementById(id);let analysis=null,selected=null,lastPackage=null,currentRunId=null;
-function setStatus(t){$("status").textContent=t}function error(t){$("error").textContent=t;$("error").classList.remove("hidden")}function clearError(){$("error").classList.add("hidden")}
-$("source").addEventListener("input",()=>{$("sourceCount").textContent=`${$("source").value.length.toLocaleString()} chars`});
-$("sample").onclick=()=>{$("title").value="Why animals evolve similar solutions";$("source").value="Different animal lineages can independently evolve similar traits when they face similar environmental pressures. This is called convergent evolution. Wings in bats and birds are an example of analogous structures: both enable powered flight, but their underlying evolutionary histories differ. Similar ecological problems can therefore produce similar functional solutions without a shared recent origin for the trait."; $("source").dispatchEvent(new Event("input"));clearError();setStatus("Sample loaded")};
-async function api(path,body){const token=$("token").value.trim()||sessionStorage.getItem("factory_token")||"";if(!token)throw new Error("Enter FACTORY_API_TOKEN.");sessionStorage.setItem("factory_token",token);const r=await fetch(path,{method:"POST",headers:{"Content-Type":"application/json","Authorization":`Bearer ${token}`},body:JSON.stringify(body)});let data={};try{data=await r.json()}catch{}if(!r.ok){const e=new Error(data.error||`HTTP ${r.status}`);e.data=data;e.status=r.status;throw e}return data}
-$("runFactory").onclick=async()=>{
-  clearError();
-  const brief=$("source").value.trim();
-  if(!brief)return error("Add a topic or brief first.");
-  $("runFactory").disabled=true;
-  setStatus("Factory running: research → editorial → production → assembly → QC…");
-  try{
-    const created=await api("/api/runs",{
-      title:$("title").value||"Content Factory run",
-      brief,
-      audience:"",
-      goal:"Create a publishable short-form content asset",
-      formats:["short_video"],
-      constraints:[]
-    });
-    currentRunId=created.run_id;
-    const updated=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/factory",{});
-    renderFactoryRun(updated.run);
-    renderTimeline(updated.events||[]);
-    setStatus(updated.run.status==="REVIEW"?"QC passed · awaiting approval":"Factory finished");
-  }catch(e){
-    if(e.status===409 && e.data?.run){
-      currentRunId=e.data.run.run_id;
-      renderFactoryRun(e.data.run);
-      renderKnowledgeReview(e.data.candidates||[]);
-      setStatus("Research complete · knowledge review required");
-    }else{error(e.message);setStatus("Factory error")}
-  }finally{$("runFactory").disabled=false}
-};
-function renderTimeline(events){
-  $("timeline").classList.remove("hidden");
-  $("timeline").innerHTML="<strong>Run timeline</strong><div style='margin-top:8px'>"+events.map(e=>"<div>✓ "+esc(e.event_type)+" <span class='key'>"+esc(e.status)+"</span></div>").join("")+"</div>";
-}
-function renderKnowledgeReview(candidates){
-  const box=$("package");
-  const items=(candidates||[]).map(c=>`<div class="asset"><div class="format">knowledge candidate</div><h4>${esc(c.claim_id)}</h4><div>${esc(c.text)}</div><div class="key">Confidence: ${esc(c.confidence||"")} · Evidence: ${esc((c.evidence_ids||[]).join(", "))}</div><button class="btn" style="margin-top:8px" data-claim="${esc(c.claim_id)}">Promote</button></div>`).join("");
-  box.innerHTML=items||"<div class='notice'>No candidate claims were returned.</div>";
-  box.querySelectorAll("[data-claim]").forEach(button=>button.onclick=async()=>{
-    button.disabled=true;
-    try{
-      await api("/api/knowledge/"+encodeURIComponent(button.dataset.claim)+"/promote",{decision_ref:"browser-knowledge-review"});
-      button.closest(".asset").remove();
-      setStatus("Knowledge promoted · running Factory…");
-      const data=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/factory",{});
-      renderFactoryRun(data.run);renderTimeline(data.events||[]);
-      setStatus(data.run.status==="REVIEW"?"QC passed · awaiting approval":"Factory finished");
-    }catch(e){error(e.message);button.disabled=false}
-  });
-}
-function renderFactoryRun(run){
-  $("runResult").classList.remove("hidden");
-  const r=run.result||{}, p=r.production||{}, q=p.qc||{};
-  $("runResult").innerHTML="<strong>"+esc(run.run_id)+"</strong><br>Status: "+esc(run.status)+" · Claims: "+esc(String((r.research?.claims||[]).length))+" · Jobs: "+esc(String((p.jobs||[]).length))+" · QC: "+esc(q.status||"UNKNOWN");
-  $("summary").textContent=r.content_spec?.logline||r.editorial?.selected_idea?.angle||"";
-  $("package").innerHTML="<div class='asset'><div class='format'>script</div><h4>"+esc(r.content_spec?.title||r.script?.title||run.title)+"</h4><pre>"+esc((r.script?.units||[]).map(u=>u.text||"").join("\\n\\n"))+"</pre></div>";
-  $("review").classList.remove("hidden");
-  $("reviewState").textContent=run.status==="REVIEW"?"QC passed · approval required":run.status;
-  $("approve").disabled=run.status!=="REVIEW";
-  $("export").disabled=run.status!=="APPROVED";
-  $("publish").disabled=run.status!=="EXPORTED";
-}
-function renderVerticalResult(result){
-  const qc=result.quality||{};
-  $("runResult").classList.remove("hidden");
-  $("runResult").innerHTML=
-    "<strong>Run "+esc(result.run_id)+"</strong><br>"+
-    "Research: "+esc(String((result.research?.claims||[]).length))+" claims · "+
-    esc(String((result.research?.sources||[]).length))+" sources · "+
-    "Assets: "+esc(String((result.package?.package||[]).length))+
-    " · QC: "+esc(qc.status||"UNKNOWN");
-  $("summary").textContent=result.research?.summary||"";
-  $("themes").innerHTML=(result.research?.editorial_angles||[]).map(x=>`<span class="chip">${esc(x)}</span>`).join("");
-  $("stories").innerHTML=(result.package?.package||[]).map(a=>
-    `<div class="story"><div class="story-title">${esc(a.title||a.format||"asset")}</div><div class="story-angle">${esc(a.format||"")}</div><div class="evidence">${esc(a.content||"")}</div></div>`
-  ).join("");
-  $("moments").innerHTML=(result.research?.claims||[]).map(c=>
-    `<div style="margin-bottom:8px"><strong>${esc(c.id)}</strong><br>${esc(c.text||"")}</div>`
-  ).join("");
-  $("selected").classList.add("hidden");
-  $("produceEmpty").classList.add("hidden");
-  $("package").innerHTML=(result.package?.package||[]).map(a=>
-    `<div class="asset"><div class="format">${esc(a.format||"asset")}</div><h4>${esc(a.title||"")}</h4><pre>${esc(a.content||"")}</pre><div class="key">Claims: ${esc((a.claim_refs||[]).join(", ")||"none")} · Sources: ${esc((a.source_refs||[]).join(", ")||"none")}</div></div>`
-  ).join("");
-  $("review").classList.remove("hidden");
-  $("reviewState").textContent="Run completed; draft requires review";
-}
-$("analyze").onclick=async()=>{clearError();const source=$("source").value.trim();if(!source)return error("Add source material first.");$("analyze").disabled=true;setStatus("Analyzing…");try{analysis=await api("/api/analyze",{title:$("title").value||"Untitled source",source});selected=null;renderAnalysis()}catch(e){error(e.message);setStatus("Error")}finally{$("analyze").disabled=false}};
-function renderAnalysis(){setStatus("Source mapped");$("exploreEmpty").classList.add("hidden");$("summary").textContent=analysis.summary||"";$("themes").innerHTML=(analysis.themes||[]).map(x=>`<span class="chip">${esc(x)}</span>`).join("");$("stories").innerHTML=(analysis.stories||[]).map((s,i)=>`<div class="story ${selected?.id===s.id?"selected":""}" data-i="${i}"><div class="story-title">${esc(s.title)}</div><div class="story-angle">${esc(s.angle||"")}</div><div class="evidence">${esc((s.evidence||[]).map(e=>e.quote).join(" · "))}</div></div>`).join("");document.querySelectorAll(".story").forEach(el=>el.onclick=()=>{selected=analysis.stories[Number(el.dataset.i)];renderAnalysis();$("selected").innerHTML=`<strong>${esc(selected.title)}</strong><div class="muted">${esc(selected.angle||"")}</div>`;$("selected").classList.remove("hidden");$("produceEmpty").classList.add("hidden");$("produce").disabled=false;$("package").innerHTML="";$("review").classList.add("hidden")});$("moments").innerHTML=(analysis.moments||[]).map(m=>`<div style="margin-bottom:8px"><strong>${esc(m.title)}</strong><br>${esc(m.description||"")}</div>`).join("")}
-$("produce").onclick=async()=>{clearError();if(!selected)return;const formats=[...document.querySelectorAll("#formats input:checked")].map(x=>x.value);if(!formats.length)return error("Select at least one format.");$("produce").disabled=true;setStatus("Producing…");try{lastPackage=await api("/api/produce",{source:$("source").value,title:$("title").value,story:selected,formats});renderPackage(lastPackage);setStatus("Package ready for review")}catch(e){error(e.message);setStatus("Error")}finally{$("produce").disabled=false}};
-function renderPackage(data){$("package").innerHTML=(data.package||[]).map(a=>`<div class="asset"><div class="format">${esc(a.format||"asset")}</div><h4>${esc(a.title||"")}</h4><pre>${esc(a.content||"")}</pre><div class="key">Source refs: ${esc((a.source_refs||[]).join(", ")||"none")}</div></div>`).join("");$("review").classList.remove("hidden");$("reviewState").textContent="Not reviewed"} 
-$("approve").onclick=async()=>{try{const run=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/approve",{decision_ref:"browser-human-review"});renderFactoryRun(run);setStatus("Approved · render/export available")}catch(e){error(e.message)}};
-$("export").onclick=async()=>{try{const data=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/export",{});renderFactoryRun(data.run);setStatus("Exported: "+(data.export?.artifact||"artifact"))}catch(e){error(e.message)}};
-$("publish").onclick=async()=>{try{const data=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/publish",{channel:"webhook"});setStatus("Published · "+(data.external_id||data.publication_id))}catch(e){error(e.message)}};
-function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+const $=id=>document.getElementById(id);let mode="topic",platform="telegram",currentRun=null,baseText="";
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+async function api(path,body={},method="POST"){const o={method,headers:{"Content-Type":"application/json"}};if(method!=="GET")o.body=JSON.stringify(body);const r=await fetch(path,o);let d={};try{d=await r.json()}catch{}if(!r.ok){const e=new Error(d.error||("HTTP "+r.status));e.status=r.status;e.data=d;throw e}return d}
+function error(t){$("error").textContent=t;$("error").classList.remove("hidden")}function clearError(){$("error").classList.add("hidden")}
+function status(t){$("status").textContent=t}
+function step(s){const order=["task","research","production","done"],n=order.indexOf(s);document.querySelectorAll(".step").forEach(x=>{const i=order.indexOf(x.dataset.step);x.classList.toggle("active",i===n);x.classList.toggle("done",i<n)})}
+function title(){const t=(mode==="topic"?$("source").value:$("title").value).replace(/\s+/g," ").trim();return t? t.slice(0,117):"Content Factory"}
+function selectedFormats(){return platform==="article"?["article","visual_card"]:platform==="youtube"?["short_video","visual_card"]:["social_post","visual_card"]}
+function platformLabel(){return ({telegram:"Telegram",instagram:"Instagram",x:"X / Twitter",article:"Статья",youtube:"YouTube"})[platform]}
+document.querySelectorAll(".platform").forEach(b=>b.onclick=()=>{platform=b.dataset.platform;document.querySelectorAll(".platform").forEach(x=>x.classList.toggle("active",x===b))});
+$("topicMode").onclick=()=>{mode="topic";$("topicMode").classList.add("active");$("sourceMode").classList.remove("active");$("topicInput").classList.remove("hidden");$("sourceInput").classList.add("hidden")};
+$("sourceMode").onclick=()=>{mode="source";$("sourceMode").classList.add("active");$("topicMode").classList.remove("active");$("topicInput").classList.add("hidden");$("sourceInput").classList.remove("hidden")};
+$("newRun").onclick=()=>{currentRun=null;baseText="";$("source").value="";$("sourceMaterial").value="";$("title").value="";$("editor").value="";$("result").classList.add("hidden");$("working").classList.add("hidden");$("empty").classList.remove("hidden");$("actionReason").textContent="";step("task");status("Готово к работе");clearError()};
+function contentText(run){const p=run?.result?.production?.output?.content_package;return p?.text||run?.result?.script?.units?.map(x=>x.text).join("\n\n")||""}
+function renderResearch(run){const r=run?.result?.research||{};const sources=r.sources||[];const claims=r.claims||[];$("researchInfo").innerHTML='<div class="notice">Материал построен на '+claims.length+' проверенных тезисах и '+sources.length+' источниках. Подробные доказательства сохранены внутри запуска.</div>'+sources.slice(0,12).map(s=>'<div class="source-item"><strong>'+esc(s.title||"Источник")+'</strong><br><a href="'+esc(s.url||"#")+'" target="_blank" rel="noopener noreferrer">'+esc(s.url||"")+'</a></div>').join("")}
+function renderReady(run){currentRun=run;baseText=contentText(run);$("editor").value=baseText;$("resultTitle").textContent=run?.result?.content_spec?.title||run?.title||"Материал готов";$("resultSub").textContent=platformLabel()+" · исследование выполнено";renderResearch(run);$("empty").classList.add("hidden");$("working").classList.add("hidden");$("result").classList.remove("hidden");step("done");status("Материал готов");$("actionReason").textContent="Можно редактировать текст или создать новую версию."}
+async function create(){clearError();const brief=mode==="topic"?$("source").value.trim():$("sourceMaterial").value.trim();if(!brief)return error(mode==="topic"?"Введите тему или задачу.":"Вставьте материал.");$("empty").classList.add("hidden");$("result").classList.add("hidden");$("working").classList.remove("hidden");$("workingText").textContent="Factory исследует тему, проверяет источники и собирает готовый "+platformLabel()+" материал.";step("research");status("Исследование и создание…");$("primaryAction").disabled=true;try{const created=await api("/api/runs",{title:title(),brief:mode==="topic"?brief:"Создайте материал на основе следующего источника:\n"+brief,audience:"",goal:"Create a ready-to-publish "+platformLabel()+" content asset",tone:$("tone").value,tone_strength:$("toneStrength").value,formats:selectedFormats(),constraints:["platform:"+platform]});currentRun=created;const data=await api("/api/runs/"+encodeURIComponent(created.run_id)+"/factory",{});renderReady(data.run);await loadHistory()}catch(e){error(e.message);$("working").classList.add("hidden");$("empty").classList.remove("hidden");step("task");status("Не удалось создать материал")}finally{$("primaryAction").disabled=false}}
+async function regenerate(){if(!currentRun)return;clearError();$("primaryAction").disabled=true;status("Создаём новую версию…");step("production");try{const data=await api("/api/runs/"+encodeURIComponent(currentRun.run_id)+"/factory",{});renderReady(data.run)}catch(e){error(e.message);status("Перегенерация не завершена")}finally{$("primaryAction").disabled=false}}
+async function saveEdit(){if(!currentRun)return;clearError();const text=$("editor").value.trim();if(!text)return error("Материал не может быть пустым.");try{const data=await api("/api/runs/"+encodeURIComponent(currentRun.run_id)+"/edit",{text});currentRun=data.run;baseText=text;status("Изменения сохранены")}catch(e){error(e.message)}}
+async function transform(kind){const text=$("editor").value.trim();if(!text)return;const instruction={shorten:"Сократи текст, сохранив ключевые факты.",expand:"Расширь текст, добавив контекст только из исследования.",casual:"Сделай текст более разговорным.",formal:"Сделай текст более формальным."}[kind];$("editor").disabled=true;status("Изменяем текст…");try{const data=await api("/api/runs/"+encodeURIComponent(currentRun.run_id)+"/edit",{text,instruction});currentRun=data.run;$("editor").value=contentText(currentRun);status("Версия обновлена")}catch(e){error(e.message)}finally{$("editor").disabled=false}}
+$("primaryAction").onclick=create;$("regenerate").onclick=regenerate;$("save").onclick=saveEdit;
+async function loadHistory(){try{const d=await api("/api/runs",{}, "GET");$("historyList").innerHTML=(d.runs||[]).slice(0,8).map(r=>'<div class="history-item" data-run="'+esc(r.run_id)+'"><strong>'+esc(r.title||"Без названия")+'</strong><br><span>'+esc(r.status||"")+'</span></div>').join("")||'<div class="helper">Пока нет материалов.</div>';document.querySelectorAll("[data-run]").forEach(x=>x.onclick=async()=>{try{const r=await api("/api/runs/"+encodeURIComponent(x.dataset.run),{}, "GET");renderReady(r)}catch(e){error(e.message)}})}catch{}}
+loadHistory();
 </script>
-</body></html>
+</body>
+</html>

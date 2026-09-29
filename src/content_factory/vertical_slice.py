@@ -7,7 +7,9 @@ from typing import Any
 
 from .knowledge import KnowledgeStore
 from .research import OpenAIWebResearchAdapter, parse_research_json
+from .gemini_research import GeminiGoogleSearchResearchAdapter, GeminiResearchError
 from .local_research import LocalResearchAdapter
+from .research_quality import validate_research_relevance
 
 
 @dataclass(frozen=True)
@@ -89,8 +91,45 @@ class ContentFactoryVerticalSlice:
         research_adapter: OpenAIWebResearchAdapter | None = None,
         knowledge_store: KnowledgeStore | None = None,
     ) -> None:
-        self.research_adapter = research_adapter or (OpenAIWebResearchAdapter() if __import__("os").getenv("OPENAI_API_KEY") else LocalResearchAdapter())
+        if research_adapter is not None:
+            self.research_adapter = research_adapter
+        else:
+            import os
+            configured = os.environ.get("FACTORY_RESEARCH_PROVIDER", "").strip().lower()
+            if configured == "gemini":
+                self.research_adapter = GeminiGoogleSearchResearchAdapter()
+            elif configured == "openai":
+                self.research_adapter = OpenAIWebResearchAdapter()
+            elif os.environ.get("OPENAI_API_KEY"):
+                self.research_adapter = OpenAIWebResearchAdapter()
+            else:
+                self.research_adapter = LocalResearchAdapter()
         self.knowledge_store = knowledge_store
+        self.provider_fallback: dict[str, Any] | None = None
+
+    @staticmethod
+    def _build_fallback_research_adapter() -> Any:
+        import os
+        if os.environ.get("OPENAI_API_KEY"):
+            return OpenAIWebResearchAdapter()
+        return LocalResearchAdapter()
+
+    def _research_call(self, prompt: str) -> Any:
+        try:
+            return self.research_adapter.research(prompt)
+        except GeminiResearchError as exc:
+            if exc.http_status != 429 or not isinstance(self.research_adapter, GeminiGoogleSearchResearchAdapter):
+                raise
+            fallback = self._build_fallback_research_adapter()
+            self.provider_fallback = {
+                "configured_provider": "gemini",
+                "fallback_provider": getattr(fallback, "research_provider_id", fallback.__class__.__name__),
+                "reason": exc.kind,
+                "http_status": exc.http_status,
+                "message": str(exc),
+            }
+            self.research_adapter = fallback
+            return self.research_adapter.research(prompt)
 
     def run(self, *, run_id: str, brief: str, formats: list[str] | None = None) -> VerticalSliceResult:
         if not brief.strip():
@@ -103,17 +142,26 @@ class ContentFactoryVerticalSlice:
         research_prompt = f"""You are the research stage of a content production system.
 Research the user's brief using live web search. Return ONLY JSON:
 {{"topic":"string","summary":"string","claims":[{{"id":"claim-1","text":"atomic factual claim","confidence":"high|medium|low","source_ids":["source-1"],"evidence_ids":["evidence-1"],"scope":"string","known_unknowns":["string"]}}],"sources":[{{"id":"source-1","title":"string","url":"https://..."}}],"evidence":[{{"id":"evidence-1","source_id":"source-1","excerpt":"short supporting passage","locator":"string","provenance":"string"}}],"editorial_angles":["string"]}}
-Rules: search the web; use current reputable sources; every factual claim must cite source_ids and evidence_ids; every evidence item must identify its source and a concrete supporting excerpt; never invent URLs; keep claims atomic; state scope and meaningful known_unknowns; return source metadata for sources actually used.
+Rules: search the web; use reputable and, where possible, primary or institutional sources; every factual claim must be supported by evidence; every claim must include source_urls containing URLs returned by the grounded search; every claim must include evidence items with source_url and a concrete supporting excerpt; never invent URLs; keep claims atomic; distinguish primary evidence from secondary interpretation; state scope and meaningful known_unknowns. For this historical-futures topic, cover multiple periods rather than clustering on one modern literary topic.
 Prior reusable knowledge is context, not proof. Re-check it against current sources before relying on it, and do not cite prior knowledge IDs as source_ids:
 {prior_json}
 USER BRIEF:
 {brief}
 """
-        result = self.research_adapter.research(research_prompt)
+        result = self._research_call(research_prompt)
         if result.status_code < 200 or result.status_code >= 300:
             raise ValueError(f"research provider returned HTTP {result.status_code}")
-        research = parse_research_json(self.research_adapter.text(result))
+        research_text = self.research_adapter.text(result)
+        research = parse_research_json(research_text)
         provider_sources = self.research_adapter.sources(result)
+        if isinstance(self.research_adapter, GeminiGoogleSearchResearchAdapter):
+            research = GeminiGoogleSearchResearchAdapter.normalize_research(
+                research,
+                provider_sources,
+            )
+        provider_search_queries = []
+        if hasattr(self.research_adapter, "search_queries"):
+            provider_search_queries = list(self.research_adapter.search_queries(result))
         declared = research.get("sources")
         if not isinstance(declared, list):
             declared = []
@@ -123,6 +171,15 @@ USER BRIEF:
                 declared.append({"id": f"source-{len(declared) + 1}", "title": source["title"], "url": source["url"]})
                 known_urls.add(source["url"])
         research["sources"] = declared
+        if provider_search_queries:
+            research["search_queries"] = provider_search_queries
+        research_quality = validate_research_relevance(brief=brief, research=research)
+        research["quality"] = research_quality
+        if research_quality["status"] != "PASS":
+            raise ValueError(
+                "research relevance gate failed: "
+                + str(research_quality.get("reason", "insufficient relevance"))
+            )
         claims = research.get("claims")
         if not isinstance(claims, list) or not claims:
             raise ValueError("research claims must be a non-empty array")
@@ -171,13 +228,15 @@ Claims:
 Sources:
 {source_lines}
 """
-            generated = self.research_adapter.research(production_prompt)
+            generated = self._research_call(production_prompt)
             if generated.status_code < 200 or generated.status_code >= 300:
                 raise ValueError(f"production provider returned HTTP {generated.status_code}")
             asset = parse_research_json(self.research_adapter.text(generated))
             asset["id"] = f"{_slug(topic)}-{fmt}-v1"
             asset["format"] = fmt
             package["package"].append(asset)
+        if self.provider_fallback is not None:
+            research["provider_fallback"] = self.provider_fallback
         all_claim_ids = [c["id"] for c in claims if isinstance(c, dict)]
         all_source_ids = sorted({sid for c in claims if isinstance(c, dict) for sid in c.get("source_ids", [])})
         for asset in package["package"]:

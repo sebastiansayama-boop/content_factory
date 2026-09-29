@@ -539,6 +539,51 @@ class KnowledgeStore:
         ]
         return {"claims": claims, "sources": sources, "editorial_angles": angles}
 
+    def candidates_for_run(self, run_id: str, *, limit: int = 100) -> list[dict[str, Any]]:
+        """Return all candidate claims captured by a specific research run."""
+        if not run_id.strip():
+            raise ValueError("run_id must not be empty")
+        rows = self._connection.execute(
+            """
+            SELECT c.claim_id,c.text,c.confidence,c.revision_id,c.scope,c.status
+            FROM knowledge_claims c
+            JOIN knowledge_claim_runs cr ON cr.claim_id=c.claim_id
+            WHERE cr.run_id=? AND c.status=?
+            ORDER BY c.first_seen_at, c.claim_id
+            LIMIT ?
+            """,
+            (run_id, self.CANDIDATE, limit),
+        ).fetchall()
+        claims: list[dict[str, Any]] = []
+        for row in rows:
+            source_rows = self._connection.execute(
+                """
+                SELECT s.source_id,s.title,s.url
+                FROM knowledge_sources s
+                JOIN knowledge_claim_sources cs ON cs.source_id=s.source_id
+                WHERE cs.claim_id=?
+                ORDER BY s.source_id
+                """,
+                (row["claim_id"],),
+            ).fetchall()
+            evidence_rows = self._connection.execute(
+                "SELECT evidence_id FROM knowledge_claim_evidence WHERE claim_id=? ORDER BY evidence_id",
+                (row["claim_id"],),
+            ).fetchall()
+            claims.append(
+                {
+                    "claim_id": row["claim_id"],
+                    "text": row["text"],
+                    "confidence": row["confidence"],
+                    "revision_id": row["revision_id"],
+                    "scope": row["scope"],
+                    "status": row["status"],
+                    "source_ids": [ref["source_id"] for ref in source_rows],
+                    "evidence_ids": [ref["evidence_id"] for ref in evidence_rows],
+                }
+            )
+        return claims
+
     def counts(self) -> dict[str, int]:
         return {
             "sources": self._connection.execute("SELECT COUNT(*) FROM knowledge_sources").fetchone()[0],

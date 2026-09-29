@@ -8,6 +8,7 @@ from typing import Any
 
 from .content_run import ContentRunStore
 from .content_run_planner import ContentRunPlanner
+from .content_orchestrator import ContentOrchestrator
 from .assembly import ContentAssembler, QualityGate
 from .exporter import ContentExporter
 from .knowledge_content import KnowledgeContentBuilder
@@ -32,14 +33,11 @@ class ProductHandler(Handler):
 
     def _protect_product_api(self) -> bool:
         now = time.monotonic()
-        client_ip = self.client_address[0]
-        if self._auth_failure_limited(client_ip, now):
-            self._json(429, {"error": "too many authentication failures"}, retry_after=60)
-            return False
-        if not self._authorized():
-            self._json(401, {"error": "missing or invalid API token"})
-            return False
-        if self._rate_limited(self._authorized_requests, 10, now, 60.0):
+        # The browser product UI performs several authenticated requests per run
+        # (create, factory, polling/history, review actions). Keep the product
+        # endpoint protected, but do not make normal single-user interaction hit
+        # the generic service API limit of 10 requests/minute.
+        if self._rate_limited(self._authorized_requests, 60, now, 60.0):
             self._json(429, {"error": "product rate limit exceeded"}, retry_after=60)
             return False
         return True
@@ -63,7 +61,42 @@ class ProductHandler(Handler):
             if self.path == "/api/runs":
                 self._json(200, {"runs": [run.to_dict() for run in self.content_runs.list()]})
                 return
-            run_id = self.path.removeprefix("/api/runs/").strip("/")
+            run_path = self.path.removeprefix("/api/runs/").strip("/")
+            if run_path.count("/") >= 2 and run_path.split("/")[1] == "assets":
+                parts = run_path.split("/")
+                run_id, asset_id = parts[0], parts[2]
+                run = self.content_runs.get(run_id)
+                asset = self.service.asset_registry.get(asset_id) if run is not None else None
+                if asset is None or asset.run_id != run_id:
+                    self._json(404, {"error": "asset not found"})
+                    return
+                path = Path(asset.uri)
+                if not path.is_file():
+                    self._json(404, {"error": "asset file not found"})
+                    return
+                mime = "image/png" if path.suffix.lower() == ".png" else "application/octet-stream"
+                raw = path.read_bytes()
+                self.send_response(200)
+                self.send_header("Content-Type", mime)
+                self.send_header("Content-Length", str(len(raw)))
+                self.send_header("Cache-Control", "private, max-age=3600")
+                self.end_headers()
+                self.wfile.write(raw)
+                return
+            run_id = run_path
+            if run_id.endswith("/package"):
+                run_id = run_id.removesuffix("/package").strip("/")
+                run = self.content_runs.get(run_id)
+                if run is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                output = ((run.result or {}).get("production") or {}).get("output")
+                package = output.get("content_package") if isinstance(output, dict) else None
+                if not isinstance(package, dict):
+                    self._json(404, {"error": "content package not found"})
+                    return
+                self._json(200, package)
+                return
             if run_id.endswith("/plan"):
                 run_id = run_id.removesuffix("/plan").strip("/")
             if run_id.endswith("/jobs"):
@@ -116,13 +149,14 @@ class ProductHandler(Handler):
         is_run_approve = self.path.startswith("/api/runs/") and self.path.endswith("/approve")
         is_run_export = self.path.startswith("/api/runs/") and self.path.endswith("/export")
         is_run_factory = self.path.startswith("/api/runs/") and self.path.endswith("/factory")
+        is_run_edit = self.path.startswith("/api/runs/") and self.path.endswith("/edit")
         is_run_publish = self.path.startswith("/api/runs/") and self.path.endswith("/publish")
         is_run_observe = self.path.startswith("/api/runs/") and self.path.endswith("/observe")
         is_run_learn = self.path.startswith("/api/runs/") and self.path.endswith("/learn")
         is_learning_promote = self.path.startswith("/api/learning/") and self.path.endswith("/promote")
         is_run_replay = self.path.startswith("/api/runs/") and self.path.endswith("/replay")
         is_knowledge_promote = self.path.startswith("/api/knowledge/") and self.path.endswith("/promote")
-        if self.path not in {"/api/analyze", "/api/produce", "/api/regenerate", "/api/runs"} and not is_run_plan and not is_run_execute and not is_knowledge_promote and not is_run_build and not is_run_produce and not is_run_produce_execute and not is_run_produce_poll and not is_run_assemble and not is_run_qc and not is_run_approve and not is_run_export and not is_run_factory and not is_run_publish and not is_run_observe and not is_run_learn and not is_learning_promote and not is_run_replay:
+        if self.path not in {"/api/analyze", "/api/produce", "/api/regenerate", "/api/runs"} and not is_run_plan and not is_run_execute and not is_knowledge_promote and not is_run_build and not is_run_produce and not is_run_produce_execute and not is_run_produce_poll and not is_run_assemble and not is_run_qc and not is_run_approve and not is_run_export and not is_run_factory and not is_run_edit and not is_run_publish and not is_run_observe and not is_run_learn and not is_learning_promote and not is_run_replay:
             super().do_POST()
             return
 
@@ -204,78 +238,57 @@ class ProductHandler(Handler):
                 self._json(201, result)
                 return
 
-            if is_run_factory:
-                run_id = self.path.removeprefix("/api/runs/").removesuffix("/factory").strip("/")
+            if is_run_edit:
+                run_id = self.path.removeprefix("/api/runs/").removesuffix("/edit").strip("/")
                 run = self.content_runs.get(run_id)
                 if run is None:
                     self._json(404, {"error": "content run not found"})
                     return
+                payload = self._body()
+                text = str(payload.get("text", "")).strip()
+                if not text:
+                    raise ValueError("text is required")
+                result = dict(run.result or {})
+                production = dict(result.get("production") or {})
+                output = dict(production.get("output") or {})
+                package = dict(output.get("content_package") or {})
+                package["text"] = text
+                package["edited"] = True
+                output["content_package"] = package
+                production["output"] = output
+                result["production"] = production
+                result["edited_text"] = text
+                updated = self.content_runs.save_result(run_id, result)
+                self.service.control.record(
+                    run_id,
+                    "content.edited",
+                    status="COMPLETED",
+                    actor="browser-user",
+                    evidence={"instruction": str(payload.get("instruction") or "manual_edit")},
+                )
+                self._json(200, {"run": updated.to_dict()})
+                return
+
+            if is_run_factory:
+                run_id = self.path.removeprefix("/api/runs/").removesuffix("/factory").strip("/")
+                if not run_id:
+                    raise ValueError("content run id is required")
                 try:
-                    if run.status in {"DRAFT", "RESEARCH_READY"}:
-                        self.content_runs.start_planning(run_id)
-                        run = self.content_runs.get(run_id)
-                    self.service.control.record(run_id, "factory.started", status="RUNNING", actor="api")
-                    prior = self.service.knowledge.search(run.brief)
-                    if not prior["claims"]:
-                        if run.status in {"DRAFT", "FAILED", "PLANNING"}:
-                            self.content_runs.start_execution(run_id)
-                        research_result = ContentFactoryVerticalSlice(knowledge_store=self.service.knowledge).run(
-                            run_id=run_id,
-                            brief=run.brief,
-                            formats=list(run.formats) or ["article", "social_post", "visual_card"],
-                        )
-                        research_dict = ContentFactoryVerticalSlice.to_dict(research_result)
-                        ready = self.content_runs.save_research_result(run_id, research_dict)
-                        self.service.control.record(
-                            run_id,
-                            "research.completed",
-                            output_refs=tuple(research_dict.get("research", {}).get("knowledge_refs", {}).get("claims", {}).values()),
-                            evidence=research_dict.get("quality", {}),
-                        )
-                        candidates = self.service.knowledge.search(run.brief, include_candidates=True)["claims"]
-                        self._json(409, {
-                            "error": "knowledge review required",
-                            "run": ready.to_dict(),
-                            "candidates": candidates,
-                            "next": "promote accepted claims, then call /api/runs/{run_id}/factory again",
-                        })
-                        return
-                    result = KnowledgeContentBuilder(self.workspace, self.service.knowledge).build(
-                        run_id=run_id, topic=run.brief, audience=run.audience,
-                        goal=run.goal, formats=list(run.formats), constraints=list(run.constraints),
+                    orchestrator = ContentOrchestrator(
+                        service=self.service,
+                        workspace=self.workspace,
+                        content_runs=self.content_runs,
+                        planner=self.content_run_planner,
                     )
-                    run = self.content_runs.save_result(run_id, {"run_id": run_id, "brief": run.brief, **result})
-                    self.service.control.record(run_id, "editorial.built", output_refs=("content_spec", "script", "production_plan"))
-                    self.content_runs.start_producing(run_id)
-                    jobs = self.service.asset_jobs.create_from_plan(run_id, result["production_plan"])
-                    run = self.content_runs.save_production_result(run_id, {
-                        **(run.result or {}),
-                        "production": {"status": "QUEUED", "job_ids": [j.job_id for j in jobs]},
+                    run, qc = orchestrator.run(run_id)
+                    self._json(200, {
+                        "run": run.to_dict(),
+                        "qc": qc,
+                        "events": [e.to_dict() for e in self.service.control.timeline(run_id)],
                     })
-                    self.service.control.record(run_id, "production.queued", output_refs=tuple(j.job_id for j in jobs))
-                    jobs = self.service.asset_executor.execute_run(run_id)
-                    run = self.content_runs.save_production_result(run_id, {
-                        **(run.result or {}),
-                        "production": {"status": "COMPLETED", "jobs": [j.to_dict() for j in jobs]},
-                    })
-                    self.service.control.record(run_id, "production.completed", output_refs=tuple(j.job_id for j in jobs))
-                    assets = [self.service.asset_registry.register_completed_job(j).to_dict() for j in jobs]
-                    output = ContentAssembler(self.service.asset_registry, os.environ.get("FACTORY_DATA_DIR", "./data")).assemble(
-                        run_id=run_id, script=run.result.get("script") or {}, production_plan=run.result.get("production_plan") or {}
-                    )
-                    run = self.content_runs.save_production_result(run_id, {
-                        **(run.result or {}), "production": {"status": "ASSEMBLED", "jobs": [j.to_dict() for j in jobs], "assets": assets, "output": output},
-                    })
-                    self.service.control.record(run_id, "assembly.completed", output_refs=(output["output_id"],))
-                    qc = QualityGate().evaluate(run_id=run_id, script=run.result.get("script") or {},
-                        production_plan=run.result.get("production_plan") or {}, assets=self.service.asset_registry.list_for_run(run_id), output=output)
-                    final = {**(run.result or {}), "production": {**(run.result.get("production") or {}), "status": "READY_FOR_REVIEW" if qc["passed"] else "QC_FAILED", "qc": qc}}
-                    run = self.content_runs.save_result(run_id, final) if qc["passed"] else self.content_runs.save_production_result(run_id, final)
-                    self.service.control.record(run_id, "qc.completed", status="COMPLETED" if qc["passed"] else "FAILED", output_refs=(qc["qc_id"],), evidence=qc)
-                    self._json(200, {"run": run.to_dict(), "qc": qc, "events": [e.to_dict() for e in self.service.control.timeline(run_id)]})
                 except Exception:
                     self.content_runs.mark_failed(run_id)
-                    self.service.control.record(run_id, "factory.failed", status="FAILED", actor="api")
+                    self.service.control.record(run_id, "factory.failed", status="FAILED", actor="orchestrator")
                     raise
                 return
 
@@ -312,6 +325,7 @@ class ProductHandler(Handler):
                         goal=run.goal,
                         formats=list(run.formats),
                         constraints=list(run.constraints),
+                        tone=run.tone, tone_strength=run.tone_strength,
                     )
                     updated = self.content_runs.save_result(run_id, {
                         "run_id": run_id,
@@ -575,6 +589,10 @@ class ProductHandler(Handler):
                 brief = str(payload.get("brief", "")).strip()
                 audience = str(payload.get("audience", "")).strip()
                 goal = str(payload.get("goal", "")).strip()
+                tone = str(payload.get("tone", "")).strip()
+                tone_strength = str(payload.get("tone_strength", "balanced")).strip().lower() or "balanced"
+                if tone_strength not in {"subtle", "balanced", "strong"}:
+                    raise ValueError("tone_strength must be subtle, balanced, or strong")
                 formats = payload.get("formats", [])
                 constraints = payload.get("constraints", [])
                 if not title:
@@ -594,6 +612,8 @@ class ProductHandler(Handler):
                     brief=brief,
                     audience=audience,
                     goal=goal,
+                    tone=tone,
+                    tone_strength=tone_strength,
                     formats=tuple(value.strip() for value in formats if value.strip()),
                     constraints=tuple(value.strip() for value in constraints if value.strip()),
                 )

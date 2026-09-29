@@ -7,6 +7,7 @@ from typing import Any
 from .knowledge import KnowledgeStore
 from .runtime import WorkItem
 from .workspace import ContentWorkspace, WorkspaceError, _json_from_text
+from .writing import ContextProfile, StyleLinter, WritingProfile, build_writing_spec, infer_context_profile
 
 
 @dataclass(frozen=True)
@@ -137,6 +138,10 @@ class KnowledgeContentBuilder:
         goal: str,
         formats: list[str],
         constraints: list[str],
+        writing_profile: WritingProfile | None = None,
+        context_profile: ContextProfile | None = None,
+        tone: str = "",
+        tone_strength: str = "balanced",
     ) -> dict[str, Any]:
         context = self.knowledge.search(topic)
         claims = context["claims"]
@@ -146,6 +151,20 @@ class KnowledgeContentBuilder:
         evidence_ids = {e for item in claims for e in item["evidence_ids"]}
 
         context_json = json.dumps(context, ensure_ascii=False)
+        profile = writing_profile or WritingProfile(profile_id="personal-default")
+        context_profile = context_profile or infer_context_profile(
+            topic=topic,
+            audience=audience,
+            goal=goal,
+            platform=formats[0] if formats else "article",
+            tone=tone,
+            tone_strength=tone_strength,
+        )
+        writing_spec = build_writing_spec(
+            writing_profile=profile,
+            context=context_profile,
+        )
+        writing_spec_json = json.dumps(writing_spec, ensure_ascii=False)
         editorial = self._generate(
             work_item_id=f"content-editorial-{run_id}",
             revision_id="content-editorial-v1",
@@ -157,6 +176,9 @@ No new factual claims. Requested formats: {json.dumps(formats)}.
 Audience: {audience}
 Goal: {goal}
 Constraints: {json.dumps(constraints)}
+WRITING SPEC:
+{writing_spec_json}
+Use the writing profile for voice and rhythm, and the context profile for domain, intent, audience and platform fit.
 ACCEPTED KNOWLEDGE:
 {context_json}""",
         )
@@ -194,7 +216,9 @@ Preserve provenance exactly from the idea. Do not invent claims.
 SELECTED IDEA:
 {selected_json}
 USER CONSTRAINTS:
-{json.dumps(constraints, ensure_ascii=False)}""",
+{json.dumps(constraints, ensure_ascii=False)}
+WRITING SPEC:
+{writing_spec_json}""",
         )
         spec_claims = _validate_claim_refs(spec_raw, claim_ids)
         spec_evidence = _validate_evidence_refs(spec_raw, evidence_ids)
@@ -223,7 +247,11 @@ USER CONSTRAINTS:
 Return JSON: {{"script_id":"script-1","title":"string","units":[{{"unit_id":"unit-1","kind":"hook|beat|narration|cta","text":"complete spoken/on-screen text","visual_intent":"string","claim_refs":["kc-*"],"evidence_refs":["ke-*"]}}]}}
 Every factual unit must retain the relevant durable claim and evidence refs from the ContentSpec. Do not invent facts.
 CONTENT SPEC:
-{json.dumps(spec.to_dict(), ensure_ascii=False)}""",
+{json.dumps(spec.to_dict(), ensure_ascii=False)}
+WRITING SPEC:
+{writing_spec_json}
+Write naturally for the selected context. Avoid formulaic openings and transitions. Do not use an em dash character.
+""",
         )
         units_raw = script_raw.get("units")
         if not isinstance(units_raw, list) or not units_raw:
@@ -245,6 +273,27 @@ CONTENT SPEC:
             if not unit.unit_id or not unit.kind or not unit.text:
                 raise WorkspaceError("every script unit requires id, kind and text")
             units.append(unit)
+        linter = StyleLinter(profile, min_words=0)
+        lint_results = []
+        normalized_units = []
+        for unit in units:
+            lint = linter.check(unit.text)
+            normalized_units.append(
+                ScriptUnit(
+                    unit_id=unit.unit_id,
+                    kind=unit.kind,
+                    text=lint.normalized_text,
+                    visual_intent=unit.visual_intent,
+                    claim_refs=unit.claim_refs,
+                    evidence_refs=unit.evidence_refs,
+                )
+            )
+            lint_results.append({
+                "unit_id": unit.unit_id,
+                **lint.to_dict(),
+            })
+        units = normalized_units
+
         script = Script(
             script_id=str(script_raw.get("script_id") or "").strip(),
             title=str(script_raw.get("title") or spec.title).strip(),
@@ -253,6 +302,7 @@ CONTENT SPEC:
         if not script.script_id:
             raise WorkspaceError("script requires script_id")
 
+        requires_voice = any(value in {"short_video", "long_video", "shorts", "video"} for value in formats)
         asset_requests = []
         for index, unit in enumerate(script.units, start=1):
             common = {
@@ -260,24 +310,28 @@ CONTENT SPEC:
                 "claim_refs": list(unit.claim_refs),
                 "evidence_refs": list(unit.evidence_refs),
                 "acceptance_criteria": ["preserve script intent", "preserve provenance"],
+                "text": unit.text,
+                "visual_intent": unit.visual_intent,
             }
-            asset_requests.extend(
-                [
-                    common | {
-                        "asset_request_id": f"asset-request-{run_id}-{index}-visual",
-                        "type": "visual",
-                    },
+            asset_requests.append(
+                common | {
+                    "asset_request_id": f"asset-request-{run_id}-{index}-visual",
+                    "type": "visual",
+                }
+            )
+            if requires_voice:
+                asset_requests.append(
                     common | {
                         "asset_request_id": f"asset-request-{run_id}-{index}-voice",
                         "type": "voice",
-                    },
-                ]
-            )
+                    }
+                )
         production_plan = {
             "production_plan_id": f"production-{run_id}",
             "format": spec.format,
             "style_bible": spec.style_bible or {},
             "asset_requests": asset_requests,
+            "requires_voice": requires_voice,
             "render": {"aspect_ratio": "9:16", "resolution": "1080x1920"},
         }
         result = {
@@ -286,7 +340,12 @@ CONTENT SPEC:
                 "ideas": [idea.to_dict() for idea in ideas],
             },
             "content_spec": spec.to_dict(),
+            "writing_spec": writing_spec,
             "script": script.to_dict(),
+            "style_qc": {
+                "passed": all(item["passed"] for item in lint_results),
+                "units": lint_results,
+            },
             "production_plan": production_plan,
             "knowledge": {
                 "claim_refs": sorted(claim_ids),
