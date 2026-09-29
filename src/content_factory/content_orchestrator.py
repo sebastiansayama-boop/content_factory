@@ -143,8 +143,8 @@ class ContentOrchestrator:
                 self.service.control.record(
                     run.run_id, "research.completed", status="COMPLETED", actor="researcher",
                     evidence={
-                        "claims": len(research_dict.get("claims") or []),
-                        "sources": len(research_dict.get("sources") or []),
+                        "claims": len((research_dict.get("research") or {}).get("claims") or []),
+                        "sources": len((research_dict.get("research") or {}).get("sources") or []),
                         "promoted_claims": len(promoted_claims),
                         "decision_ref": f"factory-research-qc:{run.run_id}",
                     },
