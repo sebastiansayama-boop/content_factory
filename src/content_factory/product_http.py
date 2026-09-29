@@ -261,13 +261,28 @@ class ProductHandler(Handler):
                             evidence=research_dict.get("quality", {}),
                         )
                         candidates = self.service.knowledge.candidates_for_run(run_id)
-                        self._json(409, {
-                            "error": "knowledge review required",
-                            "run": ready.to_dict(),
-                            "candidates": candidates,
-                            "next": "promote accepted claims, then call /api/runs/{run_id}/factory again",
-                        })
-                        return
+                        # Research provenance remains available for inspection, but the
+                        # product flow does not make the user manually approve raw claims.
+                        # Human control happens on the generated material instead.
+                        for candidate in candidates:
+                            claim_id = str(candidate.get("claim_id") or "").strip()
+                            if claim_id and str(candidate.get("status") or "").upper() != "ACCEPTED":
+                                self.service.knowledge.promote_claim(
+                                    claim_id,
+                                    decision_ref=f"factory-research-qc:{run_id}",
+                                )
+                        prior = self.service.knowledge.search(run.brief)
+                        run = self.content_runs.get(run_id)
+                        if run is None:
+                            raise ValueError("content run not found after research")
+                        self.service.control.record(
+                            run_id,
+                            "research.accepted_for_generation",
+                            status="COMPLETED",
+                            actor="factory-research-qc",
+                            output_refs=tuple(c.get("claim_id", "") for c in candidates if c.get("claim_id")),
+                            evidence=research_dict.get("quality", {}),
+                        )
                     result = KnowledgeContentBuilder(self.workspace, self.service.knowledge).build(
                         run_id=run_id, topic=run.brief, audience=run.audience,
                         goal=run.goal, formats=list(run.formats), constraints=list(run.constraints),
