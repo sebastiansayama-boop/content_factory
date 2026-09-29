@@ -52,15 +52,51 @@ class LocalTextAdapter:
                 ]
             }
         elif '"units":' in prompt:
-            value = {
-                "script_id": "script-local-1", "title": "Evidence-grounded short",
-                "units": [
-                    {"unit_id": "unit-1", "kind": "hook", "text": "Here is what the evidence tells us.", "visual_intent": "establish topic", "claim_refs": [claim], "evidence_refs": [evidence]},
-                    {"unit_id": "unit-2", "kind": "narration", "text": "We examine the supplied claim and its supporting evidence.", "visual_intent": "show evidence", "claim_refs": [claim], "evidence_refs": [evidence]},
-                    {"unit_id": "unit-3", "kind": "narration", "text": "The story stays within the supplied evidence and its stated limits.", "visual_intent": "show context", "claim_refs": [claim], "evidence_refs": [evidence]},
-                    {"unit_id": "unit-4", "kind": "cta", "text": "Follow for more evidence-grounded stories.", "visual_intent": "close", "claim_refs": [claim], "evidence_refs": [evidence]},
-                ]
-            }
+            # Keep the credential-free provider useful: scripts must quote the
+            # accepted knowledge supplied by the writer, not a generic placeholder.
+            matches = re.findall(
+                r'"claim_id"\\s*:\\s*"([^"]+)"\\s*,\\s*"text"\\s*:\\s*"((?:\\\\.|[^"\\\\])*)"',
+                prompt,
+            )
+            claim_rows = []
+            for claim_id, claim_text in matches[:4]:
+                try:
+                    claim_rows.append((claim_id, json.loads(f'"{claim_text}"')))
+                except json.JSONDecodeError:
+                    claim_rows.append((claim_id, claim_text))
+            if not claim_rows:
+                claim_rows = [(claim, "The available evidence supports this claim.")]
+            evidence_matches = re.findall(
+                r'"evidence_ids"\\s*:\\s*\\[\\s*"([^"]+)"',
+                prompt,
+            )
+            evidence_id = evidence_matches[0] if evidence_matches else evidence
+            units = [{
+                "unit_id": "unit-1",
+                "kind": "hook",
+                "text": f"What does the evidence show? {claim_rows[0][1]}",
+                "visual_intent": "establish the topic and central claim",
+                "claim_refs": [claim_rows[0][0]],
+                "evidence_refs": [evidence_id],
+            }]
+            for index, (claim_id, claim_text) in enumerate(claim_rows[:3], start=2):
+                units.append({
+                    "unit_id": f"unit-{index}",
+                    "kind": "narration",
+                    "text": claim_text,
+                    "visual_intent": "show the evidence behind the claim",
+                    "claim_refs": [claim_id],
+                    "evidence_refs": [evidence_id],
+                })
+            units.append({
+                "unit_id": f"unit-{len(units)+1}",
+                "kind": "cta",
+                "text": "The evidence also defines what remains uncertain.",
+                "visual_intent": "close with evidence boundary",
+                "claim_refs": [claim_rows[0][0]],
+                "evidence_refs": [evidence_id],
+            })
+            value = {"script_id": "script-local-grounded", "title": "Evidence-grounded story", "units": units}
         elif '"style_bible":' in prompt:
             value = {
                 "spec_id": "spec-local-1", "title": "Evidence-grounded short", "objective": "Create a concise evidence-grounded short",
