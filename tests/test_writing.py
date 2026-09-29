@@ -17,7 +17,7 @@ def test_writing_profile_can_be_derived_from_reference_texts():
     )
 
     assert profile.profile_id == "personal-v1"
-    assert profile.sentence_length == "mixed, centered on medium-length sentences"
+    assert profile.sentence_length == "mostly short sentences"
     assert profile.paragraph_length == "short paragraphs"
 
 
