@@ -721,7 +721,6 @@ async function loadHistory(){
   }catch(e){}
 }
 window.addEventListener("load",()=>{
-  $("token").value=sessionStorage.getItem("factory_token")||"";
   switchMode("topic");
   loadHistory();
 });
