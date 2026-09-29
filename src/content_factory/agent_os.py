@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable
 
+from .agent_tools import AgentToolRegistry
+
 
 @dataclass(frozen=True)
 class AgentSpec:
@@ -41,8 +43,9 @@ class ContentAgentOS:
         "QC",
     )
 
-    def __init__(self, control: Any) -> None:
+    def __init__(self, control: Any, tools: AgentToolRegistry | None = None) -> None:
         self.control = control
+        self.tools = tools or AgentToolRegistry()
         self.agents = {
             "planner": AgentSpec(
                 "planner",
@@ -93,6 +96,12 @@ class ContentAgentOS:
                 ("quality_gate",),
             ),
         }
+
+    def available_tools(self, name: str) -> tuple[Any, ...]:
+        return self.tools.for_agent(name)
+
+    def invoke_tool(self, *, name: str, tool: str, run_id: str, **kwargs: Any) -> Any:
+        return self.tools.invoke(tool, actor=name, run_id=run_id, control=self.control, **kwargs)
 
     def spec(self, name: str) -> AgentSpec:
         try:
