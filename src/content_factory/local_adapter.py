@@ -20,7 +20,25 @@ class LocalTextAdapter:
         if not prompt.strip():
             raise ValueError("prompt must not be empty")
         claim, evidence = self._refs(prompt)
-        if '"ideas":' in prompt:
+        if '"research_questions":' in prompt:
+            value = {
+                "objective": "Turn the user brief into an evidence-grounded content plan",
+                "research_questions": ["What evidence is needed to answer the user's brief?"],
+                "source_requirements": ["reliable primary or authoritative sources relevant to the brief"],
+                "deliverables": [{"format": "article", "purpose": "provide the requested content"}],
+                "editorial_constraints": [],
+                "quality_checks": ["all factual claims must be supported by accepted evidence"],
+            }
+        elif '"status": "PASS | REVISE | FAIL"' in prompt:
+            claim_ids = re.findall(r"kc-[A-Za-z0-9_-]+", prompt)
+            value = {
+                "status": "PASS",
+                "issues": [],
+                "required_changes": [],
+                "checked_claims": list(dict.fromkeys(claim_ids)) or ["kc-local"],
+                "confidence": 0.9,
+            }
+        elif '"ideas":' in prompt:
             value = {
                 "ideas": [
                     {"idea_id": "idea-local-1", "title": "Evidence-grounded story", "angle": "Explain the supplied evidence clearly", "audience": "general audience", "purpose": "inform", "formats": ["short_video"], "claim_refs": [claim], "evidence_refs": [evidence]},
