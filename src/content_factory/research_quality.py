@@ -49,7 +49,21 @@ def _future_history_relevance(text: str) -> int:
     latin_hits = len(tokens & FUTURE_HISTORY_TERMS)
     russian_hits = sum(1 for stem in RUSSIAN_FUTURE_HISTORY_TERMS if stem in text.lower())
     return latin_hits + russian_hits
-def _generic_relevance(brief: str, text: str) -> float:
+def _future_history_core_relevance(text: str) -> int:
+    tokens = _tokens(text)
+    latin_hits = len(tokens & {
+        "future", "futures", "prophecy", "prophecies", "prophetic",
+        "eschatology", "utopia", "utopian", "futurism", "futurist",
+        "ancient", "medieval", "historical", "history", "time", "society",
+        "technology", "technological", "prediction", "predictions",
+        "forecast", "forecasts", "speculation", "speculative",
+        "gilgamesh", "augustine", "joachim",
+    })
+    russian_hits = sum(1 for stem in RUSSIAN_FUTURE_HISTORY_TERMS if stem in text.lower())
+    return latin_hits + russian_hits
+
+
+def _generic_relevance(brief: str, text: str):
     brief_tokens = _tokens(brief)
     text_tokens = _tokens(text)
     if not brief_tokens or not text_tokens:
@@ -64,7 +78,10 @@ def is_relevant_source(*, brief: str, title: str, extract: str) -> bool:
         token in lowered_brief for token in ("history", "histor", "истори", "древ", "эпох")
     )
     if future_history:
-        return _future_history_relevance(material) >= 2
+        return (
+            _future_history_relevance(material) >= 2
+            and _future_history_core_relevance(material) >= 1
+        )
     return _generic_relevance(brief, material) >= 0.12
 
 
@@ -75,7 +92,10 @@ def is_relevant_claim(*, brief: str, claim: str, evidence: str) -> bool:
         token in lowered_brief for token in ("history", "histor", "истори", "древ", "эпох")
     )
     if future_history:
-        return _future_history_relevance(combined) >= 2
+        return (
+            _future_history_relevance(combined) >= 2
+            and _future_history_core_relevance(combined) >= 1
+        )
     return _generic_relevance(brief, combined) >= 0.10
 
 
