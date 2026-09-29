@@ -61,6 +61,9 @@ def test_orchestrator_runs_bounded_review_loop(tmp_path):
         reviewer=reviewer,
     )
 
+    orchestrator.tool_registry._tools["content_run.plan"] = AgentTool(
+        "content_run.plan", "test planner", "planner", lambda **_: {"objective": "test", "deliverables": []}
+    )
     orchestrator._research = lambda current: current
     writes = []
 
