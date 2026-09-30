@@ -48,7 +48,6 @@ def package_payload():
                 "role": "development",
                 "claim_refs": ["claim-1"],
                 "evidence_refs": ["evidence-1"],
-                "content_element_ids": ["element-1"],
             }],
             "content_elements": [{
                 "element_id": "element-1",
@@ -66,6 +65,7 @@ def package_payload():
                 "source_refs": ["source-1"],
                 "claim_refs": ["claim-1"],
                 "evidence_refs": ["evidence-1"],
+                "content_element_ids": ["element-1"],
             }
         ],
     }
