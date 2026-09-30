@@ -252,6 +252,16 @@ class ProductHandler(Handler):
                     constraints=source_run.constraints,
                 )
                 self.content_runs.start_planning(replay_run.run_id)
+                self._record_trace(
+                    replay_run.run_id,
+                    revision_id=persisted_brief.revision_id,
+                    stage="REPLAY",
+                    task="load_content_brief",
+                    tool="ContentRunStore",
+                    action="load_revision",
+                    result={"status": "loaded", "source_run_id": source_run_id, "revision_id": persisted_brief.revision_id},
+                    decision="ACCEPT",
+                )
                 package = build_replay_production_package(
                     run_id=replay_run.run_id,
                     content_brief=exact_brief,
