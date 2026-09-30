@@ -422,10 +422,20 @@ def _claims(research: dict[str, Any]) -> tuple[Claim, ...]:
 
 
 def _item_id(item: object) -> str:
-    for name in ("source_id", "evidence_id", "claim_id", "point_id", "element_id", "artifact_id", "publication_id"):
-        value = getattr(item, name, None)
-        if isinstance(value, str):
-            return value
+    if isinstance(item, Source):
+        return item.source_id
+    if isinstance(item, Evidence):
+        return item.evidence_id
+    if isinstance(item, Claim):
+        return item.claim_id
+    if isinstance(item, EditorialPoint):
+        return item.point_id
+    if isinstance(item, ContentElement):
+        return item.element_id
+    if isinstance(item, Artifact):
+        return item.artifact_id
+    if isinstance(item, PublicationRecord):
+        return item.publication_id
     return ""
 
 
