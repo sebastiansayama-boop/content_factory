@@ -99,6 +99,18 @@ class ProductHandler(Handler):
                     return
                 self._json(200, {"run_id": run_id, "jobs": [job.to_dict() for job in self.service.asset_jobs.list_for_run(run_id)]})
                 return
+            if run_id.endswith("/execution-trace"):
+                run_id = run_id.removesuffix("/execution-trace").strip("/")
+                if self.content_runs.get(run_id) is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                events = [
+                    event for event in self.service.runtime_store.load_events()
+                    if event["work_item_id"] == run_id
+                ]
+                self._json(200, {"run_id": run_id, "events": events})
+                return
+
             if run_id.endswith("/timeline"):
                 run_id = run_id.removesuffix("/timeline").strip("/")
                 if self.content_runs.get(run_id) is None:
