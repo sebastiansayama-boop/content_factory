@@ -150,7 +150,7 @@ def test_factory_research_review_then_builds_production(tmp_path, monkeypatch):
         assert second.status == 200, second.response
         result = second.response["run"]["result"]
         assert result["content_spec"]["claim_refs"] == [candidate_id]
-        assert result["production"]["status"] == "READY_FOR_REVIEW"
+        assert result["production"]["status"] == "READY_FOR_REVIEW", [item for item in result["production"].get("qc", {}).get("checks", []) if not item["passed"]]
         assert second.response["qc"]["status"] == "PASSED"
         assert service.content_runs.get(run.run_id).status == "REVIEW"
 
