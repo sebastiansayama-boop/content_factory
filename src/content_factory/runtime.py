@@ -454,6 +454,51 @@ class FactoryRuntime:
         else:
             self._transition(work_item, FactoryState.FAILED, "resolve_unknown_fail", actor)
 
+    def record_trace(
+        self,
+        work_item: WorkItem,
+        *,
+        stage: str,
+        task: str,
+        tool: str,
+        action: str,
+        result: dict[str, Any],
+        decision: str | None = None,
+        actor: str = "factory",
+    ) -> Event:
+        """Persist a stage/task/tool execution event without changing lifecycle state."""
+        if work_item.work_item_id not in self.states:
+            raise InvalidTransition("work item has not been submitted")
+        event = self._new_event(
+            work_item,
+            FactoryState(self.states[work_item.work_item_id]),
+            "trace",
+            actor,
+            operation_id=work_item.operation_id,
+        )
+        event = Event(
+            event_id=event.event_id,
+            timestamp=event.timestamp,
+            work_item_id=event.work_item_id,
+            revision_id=event.revision_id,
+            state=event.state,
+            operation=event.operation,
+            actor=event.actor,
+            data={
+                "stage": stage,
+                "task": task,
+                "tool": tool,
+                "action": action,
+                "result": self._jsonable(result),
+                "decision": decision,
+                "operation_id": work_item.operation_id,
+            },
+        )
+        if self.runtime_store is not None:
+            self.runtime_store.append_event(event.__dict__)
+        self.events.append(event)
+        return event
+
     def provenance(self, work_item_id: str) -> list[Event]:
         return [event for event in self.events if event.work_item_id == work_item_id]
 
