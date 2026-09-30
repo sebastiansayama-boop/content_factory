@@ -517,6 +517,9 @@ class KnowledgeStore:
                 "evidence_ids": [ref["evidence_id"] for ref in evidence_refs],
             })
 
+        if not claims:
+            return {"claims": [], "sources": [], "editorial_angles": []}
+
         sources = []
         evidence = []
         if evidence_ids:
