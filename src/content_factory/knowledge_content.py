@@ -260,8 +260,14 @@ USER CONSTRAINTS:
             raise WorkspaceError("content brief must contain editorial_points")
         if not isinstance(brief_raw.get("content_elements"), list) or not brief_raw["content_elements"]:
             raise WorkspaceError("content brief must contain content_elements")
-        selected_claims = _validate_claim_refs(brief_raw, claim_ids)
-        selected_evidence = _validate_evidence_refs(brief_raw, evidence_ids)
+        selected_claims = _refs(brief_raw.get("selected_claim_refs"), "selected_claim_refs")
+        unknown_selected_claims = set(selected_claims) - claim_ids
+        if unknown_selected_claims:
+            raise WorkspaceError(f"unknown knowledge claim refs: {', '.join(sorted(unknown_selected_claims))}")
+        selected_evidence = _refs(brief_raw.get("evidence_refs"), "evidence_refs")
+        unknown_selected_evidence = set(selected_evidence) - evidence_ids
+        if unknown_selected_evidence:
+            raise WorkspaceError(f"unknown knowledge evidence refs: {', '.join(sorted(unknown_selected_evidence))}")
         points: list[EditorialPointSpec] = []
         for raw in brief_raw["editorial_points"]:
             if not isinstance(raw, dict):
