@@ -121,6 +121,17 @@ def build_information_flow(
     claim_by_id = {item.claim_id: item for item in claims}
     evidence_by_id = {item.evidence_id: item for item in evidence}
     source_by_id = {item.source_id: item for item in sources}
+    source_ids = set(source_by_id)
+    evidence_ids = set(evidence_by_id)
+    for claim in claims:
+        if not set(claim.source_ids).issubset(source_ids):
+            raise InformationFlowError(
+                f"claim {claim.claim_id} references unknown source"
+            )
+        if not set(claim.evidence_ids).issubset(evidence_ids):
+            raise InformationFlowError(
+                f"claim {claim.claim_id} references unknown evidence"
+            )
 
     editorial_points: list[EditorialPoint] = []
     content_elements: list[ContentElement] = []
