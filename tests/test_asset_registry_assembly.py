@@ -73,7 +73,7 @@ def test_completed_jobs_become_registered_assets_and_assemble(tmp_path, monkeypa
         output=output,
         information_flow=information_flow,
     )
-    assert qc["passed"] is True, qc
+    assert qc["passed"] is True, [item for item in qc["checks"] if not item["passed"]]
     assert qc["status"] == "PASSED"
     assert qc["lineage"]["claim_ids"] == ["kc-1"]
     assert all("lineage_refs" in check for check in qc["checks"])
