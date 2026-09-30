@@ -18,7 +18,7 @@ class ContentAssembler:
         self.registry = registry
         self.root = Path(root)
 
-    def assemble(self, *, run_id: str, script: dict[str, Any], production_plan: dict[str, Any]) -> dict[str, Any]:
+    def assemble(self, *, run_id: str, script: dict[str, Any], production_plan: dict[str, Any], assets: list[Any] | None = None) -> dict[str, Any]:
         units = script.get("units")
         requests = production_plan.get("asset_requests")
         if not isinstance(units, list) or not units:
@@ -26,9 +26,9 @@ class ContentAssembler:
         if not isinstance(requests, list) or not requests:
             raise AssemblyError("production plan must contain asset_requests")
 
-        assets = self.registry.list_for_run(run_id)
-        by_request = {asset.asset_request_id: asset for asset in assets}
-        by_unit_type = {(asset.script_unit_id, asset.asset_type): asset for asset in assets}
+        resolved_assets = assets if assets is not None else self.registry.list_for_run(run_id)
+        by_request = {asset.asset_request_id: asset for asset in resolved_assets}
+        by_unit_type = {(asset.script_unit_id, asset.asset_type): asset for asset in resolved_assets}
         sequence = []
         for index, unit in enumerate(units, start=1):
             if not isinstance(unit, dict):
