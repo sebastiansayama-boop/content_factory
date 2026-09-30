@@ -173,7 +173,7 @@ def build_information_flow(
         )
         evidence_ids = tuple(
             dict.fromkeys(
-                ref for ref in asset.get("source_refs", [])
+                ref for ref in asset.get("evidence_refs", asset.get("source_refs", []))
                 if isinstance(ref, str) and ref.strip()
             )
         )
