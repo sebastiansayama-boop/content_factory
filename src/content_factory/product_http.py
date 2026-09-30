@@ -297,9 +297,23 @@ class ProductHandler(Handler):
                     }
                     for asset in assets
                 ]
-                research = (source_run.result or {}).get("research")
-                if not isinstance(research, dict):
-                    raise ValueError("source run has no durable research for replay")
+                durable_context = self.service.knowledge.search(source_run.brief)
+                research = {
+                    "claims": [
+                        {**claim, "id": claim.get("claim_id")}
+                        for claim in durable_context.get("claims", [])
+                    ],
+                    "sources": [
+                        {**source, "id": source.get("source_id")}
+                        for source in durable_context.get("sources", [])
+                    ],
+                    "evidence": [
+                        {**evidence, "id": evidence.get("evidence_id")}
+                        for evidence in durable_context.get("evidence", [])
+                    ],
+                }
+                if not research["claims"]:
+                    raise ValueError("source run has no durable accepted claims for replay")
                 information_flow = build_information_flow(
                     run_id=replay_run.run_id,
                     research=research,
