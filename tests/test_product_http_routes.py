@@ -77,6 +77,114 @@ def test_create_run_is_durable(tmp_path):
     store.close()
 
 
+
+def test_real_http_replay_r1_creates_new_artifact_and_qc(tmp_path, monkeypatch):
+    import json
+    import threading
+    from http.client import HTTPConnection
+    from http.server import ThreadingHTTPServer
+
+    monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.setenv("FACTORY_PROVIDER", "local")
+    monkeypatch.setenv("FACTORY_API_TOKEN", "e2e-token")
+
+    from content_factory.service import FactoryService
+    from content_factory.workspace import ContentWorkspace
+    from content_factory.content_run_planner import ContentRunPlanner
+
+    service = FactoryService()
+    ProductHandler.service = service
+    ProductHandler.workspace = ContentWorkspace(service)
+    ProductHandler.content_runs = service.content_runs
+    ProductHandler.content_run_planner = ContentRunPlanner(ProductHandler.workspace)
+    server = ThreadingHTTPServer(("127.0.0.1", 0), ProductHandler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+
+    def request(method, path, body=None):
+        connection = HTTPConnection("127.0.0.1", server.server_port, timeout=10)
+        payload = None if body is None else json.dumps(body).encode("utf-8")
+        headers = {"Authorization": "Bearer e2e-token"}
+        if payload is not None:
+            headers["Content-Type"] = "application/json"
+        connection.request(method, path, body=payload, headers=headers)
+        response = connection.getresponse()
+        raw = response.read()
+        status = response.status
+        connection.close()
+        return status, json.loads(raw.decode("utf-8")) if raw else {}
+
+    try:
+        status, created = request("POST", "/api/runs", {
+            "title": "HTTP replay E2E",
+            "brief": "Explain a topic with evidence.",
+            "audience": "general",
+            "goal": "short video",
+            "formats": ["short_video"],
+            "constraints": [],
+        })
+        assert status == 201
+        run_id = created["run_id"]
+
+        status, first = request("POST", f"/api/runs/{run_id}/factory", {})
+        assert status == 409
+        candidate_id = first["candidates"][0]["claim_id"]
+        status, promoted = request("POST", f"/api/knowledge/{candidate_id}/promote", {"decision_ref": "HTTP-E2E-REVIEW"})
+        assert status == 200
+        assert promoted["status"] == "PROMOTED"
+
+        status, r1_run = request("POST", f"/api/runs/{run_id}/factory", {})
+        assert status == 200, r1_run
+        r1 = r1_run["result"]["content_brief"]["revision_id"]
+        brief_id = r1_run["result"]["content_brief"]["brief_id"]
+        r1_payload = dict(r1_run["result"]["content_brief"])
+        r2_payload = {**r1_payload, "title": r1_payload["title"] + " — revision 2"}
+        r2_revision = service.content_runs.save_content_brief(run_id, r2_payload)
+        assert r2_revision.revision_id != r1
+
+        status, revisions = request("GET", f"/api/runs/{run_id}/content-brief/revisions")
+        assert status == 200
+        assert [item["revision_id"] for item in revisions["revisions"]] == [r1, r2_revision.revision_id]
+
+        status, replay = request("POST", f"/api/runs/{run_id}/replay", {
+            "brief_id": brief_id,
+            "revision_id": r1,
+            "changed_claim_ids": [],
+        })
+        assert status == 200, replay
+        replay_run = replay["run"]
+        replay_run_id = replay_run["run_id"]
+        assert replay_run_id != run_id
+        assert replay_run["status"] == "REVIEW"
+        assert replay_run["result"]["content_brief"]["revision_id"] == r1
+        assert replay_run["result"]["content_brief"]["title"] == r1_payload["title"]
+        assets = replay_run["result"]["production"]["assets"]
+        assert assets
+        assert all(asset["run_id"] == replay_run_id for asset in assets)
+        assert replay_run["result"]["production"]["qc"]["status"] == "PASSED"
+
+        status, trace = request("GET", f"/api/runs/{replay_run_id}/execution-trace")
+        assert status == 200
+        stages = [event["data"]["stage"] for event in trace["events"] if event["operation"] == "trace"]
+        assert stages == ["REPLAY", "PRODUCTION", "QC"]
+        assert all(event["revision_id"] == f"content-run:{replay_run_id}:{r1}" for event in trace["events"] if event["operation"] == "trace")
+        assert trace["events"][-1]["data"]["decision"] == "ACCEPT"
+
+        connection = HTTPConnection("127.0.0.1", server.server_port, timeout=10)
+        connection.request("GET", "/")
+        response = connection.getresponse()
+        page = response.read().decode("utf-8")
+        assert response.status == 200
+        assert "Replay an exact ContentBrief revision" in page
+        connection.close()
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+        service.close()
+
 def test_replay_endpoint_requires_durable_brief_revision(tmp_path):
     store = ContentRunStore(tmp_path / "runs.sqlite3")
     run = store.create(
