@@ -317,8 +317,47 @@ class ProductHandler(Handler):
                         **(run.result or {}), "production": {"status": "ASSEMBLED", "jobs": [j.to_dict() for j in jobs], "assets": assets, "output": output},
                     })
                     self.service.control.record(run_id, "assembly.completed", output_refs=(output["output_id"],))
-                    qc = QualityGate().evaluate(run_id=run_id, script=run.result.get("script") or {},
-                        production_plan=run.result.get("production_plan") or {}, assets=self.service.asset_registry.list_for_run(run_id), output=output)
+                    self._record_trace(
+                        run_id,
+                        stage="QC",
+                        task="quality_gate",
+                        tool="QualityGate",
+                        action="evaluate",
+                        result={"status": "started"},
+                    )
+                    try:
+                        qc = QualityGate().evaluate(
+                            run_id=run_id,
+                            script=run.result.get("script") or {},
+                            production_plan=run.result.get("production_plan") or {},
+                            assets=self.service.asset_registry.list_for_run(run_id),
+                            output=output,
+                            information_flow=run.result.get("information_flow"),
+                        )
+                    except Exception as exc:
+                        self._record_trace(
+                            run_id,
+                            stage="QC",
+                            task="quality_gate",
+                            tool="QualityGate",
+                            action="evaluate",
+                            result={"status": "failed", "error_type": type(exc).__name__},
+                            decision="FAILED",
+                        )
+                        raise
+                    self._record_trace(
+                        run_id,
+                        stage="QC",
+                        task="quality_gate",
+                        tool="QualityGate",
+                        action="evaluate",
+                        result={
+                            "status": qc["status"],
+                            "passed": qc["passed"],
+                            "check_count": len(qc.get("checks") or []),
+                        },
+                        decision="ACCEPT" if qc["passed"] else "REJECT",
+                    )
                     final = {**(run.result or {}), "production": {**(run.result.get("production") or {}), "status": "READY_FOR_REVIEW" if qc["passed"] else "QC_FAILED", "qc": qc}}
                     run = self.content_runs.save_result(run_id, final) if qc["passed"] else self.content_runs.save_production_result(run_id, final)
                     self.service.control.record(run_id, "qc.completed", status="COMPLETED" if qc["passed"] else "FAILED", output_refs=(qc["qc_id"],), evidence=qc)
