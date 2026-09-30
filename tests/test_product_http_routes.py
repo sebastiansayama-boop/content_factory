@@ -133,7 +133,7 @@ def test_real_http_replay_r1_creates_new_artifact_and_qc(tmp_path, monkeypatch):
         candidate_id = first["candidates"][0]["claim_id"]
         status, promoted = request("POST", f"/api/knowledge/{candidate_id}/promote", {"decision_ref": "HTTP-E2E-REVIEW"})
         assert status == 200
-        assert promoted["status"] == "PROMOTED"
+        assert promoted["status"] == "ACCEPTED"
 
         status, r1_run = request("POST", f"/api/runs/{run_id}/factory", {})
         assert status == 200, r1_run
