@@ -61,7 +61,7 @@ def test_completed_jobs_become_registered_assets_and_assemble(tmp_path, monkeypa
     information_flow = {
         "claims": [{"claim_id": "kc-1", "evidence_ids": ["ke-1"]}],
         "evidence": [{"evidence_id": "ke-1", "source_id": "ks-1"}],
-        "editorial_points": [{"point_id": "point-1", "claim_ids": ["kc-1"]}],
+        "editorial_points": [{"point_id": "point-1", "claim_ids": ["kc-1"], "evidence_ids": ["ke-1"]}],
         "content_elements": [{"element_id": "element-1", "artifact_id": "artifact-1"}],
         "artifacts": [{"artifact_id": "artifact-1", "content_element_ids": ["element-1"]}],
     }
