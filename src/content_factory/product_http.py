@@ -326,6 +326,11 @@ class ProductHandler(Handler):
                         self._record_trace(run_id, stage="EDITORIAL", task="build_content_brief", tool="KnowledgeContentBuilder", action="build", result={"status": "failed", "error_type": type(exc).__name__}, decision="FAILED")
                         raise
                     self._record_trace(run_id, stage="EDITORIAL", task="build_content_brief", tool="KnowledgeContentBuilder", action="build", result={"status": "completed"}, decision="ACCEPT")
+                    brief_revision = self.content_runs.save_content_brief(run_id, result["content_brief"])
+                    result["content_brief"] = {
+                        **result["content_brief"],
+                        "revision_id": brief_revision.revision_id,
+                    }
                     run = self.content_runs.save_result(
                         run_id,
                         {
@@ -335,11 +340,6 @@ class ProductHandler(Handler):
                             **result,
                         },
                     )
-                    brief_revision = self.content_runs.save_content_brief(run_id, result["content_brief"])
-                    result["content_brief"] = {
-                        **result["content_brief"],
-                        "revision_id": brief_revision.revision_id,
-                    }
                     self.service.control.record(
                         run_id,
                         "editorial.built",
