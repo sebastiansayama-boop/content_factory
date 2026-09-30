@@ -154,6 +154,23 @@ def test_factory_research_review_then_builds_production(tmp_path, monkeypatch):
         assert second.response["qc"]["status"] == "PASSED"
         assert service.content_runs.get(run.run_id).status == "REVIEW"
 
+        trace_get = DummyHandler(f"/api/runs/{run.run_id}/execution-trace", {})
+        trace_get.content_runs = service.content_runs
+        trace_get.service = service
+        trace_get.workspace = handler.workspace
+        ProductHandler.do_GET(trace_get)
+        assert trace_get.status == 200, trace_get.response
+        trace_events = trace_get.response["events"]
+        trace_stages = [event["data"]["stage"] for event in trace_events if event["operation"] == "trace"]
+        assert trace_stages == ["RESEARCH", "RESEARCH", "RESEARCH", "EDITORIAL", "EDITORIAL", "PRODUCTION", "PRODUCTION", "QC", "QC"]
+        assert all(event["work_item_id"] == run.run_id for event in trace_events)
+        assert all(event["revision_id"] == f"content-run:{run.run_id}:r1" for event in trace_events)
+        assert trace_events[-1]["data"]["decision"] == "ACCEPT"
+        assert trace_events[-1]["data"]["result"]["status"] == "PASSED"
+
+        persisted_events = service.runtime_store.load_events(run.run_id)
+        assert [event["event_id"] for event in persisted_events] == [event["event_id"] for event in trace_events]
+
         approve = DummyHandler(f"/api/runs/{run.run_id}/approve", {"decision_ref": "TEST-HUMAN-APPROVAL"})
         approve.content_runs = service.content_runs
         approve.service = service
