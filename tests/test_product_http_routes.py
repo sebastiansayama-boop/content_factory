@@ -149,6 +149,32 @@ def test_factory_research_review_then_builds_production(tmp_path, monkeypatch):
 
         assert second.status == 200, second.response
         result = second.response["run"]["result"]
+        brief_revision_id = result["content_brief"]["revision_id"]
+        brief_get = DummyHandler(f"/api/runs/{run.run_id}/content-brief", {})
+        brief_get.content_runs = service.content_runs
+        brief_get.service = service
+        brief_get.workspace = handler.workspace
+        ProductHandler.do_GET(brief_get)
+        assert brief_get.status == 200
+        assert brief_get.response["revision_id"] == brief_revision_id
+        assert brief_get.response["brief"]["brief_id"] == result["content_brief"]["brief_id"]
+
+        revision_get = DummyHandler(f"/api/runs/{run.run_id}/content-brief/{brief_revision_id}", {})
+        revision_get.content_runs = service.content_runs
+        revision_get.service = service
+        revision_get.workspace = handler.workspace
+        ProductHandler.do_GET(revision_get)
+        assert revision_get.status == 200
+        assert revision_get.response["revision_id"] == brief_revision_id
+
+        revisions_get = DummyHandler(f"/api/runs/{run.run_id}/content-brief/revisions", {})
+        revisions_get.content_runs = service.content_runs
+        revisions_get.service = service
+        revisions_get.workspace = handler.workspace
+        ProductHandler.do_GET(revisions_get)
+        assert revisions_get.status == 200
+        assert [item["revision_id"] for item in revisions_get.response["revisions"]] == [brief_revision_id]
+
         assert result["content_spec"]["claim_refs"] == [candidate_id]
         content_brief = result["content_brief"]
         assert content_brief["selected_claim_refs"] == [candidate_id]
@@ -193,6 +219,11 @@ def test_factory_research_review_then_builds_production(tmp_path, monkeypatch):
 
         service.close()
         service = FactoryService()
+        recovered_brief = service.content_runs.get_content_brief(run.run_id, revision_id=brief_revision_id)
+        assert recovered_brief is not None
+        assert recovered_brief.revision_id == brief_revision_id
+        assert recovered_brief.payload["brief_id"] == result["content_brief"]["brief_id"]
+
         recovered_events = service.runtime_store.load_events(run.run_id)
         recovered_trace = [event for event in recovered_events if event["operation"] == "trace"]
         http_trace = [event for event in trace_events if event["operation"] == "trace"]
