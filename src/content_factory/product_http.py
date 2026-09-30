@@ -11,6 +11,7 @@ from .content_run_planner import ContentRunPlanner
 from .assembly import ContentAssembler, QualityGate
 from .exporter import ContentExporter
 from .knowledge_content import KnowledgeContentBuilder
+from .information_flow import build_information_flow
 from .service import FactoryService, Handler
 from .runtime import FactoryRuntime, WorkItem
 from .workspace import ContentWorkspace
@@ -318,11 +319,36 @@ class ProductHandler(Handler):
                     })
                     self.service.control.record(run_id, "production.completed", output_refs=tuple(j.job_id for j in jobs))
                     assets = [self.service.asset_registry.register_completed_job(j).to_dict() for j in jobs]
-                    output = ContentAssembler(self.service.asset_registry, os.environ.get("FACTORY_DATA_DIR", "./data")).assemble(
-                        run_id=run_id, script=run.result.get("script") or {}, production_plan=run.result.get("production_plan") or {}
-                    )
+                    production_plan = run.result.get("production_plan") or {}
+                    request_elements = {
+                        str(request.get("script_unit_id")): list(request.get("content_element_ids") or [])
+                        for request in production_plan.get("asset_requests", [])
+                        if isinstance(request, dict) and request.get("script_unit_id")
+                    }
+                    lineage_assets = [
+                        {
+                            **asset,
+                            "content_element_ids": request_elements.get(str(asset.get("script_unit_id")), []),
+                        }
+                        for asset in assets
+                    ]
+                    information_flow = build_information_flow(
+                        run_id=run_id,
+                        research=run.result.get("research") or {},
+                        package={
+                            "story": {
+                                "id": f"content-run:{run_id}:story",
+                                "title": str((run.result.get("content_brief") or {}).get("title") or run.brief),
+                                "angle": str((run.result.get("content_brief") or {}).get("angle") or ""),
+                            },
+                            "content_brief": run.result.get("content_brief"),
+                            "package": lineage_assets,
+                        },
+                    ).to_dict()
                     run = self.content_runs.save_production_result(run_id, {
-                        **(run.result or {}), "production": {"status": "ASSEMBLED", "jobs": [j.to_dict() for j in jobs], "assets": assets, "output": output},
+                        **(run.result or {}),
+                        "information_flow": information_flow,
+                        "production": {"status": "ASSEMBLED", "jobs": [j.to_dict() for j in jobs], "assets": assets, "output": output},
                     })
                     self.service.control.record(run_id, "assembly.completed", output_refs=(output["output_id"],))
                     self._record_trace(
