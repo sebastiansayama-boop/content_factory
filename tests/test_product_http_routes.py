@@ -180,7 +180,8 @@ def test_factory_research_review_then_builds_production(tmp_path, monkeypatch):
         try:
             recovered_events = reopened.runtime_store.load_events(run.run_id)
             recovered_trace = [event for event in recovered_events if event["operation"] == "trace"]
-            assert [event["event_id"] for event in recovered_trace] == [event["event_id"] for event in trace_events]
+            http_trace = [event for event in trace_events if event["operation"] == "trace"]
+            assert [event["event_id"] for event in recovered_trace] == [event["event_id"] for event in http_trace]
             assert recovered_trace[-1]["data"]["stage"] == "QC"
             assert recovered_trace[-1]["data"]["decision"] == "ACCEPT"
         finally:
