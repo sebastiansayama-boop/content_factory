@@ -149,34 +149,108 @@ def build_information_flow(
     edges: list[LineageEdge] = []
 
     story = package.get("story")
+    brief = package.get("content_brief")
     if not isinstance(story, dict):
         raise InformationFlowError("production package must contain a story")
     story_id = str(story.get("id") or "").strip()
     if not story_id:
         raise InformationFlowError("production story requires id")
 
-    selected_claim_ids = tuple(
-        str(item.get("id")).strip()
-        for item in research.get("claims", [])
-        if isinstance(item, dict) and str(item.get("id") or "").strip()
-    )
-    selected_evidence_ids = tuple(
-        dict.fromkeys(
-            evidence_id
-            for claim_id in selected_claim_ids
-            for evidence_id in claim_by_id.get(claim_id, Claim("", "", "", (), (), "", ())).evidence_ids
-        )
-    )
+    if not isinstance(brief, dict):
+        raise InformationFlowError("production package must contain an explicit content_brief")
+    brief_id = str(brief.get("brief_id") or "").strip()
+    if not brief_id:
+        raise InformationFlowError("content_brief requires brief_id")
 
-    point = EditorialPoint(
-        point_id=f"{run_id}:editorial:{story_id}",
-        text=str(story.get("angle") or story.get("title") or "").strip(),
-        claim_ids=selected_claim_ids,
-        evidence_ids=selected_evidence_ids,
+    selected_claim_ids = tuple(
+        str(ref).strip()
+        for ref in brief.get("selected_claim_refs", [])
+        if isinstance(ref, str) and ref.strip()
     )
-    if not point.text:
-        raise InformationFlowError("selected editorial point requires text")
-    editorial_points.append(point)
+    if not selected_claim_ids:
+        raise InformationFlowError("content_brief must select claims")
+    if not set(selected_claim_ids).issubset(claim_by_id):
+        raise InformationFlowError("content_brief references unknown claim")
+
+    brief_points = brief.get("editorial_points")
+    brief_elements = brief.get("content_elements")
+    if not isinstance(brief_points, list) or not brief_points:
+        raise InformationFlowError("content_brief must contain editorial_points")
+    if not isinstance(brief_elements, list) or not brief_elements:
+        raise InformationFlowError("content_brief must contain content_elements")
+
+    point_by_id: dict[str, EditorialPoint] = {}
+    for raw in brief_points:
+        if not isinstance(raw, dict):
+            raise InformationFlowError("content_brief editorial point must be an object")
+        point_id = str(raw.get("point_id") or "").strip()
+        point_claims = tuple(
+            dict.fromkeys(ref for ref in raw.get("claim_refs", []) if isinstance(ref, str) and ref.strip())
+        )
+        point_evidence = tuple(
+            dict.fromkeys(ref for ref in raw.get("evidence_refs", []) if isinstance(ref, str) and ref.strip())
+        )
+        if not point_id or not point_claims or not point_evidence:
+            raise InformationFlowError("editorial point requires id, claims and evidence")
+        if not set(point_claims).issubset(claim_by_id):
+            raise InformationFlowError(f"editorial point {point_id} references unknown claim")
+        if not set(point_evidence).issubset(evidence_by_id):
+            raise InformationFlowError(f"editorial point {point_id} references unknown evidence")
+        point = EditorialPoint(
+            point_id=f"{run_id}:editorial:{point_id}",
+            text=str(raw.get("text") or "").strip(),
+            claim_ids=point_claims,
+            evidence_ids=point_evidence,
+        )
+        if not point.text:
+            raise InformationFlowError(f"editorial point {point_id} requires text")
+        point_by_id[point_id] = point
+        editorial_points.append(point)
+        for claim_id in point_claims:
+            edges.append(LineageEdge(claim_id, point.point_id, "claim_to_editorial_point"))
+        for evidence_id in point_evidence:
+            edges.append(LineageEdge(evidence_id, point.point_id, "evidence_to_editorial_point"))
+
+    element_by_id: dict[str, ContentElement] = {}
+    for raw in brief_elements:
+        if not isinstance(raw, dict):
+            raise InformationFlowError("content_brief content element must be an object")
+        element_id = str(raw.get("element_id") or "").strip()
+        point_refs = tuple(
+            dict.fromkeys(ref for ref in raw.get("editorial_point_ids", []) if isinstance(ref, str) and ref.strip())
+        )
+        element_claims = tuple(
+            dict.fromkeys(ref for ref in raw.get("claim_refs", []) if isinstance(ref, str) and ref.strip())
+        )
+        element_evidence = tuple(
+            dict.fromkeys(ref for ref in raw.get("evidence_refs", []) if isinstance(ref, str) and ref.strip())
+        )
+        if not element_id or not point_refs or not element_claims or not element_evidence:
+            raise InformationFlowError("content element requires id, editorial points, claims and evidence")
+        if not set(point_refs).issubset(point_by_id):
+            raise InformationFlowError(f"content element {element_id} references unknown editorial point")
+        if not set(element_claims).issubset(claim_by_id):
+            raise InformationFlowError(f"content element {element_id} references unknown claim")
+        if not set(element_evidence).issubset(evidence_by_id):
+            raise InformationFlowError(f"content element {element_id} references unknown evidence")
+        element = ContentElement(
+            element_id=f"{run_id}:element:{element_id}",
+            kind=str(raw.get("kind") or "").strip(),
+            artifact_id="",
+            editorial_point_ids=tuple(point_by_id[ref].point_id for ref in point_refs),
+            claim_ids=element_claims,
+            evidence_ids=element_evidence,
+        )
+        if not element.kind:
+            raise InformationFlowError(f"content element {element_id} requires kind")
+        element_by_id[element_id] = element
+        content_elements.append(element)
+        for point_id in element.editorial_point_ids:
+            edges.append(LineageEdge(point_id, element.element_id, "editorial_point_to_content_element"))
+        for claim_id in element_claims:
+            edges.append(LineageEdge(claim_id, element.element_id, "claim_to_content_element"))
+        for evidence_id in element_evidence:
+            edges.append(LineageEdge(evidence_id, element.element_id, "evidence_to_content_element"))
 
     for asset in package.get("package", []):
         if not isinstance(asset, dict):
@@ -186,64 +260,50 @@ def build_information_flow(
         if not artifact_id or not fmt:
             raise InformationFlowError("every production asset requires id and format")
 
-        claim_ids = tuple(
-            dict.fromkeys(
-                ref for ref in asset.get("claim_refs", [])
-                if isinstance(ref, str) and ref.strip()
-            )
-        )
-        evidence_ids = tuple(
-            dict.fromkeys(
-                ref for ref in asset.get("evidence_refs", asset.get("source_refs", []))
-                if isinstance(ref, str) and ref.strip()
-            )
-        )
+        claim_ids = tuple(dict.fromkeys(ref for ref in asset.get("claim_refs", []) if isinstance(ref, str) and ref.strip()))
+        evidence_ids = tuple(dict.fromkeys(ref for ref in asset.get("evidence_refs", []) if isinstance(ref, str) and ref.strip()))
+        element_refs = tuple(dict.fromkeys(ref for ref in asset.get("content_element_ids", []) if isinstance(ref, str) and ref.strip()))
+        if not element_refs:
+            raise InformationFlowError(f"artifact {artifact_id} must expose content_element_ids")
+        if not set(element_refs).issubset(element_by_id):
+            raise InformationFlowError(f"artifact {artifact_id} references unknown content element")
         for claim_id in claim_ids:
             if claim_id not in claim_by_id:
-                raise InformationFlowError(
-                    f"artifact {artifact_id} references unknown claim {claim_id}"
-                )
+                raise InformationFlowError(f"artifact {artifact_id} references unknown claim")
             claim = claim_by_id[claim_id]
             if not evidence_ids:
-                raise InformationFlowError(
-                    f"artifact {artifact_id} with claim refs must expose evidence_refs"
-                )
+                raise InformationFlowError(f"artifact {artifact_id} with claim refs must expose evidence_refs")
             if not set(claim.evidence_ids).issubset(evidence_ids):
-                raise InformationFlowError(
-                    f"artifact {artifact_id} claim {claim_id} is not supported by artifact evidence"
-                )
+                raise InformationFlowError(f"artifact {artifact_id} claim {claim_id} is not supported by artifact evidence")
         for evidence_id in evidence_ids:
             if evidence_id not in evidence_by_id:
-                raise InformationFlowError(
-                    f"artifact {artifact_id} references unknown evidence {evidence_id}"
-                )
+                raise InformationFlowError(f"artifact {artifact_id} references unknown evidence")
 
-        element_id = f"{artifact_id}:element"
-        element = ContentElement(
-            element_id=element_id,
-            kind=fmt,
+        resolved_element_ids = tuple(f"{run_id}:element:{ref}" for ref in element_refs)
+        artifacts.append(Artifact(
             artifact_id=artifact_id,
-            editorial_point_ids=(point.point_id,),
+            format=fmt,
+            content_element_ids=resolved_element_ids,
             claim_ids=claim_ids,
             evidence_ids=evidence_ids,
-        )
-        content_elements.append(element)
-        artifacts.append(
-            Artifact(
-                artifact_id=artifact_id,
-                format=fmt,
-                content_element_ids=(element_id,),
-                claim_ids=claim_ids,
-                evidence_ids=evidence_ids,
-            )
-        )
-        edges.append(LineageEdge(point.point_id, element_id, "editorial_point_to_content_element"))
-        edges.append(LineageEdge(element_id, artifact_id, "content_element_to_artifact"))
+        ))
+        for element_id in resolved_element_ids:
+            edges.append(LineageEdge(element_id, artifact_id, "content_element_to_artifact"))
         for claim_id in claim_ids:
-            edges.append(LineageEdge(claim_id, point.point_id, "claim_to_editorial_point"))
-            edges.append(LineageEdge(claim_id, element_id, "claim_to_content_element"))
+            edges.append(LineageEdge(claim_id, artifact_id, "claim_to_artifact"))
         for evidence_id in evidence_ids:
-            edges.append(LineageEdge(evidence_id, element_id, "evidence_to_content_element"))
+            edges.append(LineageEdge(evidence_id, artifact_id, "evidence_to_artifact"))
+
+    for element in content_elements:
+        linked_artifact = next(
+            (artifact.artifact_id for artifact in artifacts if element.element_id in artifact.content_element_ids),
+            None,
+        )
+        if linked_artifact:
+            index = content_elements.index(element)
+            content_elements[index] = ContentElement(
+                **{**element.__dict__, "artifact_id": linked_artifact}
+            )
 
     for source in sources:
         for evidence_item in evidence:
@@ -346,6 +406,7 @@ def validate_information_flow(flow: InformationFlow) -> None:
         "source_to_claim",
         "evidence_to_claim",
         "claim_to_editorial_point",
+        "evidence_to_editorial_point",
         "editorial_point_to_content_element",
         "claim_to_content_element",
         "evidence_to_content_element",
