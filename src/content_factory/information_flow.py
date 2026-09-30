@@ -194,6 +194,10 @@ def build_information_flow(
                     f"artifact {artifact_id} references unknown claim {claim_id}"
                 )
             claim = claim_by_id[claim_id]
+            if not evidence_ids:
+                raise InformationFlowError(
+                    f"artifact {artifact_id} with claim refs must expose evidence_refs"
+                )
             if not set(claim.evidence_ids).issubset(evidence_ids):
                 raise InformationFlowError(
                     f"artifact {artifact_id} claim {claim_id} is not supported by artifact evidence"
