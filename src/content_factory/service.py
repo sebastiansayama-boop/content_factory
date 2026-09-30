@@ -151,6 +151,10 @@ class FactoryService:
         raise ValueError("FACTORY_PROVIDER must be 'gemini', 'openai', or 'local'" )
 
     @property
+    def runtime_store(self) -> RuntimeStore:
+        return self._store
+
+    @property
     def content_runs(self) -> ContentRunStore:
         return self._content_runs
 
