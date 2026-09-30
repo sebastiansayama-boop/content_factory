@@ -471,7 +471,7 @@ class KnowledgeStore:
     def search(self, query: str, *, limit: int = 8, include_candidates: bool = False) -> dict[str, list[dict[str, Any]]]:
         terms = _tokens(query)
         if not terms:
-            return {"claims": [], "sources": [], "editorial_angles": []}
+            return {"claims": [], "sources": [], "evidence": [], "editorial_angles": []}
 
         statuses = (self.ACCEPTED, self.CANDIDATE) if include_candidates else (self.ACCEPTED,)
         placeholders = ",".join("?" for _ in statuses)
@@ -487,6 +487,7 @@ class KnowledgeStore:
         scored_claims.sort(key=lambda item: (-item[0], item[1]["claim_id"]))
 
         claims: list[dict[str, Any]] = []
+        evidence_ids: set[str] = set()
         source_ids: set[str] = set()
         for _, row in scored_claims[:limit]:
             refs = self._connection.execute(
@@ -504,6 +505,7 @@ class KnowledgeStore:
                 (row["claim_id"],),
             ).fetchall()
             source_ids.update(str(ref["source_id"]) for ref in refs)
+            evidence_ids.update(str(ref["evidence_id"]) for ref in evidence_refs)
             claims.append({
                 "claim_id": row["claim_id"],
                 "text": row["text"],
@@ -516,6 +518,16 @@ class KnowledgeStore:
             })
 
         sources = []
+        evidence = []
+        if evidence_ids:
+            placeholders = ",".join("?" for _ in evidence_ids)
+            evidence_rows = self._connection.execute(
+                f"""SELECT e.evidence_id,e.source_id,e.excerpt,e.locator,e.provenance
+                    FROM knowledge_evidence e
+                    WHERE e.evidence_id IN ({placeholders})""",
+                tuple(sorted(evidence_ids)),
+            ).fetchall()
+            evidence = [dict(row) for row in evidence_rows]
         if source_ids:
             placeholders = ",".join("?" for _ in source_ids)
             rows = self._connection.execute(
@@ -537,7 +549,7 @@ class KnowledgeStore:
             for score, row in scored_angles[:limit]
             if score
         ]
-        return {"claims": claims, "sources": sources, "editorial_angles": angles}
+        return {"claims": claims, "sources": sources, "evidence": evidence, "editorial_angles": angles}
 
     def counts(self) -> dict[str, int]:
         return {
