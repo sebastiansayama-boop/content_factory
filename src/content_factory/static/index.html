@@ -13,7 +13,7 @@
 <div class="shell">
 <div class="top"><div class="brand">Content Factory</div><div class="status" id="status">Ready</div></div>
 <div id="error" class="error hidden"></div>
-<div class="grid">
+<div id="replayPanel" class="panel hidden" style="margin-bottom:16px"></div><div class="grid">
 <section class="panel">
 <h2>1. Source</h2>
 <div class="muted">Paste a transcript, interview, podcast notes, research, lecture, or other substantive source material.</div>
@@ -30,6 +30,7 @@
 </section>
 <section class="panel">
 <h2>3. Produce & Review</h2>
+<div id="replayControls" class="notice hidden"></div>
 <div id="produceEmpty" class="notice">Select a story. The Factory will turn the selected angle into a linked multi-format package.</div>
 <div id="selected" class="hidden"></div>
 <div id="formats" class="chips" style="margin:10px 0">
@@ -98,6 +99,49 @@ function renderKnowledgeReview(candidates){
     }catch(e){error(e.message);button.disabled=false}
   });
 }
+function renderReplayPanel(run){
+  const result=run.result||{}, brief=result.content_brief||{}, rev=result.content_brief_revision_id||"";
+  const production=result.production||{}, qc=production.qc||{};
+  const sourceId=result.replay_of_run_id||"";
+  const assets=production.assets||[];
+  $("replayPanel").classList.remove("hidden");
+  $("replayPanel").innerHTML="<strong>Replay & lineage</strong><div class='muted' style='margin-top:6px'>Source run: "+esc(sourceId)+" · ContentBrief: "+esc(brief.brief_id||"")+" · Revision: "+esc(rev)+"</div>"+
+    "<div class='chips' style='margin-top:10px'><span class='chip'>Replay run: "+esc(run.run_id)+"</span><span class='chip'>QC: "+esc(qc.status||"UNKNOWN")+"</span><span class='chip'>Artifacts: "+assets.length+"</span></div>"+
+    "<div class='row' style='margin-top:10px'><button id='refreshReplay' class='btn secondary'>Refresh run</button><button id='showTrace' class='btn secondary'>Execution trace</button></div>"+
+    "<div id='replayAssets' class='package' style='margin-top:10px'>"+
+    assets.map(a=>"<div class='asset'><div class='format'>"+esc(a.asset_type||a.format||"artifact")+"</div><h4>"+esc(a.asset_id||"")+"</h4><div class='key'>Claims: "+esc((a.claim_refs||[]).join(", ")||"none")+" · Evidence: "+esc((a.evidence_refs||[]).join(", ")||"none")+"</div><div class='key'>URI: "+esc(a.output_uri||a.uri||"")+"</div></div>").join("")+"</div><div id='traceBox' class='notice hidden' style='margin-top:10px'></div>";
+  $("refreshReplay").onclick=()=>loadRun(run.run_id);
+  $("showTrace").onclick=async()=>{try{const data=await getJSON("/api/runs/"+encodeURIComponent(run.run_id)+"/execution-trace");$("traceBox").classList.remove("hidden");$("traceBox").innerHTML="<strong>Execution trace</strong>"+data.events.map(e=>"<div style='margin-top:6px'>"+esc(e.data?.stage||"")+" · "+esc(e.data?.task||"")+" · "+esc(e.data?.decision||"")+"</div>").join("")}catch(e){error(e.message)}};
+}
+async function getJSON(path){
+  const token=$("token").value.trim()||sessionStorage.getItem("factory_token")||"";
+  const r=await fetch(path,{headers:{"Authorization":`Bearer ${token}`}});const data=await r.json();if(!r.ok)throw new Error(data.error||`HTTP ${r.status}`);return data;
+}
+async function loadRun(runId){
+  const data=await getJSON("/api/runs/"+encodeURIComponent(runId));
+  renderFactoryRun(data);
+  if(data.result?.replay_of_run_id)renderReplayPanel(data);
+}
+async function loadBriefRevisions(runId){
+  const data=await getJSON("/api/runs/"+encodeURIComponent(runId)+"/content-brief/revisions");
+  return data.revisions||[];
+}
+function renderReplayControls(run){
+  $("replayControls").classList.remove("hidden");
+  $("replayControls").innerHTML="<strong>Replay an exact ContentBrief revision</strong><div class='row' style='margin-top:8px'><select id='briefRevision' class='input' style='max-width:360px'></select><button id='replayBtn' class='btn'>Replay revision</button></div>";
+  loadBriefRevisions(run.run_id).then(revs=>{
+    $("briefRevision").innerHTML=revs.map(r=>"<option value='"+esc(r.revision_id)+"'>"+esc(r.revision_id)+" · "+esc(r.brief?.title||"")+"</option>").join("");
+  }).catch(e=>error(e.message));
+  $("replayBtn").onclick=async()=>{
+    const revisionId=$("briefRevision").value, revs=await loadBriefRevisions(run.run_id), revision=revs.find(r=>r.revision_id===revisionId);
+    if(!revision)return error("ContentBrief revision not found.");
+    $("replayBtn").disabled=true;setStatus("Replaying exact revision → production → QC…");
+    try{
+      const data=await api("/api/runs/"+encodeURIComponent(run.run_id)+"/replay",{brief_id:revision.brief_id,revision_id:revision.revision_id,changed_claim_ids:[]});
+      renderFactoryRun(data.run);renderReplayPanel(data.run);setStatus(data.qc?.passed?"Replay QC passed":"Replay QC failed");
+    }catch(e){error(e.message);setStatus("Replay error")}finally{$("replayBtn").disabled=false}
+  };
+}
 function renderFactoryRun(run){
   $("runResult").classList.remove("hidden");
   const r=run.result||{}, p=r.production||{}, q=p.qc||{};
@@ -106,6 +150,9 @@ function renderFactoryRun(run){
   $("package").innerHTML="<div class='asset'><div class='format'>script</div><h4>"+esc(r.content_spec?.title||r.script?.title||run.title)+"</h4><pre>"+esc((r.script?.units||[]).map(u=>u.text||"").join("\\n\\n"))+"</pre></div>";
   $("review").classList.remove("hidden");
   $("reviewState").textContent=run.status==="REVIEW"?"QC passed · approval required":run.status;
+  renderReplayControls(run);
+  if(run.result?.replay_of_run_id)renderReplayPanel(run);
+  else $("replayPanel").classList.add("hidden");
   $("approve").disabled=run.status!=="REVIEW";
   $("export").disabled=run.status!=="APPROVED";
   $("publish").disabled=run.status!=="EXPORTED";
