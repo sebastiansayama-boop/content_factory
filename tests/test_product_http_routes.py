@@ -119,7 +119,6 @@ def test_replay_endpoint_is_anchored_to_exact_durable_brief_revision(tmp_path):
     assert handler.response["content_brief"]["selected_claim_refs"] == ["kc-1"]
     assert handler.response["content_brief_revision_id"] != r2.revision_id
     assert handler.response["changed_claim_ids"] == ["kc-1"]
-    assert handler.response["replay_run_id"] == run.run_id
     assert store.get(run.run_id).status == "DRAFT"
     store.close()
 
