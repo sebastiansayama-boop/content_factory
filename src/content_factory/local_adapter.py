@@ -28,7 +28,7 @@ class LocalTextAdapter:
                     {"idea_id": "idea-local-3", "title": "One claim, one story", "angle": "Build a focused content piece around the supplied claim", "audience": "general audience", "purpose": "inform", "formats": ["short_video"], "claim_refs": [claim], "evidence_refs": [evidence]},
                 ]
             }
-        elif '"editorial_points":' in prompt:
+        elif '"editorial_points":' in prompt and "Create one explicit ContentBrief" in prompt:
             value = {
                 "brief_id": "brief-local-1",
                 "title": "Evidence-grounded short",
