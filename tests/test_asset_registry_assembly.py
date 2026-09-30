@@ -58,15 +58,25 @@ def test_completed_jobs_become_registered_assets_and_assemble(tmp_path, monkeypa
     assert output["sequence"][0]["claim_refs"] == ["kc-1"]
     assert output["sequence"][0]["voice_uri"].endswith(".wav")
 
+    information_flow = {
+        "claims": [{"claim_id": "kc-1", "evidence_ids": ["ke-1"]}],
+        "evidence": [{"evidence_id": "ke-1", "source_id": "ks-1"}],
+        "editorial_points": [{"point_id": "point-1", "claim_ids": ["kc-1"]}],
+        "content_elements": [{"element_id": "element-1", "artifact_id": "artifact-1"}],
+        "artifacts": [{"artifact_id": "artifact-1", "content_element_ids": ["element-1"]}],
+    }
     qc = QualityGate().evaluate(
         run_id="run-1",
-        script={"units": [{"unit_id": "unit-1"}]},
+        script={"units": [{"unit_id": "unit-1", "claim_refs": ["kc-1"]}]},
         production_plan=plan,
         assets=assets,
         output=output,
+        information_flow=information_flow,
     )
     assert qc["passed"] is True
     assert qc["status"] == "PASSED"
+    assert qc["lineage"]["claim_ids"] == ["kc-1"]
+    assert all("lineage_refs" in check for check in qc["checks"])
 
     jobs.close()
     registry.close()
