@@ -44,6 +44,31 @@ class ProductHandler(Handler):
             return False
         return True
 
+    def _trace_runtime(self, run_id: str) -> tuple[FactoryRuntime, WorkItem]:
+        runtime = FactoryRuntime(runtime_store=self.service.runtime_store)
+        item = WorkItem(
+            work_item_id=run_id,
+            operation_id=f"content-run:{run_id}",
+            revision_id=f"content-run:{run_id}:r1",
+            objective="execute content factory stages",
+            requested_outcome="durable research, editorial, production and QC trace",
+            inputs=(run_id,),
+            knowledge_basis=(),
+            required_capabilities=("content.factory.vertical_slice",),
+            owner="product-api",
+            acceptance_criteria=("stage execution is recorded",),
+            release_requirements=(),
+        )
+        if run_id not in runtime.states:
+            runtime.submit(item, actor="api")
+        elif runtime.operation_ids.get(run_id) != item.operation_id:
+            raise ValueError("runtime operation_id conflicts with content run")
+        return runtime, item
+
+    def _record_trace(self, run_id: str, **kwargs: Any) -> None:
+        runtime, item = self._trace_runtime(run_id)
+        runtime.record_trace(item, **kwargs, actor="api")
+
     def do_GET(self) -> None:
         if self.path in {"/", "/index.html"}:
             raw = (Path(__file__).parent / "static" / "index.html").read_bytes()
@@ -215,11 +240,15 @@ class ProductHandler(Handler):
                         self.content_runs.start_planning(run_id)
                         run = self.content_runs.get(run_id)
                     self.service.control.record(run_id, "factory.started", status="RUNNING", actor="api")
+                    self._record_trace(run_id, stage="RESEARCH", task="load_knowledge_context", tool="KnowledgeStore", action="search", result={"status": "completed"}, decision="CONTEXT_LOADED")
                     prior = self.service.knowledge.search(run.brief)
                     if not prior["claims"]:
                         if run.status in {"DRAFT", "FAILED", "PLANNING"}:
                             self.content_runs.start_execution(run_id)
-                        research_result = ContentFactoryVerticalSlice(knowledge_store=self.service.knowledge).run(
+                        research_result = ContentFactoryVerticalSlice(
+                            knowledge_store=self.service.knowledge,
+                            trace_event=lambda **event: self._record_trace(run_id, **event),
+                        ).run(
                             run_id=run_id,
                             brief=run.brief,
                             formats=list(run.formats) or ["article", "social_post", "visual_card"],
@@ -240,10 +269,16 @@ class ProductHandler(Handler):
                             "next": "promote accepted claims, then call /api/runs/{run_id}/factory again",
                         })
                         return
-                    result = KnowledgeContentBuilder(self.workspace, self.service.knowledge).build(
-                        run_id=run_id, topic=run.brief, audience=run.audience,
-                        goal=run.goal, formats=list(run.formats), constraints=list(run.constraints),
-                    )
+                    self._record_trace(run_id, stage="EDITORIAL", task="build_content_brief", tool="KnowledgeContentBuilder", action="build", result={"status": "started"})
+                    try:
+                        result = KnowledgeContentBuilder(self.workspace, self.service.knowledge).build(
+                            run_id=run_id, topic=run.brief, audience=run.audience,
+                            goal=run.goal, formats=list(run.formats), constraints=list(run.constraints),
+                        )
+                    except Exception as exc:
+                        self._record_trace(run_id, stage="EDITORIAL", task="build_content_brief", tool="KnowledgeContentBuilder", action="build", result={"status": "failed", "error_type": type(exc).__name__}, decision="FAILED")
+                        raise
+                    self._record_trace(run_id, stage="EDITORIAL", task="build_content_brief", tool="KnowledgeContentBuilder", action="build", result={"status": "completed"}, decision="ACCEPT")
                     run = self.content_runs.save_result(run_id, {"run_id": run_id, "brief": run.brief, **result})
                     self.service.control.record(run_id, "editorial.built", output_refs=("content_spec", "script", "production_plan"))
                     self.content_runs.start_producing(run_id)
@@ -253,7 +288,9 @@ class ProductHandler(Handler):
                         "production": {"status": "QUEUED", "job_ids": [j.job_id for j in jobs]},
                     })
                     self.service.control.record(run_id, "production.queued", output_refs=tuple(j.job_id for j in jobs))
+                    self._record_trace(run_id, stage="PRODUCTION", task="execute_asset_jobs", tool="AssetExecutor", action="execute_run", result={"status": "started", "job_count": len(jobs)})
                     jobs = self.service.asset_executor.execute_run(run_id)
+                    self._record_trace(run_id, stage="PRODUCTION", task="execute_asset_jobs", tool="AssetExecutor", action="execute_run", result={"status": "completed", "job_count": len(jobs)}, decision="ACCEPT")
                     run = self.content_runs.save_production_result(run_id, {
                         **(run.result or {}),
                         "production": {"status": "COMPLETED", "jobs": [j.to_dict() for j in jobs]},
