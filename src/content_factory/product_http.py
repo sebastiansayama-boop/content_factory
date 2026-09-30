@@ -10,7 +10,8 @@ from .content_run import ContentRunStore
 from .content_run_planner import ContentRunPlanner
 from .assembly import ContentAssembler, QualityGate
 from .exporter import ContentExporter
-from .knowledge_content import KnowledgeContentBuilder
+from .knowledge_content import KnowledgeContentBuilder, build_replay_production_package
+from .information_flow import build_information_flow
 from .information_flow import build_information_flow
 from .service import FactoryService, Handler
 from .runtime import FactoryRuntime, WorkItem
@@ -210,9 +211,9 @@ class ProductHandler(Handler):
                 return
 
             if is_run_replay:
-                run_id = self.path.removeprefix("/api/runs/").removesuffix("/replay").strip("/")
-                run = self.content_runs.get(run_id)
-                if run is None:
+                source_run_id = self.path.removeprefix("/api/runs/").removesuffix("/replay").strip("/")
+                source_run = self.content_runs.get(source_run_id)
+                if source_run is None:
                     self._json(404, {"error": "content run not found"})
                     return
                 payload = self._body()
@@ -223,21 +224,140 @@ class ProductHandler(Handler):
                 revision_id = str(payload.get("revision_id", "")).strip()
                 if not brief_id or not revision_id:
                     raise ValueError("brief_id and revision_id are required")
-                persisted_brief = self.content_runs.get_content_brief(run_id, revision_id=revision_id)
+                persisted_brief = self.content_runs.get_content_brief(source_run_id, revision_id=revision_id)
                 if persisted_brief is None:
                     self._json(404, {"error": "content brief revision not found"})
                     return
                 if persisted_brief.brief_id != brief_id:
                     raise ValueError("content brief id does not match revision")
-                result = self.service.control.replay_plan(
-                    run.to_dict(),
-                    changed_claim_ids=changed,
-                    content_brief=persisted_brief.payload,
-                    content_brief_revision_id=persisted_brief.revision_id,
-                    changes=payload.get("changes"),
+                exact_brief = dict(persisted_brief.payload)
+                exact_brief["_revision_id"] = persisted_brief.revision_id
+
+                replay_run = self.content_runs.create(
+                    title=f"{source_run.title} — replay {persisted_brief.revision_id}",
+                    brief=source_run.brief,
+                    audience=source_run.audience,
+                    goal=source_run.goal,
+                    formats=source_run.formats,
+                    constraints=source_run.constraints,
                 )
-                self.service.control.record(run_id, "replay.planned", input_refs=tuple(changed), output_refs=tuple(result["regenerate_asset_ids"]))
-                self._json(200, result)
+                self.content_runs.start_planning(replay_run.run_id)
+                package = build_replay_production_package(
+                    run_id=replay_run.run_id,
+                    content_brief=exact_brief,
+                )
+                production_plan = package["production_plan"]
+                self.content_runs.start_producing(replay_run.run_id)
+                jobs = self.service.asset_jobs.create_from_plan(replay_run.run_id, production_plan)
+                jobs = self.service.asset_executor.execute_run(replay_run.run_id)
+                completed = [job for job in jobs if job.status == "COMPLETED"]
+                if len(completed) != len(jobs):
+                    raise ValueError("replay production did not complete all asset jobs")
+                assets = [self.service.asset_registry.register_completed_job(job) for job in completed]
+                request_by_id = {
+                    str(request.get("asset_request_id")): request
+                    for request in production_plan.get("asset_requests", [])
+                    if isinstance(request, dict)
+                }
+                flow_assets = [
+                    {
+                        "id": asset.asset_id,
+                        "format": asset.asset_type,
+                        "content_element_ids": list(request_by_id[asset.asset_request_id].get("content_element_ids") or []),
+                        "claim_refs": list(asset.claim_refs),
+                        "evidence_refs": list(asset.evidence_refs),
+                    }
+                    for asset in assets
+                ]
+                research = (source_run.result or {}).get("research")
+                if not isinstance(research, dict):
+                    raise ValueError("source run has no durable research for replay")
+                information_flow = build_information_flow(
+                    run_id=replay_run.run_id,
+                    research=research,
+                    package={
+                        "story": {"id": package["script"]["script_id"]},
+                        "content_brief": exact_brief,
+                        "package": flow_assets,
+                    },
+                ).to_dict()
+                replay_result = {
+                    "run_id": replay_run.run_id,
+                    "replay_of_run_id": source_run_id,
+                    "replay_of_content_brief": {
+                        "brief_id": brief_id,
+                        "revision_id": persisted_brief.revision_id,
+                    },
+                    "content_brief": {key: value for key, value in exact_brief.items() if key != "_revision_id"},
+                    "content_brief_revision_id": persisted_brief.revision_id,
+                    **package,
+                    "production": {
+                        "status": "COMPLETED",
+                        "job_ids": [job.job_id for job in jobs],
+                        "jobs": [job.to_dict() for job in jobs],
+                        "assets": [asset.to_dict() for asset in assets],
+                    },
+                    "information_flow": information_flow,
+                    "replay": {
+                        "changed_claim_ids": list(dict.fromkeys(changed)),
+                        "changes": payload.get("changes") if isinstance(payload.get("changes"), dict) else {},
+                    },
+                }
+                self.content_runs.save_production_result(replay_run.run_id, replay_result)
+                output = ContentAssembler(
+                    self.service.asset_registry,
+                    os.environ.get("FACTORY_DATA_DIR", "./data"),
+                ).assemble(
+                    run_id=replay_run.run_id,
+                    script=package["script"],
+                    production_plan=production_plan,
+                    assets=assets,
+                )
+                qc = QualityGate().evaluate(
+                    run_id=replay_run.run_id,
+                    script=package["script"],
+                    production_plan=production_plan,
+                    assets=assets,
+                    output=output,
+                    information_flow=information_flow,
+                )
+                final = {
+                    **replay_result,
+                    "production": {
+                        **replay_result["production"],
+                        "status": "READY_FOR_REVIEW" if qc["passed"] else "QC_FAILED",
+                        "output": output,
+                        "qc": qc,
+                    },
+                }
+                replay_run = self.content_runs.save_result(replay_run.run_id, final)
+                self.service.control.record(
+                    source_run_id,
+                    "replay.completed",
+                    input_refs=(f"content_brief:{persisted_brief.revision_id}",),
+                    output_refs=(replay_run.run_id, *[asset.asset_id for asset in assets]),
+                    evidence={"qc_id": qc["qc_id"], "qc_status": qc["status"]},
+                )
+                self.service.control.record(
+                    replay_run.run_id,
+                    "replay.source",
+                    input_refs=(source_run_id, f"content_brief:{persisted_brief.revision_id}"),
+                    output_refs=tuple(asset.asset_id for asset in assets),
+                    evidence={"replay_of_run_id": source_run_id, "content_brief_revision_id": persisted_brief.revision_id},
+                )
+                if not qc["passed"]:
+                    self.content_runs.mark_failed(replay_run.run_id)
+                self._json(200 if qc["passed"] else 422, {
+                    "run": replay_run.to_dict(),
+                    "qc": qc,
+                    "replay": {
+                        "source_run_id": source_run_id,
+                        "replay_run_id": replay_run.run_id,
+                        "content_brief_id": brief_id,
+                        "content_brief_revision_id": persisted_brief.revision_id,
+                        "changed_claim_ids": list(dict.fromkeys(changed)),
+                    },
+                })
                 return
 
             if is_run_publish:
