@@ -12,7 +12,6 @@ from .assembly import ContentAssembler, QualityGate
 from .exporter import ContentExporter
 from .knowledge_content import KnowledgeContentBuilder, build_replay_production_package
 from .information_flow import build_information_flow
-from .information_flow import build_information_flow
 from .service import FactoryService, Handler
 from .runtime import FactoryRuntime, WorkItem
 from .workspace import ContentWorkspace
