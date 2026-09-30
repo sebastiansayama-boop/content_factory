@@ -324,8 +324,8 @@ USER CONSTRAINTS:
             prompt=f"""Create one executable ContentSpec for the selected idea.
 Return JSON: {{"spec_id":"spec-1","title":"string","objective":"string","audience":"string","format":"string","tone":"string","structure":["step"],"constraints":["constraint"],"claim_refs":["kc-*"],"evidence_refs":["ke-*"],"style_bible":{{"visual_style":"string","palette":"string","lighting":"string","subject_continuity":"string","negative_constraints":"string","voice":"string","pace":"string","music":"string"}}}}
 Preserve provenance exactly from the idea. Do not invent claims.
-SELECTED IDEA:
-{selected_json}
+CONTENT BRIEF:
+{brief_json}
 USER CONSTRAINTS:
 {json.dumps(constraints, ensure_ascii=False)}""",
         )
@@ -388,11 +388,18 @@ CONTENT SPEC:
 
         asset_requests = []
         for index, unit in enumerate(script.units, start=1):
+            matching_elements = [
+                element for element in brief.content_elements
+                if set(unit.claim_refs).intersection(element.claim_refs)
+            ]
+            if not matching_elements:
+                matching_elements = list(brief.content_elements)
             common = {
                 "script_unit_id": unit.unit_id,
+                "content_element_ids": [element.element_id for element in matching_elements],
                 "claim_refs": list(unit.claim_refs),
                 "evidence_refs": list(unit.evidence_refs),
-                "acceptance_criteria": ["preserve script intent", "preserve provenance"],
+                "acceptance_criteria": ["preserve script intent", "preserve provenance", "preserve content brief lineage"],
             }
             asset_requests.extend(
                 [
@@ -409,6 +416,10 @@ CONTENT SPEC:
         production_plan = {
             "production_plan_id": f"production-{run_id}",
             "format": spec.format,
+            "content_brief_id": brief.brief_id,
+            "content_element_ids": [element.element_id for element in brief.content_elements],
+            "claim_refs": list(brief.selected_claim_refs),
+            "evidence_refs": list(brief.evidence_refs),
             "style_bible": spec.style_bible or {},
             "asset_requests": asset_requests,
             "render": {"aspect_ratio": "9:16", "resolution": "1080x1920"},
@@ -420,6 +431,7 @@ CONTENT SPEC:
             },
             "content_spec": spec.to_dict(),
             "script": script.to_dict(),
+            "content_brief": brief.to_dict(),
             "production_plan": production_plan,
             "knowledge": {
                 "claim_refs": sorted(claim_ids),
