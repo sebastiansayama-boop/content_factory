@@ -335,9 +335,33 @@ class ProductHandler(Handler):
                         }
                         for asset in assets
                     ]
+                    durable_context = self.service.knowledge.search(run.brief)
+                    canonical_research = {
+                        "claims": [
+                            {
+                                **claim,
+                                "id": claim.get("claim_id"),
+                            }
+                            for claim in durable_context.get("claims", [])
+                        ],
+                        "sources": [
+                            {
+                                **source,
+                                "id": source.get("source_id"),
+                            }
+                            for source in durable_context.get("sources", [])
+                        ],
+                        "evidence": [
+                            {
+                                **evidence,
+                                "id": evidence.get("evidence_id"),
+                            }
+                            for evidence in durable_context.get("evidence", [])
+                        ],
+                    }
                     information_flow = build_information_flow(
                         run_id=run_id,
-                        research=self.service.knowledge.search(run.brief),
+                        research=canonical_research,
                         package={
                             "story": {
                                 "id": f"content-run:{run_id}:story",
