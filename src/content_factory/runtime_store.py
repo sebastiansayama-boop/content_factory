@@ -140,6 +140,11 @@ class RuntimeStore:
                 raise KeyError(f"unknown work item: {work_item_id}")
             self._insert_event(event)
 
+    def append_event(self, event: dict[str, Any]) -> None:
+        """Append an execution-trace event without changing control state."""
+        with self._connection:
+            self._insert_event(event)
+
     def _insert_event(self, event: dict[str, Any]) -> None:
         self._connection.execute(
             """
