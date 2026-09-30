@@ -47,12 +47,12 @@ class ProductHandler(Handler):
             return False
         return True
 
-    def _trace_runtime(self, run_id: str) -> tuple[FactoryRuntime, WorkItem]:
+    def _trace_runtime(self, run_id: str, revision_id: str = "r1") -> tuple[FactoryRuntime, WorkItem]:
         runtime = FactoryRuntime(runtime_store=self.service.runtime_store)
         item = WorkItem(
             work_item_id=run_id,
             operation_id=f"content-run:{run_id}",
-            revision_id=f"content-run:{run_id}:r1",
+            revision_id=f"content-run:{run_id}:{revision_id}",
             objective="execute content factory stages",
             requested_outcome="durable research, editorial, production and QC trace",
             inputs=(run_id,),
@@ -68,8 +68,8 @@ class ProductHandler(Handler):
             raise ValueError("runtime operation_id conflicts with content run")
         return runtime, item
 
-    def _record_trace(self, run_id: str, **kwargs: Any) -> None:
-        runtime, item = self._trace_runtime(run_id)
+    def _record_trace(self, run_id: str, revision_id: str = "r1", **kwargs: Any) -> None:
+        runtime, item = self._trace_runtime(run_id, revision_id=revision_id)
         runtime.record_trace(item, **kwargs, actor="api")
 
     def do_GET(self) -> None:
@@ -232,6 +232,16 @@ class ProductHandler(Handler):
                     raise ValueError("content brief id does not match revision")
                 exact_brief = dict(persisted_brief.payload)
                 exact_brief["_revision_id"] = persisted_brief.revision_id
+                self._record_trace(
+                    source_run_id,
+                    revision_id=persisted_brief.revision_id,
+                    stage="REPLAY",
+                    task="load_content_brief",
+                    tool="ContentRunStore",
+                    action="load_revision",
+                    result={"status": "loaded", "revision_id": persisted_brief.revision_id},
+                    decision="ACCEPT",
+                )
 
                 replay_run = self.content_runs.create(
                     title=f"{source_run.title} — replay {persisted_brief.revision_id}",
@@ -249,6 +259,15 @@ class ProductHandler(Handler):
                 production_plan = package["production_plan"]
                 self.content_runs.start_producing(replay_run.run_id)
                 jobs = self.service.asset_jobs.create_from_plan(replay_run.run_id, production_plan)
+                self._record_trace(
+                    replay_run.run_id,
+                    revision_id=persisted_brief.revision_id,
+                    stage="PRODUCTION",
+                    task="replay_production",
+                    tool=type(self.service.asset_executor).__name__,
+                    action="execute_run",
+                    result={"status": "started", "job_count": len(jobs), "source_revision_id": persisted_brief.revision_id},
+                )
                 jobs = self.service.asset_executor.execute_run(replay_run.run_id)
                 completed = [job for job in jobs if job.status == "COMPLETED"]
                 if len(completed) != len(jobs):
@@ -320,6 +339,16 @@ class ProductHandler(Handler):
                     assets=assets,
                     output=output,
                     information_flow=information_flow,
+                )
+                self._record_trace(
+                    replay_run.run_id,
+                    revision_id=persisted_brief.revision_id,
+                    stage="QC",
+                    task="replay_quality_gate",
+                    tool="QualityGate",
+                    action="evaluate",
+                    result={"status": qc["status"], "qc_id": qc["qc_id"], "source_revision_id": persisted_brief.revision_id},
+                    decision="ACCEPT" if qc["passed"] else "FAIL",
                 )
                 final = {
                     **replay_result,
