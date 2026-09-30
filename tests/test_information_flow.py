@@ -38,6 +38,26 @@ def package_payload():
     return {
         "topic": "Topic",
         "story": {"id": "story-1", "title": "Topic", "angle": "A defensible angle"},
+        "content_brief": {
+            "brief_id": "brief-1",
+            "selected_claim_refs": ["claim-1"],
+            "evidence_refs": ["evidence-1"],
+            "editorial_points": [{
+                "point_id": "point-1",
+                "text": "A defensible angle",
+                "role": "development",
+                "claim_refs": ["claim-1"],
+                "evidence_refs": ["evidence-1"],
+                "content_element_ids": ["element-1"],
+            }],
+            "content_elements": [{
+                "element_id": "element-1",
+                "kind": "narration",
+                "editorial_point_ids": ["point-1"],
+                "claim_refs": ["claim-1"],
+                "evidence_refs": ["evidence-1"],
+            }],
+        },
         "package": [
             {
                 "id": "asset-1",
