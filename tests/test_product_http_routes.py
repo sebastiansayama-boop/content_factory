@@ -137,9 +137,10 @@ def test_real_http_replay_r1_creates_new_artifact_and_qc(tmp_path, monkeypatch):
 
         status, r1_run = request("POST", f"/api/runs/{run_id}/factory", {})
         assert status == 200, r1_run
-        r1 = r1_run["result"]["content_brief"]["revision_id"]
-        brief_id = r1_run["result"]["content_brief"]["brief_id"]
-        r1_payload = dict(r1_run["result"]["content_brief"])
+        r1_result = r1_run["run"]["result"]
+        r1 = r1_result["content_brief"]["revision_id"]
+        brief_id = r1_result["content_brief"]["brief_id"]
+        r1_payload = dict(r1_result["content_brief"])
         r2_payload = {**r1_payload, "title": r1_payload["title"] + " — revision 2"}
         r2_revision = service.content_runs.save_content_brief(run_id, r2_payload)
         assert r2_revision.revision_id != r1
