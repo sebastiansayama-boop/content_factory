@@ -471,7 +471,7 @@ class KnowledgeStore:
     def search(self, query: str, *, limit: int = 8, include_candidates: bool = False) -> dict[str, list[dict[str, Any]]]:
         terms = _tokens(query)
         if not terms:
-            return {"claims": [], "sources": [], "evidence": [], "editorial_angles": []}
+            return {"claims": [], "sources": [], "editorial_angles": []}
 
         statuses = (self.ACCEPTED, self.CANDIDATE) if include_candidates else (self.ACCEPTED,)
         placeholders = ",".join("?" for _ in statuses)
