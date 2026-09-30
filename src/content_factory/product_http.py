@@ -219,7 +219,23 @@ class ProductHandler(Handler):
                 changed = payload.get("changed_claim_ids", [])
                 if not isinstance(changed, list) or not all(isinstance(v, str) for v in changed):
                     raise ValueError("changed_claim_ids must be an array of strings")
-                result = self.service.control.replay_plan(run.to_dict(), changed_claim_ids=changed, changes=payload.get("changes"))
+                brief_id = str(payload.get("brief_id", "")).strip()
+                revision_id = str(payload.get("revision_id", "")).strip()
+                if not brief_id or not revision_id:
+                    raise ValueError("brief_id and revision_id are required")
+                persisted_brief = self.content_runs.get_content_brief(run_id, revision_id=revision_id)
+                if persisted_brief is None:
+                    self._json(404, {"error": "content brief revision not found"})
+                    return
+                if persisted_brief.brief_id != brief_id:
+                    raise ValueError("content brief id does not match revision")
+                result = self.service.control.replay_plan(
+                    run.to_dict(),
+                    changed_claim_ids=changed,
+                    content_brief=persisted_brief.payload,
+                    content_brief_revision_id=persisted_brief.revision_id,
+                    changes=payload.get("changes"),
+                )
                 self.service.control.record(run_id, "replay.planned", input_refs=tuple(changed), output_refs=tuple(result["regenerate_asset_ids"]))
                 self._json(200, result)
                 return
