@@ -216,11 +216,24 @@ class QualityGate:
                 for ref in unit.get("claim_refs", [])
                 if isinstance(ref, str) and ref.strip()
             }
+            spec_claim_refs = {
+                ref
+                for ref in (script.get("claim_refs") or [])
+                if isinstance(ref, str) and ref.strip()
+            }
+            if not spec_claim_refs:
+                spec_claim_refs = {
+                    ref
+                    for ref in (production_plan.get("claim_refs") or [])
+                    if isinstance(ref, str) and ref.strip()
+                }
             check(
                 "content_claim",
-                script_claim_refs.issubset(flow_claims) if script_claim_refs else False,
-                "script claims resolve to lineage claims",
-                sorted(script_claim_refs),
+                bool(script_claim_refs)
+                and bool(spec_claim_refs)
+                and script_claim_refs.issubset(spec_claim_refs),
+                "script claims are retained from the content specification",
+                sorted(script_claim_refs | spec_claim_refs),
             )
 
             editorial_claims = {
@@ -230,17 +243,19 @@ class QualityGate:
                 for ref in point.get("claim_ids", [])
                 if isinstance(ref, str) and ref.strip()
             }
-            spec_claims = {
-                ref for ref in production_plan.get("claim_refs", [])
-                if isinstance(ref, str) and ref.strip()
-            }
             check(
                 "content_editorial",
-                bool(flow_points) and (
-                    not spec_claims or spec_claims.issubset(editorial_claims)
+                bool(flow_points)
+                and bool(editorial_claims)
+                and all(
+                    isinstance(point, dict)
+                    and bool(point.get("claim_ids"))
+                    and bool(point.get("evidence_ids"))
+                    for point in flow_points
                 ),
-                "editorial points retain the content claim lineage",
-                [str(point.get("point_id")) for point in flow_points if isinstance(point, dict)] + sorted(spec_claims),
+                "editorial points retain claims and evidence in the information-flow graph",
+                [str(point.get("point_id")) for point in flow_points if isinstance(point, dict)]
+                + sorted(editorial_claims),
             )
 
             check(
