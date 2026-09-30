@@ -328,7 +328,13 @@ class FactoryControlStore:
         return self.get_learning(learning_id)
 
     def replay_plan(
-        self, run: dict[str, Any], *, changed_claim_ids: list[str], changes: dict[str, Any] | None = None
+        self,
+        run: dict[str, Any],
+        *,
+        changed_claim_ids: list[str],
+        content_brief: dict[str, Any],
+        content_brief_revision_id: str,
+        changes: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         result = run.get("result") or {}
         production = result.get("production") or {}
@@ -340,9 +346,15 @@ class FactoryControlStore:
             if set(changed) & set(asset.get("claim_refs") or [])
         ]
         requested_changes = changes or {}
+        brief_id = str(content_brief.get("brief_id") or "").strip()
+        if not brief_id or not content_brief_revision_id.strip():
+            raise ValueError("replay requires a durable content brief revision")
         return {
             "run_id": run["run_id"],
             "mode": "INCREMENTAL_REPLAY",
+            "content_brief_id": brief_id,
+            "content_brief_revision_id": content_brief_revision_id,
+            "content_brief": content_brief,
             "preserve": ["research", "knowledge", "editorial", "content_spec", "script"],
             "revise": ["content_spec.style_bible"] if requested_changes.get("style_bible") else [],
             "regenerate_asset_ids": affected,
