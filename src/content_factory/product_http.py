@@ -319,6 +319,9 @@ class ProductHandler(Handler):
                     })
                     self.service.control.record(run_id, "production.completed", output_refs=tuple(j.job_id for j in jobs))
                     assets = [self.service.asset_registry.register_completed_job(j).to_dict() for j in jobs]
+                    output = ContentAssembler(self.service.asset_registry, os.environ.get("FACTORY_DATA_DIR", "./data")).assemble(
+                        run_id=run_id, script=run.result.get("script") or {}, production_plan=run.result.get("production_plan") or {}
+                    )
                     production_plan = run.result.get("production_plan") or {}
                     request_elements = {
                         str(request.get("script_unit_id")): list(request.get("content_element_ids") or [])
