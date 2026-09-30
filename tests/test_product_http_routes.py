@@ -34,10 +34,13 @@ class Control:
     def timeline(self, run_id):
         return []
 
-    def replay_plan(self, run, *, changed_claim_ids, changes=None):
+    def replay_plan(self, run, *, changed_claim_ids, content_brief, content_brief_revision_id, changes=None):
         return {
             "run_id": run["run_id"],
             "mode": "INCREMENTAL_REPLAY",
+            "content_brief_id": content_brief["brief_id"],
+            "content_brief_revision_id": content_brief_revision_id,
+            "content_brief": content_brief,
             "preserve": ["research", "knowledge", "editorial", "content_spec", "script"],
             "revise": [],
             "regenerate_asset_ids": [],
@@ -74,7 +77,53 @@ def test_create_run_is_durable(tmp_path):
     store.close()
 
 
-def test_replay_endpoint_is_read_only_and_returns_plan(tmp_path):
+def test_replay_endpoint_is_anchored_to_exact_durable_brief_revision(tmp_path):
+    store = ContentRunStore(tmp_path / "runs.sqlite3")
+    run = store.create(
+        title="Test",
+        brief="A brief",
+        audience="general",
+        goal="video",
+        formats=("short_video",),
+        constraints=(),
+    )
+    brief_r1 = {
+        "brief_id": "brief-test",
+        "title": "Version one",
+        "selected_claim_refs": ["kc-1"],
+        "evidence_refs": ["ev-1"],
+        "editorial_points": [],
+        "content_elements": [],
+    }
+    brief_r2 = {**brief_r1, "title": "Version two", "selected_claim_refs": ["kc-2"]}
+    r1 = store.save_content_brief(run.run_id, brief_r1)
+    r2 = store.save_content_brief(run.run_id, brief_r2)
+
+    handler = DummyHandler(
+        f"/api/runs/{run.run_id}/replay",
+        {
+            "brief_id": "brief-test",
+            "revision_id": r1.revision_id,
+            "changed_claim_ids": ["kc-1"],
+        },
+    )
+    handler.content_runs = store
+    handler.service = Service()
+    ProductHandler.do_POST(handler)
+
+    assert handler.status == 200
+    assert handler.response["mode"] == "INCREMENTAL_REPLAY"
+    assert handler.response["content_brief_id"] == "brief-test"
+    assert handler.response["content_brief_revision_id"] == r1.revision_id
+    assert handler.response["content_brief"]["title"] == "Version one"
+    assert handler.response["content_brief"]["selected_claim_refs"] == ["kc-1"]
+    assert handler.response["content_brief_revision_id"] != r2.revision_id
+    assert handler.response["changed_claim_ids"] == ["kc-1"]
+    assert store.get(run.run_id).status == "DRAFT"
+    store.close()
+
+
+def test_replay_endpoint_requires_durable_brief_revision(tmp_path):
     store = ContentRunStore(tmp_path / "runs.sqlite3")
     run = store.create(
         title="Test",
@@ -87,12 +136,12 @@ def test_replay_endpoint_is_read_only_and_returns_plan(tmp_path):
     handler = DummyHandler(f"/api/runs/{run.run_id}/replay", {"changed_claim_ids": ["kc-1"]})
     handler.content_runs = store
     handler.service = Service()
-    ProductHandler.do_POST(handler)
-
-    assert handler.status == 200
-    assert handler.response["mode"] == "INCREMENTAL_REPLAY"
-    assert handler.response["changed_claim_ids"] == ["kc-1"]
-    assert store.get(run.run_id).status == "DRAFT"
+    try:
+        ProductHandler.do_POST(handler)
+    except ValueError as exc:
+        assert "brief_id and revision_id are required" in str(exc)
+    else:
+        raise AssertionError("replay without a durable brief revision must fail")
     store.close()
 
 def test_factory_research_review_then_builds_production(tmp_path, monkeypatch):
