@@ -211,6 +211,20 @@ def test_replay_executes_exact_brief_into_new_artifacts_and_qc(tmp_path, monkeyp
         assert all(asset["run_id"] == replay_run.run_id for asset in replay_run.result["production"]["assets"])
         assert service.content_runs.get_content_brief(source.run_id, revision_id=r2.revision_id).payload["title"] == "Version two"
         assert service.content_runs.get(source.run_id).result["production"]["assets"] == []
+        trace = service.runtime_store.load_events(replay_run.run_id)
+        trace_events = [event for event in trace if event["operation"] == "trace"]
+        assert [event["data"]["stage"] for event in trace_events] == ["REPLAY", "PRODUCTION", "QC"]
+        assert all(event["revision_id"] == f"content-run:{replay_run.run_id}:{r1.revision_id}" for event in trace_events)
+        assert trace_events[-1]["data"]["decision"] == "ACCEPT"
+
+        service.close()
+        service = FactoryService()
+        recovered = service.content_runs.get(replay_run.run_id)
+        assert recovered is not None
+        assert recovered.status == "REVIEW"
+        assert recovered.result["content_brief_revision_id"] == r1.revision_id
+        recovered_trace = [event for event in service.runtime_store.load_events(replay_run.run_id) if event["operation"] == "trace"]
+        assert [event["event_id"] for event in recovered_trace] == [event["event_id"] for event in trace_events]
     finally:
         service.close()
 
