@@ -28,6 +28,24 @@ class LocalTextAdapter:
                     {"idea_id": "idea-local-3", "title": "One claim, one story", "angle": "Build a focused content piece around the supplied claim", "audience": "general audience", "purpose": "inform", "formats": ["short_video"], "claim_refs": [claim], "evidence_refs": [evidence]},
                 ]
             }
+        elif '"editorial_points":' in prompt:
+            value = {
+                "brief_id": "brief-local-1",
+                "title": "Evidence-grounded short",
+                "objective": "Create a concise evidence-grounded short",
+                "audience": "general audience",
+                "angle": "Explain the supplied evidence clearly",
+                "selected_claim_refs": [claim],
+                "evidence_refs": [evidence],
+                "editorial_points": [
+                    {"point_id": "point-1", "text": "Explain the supplied evidence clearly", "role": "development", "claim_refs": [claim], "evidence_refs": [evidence]}
+                ],
+                "content_elements": [
+                    {"element_id": "element-1", "kind": "narration", "editorial_point_ids": ["point-1"], "purpose": "explain the claim", "production_intent": "voice narration", "claim_refs": [claim], "evidence_refs": [evidence]}
+                ],
+                "formats": ["short_video"],
+                "constraints": ["use only supplied knowledge"],
+            }
         elif '"units":' in prompt:
             value = {
                 "script_id": "script-local-1", "title": "Evidence-grounded short",
