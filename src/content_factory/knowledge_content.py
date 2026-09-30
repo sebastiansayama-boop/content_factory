@@ -162,6 +162,94 @@ def _validate_evidence_refs(value: dict[str, Any], allowed: set[str]) -> list[st
     return refs
 
 
+def build_replay_production_package(
+    *,
+    run_id: str,
+    content_brief: dict[str, Any],
+) -> dict[str, Any]:
+    """Deterministically rebuild downstream production inputs from an immutable brief."""
+    brief_id = str(content_brief.get("brief_id") or "").strip()
+    elements = content_brief.get("content_elements")
+    if not brief_id or not isinstance(elements, list) or not elements:
+        raise WorkspaceError("replay requires a valid content brief with content_elements")
+
+    units: list[dict[str, Any]] = []
+    asset_requests: list[dict[str, Any]] = []
+    for index, raw in enumerate(elements, start=1):
+        if not isinstance(raw, dict):
+            raise WorkspaceError("content brief content element must be an object")
+        element_id = str(raw.get("element_id") or "").strip()
+        if not element_id:
+            raise WorkspaceError("content element requires element_id")
+        claim_refs = _refs(raw.get("claim_refs"), "claim_refs")
+        evidence_refs = _refs(raw.get("evidence_refs"), "evidence_refs")
+        unit_id = f"replay-{run_id}-unit-{index}"
+        units.append({
+            "unit_id": unit_id,
+            "kind": str(raw.get("kind") or "narration"),
+            "text": str(raw.get("purpose") or raw.get("production_intent") or "").strip(),
+            "visual_intent": str(raw.get("production_intent") or "").strip(),
+            "claim_refs": claim_refs,
+            "evidence_refs": evidence_refs,
+        })
+        common = {
+            "script_unit_id": unit_id,
+            "content_element_ids": [element_id],
+            "claim_refs": claim_refs,
+            "evidence_refs": evidence_refs,
+            "acceptance_criteria": [
+                "preserve script intent",
+                "preserve provenance",
+                "preserve content brief lineage",
+            ],
+        }
+        asset_requests.extend([
+            common | {
+                "asset_request_id": f"replay-request-{run_id}-{index}-visual",
+                "type": "visual",
+            },
+            common | {
+                "asset_request_id": f"replay-request-{run_id}-{index}-voice",
+                "type": "voice",
+            },
+        ])
+
+    script = {
+        "script_id": f"replay-script-{run_id}",
+        "title": str(content_brief.get("title") or ""),
+        "units": units,
+    }
+    production_plan = {
+        "production_plan_id": f"replay-production-{run_id}",
+        "format": str((content_brief.get("formats") or ["short_video"])[0]),
+        "content_brief_id": brief_id,
+        "content_brief_revision_id": str(content_brief.get("_revision_id") or ""),
+        "content_element_ids": [str(item["element_id"]) for item in elements if isinstance(item, dict)],
+        "claim_refs": list(dict.fromkeys(ref for item in elements if isinstance(item, dict) for ref in item.get("claim_refs", []) if isinstance(ref, str) and ref.strip())),
+        "evidence_refs": list(dict.fromkeys(ref for item in elements if isinstance(item, dict) for ref in item.get("evidence_refs", []) if isinstance(ref, str) and ref.strip())),
+        "style_bible": {},
+        "asset_requests": asset_requests,
+        "render": {"aspect_ratio": "9:16", "resolution": "1080x1920"},
+    }
+    return {
+        "content_spec": {
+            "spec_id": f"replay-spec-{run_id}",
+            "title": str(content_brief.get("title") or ""),
+            "objective": str(content_brief.get("objective") or ""),
+            "audience": str(content_brief.get("audience") or ""),
+            "format": production_plan["format"],
+            "tone": "derived-from-brief",
+            "structure": [str(item.get("role") or "") for item in content_brief.get("editorial_points", []) if isinstance(item, dict)],
+            "constraints": list(content_brief.get("constraints") or []),
+            "claim_refs": list(content_brief.get("selected_claim_refs") or []),
+            "evidence_refs": list(content_brief.get("evidence_refs") or []),
+            "style_bible": {},
+        },
+        "script": script,
+        "production_plan": production_plan,
+    }
+
+
 class KnowledgeContentBuilder:
     """Build the editorial-to-script chain from accepted durable knowledge."""
 
