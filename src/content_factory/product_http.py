@@ -330,7 +330,10 @@ class ProductHandler(Handler):
                         "brief_id": brief_id,
                         "revision_id": persisted_brief.revision_id,
                     },
-                    "content_brief": {key: value for key, value in exact_brief.items() if key != "_revision_id"},
+                    "content_brief": {
+                        **{key: value for key, value in exact_brief.items() if key != "_revision_id"},
+                        "revision_id": persisted_brief.revision_id,
+                    },
                     "content_brief_revision_id": persisted_brief.revision_id,
                     **package,
                     "production": {
