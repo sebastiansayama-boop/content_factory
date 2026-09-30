@@ -150,6 +150,22 @@ def test_factory_research_review_then_builds_production(tmp_path, monkeypatch):
         assert second.status == 200, second.response
         result = second.response["run"]["result"]
         assert result["content_spec"]["claim_refs"] == [candidate_id]
+        content_brief = result["content_brief"]
+        assert content_brief["selected_claim_refs"] == [candidate_id]
+        assert content_brief["editorial_points"]
+        assert content_brief["content_elements"]
+        point_ids = {point["point_id"] for point in content_brief["editorial_points"]}
+        assert all(set(element["editorial_point_ids"]).issubset(point_ids) for element in content_brief["content_elements"])
+        assert result["production_plan"]["content_brief_id"] == content_brief["brief_id"]
+        assert set(result["production_plan"]["content_element_ids"]) == {
+            element["element_id"] for element in content_brief["content_elements"]
+        }
+        assert all(request["content_element_ids"] for request in result["production_plan"]["asset_requests"])
+        information_flow = result["information_flow"]
+        assert information_flow["claim_count"] == len(content_brief["selected_claim_refs"])
+        assert information_flow["editorial_point_count"] == len(content_brief["editorial_points"])
+        assert information_flow["content_element_count"] == len(content_brief["content_elements"])
+        assert information_flow["artifact_count"] == len(result["production"]["assets"])
         assert result["production"]["status"] == "READY_FOR_REVIEW", [item for item in result["production"].get("qc", {}).get("checks", []) if not item["passed"]]
         assert second.response["qc"]["status"] == "PASSED"
         assert service.content_runs.get(run.run_id).status == "REVIEW"
