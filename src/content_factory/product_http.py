@@ -331,6 +331,8 @@ class ProductHandler(Handler):
                     lineage_assets = [
                         {
                             **asset,
+                            "id": asset.get("asset_id"),
+                            "format": asset.get("asset_type"),
                             "content_element_ids": request_elements.get(str(asset.get("script_unit_id")), []),
                         }
                         for asset in assets
