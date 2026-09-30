@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Callable
 
 from .knowledge import KnowledgeStore
 from .research import OpenAIWebResearchAdapter, parse_research_json
@@ -90,9 +90,11 @@ class ContentFactoryVerticalSlice:
         self,
         research_adapter: OpenAIWebResearchAdapter | None = None,
         knowledge_store: KnowledgeStore | None = None,
+        trace_event: Callable[..., None] | None = None,
     ) -> None:
         self.research_adapter = research_adapter or (OpenAIWebResearchAdapter() if __import__("os").getenv("OPENAI_API_KEY") else LocalResearchAdapter())
         self.knowledge_store = knowledge_store
+        self.trace_event = trace_event
 
     def run(self, *, run_id: str, brief: str, formats: list[str] | None = None) -> VerticalSliceResult:
         if not brief.strip():
@@ -111,7 +113,16 @@ Prior reusable knowledge is context, not proof. Re-check it against current sour
 USER BRIEF:
 {brief}
 """
-        result = self.research_adapter.research(research_prompt)
+        if self.trace_event is not None:
+            self.trace_event(stage="RESEARCH", task="research_brief", tool=type(self.research_adapter).__name__, action="provider_call", result={"status": "started"})
+        try:
+            result = self.research_adapter.research(research_prompt)
+        except Exception as exc:
+            if self.trace_event is not None:
+                self.trace_event(stage="RESEARCH", task="research_brief", tool=type(self.research_adapter).__name__, action="provider_call", result={"status": "failed", "error_type": type(exc).__name__}, decision="FAILED")
+            raise
+        if self.trace_event is not None:
+            self.trace_event(stage="RESEARCH", task="research_brief", tool=type(self.research_adapter).__name__, action="provider_call", result={"status": "completed", "http_status": result.status_code}, decision="ACCEPT" if 200 <= result.status_code < 300 else "FAIL")
         if result.status_code < 200 or result.status_code >= 300:
             raise ValueError(f"research provider returned HTTP {result.status_code}")
         research = parse_research_json(self.research_adapter.text(result))
@@ -173,7 +184,16 @@ Claims:
 Sources:
 {source_lines}
 """
-            generated = self.research_adapter.research(production_prompt)
+            if self.trace_event is not None:
+                self.trace_event(stage="PRODUCTION", task=f"produce_{fmt}", tool=type(self.research_adapter).__name__, action="provider_call", result={"status": "started", "format": fmt})
+            try:
+                generated = self.research_adapter.research(production_prompt)
+            except Exception as exc:
+                if self.trace_event is not None:
+                    self.trace_event(stage="PRODUCTION", task=f"produce_{fmt}", tool=type(self.research_adapter).__name__, action="provider_call", result={"status": "failed", "format": fmt, "error_type": type(exc).__name__}, decision="FAILED")
+                raise
+            if self.trace_event is not None:
+                self.trace_event(stage="PRODUCTION", task=f"produce_{fmt}", tool=type(self.research_adapter).__name__, action="provider_call", result={"status": "completed", "format": fmt, "http_status": generated.status_code}, decision="ACCEPT" if 200 <= generated.status_code < 300 else "FAIL")
             if generated.status_code < 200 or generated.status_code >= 300:
                 raise ValueError(f"production provider returned HTTP {generated.status_code}")
             asset = parse_research_json(self.research_adapter.text(generated))
