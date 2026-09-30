@@ -193,11 +193,14 @@ Sources:
                 asset["source_refs"] = all_source_ids
             claim_refs = [
                 ref for ref in asset.get("claim_refs", [])
-                if isinstance(ref, str) and ref in claim_by_id
+                if isinstance(ref, str) and ref.strip()
             ]
             evidence_refs = []
             for claim_id in claim_refs:
-                for evidence_id in claim_by_id[claim_id].get("evidence_ids", []):
+                claim = claim_by_id.get(claim_id)
+                if claim is None:
+                    continue
+                for evidence_id in claim.get("evidence_ids", []):
                     if isinstance(evidence_id, str) and evidence_id not in evidence_refs:
                         evidence_refs.append(evidence_id)
             asset["evidence_refs"] = evidence_refs
