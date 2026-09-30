@@ -292,7 +292,15 @@ class ProductHandler(Handler):
                         self._record_trace(run_id, stage="EDITORIAL", task="build_content_brief", tool="KnowledgeContentBuilder", action="build", result={"status": "failed", "error_type": type(exc).__name__}, decision="FAILED")
                         raise
                     self._record_trace(run_id, stage="EDITORIAL", task="build_content_brief", tool="KnowledgeContentBuilder", action="build", result={"status": "completed"}, decision="ACCEPT")
-                    run = self.content_runs.save_result(run_id, {"run_id": run_id, "brief": run.brief, **result})
+                    run = self.content_runs.save_result(
+                        run_id,
+                        {
+                            **(run.result or {}),
+                            "run_id": run_id,
+                            "brief": run.brief,
+                            **result,
+                        },
+                    )
                     self.service.control.record(run_id, "editorial.built", output_refs=("content_spec", "script", "production_plan"))
                     self.content_runs.start_producing(run_id)
                     jobs = self.service.asset_jobs.create_from_plan(run_id, result["production_plan"])
