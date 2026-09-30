@@ -8,7 +8,6 @@ from typing import Any, Callable
 from .knowledge import KnowledgeStore
 from .research import OpenAIWebResearchAdapter, parse_research_json
 from .local_research import LocalResearchAdapter
-from .information_flow import build_information_flow
 
 
 @dataclass(frozen=True)
@@ -224,33 +223,10 @@ Sources:
                     if isinstance(evidence_id, str) and evidence_id not in evidence_refs:
                         evidence_refs.append(evidence_id)
             asset["evidence_refs"] = evidence_refs
-        information_flow = build_information_flow(
-            run_id=run_id,
-            research=research,
-            package={
-                **package,
-                "story": {
-                    "id": f"{_slug(topic)}-story",
-                    "title": topic,
-                    "angle": (
-                        research.get("editorial_angles", [""])[0]
-                        if isinstance(research.get("editorial_angles"), list)
-                        and research.get("editorial_angles")
-                        else summary
-                    ),
-                },
-            },
-        )
         quality = quality_check(package, research)
         quality["information_flow"] = {
-            "status": "PASS",
-            "source_count": len(information_flow.sources),
-            "evidence_count": len(information_flow.evidence),
-            "claim_count": len(information_flow.claims),
-            "editorial_point_count": len(information_flow.editorial_points),
-            "content_element_count": len(information_flow.content_elements),
-            "artifact_count": len(information_flow.artifacts),
-            "edge_count": len(information_flow.edges),
+            "status": "DEFERRED",
+            "reason": "explicit ContentBrief is created by the editorial stage after research review",
         }
         if knowledge_capture is not None:
             research["knowledge"] = {
@@ -267,7 +243,7 @@ Sources:
             research=research,
             package=package,
             quality=quality,
-            information_flow=information_flow.to_dict(),
+            information_flow={"status": "DEFERRED", "reason": "awaiting editorial ContentBrief"},
         )
 
     @staticmethod
