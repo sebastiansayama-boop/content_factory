@@ -49,9 +49,14 @@ def test_control_plane_timeline_distribution_observation_learning_and_replay(tmp
     replay = store.replay_plan(
         run,
         changed_claim_ids=["kc-1"],
+        content_brief={"brief_id": "brief-1", "title": "Version one"},
+        content_brief_revision_id="brief-1-r1",
         changes={"style_bible": {"pace": "faster"}},
     )
     assert replay["regenerate_asset_ids"] == ["asset-1"]
+    assert replay["content_brief_id"] == "brief-1"
+    assert replay["content_brief_revision_id"] == "brief-1-r1"
+    assert replay["content_brief"]["title"] == "Version one"
     assert replay["retain_asset_ids"] == ["asset-2"]
     assert replay["revise"] == ["content_spec.style_bible"]
     assert replay["rerun"] == ["production", "assembly", "qc", "approval", "export"]
