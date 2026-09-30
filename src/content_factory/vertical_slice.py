@@ -8,6 +8,7 @@ from typing import Any
 from .knowledge import KnowledgeStore
 from .research import OpenAIWebResearchAdapter, parse_research_json
 from .local_research import LocalResearchAdapter
+from .information_flow import build_information_flow
 
 
 @dataclass(frozen=True)
@@ -17,6 +18,7 @@ class VerticalSliceResult:
     research: dict[str, Any]
     package: dict[str, Any]
     quality: dict[str, Any]
+    information_flow: dict[str, Any]
 
 
 def _slug(value: str) -> str:
@@ -180,11 +182,53 @@ Sources:
             package["package"].append(asset)
         all_claim_ids = [c["id"] for c in claims if isinstance(c, dict)]
         all_source_ids = sorted({sid for c in claims if isinstance(c, dict) for sid in c.get("source_ids", [])})
+        claim_by_id = {
+            str(claim.get("id")): claim
+            for claim in claims
+            if isinstance(claim, dict) and claim.get("id")
+        }
         for asset in package["package"]:
             if asset.get("format") == "visual_card":
                 asset["claim_refs"] = all_claim_ids
                 asset["source_refs"] = all_source_ids
+            claim_refs = [
+                ref for ref in asset.get("claim_refs", [])
+                if isinstance(ref, str) and ref in claim_by_id
+            ]
+            evidence_refs = []
+            for claim_id in claim_refs:
+                for evidence_id in claim_by_id[claim_id].get("evidence_ids", []):
+                    if isinstance(evidence_id, str) and evidence_id not in evidence_refs:
+                        evidence_refs.append(evidence_id)
+            asset["evidence_refs"] = evidence_refs
+        information_flow = build_information_flow(
+            run_id=run_id,
+            research=research,
+            package={
+                **package,
+                "story": {
+                    "id": f"{_slug(topic)}-story",
+                    "title": topic,
+                    "angle": (
+                        research.get("editorial_angles", [""])[0]
+                        if isinstance(research.get("editorial_angles"), list)
+                        and research.get("editorial_angles")
+                        else summary
+                    ),
+                },
+            },
+        )
         quality = quality_check(package, research)
+        quality["information_flow"] = {
+            "status": "PASS",
+            "source_count": len(information_flow.sources),
+            "evidence_count": len(information_flow.evidence),
+            "claim_count": len(information_flow.claims),
+            "editorial_point_count": len(information_flow.editorial_points),
+            "content_element_count": len(information_flow.content_elements),
+            "artifact_count": len(information_flow.artifacts),
+            "edge_count": len(information_flow.edges),
+        }
         if knowledge_capture is not None:
             research["knowledge"] = {
                 "captured": True,
@@ -194,8 +238,22 @@ Sources:
                 },
                 "accepted_usage_count": knowledge_usage,
             }
-        return VerticalSliceResult(run_id=run_id, brief=brief, research=research, package=package, quality=quality)
+        return VerticalSliceResult(
+            run_id=run_id,
+            brief=brief,
+            research=research,
+            package=package,
+            quality=quality,
+            information_flow=information_flow.to_dict(),
+        )
 
     @staticmethod
     def to_dict(result: VerticalSliceResult) -> dict[str, Any]:
-        return {"run_id": result.run_id, "brief": result.brief, "research": result.research, "package": result.package, "quality": result.quality}
+        return {
+            "run_id": result.run_id,
+            "brief": result.brief,
+            "research": result.research,
+            "package": result.package,
+            "quality": result.quality,
+            "information_flow": result.information_flow,
+        }
