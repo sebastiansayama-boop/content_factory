@@ -27,8 +27,9 @@ The current executable contract is implemented in `src/content_factory/informati
 - `Source`: external origin identified by title and URL.
 - `Evidence`: concrete supporting material from one source.
 - `Claim`: atomic assertion with confidence, scope, known unknowns, source references and evidence references.
-- `EditorialPoint`: the selected angle/narrative point that groups the claims used by a production run.
-- `ContentElement`: the semantic unit produced for a particular artifact format.
+- `EditorialPoint`: an explicit editorial decision with selected claim/evidence references.
+- `ContentBrief`: the durable editorial contract containing selected claims, editorial points, content elements, formats and constraints.
+- `ContentElement`: a typed content unit linked to one or more editorial points and its claim/evidence basis.
 - `Artifact`: the generated deliverable and its direct claim/evidence dependencies.
 - `PublicationRecord`: reserved for the real distribution boundary. It is intentionally empty until an actual publication operation occurs.
 - `LineageEdge`: explicit directed relation between two objects.
@@ -63,8 +64,10 @@ The existing RuntimeStore already persists an append-only event journal. The nex
 
 ## Current boundary
 
-The first implementation materializes the editorial point and content element deterministically from the selected research and generated package. This is intentional: it creates explicit typed boundaries without pretending that a separate editorial model already exists.
+Research is first captured as candidate knowledge and requires explicit promotion before editorial generation. The editorial stage now creates an explicit `ContentBrief` containing selected claims, `EditorialPoint` objects and `ContentElement` objects. The production plan carries the `ContentBrief` ID and content-element IDs into every asset request.
 
-The next required step is to make editorial selection a real persisted object before production, then bind production tasks to those object IDs.
+The information-flow graph is materialized after production requests have been bound to those IDs. The research-only vertical slice therefore reports lineage as deferred until the editorial contract exists; it no longer synthesizes a fake editorial point from the research summary.
+
+The next integration boundary is persistence and versioning of `ContentBrief` as its own database entity rather than storing it only inside `ContentRun.result`.
 
 Publication and outcome are not inferred from artifact generation. A publication record must only be created by the actual distribution boundary, and an observed outcome must be recorded separately.
