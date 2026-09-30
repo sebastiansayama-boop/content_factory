@@ -119,9 +119,101 @@ def test_replay_endpoint_is_anchored_to_exact_durable_brief_revision(tmp_path):
     assert handler.response["content_brief"]["selected_claim_refs"] == ["kc-1"]
     assert handler.response["content_brief_revision_id"] != r2.revision_id
     assert handler.response["changed_claim_ids"] == ["kc-1"]
+    assert handler.response["replay_run_id"] == run.run_id
     assert store.get(run.run_id).status == "DRAFT"
     store.close()
 
+
+
+def test_replay_executes_exact_brief_into_new_artifacts_and_qc(tmp_path, monkeypatch):
+    monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("FACTORY_ASSET_PROVIDER", "stub")
+
+    from content_factory.service import FactoryService
+
+    service = FactoryService()
+    try:
+        source = service.content_runs.create(
+            title="Replay source",
+            brief="Explain the topic.",
+            audience="general",
+            goal="short video",
+            formats=("short_video",),
+            constraints=(),
+        )
+        research = {
+            "topic": "Replay topic",
+            "sources": [{"id": "source-1", "title": "Source", "url": "https://example.com/source"}],
+            "evidence": [{"id": "evidence-1", "source_id": "source-1", "excerpt": "Supporting evidence", "locator": "p1"}],
+            "claims": [{
+                "id": "kc-1",
+                "text": "Supported claim",
+                "confidence": "high",
+                "source_ids": ["source-1"],
+                "evidence_ids": ["evidence-1"],
+                "scope": "test",
+                "known_unknowns": [],
+            }],
+        }
+        service.content_runs.save_result(source.run_id, {"research": research, "production": {"assets": []}})
+
+        brief_r1 = {
+            "brief_id": "brief-replay",
+            "title": "Version one",
+            "objective": "Create a short video",
+            "audience": "general",
+            "angle": "Evidence first",
+            "selected_claim_refs": ["kc-1"],
+            "evidence_refs": ["evidence-1"],
+            "editorial_points": [{
+                "point_id": "point-1",
+                "text": "Explain the supported claim.",
+                "role": "development",
+                "claim_refs": ["kc-1"],
+                "evidence_refs": ["evidence-1"],
+            }],
+            "content_elements": [{
+                "element_id": "element-1",
+                "kind": "narration",
+                "editorial_point_ids": ["point-1"],
+                "purpose": "Explain the claim",
+                "production_intent": "Show a clear visual explanation",
+                "claim_refs": ["kc-1"],
+                "evidence_refs": ["evidence-1"],
+            }],
+            "formats": ["short_video"],
+            "constraints": ["preserve provenance"],
+        }
+        brief_r2 = {**brief_r1, "title": "Version two"}
+        r1 = service.content_runs.save_content_brief(source.run_id, brief_r1)
+        r2 = service.content_runs.save_content_brief(source.run_id, brief_r2)
+
+        handler = DummyHandler(
+            f"/api/runs/{source.run_id}/replay",
+            {"brief_id": "brief-replay", "revision_id": r1.revision_id, "changed_claim_ids": ["kc-1"]},
+        )
+        handler.content_runs = service.content_runs
+        handler.service = service
+        handler.workspace = None
+        ProductHandler.do_POST(handler)
+
+        assert handler.status == 200, handler.response
+        replay = handler.response["replay"]
+        assert replay["source_run_id"] == source.run_id
+        assert replay["content_brief_revision_id"] == r1.revision_id
+        assert replay["replay_run_id"] != source.run_id
+        replay_run = service.content_runs.get(replay["replay_run_id"])
+        assert replay_run is not None
+        assert replay_run.status == "REVIEW"
+        assert replay_run.result["content_brief"]["title"] == "Version one"
+        assert replay_run.result["content_brief_revision_id"] == r1.revision_id
+        assert replay_run.result["production"]["assets"]
+        assert replay_run.result["production"]["qc"]["status"] == "PASSED"
+        assert all(asset["run_id"] == replay_run.run_id for asset in replay_run.result["production"]["assets"])
+        assert service.content_runs.get_content_brief(source.run_id, revision_id=r2.revision_id).payload["title"] == "Version two"
+        assert service.content_runs.get(source.run_id).result["production"]["assets"] == []
+    finally:
+        service.close()
 
 def test_replay_endpoint_requires_durable_brief_revision(tmp_path):
     store = ContentRunStore(tmp_path / "runs.sqlite3")
