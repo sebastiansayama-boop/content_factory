@@ -175,6 +175,18 @@ def test_factory_research_review_then_builds_production(tmp_path, monkeypatch):
         persisted_events = service.runtime_store.load_events(run.run_id)
         assert [event["event_id"] for event in persisted_events] == [event["event_id"] for event in trace_events]
 
+        service.close()
+        reopened = FactoryService()
+        try:
+            recovered_events = reopened.runtime_store.load_events(run.run_id)
+            recovered_trace = [event for event in recovered_events if event["operation"] == "trace"]
+            assert [event["event_id"] for event in recovered_trace] == [event["event_id"] for event in trace_events]
+            assert recovered_trace[-1]["data"]["stage"] == "QC"
+            assert recovered_trace[-1]["data"]["decision"] == "ACCEPT"
+        finally:
+            reopened.close()
+        service = reopened
+
         approve = DummyHandler(f"/api/runs/{run.run_id}/approve", {"decision_ref": "TEST-HUMAN-APPROVAL"})
         approve.content_runs = service.content_runs
         approve.service = service
