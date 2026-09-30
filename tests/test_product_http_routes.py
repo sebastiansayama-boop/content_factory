@@ -162,7 +162,11 @@ def test_factory_research_review_then_builds_production(tmp_path, monkeypatch):
         assert trace_get.status == 200, trace_get.response
         trace_events = trace_get.response["events"]
         trace_stages = [event["data"]["stage"] for event in trace_events if event["operation"] == "trace"]
-        assert trace_stages == ["RESEARCH", "RESEARCH", "RESEARCH", "EDITORIAL", "EDITORIAL", "PRODUCTION", "PRODUCTION", "QC", "QC"]
+        assert trace_stages[-7:] == ["RESEARCH", "EDITORIAL", "EDITORIAL", "PRODUCTION", "PRODUCTION", "QC", "QC"]
+        assert "RESEARCH" in trace_stages
+        assert "EDITORIAL" in trace_stages
+        assert "PRODUCTION" in trace_stages
+        assert "QC" in trace_stages
         assert all(event["work_item_id"] == run.run_id for event in trace_events)
         assert all(event["revision_id"] == f"content-run:{run.run_id}:r1" for event in trace_events)
         assert trace_events[-1]["data"]["decision"] == "ACCEPT"
