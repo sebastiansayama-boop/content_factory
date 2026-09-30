@@ -29,6 +29,64 @@ class ContentIdea:
 
 
 @dataclass(frozen=True)
+class EditorialPointSpec:
+    point_id: str
+    text: str
+    role: str
+    claim_refs: tuple[str, ...]
+    evidence_refs: tuple[str, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self) | {
+            "claim_refs": list(self.claim_refs),
+            "evidence_refs": list(self.evidence_refs),
+        }
+
+
+@dataclass(frozen=True)
+class ContentElementSpec:
+    element_id: str
+    kind: str
+    editorial_point_ids: tuple[str, ...]
+    purpose: str
+    production_intent: str
+    claim_refs: tuple[str, ...]
+    evidence_refs: tuple[str, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self) | {
+            "editorial_point_ids": list(self.editorial_point_ids),
+            "claim_refs": list(self.claim_refs),
+            "evidence_refs": list(self.evidence_refs),
+        }
+
+
+@dataclass(frozen=True)
+class ContentBrief:
+    brief_id: str
+    title: str
+    objective: str
+    audience: str
+    angle: str
+    selected_claim_refs: tuple[str, ...]
+    evidence_refs: tuple[str, ...]
+    editorial_points: tuple[EditorialPointSpec, ...]
+    content_elements: tuple[ContentElementSpec, ...]
+    formats: tuple[str, ...]
+    constraints: tuple[str, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self) | {
+            "selected_claim_refs": list(self.selected_claim_refs),
+            "evidence_refs": list(self.evidence_refs),
+            "editorial_points": [point.to_dict() for point in self.editorial_points],
+            "content_elements": [element.to_dict() for element in self.content_elements],
+            "formats": list(self.formats),
+            "constraints": list(self.constraints),
+        }
+
+
+@dataclass(frozen=True)
 class ContentSpec:
     spec_id: str
     title: str
@@ -184,6 +242,81 @@ ACCEPTED KNOWLEDGE:
 
         selected = ideas[0]
         selected_json = json.dumps(selected.to_dict(), ensure_ascii=False)
+        brief_raw = self._generate(
+            work_item_id=f"content-brief-{run_id}",
+            revision_id="content-brief-v1",
+            objective="turn selected knowledge claims into an explicit editorial content brief",
+            prompt=f"""Create one explicit ContentBrief from the selected content idea.
+Return JSON: {{"brief_id":"brief-1","title":"string","objective":"string","audience":"string","angle":"string","selected_claim_refs":["kc-*"],"evidence_refs":["ke-*"],"editorial_points":[{{"point_id":"point-1","text":"editorial point","role":"hook|context|development|counterpoint|conclusion|cta","claim_refs":["kc-*"],"evidence_refs":["ke-*"]}}],"content_elements":[{{"element_id":"element-1","kind":"hook|narration|visual|cta|transition","editorial_point_ids":["point-1"],"purpose":"string","production_intent":"string","claim_refs":["kc-*"],"evidence_refs":["ke-*"]}}],"formats":["format"],"constraints":["constraint"]}}
+Every selected claim, editorial point and content element must retain only claim/evidence refs supplied by the selected idea. Every editorial point must have claims and evidence. Every content element must reference at least one editorial point, claim and evidence. Do not invent factual claims.
+SELECTED IDEA:
+{selected_json}
+REQUESTED FORMATS:
+{json.dumps(formats)}
+USER CONSTRAINTS:
+{json.dumps(constraints, ensure_ascii=False)}""",
+        )
+        if not isinstance(brief_raw.get("editorial_points"), list) or not brief_raw["editorial_points"]:
+            raise WorkspaceError("content brief must contain editorial_points")
+        if not isinstance(brief_raw.get("content_elements"), list) or not brief_raw["content_elements"]:
+            raise WorkspaceError("content brief must contain content_elements")
+        selected_claims = _validate_claim_refs(brief_raw, claim_ids)
+        selected_evidence = _validate_evidence_refs(brief_raw, evidence_ids)
+        points: list[EditorialPointSpec] = []
+        for raw in brief_raw["editorial_points"]:
+            if not isinstance(raw, dict):
+                raise WorkspaceError("editorial point must be an object")
+            point_claims = _validate_claim_refs(raw, set(selected_claims))
+            point_evidence = _validate_evidence_refs(raw, set(selected_evidence))
+            point = EditorialPointSpec(
+                point_id=str(raw.get("point_id") or "").strip(),
+                text=str(raw.get("text") or "").strip(),
+                role=str(raw.get("role") or "").strip(),
+                claim_refs=tuple(point_claims),
+                evidence_refs=tuple(point_evidence),
+            )
+            if not point.point_id or not point.text or not point.role:
+                raise WorkspaceError("editorial point requires id, text and role")
+            points.append(point)
+        point_ids = {point.point_id for point in points}
+        elements: list[ContentElementSpec] = []
+        for raw in brief_raw["content_elements"]:
+            if not isinstance(raw, dict):
+                raise WorkspaceError("content element must be an object")
+            refs = raw.get("editorial_point_ids")
+            if not isinstance(refs, list) or not refs or not set(refs).issubset(point_ids):
+                raise WorkspaceError("content element has invalid editorial_point_ids")
+            element_claims = _validate_claim_refs(raw, set(selected_claims))
+            element_evidence = _validate_evidence_refs(raw, set(selected_evidence))
+            element = ContentElementSpec(
+                element_id=str(raw.get("element_id") or "").strip(),
+                kind=str(raw.get("kind") or "").strip(),
+                editorial_point_ids=tuple(dict.fromkeys(refs)),
+                purpose=str(raw.get("purpose") or "").strip(),
+                production_intent=str(raw.get("production_intent") or "").strip(),
+                claim_refs=tuple(element_claims),
+                evidence_refs=tuple(element_evidence),
+            )
+            if not element.element_id or not element.kind or not element.purpose or not element.production_intent:
+                raise WorkspaceError("content element requires id, kind, purpose and production_intent")
+            elements.append(element)
+        brief = ContentBrief(
+            brief_id=str(brief_raw.get("brief_id") or "").strip(),
+            title=str(brief_raw.get("title") or selected.title).strip(),
+            objective=str(brief_raw.get("objective") or selected.purpose).strip(),
+            audience=str(brief_raw.get("audience") or audience).strip(),
+            angle=str(brief_raw.get("angle") or selected.angle).strip(),
+            selected_claim_refs=tuple(selected_claims),
+            evidence_refs=tuple(selected_evidence),
+            editorial_points=tuple(points),
+            content_elements=tuple(elements),
+            formats=tuple(str(v) for v in _refs(brief_raw.get("formats") or formats, "formats")),
+            constraints=tuple(str(v) for v in _refs(brief_raw.get("constraints") or constraints or ["none"], "constraints")),
+        )
+        if not brief.brief_id or not brief.title or not brief.objective or not brief.angle:
+            raise WorkspaceError("content brief requires id, title, objective and angle")
+
+        brief_json = json.dumps(brief.to_dict(), ensure_ascii=False)
         spec_raw = self._generate(
             work_item_id=f"content-spec-{run_id}",
             revision_id="content-spec-v1",
