@@ -93,6 +93,39 @@ class ProductHandler(Handler):
             run_id = self.path.removeprefix("/api/runs/").strip("/")
             if run_id.endswith("/plan"):
                 run_id = run_id.removesuffix("/plan").strip("/")
+            if run_id.endswith("/content-brief/revisions"):
+                run_id = run_id.removesuffix("/content-brief/revisions").strip("/")
+                if self.content_runs.get(run_id) is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                self._json(200, {
+                    "run_id": run_id,
+                    "revisions": [item.to_dict() for item in self.content_runs.list_content_brief_revisions(run_id)],
+                })
+                return
+            if "/content-brief/" in run_id:
+                base_run_id, revision_id = run_id.split("/content-brief/", 1)
+                brief = self.content_runs.get_content_brief(base_run_id, revision_id=revision_id.strip("/"))
+                if self.content_runs.get(base_run_id) is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                if brief is None:
+                    self._json(404, {"error": "content brief revision not found"})
+                    return
+                self._json(200, brief.to_dict())
+                return
+            if run_id.endswith("/content-brief"):
+                run_id = run_id.removesuffix("/content-brief").strip("/")
+                if self.content_runs.get(run_id) is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                brief = self.content_runs.get_content_brief(run_id)
+                if brief is None:
+                    self._json(404, {"error": "content brief not found"})
+                    return
+                self._json(200, brief.to_dict())
+                return
+
             if run_id.endswith("/jobs"):
                 run_id = run_id.removesuffix("/jobs").strip("/")
                 run = self.content_runs.get(run_id)
@@ -302,8 +335,21 @@ class ProductHandler(Handler):
                             **result,
                         },
                     )
-                    self.service.control.record(run_id, "editorial.built", output_refs=("content_spec", "script", "production_plan"))
+                    brief_revision = self.content_runs.save_content_brief(run_id, result["content_brief"])
+                    result["content_brief"] = {
+                        **result["content_brief"],
+                        "revision_id": brief_revision.revision_id,
+                    }
+                    self.service.control.record(
+                        run_id,
+                        "editorial.built",
+                        output_refs=(f"content_brief:{brief_revision.revision_id}", "content_spec", "script", "production_plan"),
+                    )
                     self.content_runs.start_producing(run_id)
+                    persisted_brief = self.content_runs.get_content_brief(run_id)
+                    if persisted_brief is None:
+                        raise ValueError("persisted content brief not found before production")
+                    result["content_brief"] = persisted_brief.payload | {"revision_id": persisted_brief.revision_id}
                     jobs = self.service.asset_jobs.create_from_plan(run_id, result["production_plan"])
                     run = self.content_runs.save_production_result(run_id, {
                         **(run.result or {}),
@@ -465,10 +511,12 @@ class ProductHandler(Handler):
                         formats=list(run.formats),
                         constraints=list(run.constraints),
                     )
+                    brief_revision = self.content_runs.save_content_brief(run_id, result["content_brief"])
                     updated = self.content_runs.save_result(run_id, {
                         "run_id": run_id,
                         "brief": run.brief,
                         **result,
+                        "content_brief": {**result["content_brief"], "revision_id": brief_revision.revision_id},
                     })
                 except Exception:
                     self.content_runs.mark_failed(run_id)
