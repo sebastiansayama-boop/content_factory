@@ -74,6 +74,7 @@ def test_knowledge_content_builder_creates_editorial_spec_script_and_plan(tmp_pa
 
     outputs = [
         '{"ideas":[{"idea_id":"idea-1","title":"Spirit Houses","angle":"What offerings mean","audience":"general","purpose":"explain","formats":["short_video"],"claim_refs":["'+claim_id+'"],"evidence_refs":["ke-PLACEHOLDER"]}]}',
+        '{"brief_id":"brief-1","title":"Spirit Houses","objective":"Explain offerings","audience":"general","angle":"What offerings mean","selected_claim_refs":["'+claim_id+'"],"evidence_refs":["ke-PLACEHOLDER"],"editorial_points":[{"point_id":"point-1","text":"Explain what offerings mean","role":"development","claim_refs":["'+claim_id+'"],"evidence_refs":["ke-PLACEHOLDER"]}],"content_elements":[{"element_id":"element-1","kind":"narration","editorial_point_ids":["point-1"],"purpose":"explain","production_intent":"voice narration","claim_refs":["'+claim_id+'"],"evidence_refs":["ke-PLACEHOLDER"]}],"formats":["short_video"],"constraints":["no alcohol"]}',
         '{"spec_id":"spec-1","title":"Spirit Houses","objective":"Explain offerings","audience":"general","format":"short_video","tone":"clear","structure":["hook","explanation"],"constraints":["no alcohol"],"claim_refs":["'+claim_id+'"],"evidence_refs":["ke-PLACEHOLDER"]}',
         '{"script_id":"script-1","title":"Spirit Houses","units":[{"unit_id":"unit-1","kind":"hook","text":"Why are offerings placed at spirit houses?","visual_intent":"show spirit house","claim_refs":["'+claim_id+'"],"evidence_refs":["ke-PLACEHOLDER"]}]}',
     ]
@@ -93,10 +94,15 @@ def test_knowledge_content_builder_creates_editorial_spec_script_and_plan(tmp_pa
     )
 
     assert result["editorial"]["selected_idea"]["idea_id"] == "idea-1"
+    assert result["content_brief"]["brief_id"] == "brief-1"
+    assert result["content_brief"]["selected_claim_refs"] == [claim_id]
+    assert result["content_brief"]["editorial_points"][0]["claim_refs"] == [claim_id]
+    assert result["content_brief"]["content_elements"][0]["editorial_point_ids"] == ["point-1"]
     assert result["content_spec"]["spec_id"] == "spec-1"
     assert result["script"]["script_id"] == "script-1"
     assert result["script"]["units"][0]["claim_refs"] == [claim_id]
     assert result["production_plan"]["asset_requests"][0]["script_unit_id"] == "unit-1"
+    assert result["production_plan"]["asset_requests"][0]["content_element_ids"] == ["element-1"]
     assert len(store.usages_for_claim(claim_id)) == 2
     factory._store.close()
     store.close()
