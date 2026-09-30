@@ -7,6 +7,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import uuid4
 
+from typing import Any
+
 
 STATUSES = {
     "DRAFT",
@@ -45,6 +47,24 @@ class ContentRun:
         value["formats"] = list(self.formats)
         value["constraints"] = list(self.constraints)
         return value
+
+
+@dataclass(frozen=True)
+class ContentBriefRevision:
+    brief_id: str
+    revision_id: str
+    run_id: str
+    payload: dict[str, Any]
+    created_at: str
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "brief_id": self.brief_id,
+            "revision_id": self.revision_id,
+            "run_id": self.run_id,
+            "brief": self.payload,
+            "created_at": self.created_at,
+        }
 
 
 class ContentRunStore:
@@ -88,6 +108,22 @@ class ContentRunStore:
             self._connection.execute("ALTER TABLE content_runs ADD COLUMN result_json TEXT")
         self._connection.execute(
             "CREATE INDEX IF NOT EXISTS idx_content_runs_updated_at ON content_runs(updated_at DESC)"
+        )
+        self._connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS content_brief_revisions (
+                brief_id TEXT NOT NULL,
+                revision_id TEXT PRIMARY KEY,
+                run_id TEXT NOT NULL,
+                payload_json TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                UNIQUE(brief_id, revision_id),
+                FOREIGN KEY(run_id) REFERENCES content_runs(run_id)
+            )
+            """
+        )
+        self._connection.execute(
+            "CREATE INDEX IF NOT EXISTS idx_content_brief_revisions_run ON content_brief_revisions(run_id, created_at DESC)"
         )
         self._connection.commit()
 
@@ -189,6 +225,80 @@ class ContentRunStore:
         run = self.get(run_id)
         assert run is not None
         return run
+
+    def save_content_brief(self, run_id: str, brief: dict[str, object]) -> ContentBriefRevision:
+        brief_id = str(brief.get("brief_id") or "").strip()
+        if not brief_id:
+            raise ValueError("content brief requires brief_id")
+        if self.get(run_id) is None:
+            raise ValueError("content run not found")
+        previous = self.get_content_brief(run_id)
+        revision_no = 1
+        if previous is not None:
+            prefix = f"{brief_id}-r"
+            try:
+                revision_no = max(
+                    int(item["revision_id"].split("-r")[-1])
+                    for item in self._connection.execute(
+                        "SELECT revision_id FROM content_brief_revisions WHERE brief_id = ?",
+                        (brief_id,),
+                    )
+                    if str(item["revision_id"]).startswith(prefix)
+                ) + 1
+            except ValueError:
+                revision_no = 1
+        revision_id = f"{brief_id}-r{revision_no}"
+        created_at = _now()
+        with self._connection:
+            self._connection.execute(
+                """
+                INSERT INTO content_brief_revisions(
+                    brief_id, revision_id, run_id, payload_json, created_at
+                ) VALUES (?, ?, ?, ?, ?)
+                """,
+                (brief_id, revision_id, run_id, json.dumps(brief, ensure_ascii=False), created_at),
+            )
+        return ContentBriefRevision(brief_id, revision_id, run_id, dict(brief), created_at)
+
+    def get_content_brief(self, run_id: str, revision_id: str | None = None) -> ContentBriefRevision | None:
+        if revision_id:
+            row = self._connection.execute(
+                "SELECT * FROM content_brief_revisions WHERE run_id = ? AND revision_id = ?",
+                (run_id, revision_id),
+            ).fetchone()
+        else:
+            row = self._connection.execute(
+                """
+                SELECT * FROM content_brief_revisions
+                WHERE run_id = ?
+                ORDER BY created_at DESC, revision_id DESC
+                LIMIT 1
+                """,
+                (run_id,),
+            ).fetchone()
+        if row is None:
+            return None
+        return ContentBriefRevision(
+            row["brief_id"], row["revision_id"], row["run_id"],
+            json.loads(row["payload_json"]), row["created_at"],
+        )
+
+    def list_content_brief_revisions(self, run_id: str) -> list[ContentBriefRevision]:
+        rows = self._connection.execute(
+            """
+            SELECT * FROM content_brief_revisions
+            WHERE run_id = ?
+            ORDER BY created_at ASC, revision_id ASC
+            """,
+            (run_id,),
+        ).fetchall()
+        return [
+            ContentBriefRevision(
+                row["brief_id"], row["revision_id"], row["run_id"],
+                json.loads(row["payload_json"]), row["created_at"],
+            )
+            for row in rows
+        ]
 
     def start_execution(self, run_id: str) -> ContentRun:
         now = _now()
