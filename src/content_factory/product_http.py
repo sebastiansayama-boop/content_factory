@@ -337,7 +337,7 @@ class ProductHandler(Handler):
                     ]
                     information_flow = build_information_flow(
                         run_id=run_id,
-                        research=run.result.get("research") or {},
+                        research=self.service.knowledge.search(run.brief),
                         package={
                             "story": {
                                 "id": f"content-run:{run_id}:story",
