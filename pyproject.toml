@@ -10,7 +10,7 @@ requires-python = ">=3.10"
 dependencies = ["Pillow>=10", "truststore>=0.10"]
 
 [project.optional-dependencies]
-dev = ["pytest>=8"]
+dev = ["pytest>=8", "pytest-playwright>=0.7"]
 
 [tool.setuptools.package-data]
 content_factory = ["static/*.html"]
@@ -20,4 +20,5 @@ testpaths = ["tests"]
 pythonpath = ["src", "."]
 markers = [
     "external: opt-in test requiring a real external provider and credentials",
+    "browser: browser-level E2E tests requiring Playwright and Chromium",
 ]
