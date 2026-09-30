@@ -224,7 +224,9 @@ class QualityGate:
             if not spec_claim_refs:
                 spec_claim_refs = {
                     ref
-                    for ref in (production_plan.get("claim_refs") or [])
+                    for request in (production_plan.get("asset_requests") or [])
+                    if isinstance(request, dict)
+                    for ref in request.get("claim_refs", [])
                     if isinstance(ref, str) and ref.strip()
                 }
             check(
