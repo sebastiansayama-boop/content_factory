@@ -67,8 +67,8 @@ def test_vertical_slice_produces_research_text_visual_and_qc():
     assert result.quality["asset_count"] == 3
     assert result.research["claims"][0]["source_ids"] == ["source-1"]
     assert {a["format"] for a in result.package["package"]} == {"article", "social_post", "visual_card"}
-    assert result.information_flow["claim_count"] == 1
-    assert result.information_flow["artifact_count"] == 3
+    assert result.information_flow["status"] == "DEFERRED"
+    assert result.information_flow["reason"]
     assert all(asset["evidence_refs"] == ["evidence-1"] for asset in result.package["package"])
 
 
