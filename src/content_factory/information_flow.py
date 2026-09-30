@@ -106,6 +106,16 @@ class InformationFlow:
             "artifacts": [asdict(item) for item in self.artifacts],
             "publications": [asdict(item) for item in self.publications],
             "edges": [asdict(item) for item in self.edges],
+            # Stable summary fields keep the serialized contract convenient for
+            # API consumers while the typed collections remain the source of truth.
+            "source_count": len(self.sources),
+            "evidence_count": len(self.evidence),
+            "claim_count": len(self.claims),
+            "editorial_point_count": len(self.editorial_points),
+            "content_element_count": len(self.content_elements),
+            "artifact_count": len(self.artifacts),
+            "publication_count": len(self.publications),
+            "edge_count": len(self.edges),
         }
 
 
