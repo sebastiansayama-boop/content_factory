@@ -136,12 +136,9 @@ def test_replay_endpoint_requires_durable_brief_revision(tmp_path):
     handler = DummyHandler(f"/api/runs/{run.run_id}/replay", {"changed_claim_ids": ["kc-1"]})
     handler.content_runs = store
     handler.service = Service()
-    try:
-        ProductHandler.do_POST(handler)
-    except ValueError as exc:
-        assert "brief_id and revision_id are required" in str(exc)
-    else:
-        raise AssertionError("replay without a durable brief revision must fail")
+    ProductHandler.do_POST(handler)
+    assert handler.status == 400
+    assert handler.response["error"] == "brief_id and revision_id are required"
     store.close()
 
 def test_factory_research_review_then_builds_production(tmp_path, monkeypatch):
