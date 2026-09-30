@@ -12,6 +12,7 @@ from .assembly import ContentAssembler, QualityGate
 from .exporter import ContentExporter
 from .knowledge_content import KnowledgeContentBuilder
 from .service import FactoryService, Handler
+from .runtime import FactoryRuntime, WorkItem
 from .workspace import ContentWorkspace
 from .vertical_slice import ContentFactoryVerticalSlice
 
