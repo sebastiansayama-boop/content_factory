@@ -94,7 +94,7 @@ def test_knowledge_content_builder_creates_editorial_spec_script_and_plan(tmp_pa
     )
 
     assert result["editorial"]["selected_idea"]["idea_id"] == "idea-1"
-    assert result["content_brief"]["brief_id"] == "brief-1"
+    assert result["content_brief"]["brief_id"] == "brief-run-1"
     assert result["content_brief"]["selected_claim_refs"] == [claim_id]
     assert result["content_brief"]["editorial_points"][0]["claim_refs"] == [claim_id]
     assert result["content_brief"]["content_elements"][0]["editorial_point_ids"] == ["point-1"]

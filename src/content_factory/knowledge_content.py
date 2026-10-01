@@ -428,7 +428,8 @@ USER CONSTRAINTS:
                 raise WorkspaceError("content element requires id, kind, purpose and production_intent")
             elements.append(element)
         brief = ContentBrief(
-            brief_id=str(brief_raw.get("brief_id") or "").strip(),
+            # ContentBrief identity is durable state, not model-generated content.
+            brief_id=f"brief-{run_id}",
             title=str(brief_raw.get("title") or selected.title).strip(),
             objective=str(brief_raw.get("objective") or selected.purpose).strip(),
             audience=str(brief_raw.get("audience") or audience).strip(),
