@@ -58,7 +58,7 @@ jobs:
 
           status, created = req("POST", "/api/runs", {
               "title": "Live free retrieval proof",
-              "brief": "Explain how earwax layers can be used to estimate the age of North Atlantic right whales.",
+              "brief": "Explain how seawater contributed to mineral growth in ancient Roman marine concrete.",
               "audience": "general readers",
               "goal": "test API-key-free retrieval plus plain Gemini generation",
               "formats": ["visual_card"],
