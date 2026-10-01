@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from typing import Any
 
+from .gemini_adapter import GeminiConfig
+
 from .integrations import ExternalCallResult, HttpJsonAdapter, IntegrationConfig
 
 
@@ -59,6 +61,79 @@ class OpenAIWebResearchAdapter:
                     seen.add(url)
         return found
 
+
+class GeminiWebResearchAdapter:
+    """Gemini research adapter using the native Gemini API Google Search tool."""
+
+    def __init__(self, config: GeminiConfig | None = None) -> None:
+        self.config = config or GeminiConfig.from_env()
+        self.model = self.config.model
+        self._http = HttpJsonAdapter(
+            IntegrationConfig(
+                integration_id="gemini.generate_content.google_search",
+                endpoint=f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent",
+                secret_env=self.config.secret_env,
+                secret_header="x-goog-api-key",
+                secret_prefix="",
+            )
+        )
+
+    def research(self, prompt: str) -> ExternalCallResult:
+        if not prompt.strip():
+            raise ValueError("research prompt must not be empty")
+        return self._http.call({
+            "contents": [{"parts": [{"text": prompt}]}],
+            "tools": [{"google_search": {}}],
+        })
+
+    @staticmethod
+    def text(result: ExternalCallResult) -> str:
+        body: Any = result.payload
+        if not isinstance(body, dict):
+            raise ValueError("Gemini research response payload must be an object")
+        chunks: list[str] = []
+        for candidate in body.get("candidates", []):
+            if not isinstance(candidate, dict):
+                continue
+            content = candidate.get("content")
+            if not isinstance(content, dict):
+                continue
+            for part in content.get("parts", []):
+                if isinstance(part, dict) and isinstance(part.get("text"), str):
+                    chunks.append(part["text"])
+        if not chunks:
+            raise ValueError("Gemini research response contains no text output")
+        return "".join(chunks).strip()
+
+    @staticmethod
+    def sources(result: ExternalCallResult) -> list[dict[str, str]]:
+        body: Any = result.payload
+        if not isinstance(body, dict):
+            return []
+        found: list[dict[str, str]] = []
+        seen: set[str] = set()
+        for candidate in body.get("candidates", []):
+            if not isinstance(candidate, dict):
+                continue
+            metadata = candidate.get("groundingMetadata")
+            if not isinstance(metadata, dict):
+                continue
+            for chunk in metadata.get("groundingChunks", []):
+                if not isinstance(chunk, dict):
+                    continue
+                web = chunk.get("web")
+                if not isinstance(web, dict):
+                    continue
+                url = web.get("uri")
+                if not isinstance(url, str) or not url or url in seen:
+                    continue
+                title = web.get("title")
+                found.append({
+                    "url": url,
+                    "title": title if isinstance(title, str) else "",
+                })
+                seen.add(url)
+        return found
 
 def parse_research_json(text: str) -> dict[str, Any]:
     cleaned = text.strip()
