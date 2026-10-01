@@ -372,6 +372,6 @@ def test_factory_research_review_then_builds_production(tmp_path, monkeypatch):
             for event in service.control.timeline(run.run_id)
             if event.event_type in {"publication.prepared", "approval.completed", "publication.published"}
         ]
-        assert publication_events == ["publication.prepared", "approval.completed", "publication.published"]
+        assert publication_events == ["approval.completed", "publication.prepared", "publication.published"]
     finally:
         service.close()
