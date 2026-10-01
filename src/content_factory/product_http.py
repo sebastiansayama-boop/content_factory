@@ -466,8 +466,7 @@ class ProductHandler(Handler):
                         status=str(published["status"]),
                     )
                 result["publication"] = published
-                self.content_runs.mark_published(run_id, published)
-                self.content_runs.save_result(run_id, result)
+                self.content_runs.mark_published(run_id, published, result=result)
                 self._record_trace(
                     run_id,
                     stage="DISTRIBUTION",
