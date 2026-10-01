@@ -226,10 +226,26 @@ class FreeWebRetriever:
             ))
         return items
 
+    @staticmethod
+    def _fallback_query(query: str) -> str:
+        stop_words = {
+            "about", "after", "again", "because", "during", "from", "into",
+            "that", "their", "there", "these", "this", "using", "what",
+            "when", "where", "which", "while", "with", "without",
+        }
+        terms = [
+            token.lower()
+            for token in re.findall(r"[A-Za-z0-9]+", query)
+            if len(token) >= 3 and token.lower() not in stop_words
+        ]
+        compact = " ".join(dict.fromkeys(terms[:8]))
+        return compact or query
+
     def retrieve(self, query: str) -> RetrievalPacket:
         normalized = str(query or "").strip()
         if not normalized:
             raise ValueError("retrieval query must not be empty")
+        fallback_query = self._fallback_query(normalized)
         items: list[RetrievalItem] = []
         seen_urls: set[str] = set()
         failures: list[str] = []
@@ -240,6 +256,8 @@ class FreeWebRetriever:
         ):
             try:
                 candidates = retriever(normalized)
+                if not candidates and fallback_query != normalized and name in {"wikipedia", "google_news"}:
+                    candidates = retriever(fallback_query)
             except Exception as exc:
                 detail = str(exc).strip().replace("\n", " ")[:240]
                 failures.append(f"{name}:{type(exc).__name__}:{detail}")
