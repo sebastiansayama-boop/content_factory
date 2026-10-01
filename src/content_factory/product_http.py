@@ -16,6 +16,7 @@ from .service import FactoryService, Handler
 from .runtime import FactoryRuntime, WorkItem
 from .workspace import ContentWorkspace
 from .vertical_slice import ContentFactoryVerticalSlice
+from .distribution import TelegramDistributionAdapter, FakeTelegramDistributionAdapter
 
 
 class ProductHandler(Handler):
@@ -447,10 +448,18 @@ class ProductHandler(Handler):
                         content_ref,
                         {"run_id": run_id, "content_ref": content_ref, "artifact_ids": artifact_ids},
                     )
+                publisher = None
+                if str(prepared.get("channel") or "").lower() == "telegram":
+                    publisher = (
+                        FakeTelegramDistributionAdapter(str(prepared.get("destination") or "fake-chat"))
+                        if os.environ.get("FACTORY_TELEGRAM_FAKE", "").strip() == "1"
+                        else TelegramDistributionAdapter.from_env()
+                    )
                 published = self.service.control.publish(
                     prepared["publication_id"],
                     url=os.environ.get("PUBLISH_URL", "").strip() or None,
                     token=os.environ.get("PUBLISH_AUTH_TOKEN"),
+                    publisher=publisher,
                 )
                 result = self.content_runs.get(run_id).result or {}
                 flow = result.get("information_flow")
@@ -786,18 +795,23 @@ class ProductHandler(Handler):
                     or (production.get("output") or {}).get("output_id")
                     or run_id
                 )
-                publication = self.service.control.prepare_publication(
-                    run_id,
-                    channel,
-                    content_ref,
-                    {
+                output = production.get("output") if isinstance(production.get("output"), dict) else {}
+                publication_payload = {
+                    "run_id": run_id,
+                    "content_ref": content_ref,
+                    "content_brief_revision_id": result.get("content_brief_revision_id"),
+                    "output_id": output.get("output_id"),
+                    "artifact_ids": artifact_ids,
+                    "output": output,
+                    "title": str((result.get("content_brief") or {}).get("title") or run.title),
+                    "provenance": {
                         "run_id": run_id,
-                        "content_ref": content_ref,
                         "content_brief_revision_id": result.get("content_brief_revision_id"),
-                        "output_id": (production.get("output") or {}).get("output_id"),
                         "artifact_ids": artifact_ids,
                     },
-                    record_event=False,
+                }
+                publication = self.service.control.prepare_publication(
+                    run_id, channel, content_ref, publication_payload, record_event=False,
                 )
                 self.service.control.record(
                     run_id,
