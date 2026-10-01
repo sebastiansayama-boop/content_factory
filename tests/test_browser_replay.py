@@ -102,3 +102,18 @@ def test_browser_replay_exact_content_brief_revision(factory_server, page):
     assert persisted.status == "REVIEW"
     assert persisted.result["content_brief"]["revision_id"] == revision_id
     assert persisted.result["production"]["qc"]["status"] == "PASSED"
+
+    page.locator("#approve").click()
+    page.wait_for_function("document.querySelector('#publish').disabled === false")
+    assert "Approved" in page.locator("#status").inner_text()
+    publications = service.control.list_publications(replay_run_id)
+    assert len(publications) == 1
+    assert publications[0]["status"] == "PREPARED"
+
+    page.locator("#publish").click()
+    page.get_by_text("Published", exact=False).wait_for()
+    published = service.content_runs.get(replay_run_id)
+    assert published is not None
+    assert published.status == "PUBLISHED"
+    assert published.result["publication"]["status"] == "PUBLISHED"
+    assert published.result["information_flow"]["publications"][0]["status"] == "PUBLISHED"
