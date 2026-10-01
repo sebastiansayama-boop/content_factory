@@ -1,5 +1,7 @@
 import json
 
+import json
+
 from content_factory.free_research import FreeWebGeminiAdapter, FreeWebRetriever, RetrievalItem, RetrievalPacket
 from content_factory.gemini_adapter import GeminiConfig
 from content_factory.integrations import ExternalCallResult
@@ -17,6 +19,8 @@ class FakeResponse:
         return False
 
     def read(self):
+        if isinstance(self.payload, str):
+            return self.payload.encode("utf-8")
         return json.dumps(self.payload).encode("utf-8")
 
 
