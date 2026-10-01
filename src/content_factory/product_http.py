@@ -796,12 +796,22 @@ class ProductHandler(Handler):
                     or run_id
                 )
                 output = production.get("output") if isinstance(production.get("output"), dict) else {}
+                destination = (
+                    os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+                    if channel.lower() == "telegram"
+                    else ""
+                )
+                if channel.lower() == "telegram" and not destination:
+                    destination = "fake-chat" if os.environ.get("FACTORY_TELEGRAM_FAKE", "").strip() == "1" else ""
+                if channel.lower() == "telegram" and not destination:
+                    raise ValueError("TELEGRAM_CHAT_ID is required for Telegram publication")
                 publication_payload = {
                     "run_id": run_id,
                     "content_ref": content_ref,
                     "content_brief_revision_id": result.get("content_brief_revision_id"),
                     "output_id": output.get("output_id"),
                     "artifact_ids": artifact_ids,
+                    "destination": destination or None,
                     "output": output,
                     "title": str((result.get("content_brief") or {}).get("title") or run.title),
                     "provenance": {
