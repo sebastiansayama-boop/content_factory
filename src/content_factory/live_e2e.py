@@ -165,9 +165,16 @@ def run() -> None:
             assert built["qc"]["status"] == "PASSED", built
             result = built["run"]["result"]
 
+            status, trace = _request(
+                base_url,
+                "GET",
+                f"/api/runs/{run_id}/execution-trace",
+                token,
+            )
+            assert status == 200, trace
             stages = [
                 event["data"]["stage"]
-                for event in built.get("events", [])
+                for event in trace.get("events", [])
                 if event.get("operation") == "trace"
             ]
             for required in ("RESEARCH", "EDITORIAL", "PRODUCTION", "QC"):
