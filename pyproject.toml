@@ -7,7 +7,7 @@ name = "content-factory"
 version = "1.0.0"
 description = "Personal Content Factory web application"
 requires-python = ">=3.10"
-dependencies = ["Pillow>=10", "truststore>=0.10"]
+dependencies = ["Pillow>=10", "truststore>=0.10", "defusedxml>=0.7.1"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8", "pytest-playwright>=0.7"]
