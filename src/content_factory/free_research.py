@@ -232,10 +232,17 @@ class FreeWebRetriever:
             raise ValueError("retrieval query must not be empty")
         items: list[RetrievalItem] = []
         seen_urls: set[str] = set()
-        for retriever in (self._wikipedia, self._openalex, self._google_news):
+        failures: list[str] = []
+        for name, retriever in (
+            ("wikipedia", self._wikipedia),
+            ("openalex", self._openalex),
+            ("google_news", self._google_news),
+        ):
             try:
                 candidates = retriever(normalized)
-            except Exception:
+            except Exception as exc:
+                detail = str(exc).strip().replace("\n", " ")[:240]
+                failures.append(f"{name}:{type(exc).__name__}:{detail}")
                 candidates = []
             for item in candidates:
                 if item.url in seen_urls:
@@ -243,7 +250,8 @@ class FreeWebRetriever:
                 seen_urls.add(item.url)
                 items.append(item)
         if not items:
-            raise RuntimeError("free retrieval returned no usable public sources")
+            detail = " | ".join(failures) if failures else "all sources returned empty results"
+            raise RuntimeError(f"free retrieval returned no usable public sources ({detail})")
         return RetrievalPacket(
             query=normalized,
             items=tuple(items),
