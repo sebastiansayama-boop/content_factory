@@ -348,14 +348,13 @@ def test_factory_research_review_then_builds_production(tmp_path, monkeypatch):
         assert approve.status == 200, approve.response
         assert approve.response["status"] == "APPROVED"
 
-        export = DummyHandler(f"/api/runs/{run.run_id}/export", {})
-        export.content_runs = service.content_runs
-        export.service = service
-        export.workspace = handler.workspace
-        ProductHandler.do_POST(export)
-        assert export.status == 200, export.response
-        assert export.response["export"]["artifact_type"] == "content_package"
-        assert service.content_runs.get(run.run_id).status == "EXPORTED"
+        prepared = service.control.list_publications(run.run_id)
+        assert len(prepared) == 1
+        assert prepared[0]["status"] == "PREPARED"
+        assert prepared[0]["channel"] == "local"
+        approved_flow = service.content_runs.get(run.run_id).result["information_flow"]
+        assert approved_flow["publications"][0]["status"] == "PREPARED"
+        assert any(edge["relation"] == "artifact_to_publication" for edge in approved_flow["edges"])
 
         publish = DummyHandler(f"/api/runs/{run.run_id}/publish", {"channel": "local"})
         publish.content_runs = service.content_runs
@@ -365,5 +364,14 @@ def test_factory_research_review_then_builds_production(tmp_path, monkeypatch):
         assert publish.status == 200, publish.response
         assert publish.response["status"] == "PUBLISHED"
         assert publish.response["external_id"].startswith("local-")
+        published_run = service.content_runs.get(run.run_id)
+        assert published_run.status == "PUBLISHED"
+        assert published_run.result["information_flow"]["publications"][0]["status"] == "PUBLISHED"
+        publication_events = [
+            event.event_type
+            for event in service.control.timeline(run.run_id)
+            if event.event_type in {"publication.prepared", "approval.completed", "publication.published"}
+        ]
+        assert publication_events == ["publication.prepared", "approval.completed", "publication.published"]
     finally:
         service.close()
