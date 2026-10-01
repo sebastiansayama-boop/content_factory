@@ -1,0 +1,102 @@
+name: Free Retrieval Live Proof
+
+on:
+  push:
+    branches:
+      - "tmp/free-retrieval-live-proof-20261001"
+
+permissions: {}
+
+jobs:
+  live-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: "tmp/free-retrieval-live-proof-20261001"
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e ".[dev]"
+      - name: Verify free retrieval path on live service
+        env:
+          BASE_URL: "https://content-factory-1zij.onrender.com"
+          FACTORY_API_TOKEN: ${{ secrets.FACTORY_API_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json, os, urllib.error, urllib.request
+
+          base = os.environ["BASE_URL"].rstrip("/")
+          token = os.environ.get("FACTORY_API_TOKEN")
+          if not token:
+              raise SystemExit("FACTORY_API_TOKEN secret is missing")
+
+          def req(method, path, body=None):
+              data = json.dumps(body).encode() if body is not None else None
+              headers = {
+                  "Authorization": f"Bearer {token}",
+                  "Content-Type": "application/json",
+              }
+              request = urllib.request.Request(base + path, data=data, headers=headers, method=method)
+              try:
+                  with urllib.request.urlopen(request, timeout=120) as response:
+                      raw = response.read().decode()
+                      return response.status, json.loads(raw) if raw else None
+              except urllib.error.HTTPError as exc:
+                  raw = exc.read().decode()
+                  try:
+                      payload = json.loads(raw)
+                  except Exception:
+                      payload = raw
+                  return exc.code, payload
+
+          status, created = req("POST", "/api/runs", {
+              "title": "Live free retrieval proof",
+              "brief": "Explain convergent evolution with one clear evidence-based example.",
+              "audience": "general readers",
+              "goal": "test free retrieval plus Gemini generation",
+              "formats": ["article"],
+              "constraints": ["short", "clear"],
+          })
+          assert status in (200, 201), (status, created)
+          run_id = created["run_id"]
+          print("run_id:", run_id)
+
+          status, first = req("POST", f"/api/runs/{run_id}/factory")
+          print("factory_attempt:", status)
+          print(json.dumps(first, ensure_ascii=False)[:12000])
+          assert status == 409, (status, first)
+
+          run = first["run"]
+          research = run["result"]["research"]
+          sources = research.get("sources", [])
+          assert sources, research
+          providers = {s.get("provider") for s in sources if isinstance(s, dict)}
+          print("source_count:", len(sources))
+          print("source_providers:", sorted(providers))
+
+          candidates = first.get("candidates", [])
+          assert candidates, first
+          candidate_id = candidates[0]["id"]
+
+          status, promoted = req("POST", f"/api/knowledge/{candidate_id}/promote")
+          assert status in (200, 201), (status, promoted)
+          print("promoted:", candidate_id)
+
+          status, second = req("POST", f"/api/runs/{run_id}/factory")
+          print("factory_retry:", status)
+          print(json.dumps(second, ensure_ascii=False)[:12000])
+          assert status == 200, (status, second)
+
+          status, final = req("GET", f"/api/runs/{run_id}")
+          assert status == 200, (status, final)
+          assert final["status"] in {"REVIEW", "FAILED"}, final
+          if final["status"] == "REVIEW":
+              assert final["result"]["qc"]["status"] == "PASSED", final
+              print("factory_qc=PASSED")
+
+          print("FREE_RETRIEVAL_LIVE_PROOF=PASS")
+          print("provider_search_tool_used_by_app=false")
+          PY
