@@ -479,10 +479,14 @@ class KnowledgeStore:
             f"SELECT claim_id,text,confidence,revision_id,scope,status FROM knowledge_claims WHERE status IN ({placeholders})",
             statuses,
         ).fetchall()
+        # Reuse knowledge only when the query has substantial lexical overlap
+        # with the stored claim. A single shared word is too weak and can route
+        # unrelated topics into the editorial stage.
+        minimum_score = 1 if len(terms) == 1 else 2
         scored_claims: list[tuple[int, sqlite3.Row]] = []
         for row in claim_rows:
             score = len(terms & _tokens(row["text"]))
-            if score:
+            if score >= minimum_score:
                 scored_claims.append((score, row))
         scored_claims.sort(key=lambda item: (-item[0], item[1]["claim_id"]))
 

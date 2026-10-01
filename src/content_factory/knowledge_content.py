@@ -146,6 +146,13 @@ def _refs(value: Any, name: str) -> list[str]:
     return list(dict.fromkeys(value))
 
 
+def _refs_or_default(value: Any, name: str, default: set[str] | list[str] | tuple[str, ...]) -> list[str]:
+    """Use already-authorized provenance when the model omitted a required ref field."""
+    if value is None or value == []:
+        value = sorted(default)
+    return _refs(value, name)
+
+
 def _validate_claim_refs(value: dict[str, Any], allowed: set[str]) -> list[str]:
     refs = _refs(value.get("claim_refs"), "claim_refs")
     unknown = set(refs) - allowed
@@ -313,8 +320,14 @@ ACCEPTED KNOWLEDGE:
         for raw in ideas_raw:
             if not isinstance(raw, dict):
                 raise WorkspaceError("editorial idea must be an object")
-            claims_ref = _validate_claim_refs(raw, claim_ids)
-            evidence_ref = _validate_evidence_refs(raw, evidence_ids)
+            claims_ref = _validate_claim_refs(
+                {**raw, "claim_refs": _refs_or_default(raw.get("claim_refs"), "claim_refs", claim_ids)},
+                claim_ids,
+            )
+            evidence_ref = _validate_evidence_refs(
+                {**raw, "evidence_refs": _refs_or_default(raw.get("evidence_refs"), "evidence_refs", evidence_ids)},
+                evidence_ids,
+            )
             ideas.append(ContentIdea(
                 idea_id=str(raw.get("idea_id") or "").strip(),
                 title=str(raw.get("title") or "").strip(),
@@ -348,11 +361,19 @@ USER CONSTRAINTS:
             raise WorkspaceError("content brief must contain editorial_points")
         if not isinstance(brief_raw.get("content_elements"), list) or not brief_raw["content_elements"]:
             raise WorkspaceError("content brief must contain content_elements")
-        selected_claims = _refs(brief_raw.get("selected_claim_refs"), "selected_claim_refs")
+        selected_claims = _refs_or_default(
+            brief_raw.get("selected_claim_refs"),
+            "selected_claim_refs",
+            set(selected.claim_refs),
+        )
         unknown_selected_claims = set(selected_claims) - claim_ids
         if unknown_selected_claims:
             raise WorkspaceError(f"unknown knowledge claim refs: {', '.join(sorted(unknown_selected_claims))}")
-        selected_evidence = _refs(brief_raw.get("evidence_refs"), "evidence_refs")
+        selected_evidence = _refs_or_default(
+            brief_raw.get("evidence_refs"),
+            "evidence_refs",
+            set(selected.evidence_refs),
+        )
         unknown_selected_evidence = set(selected_evidence) - evidence_ids
         if unknown_selected_evidence:
             raise WorkspaceError(f"unknown knowledge evidence refs: {', '.join(sorted(unknown_selected_evidence))}")
@@ -360,8 +381,14 @@ USER CONSTRAINTS:
         for raw in brief_raw["editorial_points"]:
             if not isinstance(raw, dict):
                 raise WorkspaceError("editorial point must be an object")
-            point_claims = _validate_claim_refs(raw, set(selected_claims))
-            point_evidence = _validate_evidence_refs(raw, set(selected_evidence))
+            point_claims = _validate_claim_refs(
+                {**raw, "claim_refs": _refs_or_default(raw.get("claim_refs"), "claim_refs", selected_claims)},
+                set(selected_claims),
+            )
+            point_evidence = _validate_evidence_refs(
+                {**raw, "evidence_refs": _refs_or_default(raw.get("evidence_refs"), "evidence_refs", selected_evidence)},
+                set(selected_evidence),
+            )
             point = EditorialPointSpec(
                 point_id=str(raw.get("point_id") or "").strip(),
                 text=str(raw.get("text") or "").strip(),
@@ -380,8 +407,14 @@ USER CONSTRAINTS:
             refs = raw.get("editorial_point_ids")
             if not isinstance(refs, list) or not refs or not set(refs).issubset(point_ids):
                 raise WorkspaceError("content element has invalid editorial_point_ids")
-            element_claims = _validate_claim_refs(raw, set(selected_claims))
-            element_evidence = _validate_evidence_refs(raw, set(selected_evidence))
+            element_claims = _validate_claim_refs(
+                {**raw, "claim_refs": _refs_or_default(raw.get("claim_refs"), "claim_refs", selected_claims)},
+                set(selected_claims),
+            )
+            element_evidence = _validate_evidence_refs(
+                {**raw, "evidence_refs": _refs_or_default(raw.get("evidence_refs"), "evidence_refs", selected_evidence)},
+                set(selected_evidence),
+            )
             element = ContentElementSpec(
                 element_id=str(raw.get("element_id") or "").strip(),
                 kind=str(raw.get("kind") or "").strip(),
@@ -423,8 +456,14 @@ CONTENT BRIEF:
 USER CONSTRAINTS:
 {json.dumps(constraints, ensure_ascii=False)}""",
         )
-        spec_claims = _validate_claim_refs(spec_raw, claim_ids)
-        spec_evidence = _validate_evidence_refs(spec_raw, evidence_ids)
+        spec_claims = _validate_claim_refs(
+            {**spec_raw, "claim_refs": _refs_or_default(spec_raw.get("claim_refs"), "claim_refs", brief.selected_claim_refs)},
+            claim_ids,
+        )
+        spec_evidence = _validate_evidence_refs(
+            {**spec_raw, "evidence_refs": _refs_or_default(spec_raw.get("evidence_refs"), "evidence_refs", brief.evidence_refs)},
+            evidence_ids,
+        )
         structure = _refs(spec_raw.get("structure"), "structure")
         spec = ContentSpec(
             spec_id=str(spec_raw.get("spec_id") or "").strip(),
@@ -461,8 +500,14 @@ ACCEPTED KNOWLEDGE:
         for raw in units_raw:
             if not isinstance(raw, dict):
                 raise WorkspaceError("script unit must be an object")
-            refs = _validate_claim_refs(raw, set(spec.claim_refs))
-            evrefs = _validate_evidence_refs(raw, set(spec.evidence_refs))
+            refs = _validate_claim_refs(
+                {**raw, "claim_refs": _refs_or_default(raw.get("claim_refs"), "claim_refs", spec.claim_refs)},
+                set(spec.claim_refs),
+            )
+            evrefs = _validate_evidence_refs(
+                {**raw, "evidence_refs": _refs_or_default(raw.get("evidence_refs"), "evidence_refs", spec.evidence_refs)},
+                set(spec.evidence_refs),
+            )
             unit = ScriptUnit(
                 unit_id=str(raw.get("unit_id") or "").strip(),
                 kind=str(raw.get("kind") or "").strip(),

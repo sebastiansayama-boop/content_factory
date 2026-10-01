@@ -159,3 +159,20 @@ def test_accepted_knowledge_usage_is_explicit_and_candidates_are_blocked(tmp_pat
     assert usages[0]["run_id"] == "run-2"
     assert usages[0]["target_ref"] == "content-run:run-2"
     store.close()
+
+
+def test_search_ignores_weak_single_token_overlap(tmp_path):
+    store = KnowledgeStore(tmp_path / "knowledge.sqlite3")
+    store.capture(run_id="run-1", research=research_payload())
+    claim_id = store._connection.execute(
+        "SELECT claim_id FROM knowledge_claims"
+    ).fetchone()["claim_id"]
+    store.promote_claim(claim_id, decision_ref="DEC-TEST-RELEVANCE")
+
+    assert store.search("automobiles sculpture exhibition") == {
+        "claims": [],
+        "sources": [],
+        "editorial_angles": [],
+    }
+    assert store.search("automobiles urban mobility")["claims"][0]["claim_id"] == claim_id
+    store.close()
