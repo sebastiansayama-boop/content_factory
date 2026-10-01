@@ -619,7 +619,8 @@ def test_user_vertical_slice_assets_regeneration_and_export_download(tmp_path, m
         )
         assert status == 200
         assert content_type == "application/json"
-        assert b"content_brief" in export_bytes
+        assert b'"run_id"' in export_bytes
+        assert built["run"]["run_id"].encode("utf-8") in export_bytes
 
         status, regenerated, _ = request("POST", f"/api/runs/{run_id}/regenerate", {
             "instruction": "Сделай следующую версию менее рекламной и более объясняющей."
