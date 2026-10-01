@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import Any, Callable
 
 from .knowledge import KnowledgeStore
-from .research import GeminiWebResearchAdapter, OpenAIWebResearchAdapter, parse_research_json
+from .research import GeminiWebResearchAdapter, OpenAIWebResearchAdapter, is_safe_source_url, parse_research_json
 from .local_research import LocalResearchAdapter
 
 
@@ -142,11 +142,24 @@ USER BRIEF:
         declared = research.get("sources")
         if not isinstance(declared, list):
             declared = []
-        known_urls = {item.get("url") for item in declared if isinstance(item, dict)}
+        known_urls = {
+            item.get("url")
+            for item in declared
+            if isinstance(item, dict) and is_safe_source_url(str(item.get("url") or ""))
+        }
         for source in provider_sources:
-            if source["url"] not in known_urls:
-                declared.append({"id": f"source-{len(declared) + 1}", "title": source["title"], "url": source["url"]})
-                known_urls.add(source["url"])
+            url = str(source.get("url") or "").strip()
+            if not is_safe_source_url(url):
+                continue
+            if url not in known_urls:
+                declared.append({"id": f"source-{len(declared) + 1}", "title": source["title"], "url": url})
+                known_urls.add(url)
+        declared = [
+            item for item in declared
+            if isinstance(item, dict) and is_safe_source_url(str(item.get("url") or ""))
+        ]
+        if not declared:
+            raise ValueError("research returned no safe public sources")
         research["sources"] = declared
         claims = research.get("claims")
         if not isinstance(claims, list) or not claims:
