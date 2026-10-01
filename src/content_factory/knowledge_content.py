@@ -448,9 +448,11 @@ USER CONSTRAINTS:
             objective="turn a content specification into a provenance-grounded script",
             prompt=f"""Create a complete script from this ContentSpec.
 Return JSON: {{"script_id":"script-1","title":"string","units":[{{"unit_id":"unit-1","kind":"hook|beat|narration|cta","text":"complete spoken/on-screen text","visual_intent":"string","claim_refs":["kc-*"],"evidence_refs":["ke-*"]}}]}}
-Every factual unit must retain the relevant durable claim and evidence refs from the ContentSpec. Do not invent facts.
+Every factual unit must retain the relevant durable claim and evidence refs from the ContentSpec. Use the supplied accepted knowledge to write complete, usable material, not generic placeholder copy. Do not invent facts. Each unit should express or explain a supplied claim when appropriate, while hooks and calls to action may be non-factual.
 CONTENT SPEC:
-{json.dumps(spec.to_dict(), ensure_ascii=False)}""",
+{json.dumps(spec.to_dict(), ensure_ascii=False)}
+ACCEPTED KNOWLEDGE:
+{context_json}""",
         )
         units_raw = script_raw.get("units")
         if not isinstance(units_raw, list) or not units_raw:
