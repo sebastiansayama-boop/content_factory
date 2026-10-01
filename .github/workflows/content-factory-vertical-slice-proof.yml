@@ -8,14 +8,8 @@ on:
         required: false
         default: false
         type: boolean
-      ref:
-        description: "Branch or commit to prove"
-        required: true
-        default: "feat/information-flow-contract"
-        type: string
 
-permissions:
-  contents: read
+permissions: {}
 
 jobs:
   local-proof:
@@ -23,7 +17,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.ref }}
+          ref: "feat/information-flow-contract"
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -40,7 +35,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.ref }}
+          ref: "feat/information-flow-contract"
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
