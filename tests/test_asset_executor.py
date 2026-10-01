@@ -28,3 +28,81 @@ def test_stub_executor_materializes_asset_candidate(tmp_path, monkeypatch):
     assert result[0].result["claim_refs"] == ["kc-1"]
 
     jobs.close()
+
+
+def test_higgsfield_executor_downloads_completed_image_and_preserves_provenance(tmp_path, monkeypatch):
+    import json
+
+    class FakeResponse:
+        def __init__(self, status, payload=None, raw=None):
+            self.status = status
+            self._payload = payload
+            self._raw = raw
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self):
+            if self._raw is not None:
+                return self._raw
+            return json.dumps(self._payload).encode("utf-8")
+
+    calls = []
+
+    def fake_urlopen(request, timeout=30):
+        calls.append((request.full_url, request.method, dict(request.header_items())))
+        if request.method == "POST":
+            return FakeResponse(
+                200,
+                {"request_id": "req-1", "status": "queued"},
+            )
+        if request.method == "GET" and request.full_url.endswith("/status"):
+            if sum(1 for url, _, _ in calls if url.endswith("/status")) == 1:
+                return FakeResponse(200, {"status": "processing"})
+            return FakeResponse(
+                200,
+                {"status": "completed", "images": [{"url": "https://cdn.example/image.png"}]},
+            )
+        if request.method == "GET" and request.full_url == "https://cdn.example/image.png":
+            return FakeResponse(200, raw=b"real-image-bytes")
+        raise AssertionError(f"unexpected URL: {request.full_url}")
+
+    monkeypatch.setattr("content_factory.asset_executor.urllib.request.urlopen", fake_urlopen)
+    monkeypatch.setattr("content_factory.asset_executor.time.sleep", lambda _: None)
+    monkeypatch.setenv("FACTORY_ASSET_PROVIDER", "higgsfield")
+    monkeypatch.setenv("HF_KEY", "test-key")
+    monkeypatch.setenv("HF_POLL_TIMEOUT_SECONDS", "10")
+    monkeypatch.setenv("HF_POLL_INTERVAL_SECONDS", "0.1")
+
+    jobs = AssetJobStore(tmp_path / "jobs.sqlite3")
+    jobs.create_from_plan(
+        "run-1",
+        {
+            "asset_requests": [{
+                "asset_request_id": "request-1",
+                "script_unit_id": "unit-1",
+                "type": "visual",
+                "claim_refs": ["kc-1"],
+                "evidence_refs": ["ke-1"],
+                "acceptance_criteria": ["preserve provenance"],
+            }]
+        },
+    )
+
+    result = AssetExecutor(jobs, tmp_path).execute_run("run-1")
+
+    assert len(result) == 1
+    job = result[0]
+    assert job.status == "COMPLETED"
+    assert job.result["provider"] == "higgsfield"
+    assert job.result["claim_refs"] == ["kc-1"]
+    assert job.result["evidence_refs"] == ["ke-1"]
+    assert (tmp_path / "asset_jobs" / "run-1" / "request-1.png").read_bytes() == b"real-image-bytes"
+    assert job.result["metadata"]["provider_request_id"] == "req-1"
+    assert job.result["metadata"]["source_url"] == "https://cdn.example/image.png"
+    status_urls = [url for url, method, _ in calls if method == "GET" and url.endswith("/status")]
+    assert status_urls == ["https://api.higgsfield.ai/requests/req-1/status"] * 2
+    jobs.close()

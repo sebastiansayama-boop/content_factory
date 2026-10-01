@@ -43,7 +43,11 @@ class HiggsfieldAssetProvider(AssetProvider):
         request_id = str((job.result or {}).get("provider_request_id", "")).strip()
         if not key or not request_id:
             raise AssetProviderError("HF_KEY and provider_request_id are required")
-        endpoint = os.environ.get("HF_STATUS_URL", "https://api.higgsfield.ai/v1/requests/").rstrip("/") + "/" + request_id
+        configured_endpoint = os.environ.get("HF_STATUS_URL", "").strip()
+        if configured_endpoint:
+            endpoint = configured_endpoint.format(request_id=request_id) if "{request_id}" in configured_endpoint else configured_endpoint.rstrip("/") + "/" + request_id
+        else:
+            endpoint = f"https://api.higgsfield.ai/requests/{request_id}/status"
         request = urllib.request.Request(
             endpoint,
             headers={"Authorization": f"Key {key}", "Content-Type": "application/json"},
