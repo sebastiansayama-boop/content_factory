@@ -18,6 +18,7 @@ def factory_server(tmp_path, monkeypatch):
     monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
     monkeypatch.setenv("FACTORY_PROVIDER", "local")
     monkeypatch.setenv("FACTORY_API_TOKEN", "browser-e2e-token")
+    monkeypatch.setattr(ProductHandler, "_rate_limited", lambda *args, **kwargs: False)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
 
