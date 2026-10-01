@@ -11,12 +11,18 @@ import os
 class IntegrationError(Exception):
     """Expected failure while communicating with an external integration."""
 
+    def __init__(self, message: str, status_code: int | None = None) -> None:
+        super().__init__(message)
+        self.status_code = status_code
+
 
 @dataclass(frozen=True)
 class IntegrationConfig:
     integration_id: str
     endpoint: str
     secret_env: str | None = None
+    secret_header: str = "Authorization"
+    secret_prefix: str = "Bearer "
 
     def validate(self) -> None:
         if not self.endpoint.startswith(("https://", "http://")):
@@ -53,7 +59,7 @@ class HttpJsonAdapter:
     def call(self, payload: dict[str, Any]) -> ExternalCallResult:
         headers = {"Content-Type": "application/json", "Accept": "application/json"}
         if self.config.secret_env:
-            headers["Authorization"] = f"Bearer {os.environ[self.config.secret_env]}"
+            headers[self.config.secret_header] = f"{self.config.secret_prefix}{os.environ[self.config.secret_env]}"
 
         request = Request(
             self.config.endpoint,
@@ -98,7 +104,7 @@ class HttpJsonAdapter:
                 raw_response = body.get("raw_response")
                 if isinstance(raw_response, str) and raw_response.strip():
                     details.append(f"raw_response={raw_response.strip()[:1000]}")
-            raise IntegrationError("; ".join(details)) from exc
+            raise IntegrationError("; ".join(details), status_code=exc.code) from exc
         except URLError as exc:
             reason = exc.reason
             reason_type = type(reason).__name__

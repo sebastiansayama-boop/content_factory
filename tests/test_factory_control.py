@@ -9,10 +9,25 @@ def test_control_plane_timeline_distribution_observation_learning_and_replay(tmp
     assert [event.event_type for event in events] == ["factory.started", "qc.completed"]
 
     prepared = store.prepare_publication(
-        "run-1", "telegram", "final.mp4", {"text": "hello", "artifact": "final.mp4"}
+        "run-1",
+        "telegram",
+        "final.mp4",
+        {
+            "text": "hello",
+            "artifact": "final.mp4",
+            "artifact_ids": ["asset-1"],
+            "destination": "chat-123",
+            "provenance": {"run_id": "run-1", "claim_ids": ["claim-1"]},
+        },
     )
+    assert prepared["status"] == "PREPARED"
+    assert prepared["destination"] == "chat-123"
+    assert prepared["artifact_ids_json"] == '["asset-1"]'
     published = store.publish(prepared["publication_id"])
     assert published["status"] == "PUBLISHED"
+    assert published["published_at"]
+    assert published["external_id"].startswith("local-")
+    assert published["response"]["mode"] == "local"
 
     observation = store.observe(
         prepared["publication_id"],
@@ -49,9 +64,14 @@ def test_control_plane_timeline_distribution_observation_learning_and_replay(tmp
     replay = store.replay_plan(
         run,
         changed_claim_ids=["kc-1"],
+        content_brief={"brief_id": "brief-1", "title": "Version one"},
+        content_brief_revision_id="brief-1-r1",
         changes={"style_bible": {"pace": "faster"}},
     )
     assert replay["regenerate_asset_ids"] == ["asset-1"]
+    assert replay["content_brief_id"] == "brief-1"
+    assert replay["content_brief_revision_id"] == "brief-1-r1"
+    assert replay["content_brief"]["title"] == "Version one"
     assert replay["retain_asset_ids"] == ["asset-2"]
     assert replay["revise"] == ["content_spec.style_bible"]
     assert replay["rerun"] == ["production", "assembly", "qc", "approval", "export"]

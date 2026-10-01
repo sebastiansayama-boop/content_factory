@@ -1,6 +1,6 @@
 from content_factory.integrations import ExternalCallResult
 from content_factory.knowledge import KnowledgeStore
-from content_factory.research import OpenAIWebResearchAdapter
+from content_factory.research import GeminiWebResearchAdapter, OpenAIWebResearchAdapter, is_safe_source_url
 from content_factory.vertical_slice import ContentFactoryVerticalSlice, quality_check
 
 
@@ -67,6 +67,19 @@ def test_vertical_slice_produces_research_text_visual_and_qc():
     assert result.quality["asset_count"] == 3
     assert result.research["claims"][0]["source_ids"] == ["source-1"]
     assert {a["format"] for a in result.package["package"]} == {"article", "social_post", "visual_card"}
+    assert result.information_flow["status"] == "DEFERRED"
+    assert result.information_flow["reason"]
+    assert all(asset["evidence_refs"] == ["evidence-1"] for asset in result.package["package"])
+
+
+def test_source_url_safety_allows_public_urls_and_rejects_local_targets():
+    assert is_safe_source_url("https://example.com/article") is True
+    assert is_safe_source_url("http://example.com/article") is True
+    assert is_safe_source_url("https://127.0.0.1/article") is False
+    assert is_safe_source_url("https://192.168.1.10/article") is False
+    assert is_safe_source_url("https://localhost/article") is False
+    assert is_safe_source_url("file:///tmp/article") is False
+    assert is_safe_source_url("https://user:pass@example.com/article") is False
 
 
 def test_quality_check_rejects_unknown_claim_reference():
@@ -115,3 +128,26 @@ def test_vertical_slice_captures_and_reuses_knowledge(tmp_path):
     assert third.research["knowledge"]["accepted_usage_count"] == 1
     assert store.usages_for_claim(claim_id)[0]["run_id"] == "run-knowledge-3"
     store.close()
+
+
+def test_vertical_slice_selects_gemini_research_provider(monkeypatch):
+    monkeypatch.setenv("FACTORY_PROVIDER", "gemini")
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key")
+    monkeypatch.setenv("GEMINI_MODEL", "gemini-test")
+    monkeypatch.setenv("GEMINI_RESEARCH_MODEL", "gemini-research-test")
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+
+    factory = ContentFactoryVerticalSlice()
+
+    assert isinstance(factory.research_adapter, GeminiWebResearchAdapter)
+    assert factory.research_adapter.model == "gemini-research-test"
+
+
+def test_vertical_slice_selects_local_when_no_provider_credentials(monkeypatch):
+    monkeypatch.setenv("FACTORY_PROVIDER", "local")
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+
+    factory = ContentFactoryVerticalSlice()
+
+    assert factory.research_adapter.__class__.__name__ == "LocalResearchAdapter"

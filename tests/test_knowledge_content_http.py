@@ -46,6 +46,16 @@ def test_build_endpoint_persists_knowledge_content_graph(tmp_path, monkeypatch):
             assert kwargs["run_id"] == created.run_id
             return {
                 "editorial": {"selected_idea": {"idea_id": "idea-1"}, "ideas": []},
+                "content_brief": {
+                    "brief_id": "brief-1",
+                    "title": "Test brief",
+                    "selected_claim_refs": ["kc-1"],
+                    "evidence_refs": ["ke-1"],
+                    "editorial_points": [],
+                    "content_elements": [],
+                    "formats": ["article"],
+                    "constraints": [],
+                },
                 "content_spec": {"spec_id": "spec-1"},
                 "script": {"script_id": "script-1", "units": []},
                 "production_plan": {"production_plan_id": "production-1", "asset_requests": []},
@@ -63,6 +73,7 @@ def test_build_endpoint_persists_knowledge_content_graph(tmp_path, monkeypatch):
 
     assert handler.status == 200
     assert handler.body["status"] == "REVIEW"
+    assert handler.body["result"]["content_brief"]["revision_id"] == "brief-1-r1"
     assert handler.body["result"]["content_spec"]["spec_id"] == "spec-1"
     assert handler.body["result"]["script"]["script_id"] == "script-1"
     assert handler.body["result"]["production_plan"]["production_plan_id"] == "production-1"

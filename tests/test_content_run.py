@@ -295,3 +295,35 @@ def test_research_ready_run_can_resume_planning_after_knowledge_review(tmp_path)
     assert resumed.status == "PLANNING"
     assert resumed.result["research"]["knowledge_refs"]["claims"]["x"] == "kc-x"
     store.close()
+
+
+def test_content_brief_revisions_are_durable_and_independently_readable(tmp_path):
+    path = tmp_path / "runs.sqlite3"
+    store = ContentRunStore(path)
+    run = store.create(title="Editorial", brief="Build a brief")
+    first = store.save_content_brief(run.run_id, {
+        "brief_id": "brief-editorial",
+        "title": "First angle",
+        "selected_claim_refs": ["kc-1"],
+        "editorial_points": [{"point_id": "point-1", "claim_refs": ["kc-1"], "evidence_refs": ["ke-1"]}],
+        "content_elements": [{"element_id": "element-1", "editorial_point_ids": ["point-1"], "claim_refs": ["kc-1"], "evidence_refs": ["ke-1"]}],
+    })
+    second = store.save_content_brief(run.run_id, {
+        "brief_id": "brief-editorial",
+        "title": "Revised angle",
+        "selected_claim_refs": ["kc-1"],
+        "editorial_points": [{"point_id": "point-2", "claim_refs": ["kc-1"], "evidence_refs": ["ke-1"]}],
+        "content_elements": [{"element_id": "element-2", "editorial_point_ids": ["point-2"], "claim_refs": ["kc-1"], "evidence_refs": ["ke-1"]}],
+    })
+    assert first.revision_id == "brief-editorial-r1"
+    assert second.revision_id == "brief-editorial-r2"
+    assert store.get_content_brief(run.run_id).revision_id == second.revision_id
+    assert store.get_content_brief(run.run_id, revision_id=first.revision_id).payload["title"] == "First angle"
+    assert [item.revision_id for item in store.list_content_brief_revisions(run.run_id)] == [
+        first.revision_id, second.revision_id
+    ]
+    store.close()
+
+    reopened = ContentRunStore(path)
+    assert reopened.get_content_brief(run.run_id, revision_id=second.revision_id).payload["title"] == "Revised angle"
+    reopened.close()

@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Callable
 
 from .knowledge import KnowledgeStore
-from .research import OpenAIWebResearchAdapter, parse_research_json
+from .research import GeminiWebResearchAdapter, OpenAIWebResearchAdapter, is_safe_source_url, parse_research_json
 from .local_research import LocalResearchAdapter
 
 
@@ -17,6 +18,7 @@ class VerticalSliceResult:
     research: dict[str, Any]
     package: dict[str, Any]
     quality: dict[str, Any]
+    information_flow: dict[str, Any]
 
 
 def _slug(value: str) -> str:
@@ -88,9 +90,23 @@ class ContentFactoryVerticalSlice:
         self,
         research_adapter: OpenAIWebResearchAdapter | None = None,
         knowledge_store: KnowledgeStore | None = None,
+        trace_event: Callable[..., None] | None = None,
     ) -> None:
-        self.research_adapter = research_adapter or (OpenAIWebResearchAdapter() if __import__("os").getenv("OPENAI_API_KEY") else LocalResearchAdapter())
+        if research_adapter is not None:
+            self.research_adapter = research_adapter
+        else:
+            configured = os.environ.get("FACTORY_PROVIDER", "").strip().lower()
+            provider = configured or ("gemini" if os.environ.get("GEMINI_API_KEY", "").strip() else ("openai" if os.environ.get("OPENAI_API_KEY", "").strip() else "local"))
+            if provider == "gemini":
+                self.research_adapter = GeminiWebResearchAdapter()
+            elif provider == "openai":
+                self.research_adapter = OpenAIWebResearchAdapter()
+            elif provider == "local":
+                self.research_adapter = LocalResearchAdapter()
+            else:
+                raise ValueError("FACTORY_PROVIDER must be 'gemini', 'openai', or 'local'")
         self.knowledge_store = knowledge_store
+        self.trace_event = trace_event
 
     def run(self, *, run_id: str, brief: str, formats: list[str] | None = None) -> VerticalSliceResult:
         if not brief.strip():
@@ -109,7 +125,16 @@ Prior reusable knowledge is context, not proof. Re-check it against current sour
 USER BRIEF:
 {brief}
 """
-        result = self.research_adapter.research(research_prompt)
+        if self.trace_event is not None:
+            self.trace_event(stage="RESEARCH", task="research_brief", tool=type(self.research_adapter).__name__, action="provider_call", result={"status": "started"})
+        try:
+            result = self.research_adapter.research(research_prompt)
+        except Exception as exc:
+            if self.trace_event is not None:
+                self.trace_event(stage="RESEARCH", task="research_brief", tool=type(self.research_adapter).__name__, action="provider_call", result={"status": "failed", "error_type": type(exc).__name__}, decision="FAILED")
+            raise
+        if self.trace_event is not None:
+            self.trace_event(stage="RESEARCH", task="research_brief", tool=type(self.research_adapter).__name__, action="provider_call", result={"status": "completed", "http_status": result.status_code}, decision="ACCEPT" if 200 <= result.status_code < 300 else "FAIL")
         if result.status_code < 200 or result.status_code >= 300:
             raise ValueError(f"research provider returned HTTP {result.status_code}")
         research = parse_research_json(self.research_adapter.text(result))
@@ -117,11 +142,24 @@ USER BRIEF:
         declared = research.get("sources")
         if not isinstance(declared, list):
             declared = []
-        known_urls = {item.get("url") for item in declared if isinstance(item, dict)}
+        known_urls = {
+            item.get("url")
+            for item in declared
+            if isinstance(item, dict) and is_safe_source_url(str(item.get("url") or ""))
+        }
         for source in provider_sources:
-            if source["url"] not in known_urls:
-                declared.append({"id": f"source-{len(declared) + 1}", "title": source["title"], "url": source["url"]})
-                known_urls.add(source["url"])
+            url = str(source.get("url") or "").strip()
+            if not is_safe_source_url(url):
+                continue
+            if url not in known_urls:
+                declared.append({"id": f"source-{len(declared) + 1}", "title": source["title"], "url": url})
+                known_urls.add(url)
+        declared = [
+            item for item in declared
+            if isinstance(item, dict) and is_safe_source_url(str(item.get("url") or ""))
+        ]
+        if not declared:
+            raise ValueError("research returned no safe public sources")
         research["sources"] = declared
         claims = research.get("claims")
         if not isinstance(claims, list) or not claims:
@@ -171,7 +209,16 @@ Claims:
 Sources:
 {source_lines}
 """
-            generated = self.research_adapter.research(production_prompt)
+            if self.trace_event is not None:
+                self.trace_event(stage="PRODUCTION", task=f"produce_{fmt}", tool=type(self.research_adapter).__name__, action="provider_call", result={"status": "started", "format": fmt})
+            try:
+                generated = self.research_adapter.research(production_prompt)
+            except Exception as exc:
+                if self.trace_event is not None:
+                    self.trace_event(stage="PRODUCTION", task=f"produce_{fmt}", tool=type(self.research_adapter).__name__, action="provider_call", result={"status": "failed", "format": fmt, "error_type": type(exc).__name__}, decision="FAILED")
+                raise
+            if self.trace_event is not None:
+                self.trace_event(stage="PRODUCTION", task=f"produce_{fmt}", tool=type(self.research_adapter).__name__, action="provider_call", result={"status": "completed", "format": fmt, "http_status": generated.status_code}, decision="ACCEPT" if 200 <= generated.status_code < 300 else "FAIL")
             if generated.status_code < 200 or generated.status_code >= 300:
                 raise ValueError(f"production provider returned HTTP {generated.status_code}")
             asset = parse_research_json(self.research_adapter.text(generated))
@@ -180,11 +227,33 @@ Sources:
             package["package"].append(asset)
         all_claim_ids = [c["id"] for c in claims if isinstance(c, dict)]
         all_source_ids = sorted({sid for c in claims if isinstance(c, dict) for sid in c.get("source_ids", [])})
+        claim_by_id = {
+            str(claim.get("id")): claim
+            for claim in claims
+            if isinstance(claim, dict) and claim.get("id")
+        }
         for asset in package["package"]:
             if asset.get("format") == "visual_card":
                 asset["claim_refs"] = all_claim_ids
                 asset["source_refs"] = all_source_ids
+            claim_refs = [
+                ref for ref in asset.get("claim_refs", [])
+                if isinstance(ref, str) and ref.strip()
+            ]
+            evidence_refs = []
+            for claim_id in claim_refs:
+                claim = claim_by_id.get(claim_id)
+                if claim is None:
+                    continue
+                for evidence_id in claim.get("evidence_ids", []):
+                    if isinstance(evidence_id, str) and evidence_id not in evidence_refs:
+                        evidence_refs.append(evidence_id)
+            asset["evidence_refs"] = evidence_refs
         quality = quality_check(package, research)
+        quality["information_flow"] = {
+            "status": "DEFERRED",
+            "reason": "explicit ContentBrief is created by the editorial stage after research review",
+        }
         if knowledge_capture is not None:
             research["knowledge"] = {
                 "captured": True,
@@ -194,8 +263,22 @@ Sources:
                 },
                 "accepted_usage_count": knowledge_usage,
             }
-        return VerticalSliceResult(run_id=run_id, brief=brief, research=research, package=package, quality=quality)
+        return VerticalSliceResult(
+            run_id=run_id,
+            brief=brief,
+            research=research,
+            package=package,
+            quality=quality,
+            information_flow={"status": "DEFERRED", "reason": "awaiting editorial ContentBrief"},
+        )
 
     @staticmethod
     def to_dict(result: VerticalSliceResult) -> dict[str, Any]:
-        return {"run_id": result.run_id, "brief": result.brief, "research": result.research, "package": result.package, "quality": result.quality}
+        return {
+            "run_id": result.run_id,
+            "brief": result.brief,
+            "research": result.research,
+            "package": result.package,
+            "quality": result.quality,
+            "information_flow": result.information_flow,
+        }

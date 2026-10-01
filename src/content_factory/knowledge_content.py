@@ -29,6 +29,64 @@ class ContentIdea:
 
 
 @dataclass(frozen=True)
+class EditorialPointSpec:
+    point_id: str
+    text: str
+    role: str
+    claim_refs: tuple[str, ...]
+    evidence_refs: tuple[str, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self) | {
+            "claim_refs": list(self.claim_refs),
+            "evidence_refs": list(self.evidence_refs),
+        }
+
+
+@dataclass(frozen=True)
+class ContentElementSpec:
+    element_id: str
+    kind: str
+    editorial_point_ids: tuple[str, ...]
+    purpose: str
+    production_intent: str
+    claim_refs: tuple[str, ...]
+    evidence_refs: tuple[str, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self) | {
+            "editorial_point_ids": list(self.editorial_point_ids),
+            "claim_refs": list(self.claim_refs),
+            "evidence_refs": list(self.evidence_refs),
+        }
+
+
+@dataclass(frozen=True)
+class ContentBrief:
+    brief_id: str
+    title: str
+    objective: str
+    audience: str
+    angle: str
+    selected_claim_refs: tuple[str, ...]
+    evidence_refs: tuple[str, ...]
+    editorial_points: tuple[EditorialPointSpec, ...]
+    content_elements: tuple[ContentElementSpec, ...]
+    formats: tuple[str, ...]
+    constraints: tuple[str, ...]
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self) | {
+            "selected_claim_refs": list(self.selected_claim_refs),
+            "evidence_refs": list(self.evidence_refs),
+            "editorial_points": [point.to_dict() for point in self.editorial_points],
+            "content_elements": [element.to_dict() for element in self.content_elements],
+            "formats": list(self.formats),
+            "constraints": list(self.constraints),
+        }
+
+
+@dataclass(frozen=True)
 class ContentSpec:
     spec_id: str
     title: str
@@ -102,6 +160,94 @@ def _validate_evidence_refs(value: dict[str, Any], allowed: set[str]) -> list[st
     if unknown:
         raise WorkspaceError(f"unknown knowledge evidence refs: {', '.join(sorted(unknown))}")
     return refs
+
+
+def build_replay_production_package(
+    *,
+    run_id: str,
+    content_brief: dict[str, Any],
+) -> dict[str, Any]:
+    """Deterministically rebuild downstream production inputs from an immutable brief."""
+    brief_id = str(content_brief.get("brief_id") or "").strip()
+    elements = content_brief.get("content_elements")
+    if not brief_id or not isinstance(elements, list) or not elements:
+        raise WorkspaceError("replay requires a valid content brief with content_elements")
+
+    units: list[dict[str, Any]] = []
+    asset_requests: list[dict[str, Any]] = []
+    for index, raw in enumerate(elements, start=1):
+        if not isinstance(raw, dict):
+            raise WorkspaceError("content brief content element must be an object")
+        element_id = str(raw.get("element_id") or "").strip()
+        if not element_id:
+            raise WorkspaceError("content element requires element_id")
+        claim_refs = _refs(raw.get("claim_refs"), "claim_refs")
+        evidence_refs = _refs(raw.get("evidence_refs"), "evidence_refs")
+        unit_id = f"replay-{run_id}-unit-{index}"
+        units.append({
+            "unit_id": unit_id,
+            "kind": str(raw.get("kind") or "narration"),
+            "text": str(raw.get("purpose") or raw.get("production_intent") or "").strip(),
+            "visual_intent": str(raw.get("production_intent") or "").strip(),
+            "claim_refs": claim_refs,
+            "evidence_refs": evidence_refs,
+        })
+        common = {
+            "script_unit_id": unit_id,
+            "content_element_ids": [element_id],
+            "claim_refs": claim_refs,
+            "evidence_refs": evidence_refs,
+            "acceptance_criteria": [
+                "preserve script intent",
+                "preserve provenance",
+                "preserve content brief lineage",
+            ],
+        }
+        asset_requests.extend([
+            common | {
+                "asset_request_id": f"replay-request-{run_id}-{index}-visual",
+                "type": "visual",
+            },
+            common | {
+                "asset_request_id": f"replay-request-{run_id}-{index}-voice",
+                "type": "voice",
+            },
+        ])
+
+    script = {
+        "script_id": f"replay-script-{run_id}",
+        "title": str(content_brief.get("title") or ""),
+        "units": units,
+    }
+    production_plan = {
+        "production_plan_id": f"replay-production-{run_id}",
+        "format": str((content_brief.get("formats") or ["short_video"])[0]),
+        "content_brief_id": brief_id,
+        "content_brief_revision_id": str(content_brief.get("_revision_id") or ""),
+        "content_element_ids": [str(item["element_id"]) for item in elements if isinstance(item, dict)],
+        "claim_refs": list(dict.fromkeys(ref for item in elements if isinstance(item, dict) for ref in item.get("claim_refs", []) if isinstance(ref, str) and ref.strip())),
+        "evidence_refs": list(dict.fromkeys(ref for item in elements if isinstance(item, dict) for ref in item.get("evidence_refs", []) if isinstance(ref, str) and ref.strip())),
+        "style_bible": {},
+        "asset_requests": asset_requests,
+        "render": {"aspect_ratio": "9:16", "resolution": "1080x1920"},
+    }
+    return {
+        "content_spec": {
+            "spec_id": f"replay-spec-{run_id}",
+            "title": str(content_brief.get("title") or ""),
+            "objective": str(content_brief.get("objective") or ""),
+            "audience": str(content_brief.get("audience") or ""),
+            "format": production_plan["format"],
+            "tone": "derived-from-brief",
+            "structure": [str(item.get("role") or "") for item in content_brief.get("editorial_points", []) if isinstance(item, dict)],
+            "constraints": list(content_brief.get("constraints") or []),
+            "claim_refs": list(content_brief.get("selected_claim_refs") or []),
+            "evidence_refs": list(content_brief.get("evidence_refs") or []),
+            "style_bible": {},
+        },
+        "script": script,
+        "production_plan": production_plan,
+    }
 
 
 class KnowledgeContentBuilder:
@@ -184,6 +330,87 @@ ACCEPTED KNOWLEDGE:
 
         selected = ideas[0]
         selected_json = json.dumps(selected.to_dict(), ensure_ascii=False)
+        brief_raw = self._generate(
+            work_item_id=f"content-brief-{run_id}",
+            revision_id="content-brief-v1",
+            objective="turn selected knowledge claims into an explicit editorial content brief",
+            prompt=f"""Create one explicit ContentBrief from the selected content idea.
+Return JSON: {{"brief_id":"brief-1","title":"string","objective":"string","audience":"string","angle":"string","selected_claim_refs":["kc-*"],"evidence_refs":["ke-*"],"editorial_points":[{{"point_id":"point-1","text":"editorial point","role":"hook|context|development|counterpoint|conclusion|cta","claim_refs":["kc-*"],"evidence_refs":["ke-*"]}}],"content_elements":[{{"element_id":"element-1","kind":"hook|narration|visual|cta|transition","editorial_point_ids":["point-1"],"purpose":"string","production_intent":"string","claim_refs":["kc-*"],"evidence_refs":["ke-*"]}}],"formats":["format"],"constraints":["constraint"]}}
+Every selected claim, editorial point and content element must retain only claim/evidence refs supplied by the selected idea. Every editorial point must have claims and evidence. Every content element must reference at least one editorial point, claim and evidence. Do not invent factual claims.
+SELECTED IDEA:
+{selected_json}
+REQUESTED FORMATS:
+{json.dumps(formats)}
+USER CONSTRAINTS:
+{json.dumps(constraints, ensure_ascii=False)}""",
+        )
+        if not isinstance(brief_raw.get("editorial_points"), list) or not brief_raw["editorial_points"]:
+            raise WorkspaceError("content brief must contain editorial_points")
+        if not isinstance(brief_raw.get("content_elements"), list) or not brief_raw["content_elements"]:
+            raise WorkspaceError("content brief must contain content_elements")
+        selected_claims = _refs(brief_raw.get("selected_claim_refs"), "selected_claim_refs")
+        unknown_selected_claims = set(selected_claims) - claim_ids
+        if unknown_selected_claims:
+            raise WorkspaceError(f"unknown knowledge claim refs: {', '.join(sorted(unknown_selected_claims))}")
+        selected_evidence = _refs(brief_raw.get("evidence_refs"), "evidence_refs")
+        unknown_selected_evidence = set(selected_evidence) - evidence_ids
+        if unknown_selected_evidence:
+            raise WorkspaceError(f"unknown knowledge evidence refs: {', '.join(sorted(unknown_selected_evidence))}")
+        points: list[EditorialPointSpec] = []
+        for raw in brief_raw["editorial_points"]:
+            if not isinstance(raw, dict):
+                raise WorkspaceError("editorial point must be an object")
+            point_claims = _validate_claim_refs(raw, set(selected_claims))
+            point_evidence = _validate_evidence_refs(raw, set(selected_evidence))
+            point = EditorialPointSpec(
+                point_id=str(raw.get("point_id") or "").strip(),
+                text=str(raw.get("text") or "").strip(),
+                role=str(raw.get("role") or "").strip(),
+                claim_refs=tuple(point_claims),
+                evidence_refs=tuple(point_evidence),
+            )
+            if not point.point_id or not point.text or not point.role:
+                raise WorkspaceError("editorial point requires id, text and role")
+            points.append(point)
+        point_ids = {point.point_id for point in points}
+        elements: list[ContentElementSpec] = []
+        for raw in brief_raw["content_elements"]:
+            if not isinstance(raw, dict):
+                raise WorkspaceError("content element must be an object")
+            refs = raw.get("editorial_point_ids")
+            if not isinstance(refs, list) or not refs or not set(refs).issubset(point_ids):
+                raise WorkspaceError("content element has invalid editorial_point_ids")
+            element_claims = _validate_claim_refs(raw, set(selected_claims))
+            element_evidence = _validate_evidence_refs(raw, set(selected_evidence))
+            element = ContentElementSpec(
+                element_id=str(raw.get("element_id") or "").strip(),
+                kind=str(raw.get("kind") or "").strip(),
+                editorial_point_ids=tuple(dict.fromkeys(refs)),
+                purpose=str(raw.get("purpose") or "").strip(),
+                production_intent=str(raw.get("production_intent") or "").strip(),
+                claim_refs=tuple(element_claims),
+                evidence_refs=tuple(element_evidence),
+            )
+            if not element.element_id or not element.kind or not element.purpose or not element.production_intent:
+                raise WorkspaceError("content element requires id, kind, purpose and production_intent")
+            elements.append(element)
+        brief = ContentBrief(
+            brief_id=str(brief_raw.get("brief_id") or "").strip(),
+            title=str(brief_raw.get("title") or selected.title).strip(),
+            objective=str(brief_raw.get("objective") or selected.purpose).strip(),
+            audience=str(brief_raw.get("audience") or audience).strip(),
+            angle=str(brief_raw.get("angle") or selected.angle).strip(),
+            selected_claim_refs=tuple(selected_claims),
+            evidence_refs=tuple(selected_evidence),
+            editorial_points=tuple(points),
+            content_elements=tuple(elements),
+            formats=tuple(str(v) for v in _refs(brief_raw.get("formats") or formats, "formats")),
+            constraints=tuple(str(v) for v in _refs(brief_raw.get("constraints") or constraints or ["none"], "constraints")),
+        )
+        if not brief.brief_id or not brief.title or not brief.objective or not brief.angle:
+            raise WorkspaceError("content brief requires id, title, objective and angle")
+
+        brief_json = json.dumps(brief.to_dict(), ensure_ascii=False)
         spec_raw = self._generate(
             work_item_id=f"content-spec-{run_id}",
             revision_id="content-spec-v1",
@@ -191,8 +418,8 @@ ACCEPTED KNOWLEDGE:
             prompt=f"""Create one executable ContentSpec for the selected idea.
 Return JSON: {{"spec_id":"spec-1","title":"string","objective":"string","audience":"string","format":"string","tone":"string","structure":["step"],"constraints":["constraint"],"claim_refs":["kc-*"],"evidence_refs":["ke-*"],"style_bible":{{"visual_style":"string","palette":"string","lighting":"string","subject_continuity":"string","negative_constraints":"string","voice":"string","pace":"string","music":"string"}}}}
 Preserve provenance exactly from the idea. Do not invent claims.
-SELECTED IDEA:
-{selected_json}
+CONTENT BRIEF:
+{brief_json}
 USER CONSTRAINTS:
 {json.dumps(constraints, ensure_ascii=False)}""",
         )
@@ -221,9 +448,11 @@ USER CONSTRAINTS:
             objective="turn a content specification into a provenance-grounded script",
             prompt=f"""Create a complete script from this ContentSpec.
 Return JSON: {{"script_id":"script-1","title":"string","units":[{{"unit_id":"unit-1","kind":"hook|beat|narration|cta","text":"complete spoken/on-screen text","visual_intent":"string","claim_refs":["kc-*"],"evidence_refs":["ke-*"]}}]}}
-Every factual unit must retain the relevant durable claim and evidence refs from the ContentSpec. Do not invent facts.
+Every factual unit must retain the relevant durable claim and evidence refs from the ContentSpec. Use the supplied accepted knowledge to write complete, usable material, not generic placeholder copy. Do not invent facts. Each unit should express or explain a supplied claim when appropriate, while hooks and calls to action may be non-factual.
 CONTENT SPEC:
-{json.dumps(spec.to_dict(), ensure_ascii=False)}""",
+{json.dumps(spec.to_dict(), ensure_ascii=False)}
+ACCEPTED KNOWLEDGE:
+{context_json}""",
         )
         units_raw = script_raw.get("units")
         if not isinstance(units_raw, list) or not units_raw:
@@ -255,11 +484,18 @@ CONTENT SPEC:
 
         asset_requests = []
         for index, unit in enumerate(script.units, start=1):
+            matching_elements = [
+                element for element in brief.content_elements
+                if set(unit.claim_refs).intersection(element.claim_refs)
+            ]
+            if not matching_elements:
+                matching_elements = list(brief.content_elements)
             common = {
                 "script_unit_id": unit.unit_id,
+                "content_element_ids": [element.element_id for element in matching_elements],
                 "claim_refs": list(unit.claim_refs),
                 "evidence_refs": list(unit.evidence_refs),
-                "acceptance_criteria": ["preserve script intent", "preserve provenance"],
+                "acceptance_criteria": ["preserve script intent", "preserve provenance", "preserve content brief lineage"],
             }
             asset_requests.extend(
                 [
@@ -276,6 +512,10 @@ CONTENT SPEC:
         production_plan = {
             "production_plan_id": f"production-{run_id}",
             "format": spec.format,
+            "content_brief_id": brief.brief_id,
+            "content_element_ids": [element.element_id for element in brief.content_elements],
+            "claim_refs": list(brief.selected_claim_refs),
+            "evidence_refs": list(brief.evidence_refs),
             "style_bible": spec.style_bible or {},
             "asset_requests": asset_requests,
             "render": {"aspect_ratio": "9:16", "resolution": "1080x1920"},
@@ -287,6 +527,7 @@ CONTENT SPEC:
             },
             "content_spec": spec.to_dict(),
             "script": script.to_dict(),
+            "content_brief": brief.to_dict(),
             "production_plan": production_plan,
             "knowledge": {
                 "claim_refs": sorted(claim_ids),

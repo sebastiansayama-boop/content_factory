@@ -28,16 +28,100 @@ class LocalTextAdapter:
                     {"idea_id": "idea-local-3", "title": "One claim, one story", "angle": "Build a focused content piece around the supplied claim", "audience": "general audience", "purpose": "inform", "formats": ["short_video"], "claim_refs": [claim], "evidence_refs": [evidence]},
                 ]
             }
-        elif '"units":' in prompt:
+        elif '"editorial_points":' in prompt and "Create one explicit ContentBrief" in prompt:
             value = {
-                "script_id": "script-local-1", "title": "Evidence-grounded short",
-                "units": [
-                    {"unit_id": "unit-1", "kind": "hook", "text": "Here is what the evidence tells us.", "visual_intent": "establish topic", "claim_refs": [claim], "evidence_refs": [evidence]},
-                    {"unit_id": "unit-2", "kind": "narration", "text": "We examine the supplied claim and its supporting evidence.", "visual_intent": "show evidence", "claim_refs": [claim], "evidence_refs": [evidence]},
-                    {"unit_id": "unit-3", "kind": "narration", "text": "The story stays within the supplied evidence and its stated limits.", "visual_intent": "show context", "claim_refs": [claim], "evidence_refs": [evidence]},
-                    {"unit_id": "unit-4", "kind": "cta", "text": "Follow for more evidence-grounded stories.", "visual_intent": "close", "claim_refs": [claim], "evidence_refs": [evidence]},
-                ]
+                "brief_id": "brief-local-1",
+                "title": "Evidence-grounded short",
+                "objective": "Create a concise evidence-grounded short",
+                "audience": "general audience",
+                "angle": "Explain the supplied evidence clearly",
+                "selected_claim_refs": [claim],
+                "evidence_refs": [evidence],
+                "editorial_points": [
+                    {"point_id": "point-1", "text": "Explain the supplied evidence clearly", "role": "development", "claim_refs": [claim], "evidence_refs": [evidence]}
+                ],
+                "content_elements": [
+                    {"element_id": "element-1", "kind": "narration", "editorial_point_ids": ["point-1"], "purpose": "explain the claim", "production_intent": "voice narration", "claim_refs": [claim], "evidence_refs": [evidence]}
+                ],
+                "formats": ["short_video"],
+                "constraints": ["use only supplied knowledge"],
             }
+        elif '"units":' in prompt:
+            title = "Evidence-grounded story"
+            claims_data = []
+            marker = "ACCEPTED KNOWLEDGE:"
+            if marker in prompt:
+                try:
+                    context = json.loads(prompt.split(marker, 1)[1].strip())
+                    claims_data = context.get("claims", []) if isinstance(context, dict) else []
+                except json.JSONDecodeError:
+                    claims_data = []
+
+            claim_item = next(
+                (item for item in claims_data if isinstance(item, dict) and item.get("text")),
+                {},
+            )
+            claim_text = str(claim_item.get("text") or "").strip() or (
+                "The supplied evidence supports the selected claim."
+            )
+            claim_id = str(claim_item.get("claim_id") or "").strip() or claim
+            evidence_ids = claim_item.get("evidence_ids", [])
+            evidence_id = next(
+                (str(item).strip() for item in evidence_ids if isinstance(item, str) and item.strip()),
+                evidence,
+            )
+            scope = str(claim_item.get("scope") or "").strip()
+
+            units = [
+                {
+                    "unit_id": "unit-1",
+                    "kind": "hook",
+                    "text": f"What does the evidence show about this topic? {claim_text}",
+                    "visual_intent": "establish topic",
+                    "claim_refs": [claim_id],
+                    "evidence_refs": [evidence_id],
+                },
+                {
+                    "unit_id": "unit-2",
+                    "kind": "narration",
+                    "text": claim_text,
+                    "visual_intent": "show evidence",
+                    "claim_refs": [claim_id],
+                    "evidence_refs": [evidence_id],
+                },
+            ]
+            if scope:
+                units.append(
+                    {
+                        "unit_id": "unit-3",
+                        "kind": "narration",
+                        "text": f"This claim is scoped to {scope}.",
+                        "visual_intent": "show context",
+                        "claim_refs": [claim_id],
+                        "evidence_refs": [evidence_id],
+                    }
+                )
+            units.extend(
+                [
+                    {
+                        "unit_id": f"unit-{len(units) + 1}",
+                        "kind": "narration",
+                        "text": "The interpretation is limited to the supplied evidence and its stated scope.",
+                        "visual_intent": "show context",
+                        "claim_refs": [claim_id],
+                        "evidence_refs": [evidence_id],
+                    },
+                    {
+                        "unit_id": f"unit-{len(units) + 2}",
+                        "kind": "cta",
+                        "text": "Follow for more evidence-grounded stories.",
+                        "visual_intent": "close",
+                        "claim_refs": [claim_id],
+                        "evidence_refs": [evidence_id],
+                    },
+                ]
+            )
+            value = {"script_id": "script-local-1", "title": title, "units": units}
         elif '"style_bible":' in prompt:
             value = {
                 "spec_id": "spec-local-1", "title": "Evidence-grounded short", "objective": "Create a concise evidence-grounded short",
