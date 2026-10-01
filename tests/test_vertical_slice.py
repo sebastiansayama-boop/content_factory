@@ -124,12 +124,13 @@ def test_vertical_slice_selects_gemini_research_provider(monkeypatch):
     monkeypatch.setenv("FACTORY_PROVIDER", "gemini")
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
     monkeypatch.setenv("GEMINI_MODEL", "gemini-test")
+    monkeypatch.setenv("GEMINI_RESEARCH_MODEL", "gemini-research-test")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
     factory = ContentFactoryVerticalSlice()
 
     assert isinstance(factory.research_adapter, GeminiWebResearchAdapter)
-    assert factory.research_adapter.model == "gemini-test"
+    assert factory.research_adapter.model == "gemini-research-test"
 
 
 def test_vertical_slice_selects_local_when_no_provider_credentials(monkeypatch):
