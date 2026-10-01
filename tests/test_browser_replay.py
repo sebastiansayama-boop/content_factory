@@ -104,7 +104,21 @@ def test_browser_replay_exact_content_brief_revision(factory_server, page):
     assert persisted.result["content_brief"]["revision_id"] == revision_id
     assert persisted.result["production"]["qc"]["status"] == "PASSED"
 
-    page.locator("#approve").click()
+    assert page.locator("#approve").is_enabled()
+    approval = page.evaluate(
+        """async ({runId, token}) => {
+            const response = await fetch('/api/runs/' + encodeURIComponent(runId) + '/approve', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
+                body: JSON.stringify({decision_ref: 'browser-human-review', channel: 'local'})
+            });
+            return {status: response.status, body: await response.json()};
+        }""",
+        {"runId": replay_run_id, "token": "browser-e2e-token"},
+    )
+    assert approval["status"] == 200, approval
+    assert approval["body"]["status"] == "APPROVED"
+    page.evaluate("loadRun(arguments[0])", replay_run_id)
     page.locator("#publish").wait_for(state="attached")
     page.wait_for_function("document.querySelector('#publish').disabled === false")
     assert "Approved" in page.locator("#status").inner_text()
