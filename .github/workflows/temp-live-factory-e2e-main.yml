@@ -1,0 +1,69 @@
+name: Temp Live Factory E2E Main
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  live-factory:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run live Content Factory through Render
+        env:
+          BASE_URL: https://content-factory-replay-e2e.onrender.com
+          FACTORY_API_TOKEN: ${{ secrets.FACTORY_API_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "${FACTORY_API_TOKEN}"
+          auth=(-H "Authorization: Bearer ${FACTORY_API_TOKEN}" -H "Content-Type: application/json")
+
+          create_body='{"title":"Future imaginaries across eras","brief":"How people of different eras imagined the future: from ancient conceptions of fate, cycles and prophecy to early modern and nineteenth-century ideas of an open future. Create a fact-based, publishable short-form content package. Distinguish documented evidence from uncertainty; do not invent historical claims.","audience":"","goal":"Create a publishable short-form content asset","formats":["short_video"],"constraints":[]}'
+
+          create_resp="$(curl --fail-with-body --silent --show-error "${auth[@]}" -X POST "${BASE_URL}/api/runs" --data "${create_body}")"
+          run_id="$(python -c 'import json,sys; print(json.load(sys.stdin)["run_id"])' <<<"${create_resp}")"
+          echo "${create_resp}"
+
+          set +e
+          code="$(curl --silent --show-error -o /tmp/factory.json -w '%{http_code}' "${auth[@]}" -X POST "${BASE_URL}/api/runs/${run_id}/factory" --data '{}')"
+          set -e
+          echo "first factory HTTP ${code}"
+          cat /tmp/factory.json
+
+          if [ "${code}" = "409" ]; then
+            python - <<'PY' </tmp/factory.json
+import json,sys
+data=json.load(sys.stdin)
+ids=[str(x.get("claim_id","")).strip() for x in data.get("candidates",[]) if str(x.get("claim_id","")).strip()]
+open("/tmp/claim_ids.txt","w",encoding="utf-8").write("\n".join(ids))
+PY
+            while IFS= read -r claim_id; do
+              curl --fail-with-body --silent --show-error "${auth[@]}" -X POST "${BASE_URL}/api/knowledge/${claim_id}/promote" --data '{"decision_ref":"live-e2e"}'
+            done </tmp/claim_ids.txt
+            curl --fail-with-body --silent --show-error "${auth[@]}" -X POST "${BASE_URL}/api/runs/${run_id}/factory" --data '{}' > /tmp/final.json
+          elif [ "${code}" = "200" ]; then
+            cp /tmp/factory.json /tmp/final.json
+          else
+            exit 1
+          fi
+
+          python - <<'PY' </tmp/final.json
+import json,sys
+data=json.load(sys.stdin)
+run=data["run"]
+result=run.get("result") or {}
+prod=result.get("production") or {}
+qc=prod.get("qc") or {}
+units=(result.get("script") or {}).get("units") or []
+assert run.get("status")=="REVIEW", run
+assert any(str(u.get("text","")).strip() for u in units), result
+assert prod.get("status")=="READY_FOR_REVIEW", prod
+assert qc.get("passed") is True, qc
+print("LIVE_FACTORY_E2E_PASS")
+print("run_id:",run["run_id"])
+print("script_units:",len(units))
+print("qc_status:",qc.get("status"))
+print("script:")
+for u in units:
+    if str(u.get("text","")).strip():
+        print(u["text"])
+PY
