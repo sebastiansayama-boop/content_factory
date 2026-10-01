@@ -48,18 +48,13 @@ def test_free_web_retriever_builds_wikipedia_and_openalex_evidence():
                     "publication_date": "2024-01-01",
                     "updated_date": "2024-02-01",
                     "primary_location": {"license": "cc-by"},
+                    "abstract_inverted_index": {
+                        "Similar": [0],
+                        "traits": [1],
+                        "can": [2],
+                        "evolve": [3],
+                    },
                 }]
-            })
-        if "api.openalex.org/works/W1" in url:
-            return FakeResponse({
-                "id": "https://openalex.org/W1",
-                "display_name": "Convergent evolution in biology",
-                "abstract_inverted_index": {
-                    "Similar": [0],
-                    "traits": [1],
-                    "can": [2],
-                    "evolve": [3],
-                },
             })
         raise AssertionError(f"unexpected URL: {url}")
 
