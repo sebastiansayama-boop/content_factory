@@ -118,6 +118,7 @@ async function getJSON(path){
   const r=await fetch(path,{headers:{"Authorization":`Bearer ${token}`}});const data=await r.json();if(!r.ok)throw new Error(data.error||`HTTP ${r.status}`);return data;
 }
 async function loadRun(runId){
+  currentRunId=runId;
   const data=await getJSON("/api/runs/"+encodeURIComponent(runId));
   renderFactoryRun(data);
   if(data.result?.replay_of_run_id)renderReplayPanel(data);
