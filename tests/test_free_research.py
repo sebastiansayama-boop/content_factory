@@ -246,3 +246,47 @@ def test_free_web_retriever_retries_wikipedia_with_compact_query():
     assert len(packet.items) == 1
     assert packet.items[0].provider == "wikipedia"
     assert packet.items[0].external_id == "Volcanic lightning"
+
+
+def test_free_web_retriever_retries_wikipedia_with_compact_query():
+    from urllib.parse import parse_qs
+
+    def fake_urlopen(request, timeout=20):
+        url = request.full_url
+        if "action=opensearch" in url:
+            query_value = parse_qs(urlparse(url).query)["search"][0]
+            if query_value.startswith("Explain how volcanic"):
+                return FakeResponse(["query", [], [], []])
+            return FakeResponse([
+                "volcanic lightning",
+                ["Volcanic lightning"],
+                [""],
+                ["https://en.wikipedia.org/wiki/Volcanic_lightning"],
+            ])
+        if "action=query" in url:
+            return FakeResponse({
+                "query": {
+                    "pages": [{
+                        "title": "Volcanic lightning",
+                        "extract": "Volcanic lightning is a luminous electrical discharge observed in volcanic plumes.",
+                    }]
+                }
+            })
+        if "api.openalex.org/works?search=" in url:
+            raise OSError("rate limited")
+        if "news.google.com/rss/search?" in url:
+            return FakeResponse("""<?xml version="1.0"?><rss><channel></channel></rss>""")
+        raise AssertionError(f"unexpected URL: {url}")
+
+    packet = FreeWebRetriever(
+        opener=fake_urlopen,
+        wiki_limit=1,
+        openalex_limit=1,
+        news_limit=1,
+    ).retrieve(
+        "Explain how volcanic lightning forms during explosive eruptions and what remains uncertain."
+    )
+
+    assert len(packet.items) == 1
+    assert packet.items[0].provider == "wikipedia"
+    assert packet.items[0].external_id == "Volcanic lightning"
