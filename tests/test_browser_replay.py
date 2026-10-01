@@ -52,14 +52,22 @@ def test_browser_user_vertical_slice(factory_server, page):
         "Use evidence and write for a general reader."
     )
 
+    page.locator('#platforms input[value="article"]').check()
     page.locator("#runFactory").click()
     page.get_by_text("Research завершён · проверь знания", exact=True).wait_for()
+
+    created_runs = service.content_runs.list()
+    assert len(created_runs) == 1
+    assert created_runs[0].formats == ("article",)
+    assert "platform: article" in created_runs[0].constraints
 
     promote = page.locator("#knowledgeReview button[data-claim]").first
     assert promote.count() == 1
     promote.click()
 
     page.get_by_text("Готово · QC пройден", exact=True).wait_for()
+
+    assert service.content_runs.get(created_runs[0].run_id).result["content_spec"]["format"] == "article"
 
     package = page.locator("#package")
     package.get_by_text("текст", exact=True).wait_for()
