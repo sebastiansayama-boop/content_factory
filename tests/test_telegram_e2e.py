@@ -96,7 +96,7 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
             {"decision_ref": "telegram-e2e-human-test"},
         )
         assert status == 200, promoted
-        assert promoted["status"] == "PROMOTED"
+        assert promoted["status"] == "ACCEPTED"
 
         status, factory = _request(base_url, "POST", f"/api/runs/{run_id}/factory")
         assert status == 200, factory
