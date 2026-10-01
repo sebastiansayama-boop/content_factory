@@ -8,6 +8,7 @@ from content_factory.research import GeminiWebResearchAdapter
 def test_gemini_web_research_builds_native_grounding_request(monkeypatch):
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
     monkeypatch.setenv("GEMINI_MODEL", "gemini-test")
+    monkeypatch.setenv("GEMINI_RESEARCH_MODEL", "gemini-research-test")
     adapter = GeminiWebResearchAdapter(GeminiConfig.from_env())
 
     captured = {}
