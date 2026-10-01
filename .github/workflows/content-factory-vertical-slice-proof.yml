@@ -8,6 +8,11 @@ on:
         required: false
         default: false
         type: boolean
+      ref:
+        description: "Branch or commit to prove"
+        required: true
+        default: "feat/information-flow-contract"
+        type: string
 
 permissions:
   contents: read
@@ -17,6 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -32,6 +39,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
