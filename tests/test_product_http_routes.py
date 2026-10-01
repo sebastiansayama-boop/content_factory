@@ -245,6 +245,8 @@ def test_factory_research_review_then_builds_production(tmp_path, monkeypatch):
         assert first.response["candidates"]
         candidate_id = first.response["candidates"][0]["claim_id"]
         candidate = service.knowledge.get_claim(candidate_id)
+        claim_text = candidate.text
+        assert claim_text
         assert candidate.status == "CANDIDATE"
         assert service.content_runs.get(run.run_id).status == "RESEARCH_READY"
 
@@ -259,6 +261,7 @@ def test_factory_research_review_then_builds_production(tmp_path, monkeypatch):
         assert second.status == 200, second.response
         result = second.response["run"]["result"]
         brief_revision_id = result["content_brief"]["revision_id"]
+        assert any(claim_text in str(unit.get("text") or "") for unit in result["script"]["units"])
         brief_get = DummyHandler(f"/api/runs/{run.run_id}/content-brief", {})
         brief_get.content_runs = service.content_runs
         brief_get.service = service
