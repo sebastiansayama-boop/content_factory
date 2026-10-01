@@ -378,3 +378,70 @@ def test_factory_research_review_then_builds_production(tmp_path, monkeypatch):
         assert publication_events == ["approval.completed", "publication.prepared", "publication.published"]
     finally:
         service.close()
+
+
+def test_factory_routes_new_topic_to_research_when_accepted_knowledge_is_irrelevant(tmp_path, monkeypatch):
+    monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("FACTORY_PROVIDER", "local")
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+
+    from content_factory.service import FactoryService
+    from content_factory.workspace import ContentWorkspace
+
+    service = FactoryService()
+    try:
+        service.knowledge.capture(
+            run_id="seed-research",
+            research={
+                "claims": [{
+                    "id": "seed-claim",
+                    "text": "Automobiles changed expectations about urban mobility.",
+                    "confidence": "high",
+                    "source_ids": ["seed-source"],
+                    "evidence_ids": ["seed-evidence"],
+                    "scope": "urban mobility",
+                    "known_unknowns": [],
+                }],
+                "sources": [{
+                    "id": "seed-source",
+                    "title": "Seed source",
+                    "url": "https://example.com/seed",
+                }],
+                "evidence": [{
+                    "id": "seed-evidence",
+                    "source_id": "seed-source",
+                    "excerpt": "Automobiles changed expectations about urban mobility.",
+                    "locator": "paragraph 1",
+                    "provenance": "test",
+                }],
+                "editorial_angles": [],
+            },
+        )
+        seed_id = service.knowledge._connection.execute(
+            "SELECT claim_id FROM knowledge_claims"
+        ).fetchone()["claim_id"]
+        service.knowledge.promote_claim(seed_id, decision_ref="ROUTING-TEST")
+
+        run = service.content_runs.create(
+            title="New research routing",
+            brief="Explain how volcanic lightning forms during explosive eruptions.",
+            audience="general",
+            goal="evidence-grounded article",
+            formats=("article",),
+            constraints=("short",),
+        )
+
+        handler = DummyHandler(f"/api/runs/{run.run_id}/factory", {})
+        handler.content_runs = service.content_runs
+        handler.service = service
+        handler.workspace = ContentWorkspace(service)
+
+        ProductHandler.do_POST(handler)
+
+        assert handler.status == 409, handler.response
+        assert handler.response["run"]["status"] == "RESEARCH_READY"
+        assert handler.response["candidates"]
+        assert handler.response["next"].startswith("promote accepted claims")
+    finally:
+        service.close()
