@@ -8,12 +8,14 @@ def test_gemini_config_reads_model_from_environment(monkeypatch):
     monkeypatch.setenv("GEMINI_MODEL", "gemini-test-model")
     monkeypatch.setenv("GEMINI_ENDPOINT", "https://example.test/chat")
     monkeypatch.setenv("GEMINI_API_KEY_ENV", "TEST_GEMINI_KEY")
+    monkeypatch.setenv("GEMINI_RESEARCH_MODEL", "gemini-research-test-model")
 
     config = GeminiConfig.from_env()
 
     assert config.model == "gemini-test-model"
     assert config.endpoint == "https://example.test/chat"
     assert config.secret_env == "TEST_GEMINI_KEY"
+    assert config.research_model == "gemini-research-test-model"
 
 
 def test_gemini_response_text_extracts_chat_completion():
