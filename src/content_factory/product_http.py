@@ -797,6 +797,19 @@ class ProductHandler(Handler):
                         "output_id": (production.get("output") or {}).get("output_id"),
                         "artifact_ids": artifact_ids,
                     },
+                    record_event=False,
+                )
+                self.service.control.record(
+                    run_id,
+                    "approval.completed",
+                    status="APPROVED",
+                    actor=decision_ref,
+                    output_refs=(str((updated.result or {}).get("approval", {}).get("decision_ref") or ""),),
+                )
+                self.service.control.record(
+                    run_id,
+                    "publication.prepared",
+                    output_refs=(str(publication["publication_id"]), channel),
                 )
                 flow = result.get("information_flow")
                 if not isinstance(flow, dict):
@@ -816,14 +829,6 @@ class ProductHandler(Handler):
                     "publication": publication,
                 }
                 self.content_runs.save_result(run_id, approved_result)
-                self.service.control.record(
-                    run_id,
-                    "approval.completed",
-                    status="APPROVED",
-                    actor=decision_ref,
-                    output_refs=(str((approved_result.get("approval") or {}).get("decision_ref") or ""), str(publication["publication_id"])),
-                    evidence={"channel": channel, "publication_id": publication["publication_id"]},
-                )
                 self._json(200, self.content_runs.get(run_id).to_dict())
                 return
 
