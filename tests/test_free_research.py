@@ -1,6 +1,7 @@
 import json
 
 import json
+from urllib.parse import urlparse
 
 from content_factory.free_research import FreeWebGeminiAdapter, FreeWebRetriever, RetrievalItem, RetrievalPacket
 from content_factory.gemini_adapter import GeminiConfig
@@ -121,9 +122,10 @@ class FakeRetriever:
 
 def test_free_web_retriever_falls_back_to_google_news_when_other_sources_fail():
     def fake_urlopen(request, timeout=20):
-        if "wikipedia.org" in request.full_url:
+        host = urlparse(request.full_url).hostname
+        if host == "en.wikipedia.org":
             raise OSError("blocked")
-        if "api.openalex.org" in request.full_url:
+        if host == "api.openalex.org":
             raise OSError("rate limited")
         if "news.google.com/rss/search?" in request.full_url:
             return FakeResponse("""<?xml version="1.0"?><rss><channel><item><title>Fallback story</title><link>https://example.org/fallback</link><description>Fallback evidence text.</description></item></channel></rss>""")
