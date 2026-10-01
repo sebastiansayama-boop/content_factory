@@ -53,6 +53,7 @@ jobs:
 
           topic = "convergent evolution"
           status, created = req("POST", "/api/runs", {
+              "title": "Live E2E proof: convergent evolution",
               "topic": topic,
               "platform": "telegram",
               "language": "en",
