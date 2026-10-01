@@ -188,6 +188,8 @@ class FactoryControlStore:
             raise ValueError("publication not found")
         if row["status"] == "PUBLISHED":
             return dict(row)
+        if row["status"] != "PREPARED":
+            raise ValueError(f"publication cannot be published from status {row['status']}")
         payload = json.loads(row["response_json"])
         channel = row["channel"]
         external_id = f"local-{publication_id}"
