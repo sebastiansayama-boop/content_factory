@@ -1138,10 +1138,30 @@ class ProductHandler(Handler):
 
 def main() -> None:
     if os.environ.get("FACTORY_BOOT_E2E", "").strip() == "1":
+        import logging
         import subprocess
         import sys
+        import threading
 
-        subprocess.Popen([sys.executable, "-m", "content_factory.live_e2e"], close_fds=True)
+        def _run_boot_probe() -> None:
+            logger = logging.getLogger("content_factory.live_e2e")
+            try:
+                completed = subprocess.run(
+                    [sys.executable, "-m", "content_factory.live_e2e"],
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                    timeout=900,
+                )
+                if completed.stdout.strip():
+                    logger.info("LIVE_E2E_STDOUT %s", completed.stdout.strip())
+                if completed.stderr.strip():
+                    logger.error("LIVE_E2E_STDERR %s", completed.stderr.strip())
+                logger.info("LIVE_E2E_EXIT %s", completed.returncode)
+            except Exception:
+                logger.exception("LIVE_E2E_RUN_FAILED")
+
+        threading.Thread(target=_run_boot_probe, name="live-e2e-probe", daemon=True).start()
     service = FactoryService()
     ProductHandler.service = service
     ProductHandler.workspace = ContentWorkspace(service)
