@@ -445,3 +445,197 @@ def test_factory_routes_new_topic_to_research_when_accepted_knowledge_is_irrelev
         assert handler.response["next"].startswith("promote accepted claims")
     finally:
         service.close()
+
+
+
+import json
+import threading
+from http.client import HTTPConnection
+from http.server import ThreadingHTTPServer
+
+from content_factory.content_run import ContentRunStore
+from content_factory.content_run_planner import ContentRunPlanner
+from content_factory.product_http import ProductHandler
+
+
+class DummyHandler(ProductHandler):
+    def __init__(self, path, body):
+        self.path = path
+        self.body = body
+        self.status = None
+        self.response_headers = {}
+        self.content_runs = None
+        self.service = None
+        self.workspace = None
+        self.content_run_planner = None
+
+    def _protect_product_api(self):
+        return True
+
+    def _body(self):
+        return self.body
+
+    def _json(self, status, body, retry_after=None):
+        self.status = status
+        self.response = body
+
+
+class Control:
+    def record(self, *args, **kwargs):
+        pass
+
+    def timeline(self, run_id):
+        return []
+
+
+class Service:
+    def __init__(self):
+        self.control = Control()
+
+
+def test_create_run_is_durable(tmp_path):
+    store = ContentRunStore(tmp_path / "runs.sqlite3")
+    handler = DummyHandler("/api/runs", {
+        "title": "Test",
+        "brief": "A brief",
+        "audience": "general",
+        "goal": "video",
+        "formats": ["short_video"],
+        "constraints": [],
+    })
+    handler.content_runs = store
+    handler.service = Service()
+    ProductHandler.do_POST(handler)
+
+    assert handler.status == 201
+    run_id = handler.response["run_id"]
+    assert store.get(run_id) is not None
+    assert store.get(run_id).status == "DRAFT"
+    store.close()
+
+
+def _server(tmp_path, monkeypatch):
+    monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("FACTORY_PROVIDER", "local")
+    monkeypatch.setenv("FACTORY_API_TOKEN", "e2e-token")
+    monkeypatch.setenv("FACTORY_TELEGRAM_FAKE", "1")
+    monkeypatch.setenv("TELEGRAM_CHAT_ID", "fake-chat")
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+
+    from content_factory.service import FactoryService
+    from content_factory.workspace import ContentWorkspace
+
+    service = FactoryService()
+    ProductHandler.service = service
+    ProductHandler.workspace = ContentWorkspace(service)
+    ProductHandler.content_runs = service.content_runs
+    ProductHandler.content_run_planner = ContentRunPlanner(ProductHandler.workspace)
+    server = ThreadingHTTPServer(("127.0.0.1", 0), ProductHandler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    return service, server, thread
+
+
+def test_user_vertical_slice_assets_regeneration_and_export_download(tmp_path, monkeypatch):
+    import json
+
+    service, server, thread = _server(tmp_path, monkeypatch)
+
+    def request(method, path, body=None):
+        connection = HTTPConnection("127.0.0.1", server.server_port, timeout=20)
+        payload = None if body is None else json.dumps(body).encode("utf-8")
+        headers = {"Authorization": "Bearer e2e-token"}
+        if payload is not None:
+            headers["Content-Type"] = "application/json"
+        connection.request(method, path, body=payload, headers=headers)
+        response = connection.getresponse()
+        raw = response.read()
+        result = raw
+        content_type = response.getheader("Content-Type")
+        status = response.status
+        connection.close()
+        try:
+            result = json.loads(raw.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            pass
+        return status, result, content_type
+
+    try:
+        status, created, _ = request("POST", "/api/runs", {
+            "title": "Volcanic lightning",
+            "brief": "Explain how volcanic lightning forms during explosive eruptions.",
+            "audience": "general",
+            "goal": "content package",
+            "formats": ["short_video"],
+            "constraints": ["language: Русский", "style: Естественный", "length: Коротко"],
+        })
+        assert status == 201
+        run_id = created["run_id"]
+
+        status, researched, _ = request("POST", f"/api/runs/{run_id}/factory", {})
+        assert status == 409
+        candidate_id = researched["candidates"][0]["claim_id"]
+
+        status, promoted, _ = request("POST", f"/api/knowledge/{candidate_id}/promote", {
+            "decision_ref": "user-vertical-slice-review"
+        })
+        assert status == 200
+        assert promoted["status"] == "ACCEPTED"
+
+        status, built, _ = request("POST", f"/api/runs/{run_id}/factory", {})
+        assert status == 200
+        assert built["qc"]["status"] == "PASSED"
+        result = built["run"]["result"]
+        visuals = [asset for asset in result["production"]["assets"] if asset["asset_type"] == "visual"]
+        assert len(visuals) >= 2
+        assert all(candidate_id in asset["claim_refs"] for asset in visuals)
+
+        status, image_bytes, content_type = request(
+            "GET",
+            f"/api/runs/{run_id}/assets/{visuals[0]['asset_id']}",
+        )
+        assert status == 200
+        assert content_type == "image/png"
+        assert isinstance(image_bytes, bytes)
+        assert image_bytes.startswith(b"\x89PNG")
+
+        status, approved, _ = request("POST", f"/api/runs/{run_id}/approve", {
+            "decision_ref": "user-vertical-slice-approval",
+            "channel": "local",
+        })
+        assert status == 200
+        assert approved["status"] == "APPROVED"
+
+        status, exported, _ = request("POST", f"/api/runs/{run_id}/export", {})
+        assert status == 200
+        assert exported["run"]["status"] == "EXPORTED"
+        assert exported["export"]["artifact"] == "content-package.json"
+
+        status, export_bytes, content_type = request(
+            "GET",
+            f"/api/runs/{run_id}/export/download",
+        )
+        assert status == 200
+        assert content_type == "application/json"
+        assert b"content_brief" in export_bytes
+
+        status, regenerated, _ = request("POST", f"/api/runs/{run_id}/regenerate", {
+            "instruction": "Сделай следующую версию менее рекламной и более объясняющей."
+        })
+        assert status == 201
+        new_run_id = regenerated["run"]["run_id"]
+        assert new_run_id != run_id
+        assert regenerated["regeneration"]["source_run_id"] == run_id
+        assert "revision instruction:" in " ".join(regenerated["run"]["constraints"])
+
+        status, regenerated_factory, _ = request("POST", f"/api/runs/{new_run_id}/factory", {})
+        assert status == 200
+        assert regenerated_factory["run"]["status"] == "REVIEW"
+        assert regenerated_factory["qc"]["status"] == "PASSED"
+        assert regenerated_factory["run"]["result"]["production"]["assets"]
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+        service.close()
