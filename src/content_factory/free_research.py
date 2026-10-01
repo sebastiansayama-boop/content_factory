@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Protocol
 
-from .external_source import OpenAlexAdapter
 from .gemini_adapter import GeminiConfig, GeminiOpenAICompatibleAdapter
 from .integrations import ExternalCallResult
 
@@ -134,26 +133,53 @@ class FreeWebRetriever:
             ))
         return items
 
+    def _abstract_from_inverted_index(self, value: Any) -> str:
+        if not isinstance(value, dict):
+            return ""
+        tokens: list[tuple[int, str]] = []
+        for word, positions in value.items():
+            if not isinstance(word, str) or not isinstance(positions, list):
+                continue
+            for position in positions:
+                if isinstance(position, int):
+                    tokens.append((position, word))
+        return " ".join(word for _, word in sorted(tokens))
+
     def _openalex(self, query: str) -> list[RetrievalItem]:
         if self.openalex_limit <= 0:
             return []
-        adapter = OpenAlexAdapter(opener=self._opener)
-        sources = adapter.search(query)[: self.openalex_limit]
+        params = urllib.parse.urlencode({
+            "search": query,
+            "per_page": str(self.openalex_limit),
+        })
+        payload = self._json_get(f"https://api.openalex.org/works?{params}")
+        if not isinstance(payload, dict):
+            return []
+        results = payload.get("results")
+        if not isinstance(results, list):
+            return []
         items: list[RetrievalItem] = []
-        for source in sources:
-            try:
-                evidence = adapter.evidence(source)
-            except Exception:
+        for item in results[: self.openalex_limit]:
+            if not isinstance(item, dict):
                 continue
-            if not evidence.excerpt.strip():
+            external_id = str(item.get("id") or "").strip()
+            if not external_id:
                 continue
+            title = str(item.get("display_name") or item.get("title") or "").strip()
+            locator = str(item.get("doi") or external_id).strip()
+            excerpt = self._abstract_from_inverted_index(item.get("abstract_inverted_index"))
+            if not excerpt:
+                excerpt = title
+            if not excerpt:
+                continue
+            external_key = external_id.rsplit("/", 1)[-1]
             items.append(RetrievalItem(
-                source_id=source.source_id,
-                provider=source.provider,
-                external_id=source.external_id,
-                title=source.title,
-                url=source.locator,
-                excerpt=evidence.excerpt,
+                source_id=f"source:openalex:{external_key}",
+                provider="openalex",
+                external_id=external_id,
+                title=title,
+                url=locator,
+                excerpt=excerpt,
             ))
         return items
 
