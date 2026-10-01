@@ -39,6 +39,8 @@ def test_free_web_retriever_builds_wikipedia_and_openalex_evidence():
                     }]
                 }
             })
+        if "news.google.com/rss/search?" in url:
+            return FakeResponse("""<?xml version="1.0"?><rss><channel><item><title>Convergent evolution example</title><link>https://example.org/story</link><description>Independent lineages can evolve similar traits under similar selection pressures.</description></item></channel></rss>""")
         if "api.openalex.org/works?search=" in url:
             return FakeResponse({
                 "results": [{
@@ -64,8 +66,8 @@ def test_free_web_retriever_builds_wikipedia_and_openalex_evidence():
         openalex_limit=1,
     ).retrieve("convergent evolution")
 
-    assert len(packet.items) == 2
-    assert {item.provider for item in packet.items} == {"wikipedia", "openalex"}
+    assert len(packet.items) == 3
+    assert {item.provider for item in packet.items} == {"wikipedia", "openalex", "google_news"}
     assert all(item.source_id and item.evidence_id and item.excerpt for item in packet.items)
     assert all(item.url.startswith("http") for item in packet.items)
 
@@ -111,6 +113,24 @@ class FakeRetriever:
                 ),
             ),
         )
+
+
+def test_free_web_retriever_falls_back_to_google_news_when_other_sources_fail():
+    def fake_urlopen(request, timeout=20):
+        if "wikipedia.org" in request.full_url:
+            raise OSError("blocked")
+        if "api.openalex.org" in request.full_url:
+            raise OSError("rate limited")
+        if "news.google.com/rss/search?" in request.full_url:
+            return FakeResponse("""<?xml version="1.0"?><rss><channel><item><title>Fallback story</title><link>https://example.org/fallback</link><description>Fallback evidence text.</description></item></channel></rss>""")
+        raise AssertionError(request.full_url)
+
+    packet = FreeWebRetriever(
+        opener=fake_urlopen, wiki_limit=1, openalex_limit=1, news_limit=1
+    ).retrieve("convergent evolution")
+    assert len(packet.items) == 1
+    assert packet.items[0].provider == "google_news"
+    assert packet.items[0].excerpt == "Fallback evidence text."
 
 
 def test_free_web_gemini_reuses_retrieval_and_exposes_only_retrieved_sources():
