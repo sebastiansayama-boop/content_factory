@@ -7,8 +7,9 @@ from dataclasses import dataclass
 from typing import Any, Callable
 
 from .knowledge import KnowledgeStore
-from .research import GeminiWebResearchAdapter, OpenAIWebResearchAdapter, is_safe_source_url, parse_research_json
+from .free_research import FreeWebGeminiAdapter
 from .local_research import LocalResearchAdapter
+from .research import OpenAIWebResearchAdapter, is_safe_source_url, parse_research_json
 
 
 @dataclass(frozen=True)
@@ -98,7 +99,7 @@ class ContentFactoryVerticalSlice:
             configured = os.environ.get("FACTORY_PROVIDER", "").strip().lower()
             provider = configured or ("gemini" if os.environ.get("GEMINI_API_KEY", "").strip() else ("openai" if os.environ.get("OPENAI_API_KEY", "").strip() else "local"))
             if provider == "gemini":
-                self.research_adapter = GeminiWebResearchAdapter()
+                self.research_adapter = FreeWebGeminiAdapter()
             elif provider == "openai":
                 self.research_adapter = OpenAIWebResearchAdapter()
             elif provider == "local":
