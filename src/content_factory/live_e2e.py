@@ -189,7 +189,8 @@ def run() -> None:
             assert content_spec["evidence_refs"], content_spec
 
             production = result["production"]
-            assert production["status"] == "ASSEMBLED", production
+            assert production["status"] == "READY_FOR_REVIEW", production
+            assert production["output"]["status"] == "ASSEMBLED", production
             assert production["assets"], production
 
             print(json.dumps({
