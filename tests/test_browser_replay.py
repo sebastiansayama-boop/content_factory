@@ -118,7 +118,7 @@ def test_browser_replay_exact_content_brief_revision(factory_server, page):
     )
     assert approval["status"] == 200, approval
     assert approval["body"]["status"] == "APPROVED"
-    page.evaluate("loadRun(arguments[0])", replay_run_id)
+    page.evaluate("(runId) => loadRun(runId)", replay_run_id)
     page.locator("#publish").wait_for(state="attached")
     page.wait_for_function("document.querySelector('#publish').disabled === false")
     assert "Approved" in page.locator("#status").inner_text()
