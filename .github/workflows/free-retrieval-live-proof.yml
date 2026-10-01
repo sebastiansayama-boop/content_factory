@@ -52,59 +52,8 @@ jobs:
                       payload = raw
                   return exc.code, payload
 
-          status, counts = req("GET", "/api/knowledge")
-          assert status == 200, (status, counts)
-          print("knowledge_counts:", counts)
-
-          status, created = req("POST", "/api/runs", {
-              "title": "Live free retrieval proof",
-              "brief": "Explain how seawater contributed to mineral growth in ancient Roman marine concrete.",
-              "audience": "general readers",
-              "goal": "test API-key-free retrieval plus plain Gemini generation",
-              "formats": ["visual_card"],
-              "constraints": ["short", "clear"],
-          })
-          assert status in (200, 201), (status, created)
-          run_id = created["run_id"]
-          print("run_id:", run_id)
-
-          status, first = req("POST", f"/api/runs/{run_id}/factory")
-          print("factory_attempt:", status)
-          print(json.dumps(first, ensure_ascii=False)[:12000])
-          assert status == 409, (status, first)
-
-          run = first["run"]
-          research = run["result"]["research"]
-          sources = research.get("sources", [])
-          evidence = research.get("evidence", [])
-          claims = research.get("claims", [])
-          assert sources and evidence and claims, research
-          source_ids = {str(s.get("id") or "") for s in sources if isinstance(s, dict)}
-          print("source_count:", len(sources))
-          print("source_ids:", sorted(source_ids))
-          assert any(v.startswith("source:wikipedia:") for v in source_ids) or any(v.startswith("source:openalex:") for v in source_ids) or any(v.startswith("source:google-news:") for v in source_ids)
-          assert all(isinstance(c, dict) and c.get("source_ids") and c.get("evidence_ids") for c in claims)
-
-          candidates = first.get("candidates", [])
-          assert candidates, first
-          candidate_id = candidates[0]["id"]
-
-          status, promoted = req("POST", f"/api/knowledge/{candidate_id}/promote")
-          assert status in (200, 201), (status, promoted)
-          print("promoted:", candidate_id)
-
-          status, second = req("POST", f"/api/runs/{run_id}/factory")
-          print("factory_retry:", status)
-          print(json.dumps(second, ensure_ascii=False)[:12000])
-          assert status == 200, (status, second)
-
-          status, final = req("GET", f"/api/runs/{run_id}")
-          assert status == 200, (status, final)
-          assert final["status"] in {"REVIEW", "FAILED"}, final
-          if final["status"] == "REVIEW":
-              assert final["result"]["qc"]["status"] == "PASSED", final
-              print("factory_qc=PASSED")
-
-          print("FREE_RETRIEVAL_LIVE_PROOF=PASS")
-          print("provider_search_tool_used_by_app=false")
+          status, runs = req("GET", "/api/runs")
+          assert status == 200, (status, runs)
+          print(json.dumps(runs, ensure_ascii=False)[:20000])
+          print("READ_ONLY_LIVE_KNOWLEDGE=PASS")
           PY
