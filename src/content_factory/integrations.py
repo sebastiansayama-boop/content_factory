@@ -17,6 +17,8 @@ class IntegrationConfig:
     integration_id: str
     endpoint: str
     secret_env: str | None = None
+    secret_header: str = "Authorization"
+    secret_prefix: str = "Bearer "
 
     def validate(self) -> None:
         if not self.endpoint.startswith(("https://", "http://")):
@@ -53,7 +55,7 @@ class HttpJsonAdapter:
     def call(self, payload: dict[str, Any]) -> ExternalCallResult:
         headers = {"Content-Type": "application/json", "Accept": "application/json"}
         if self.config.secret_env:
-            headers["Authorization"] = f"Bearer {os.environ[self.config.secret_env]}"
+            headers[self.config.secret_header] = f"{self.config.secret_prefix}{os.environ[self.config.secret_env]}"
 
         request = Request(
             self.config.endpoint,
