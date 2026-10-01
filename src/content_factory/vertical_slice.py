@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from dataclasses import dataclass
 from typing import Any, Callable
 
 from .knowledge import KnowledgeStore
-from .research import OpenAIWebResearchAdapter, parse_research_json
+from .research import GeminiWebResearchAdapter, OpenAIWebResearchAdapter, parse_research_json
 from .local_research import LocalResearchAdapter
 
 
@@ -91,7 +92,19 @@ class ContentFactoryVerticalSlice:
         knowledge_store: KnowledgeStore | None = None,
         trace_event: Callable[..., None] | None = None,
     ) -> None:
-        self.research_adapter = research_adapter or (OpenAIWebResearchAdapter() if __import__("os").getenv("OPENAI_API_KEY") else LocalResearchAdapter())
+        if research_adapter is not None:
+            self.research_adapter = research_adapter
+        else:
+            configured = os.environ.get("FACTORY_PROVIDER", "").strip().lower()
+            provider = configured or ("gemini" if os.environ.get("GEMINI_API_KEY", "").strip() else ("openai" if os.environ.get("OPENAI_API_KEY", "").strip() else "local"))
+            if provider == "gemini":
+                self.research_adapter = GeminiWebResearchAdapter()
+            elif provider == "openai":
+                self.research_adapter = OpenAIWebResearchAdapter()
+            elif provider == "local":
+                self.research_adapter = LocalResearchAdapter()
+            else:
+                raise ValueError("FACTORY_PROVIDER must be 'gemini', 'openai', or 'local'")
         self.knowledge_store = knowledge_store
         self.trace_event = trace_event
 
