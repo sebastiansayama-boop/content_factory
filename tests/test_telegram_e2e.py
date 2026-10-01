@@ -137,9 +137,9 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
 
         status, final = _request(base_url, "GET", f"/api/runs/{run_id}")
         assert status == 200, final
-        assert final["run"]["status"] == "PUBLISHED"
-        assert final["run"]["result"]["publication"]["publication_id"] == publication["publication_id"]
-        assert final["run"]["result"]["information_flow"]["publications"][0]["status"] == "PUBLISHED"
+        assert final["status"] == "PUBLISHED"
+        assert final["result"]["publication"]["publication_id"] == publication["publication_id"]
+        assert final["result"]["information_flow"]["publications"][0]["status"] == "PUBLISHED"
     finally:
         server.shutdown()
         server.server_close()
