@@ -67,7 +67,7 @@ class GeminiWebResearchAdapter:
 
     def __init__(self, config: GeminiConfig | None = None) -> None:
         self.config = config or GeminiConfig.from_env()
-        self.model = self.config.model
+        self.model = self.config.research_model
         self._http = HttpJsonAdapter(
             IntegrationConfig(
                 integration_id="gemini.generate_content.google_search",
