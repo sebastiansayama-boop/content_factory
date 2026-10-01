@@ -1,9 +1,6 @@
-import json
-import threading
-import time
-
 import pytest
 from http.server import ThreadingHTTPServer
+import threading
 
 from content_factory.content_run_planner import ContentRunPlanner
 from content_factory.product_http import ProductHandler
@@ -44,102 +41,56 @@ def factory_server(tmp_path, monkeypatch):
         service.close()
 
 
-def test_browser_replay_exact_content_brief_revision(factory_server, page):
+def test_browser_user_vertical_slice(factory_server, page):
     base_url, service = factory_server
     page.goto(base_url, wait_until="domcontentloaded")
 
     page.locator("#token").fill("browser-e2e-token")
-    page.locator("#title").fill("Browser replay E2E")
+    page.locator("#title").fill("Browser user vertical slice")
     page.locator("#source").fill(
-        "Similar environmental pressures can produce similar traits in unrelated lineages. "
-        "Convergent evolution describes this repeated emergence of similar functional solutions."
+        "Explain how volcanic lightning forms during explosive eruptions. "
+        "Use evidence and write for a general reader."
     )
 
     page.locator("#runFactory").click()
-    page.get_by_text("Research complete · knowledge review required", exact=True).wait_for()
+    page.get_by_text("Research завершён · проверь знания", exact=True).wait_for()
 
-    promote = page.locator("#package button[data-claim]").first
+    promote = page.locator("#knowledgeReview button[data-claim]").first
     assert promote.count() == 1
-    claim_id = promote.get_attribute("data-claim")
-    assert claim_id
-
     promote.click()
-    page.get_by_text("QC passed · awaiting approval", exact=True).wait_for()
 
-    source_run_text = page.locator("#runResult").inner_text()
-    source_run_id = source_run_text.splitlines()[0].strip()
-    assert source_run_id.startswith("run-")
+    page.get_by_text("Готово · QC пройден", exact=True).wait_for()
 
-    revision = page.locator("#briefRevision")
-    revision.wait_for()
-    assert revision.locator("option").count() == 1
-    revision_id = revision.locator("option").first.get_attribute("value")
-    assert revision_id
-    assert revision_id.endswith("-r1")
-
-    page.locator("#replayBtn").click()
-    page.get_by_text("Replay & lineage", exact=True).wait_for()
-
-    replay_panel = page.locator("#replayPanel")
-    replay_text = replay_panel.inner_text()
-    assert f"Source run: {source_run_id}" in replay_text
-    assert f"Revision: {revision_id}" in replay_text
-    assert "QC: PASSED" in replay_text
-    assert "Artifacts: " in replay_text
-
-    replay_run_line = next(
-        line for line in replay_text.splitlines() if line.startswith("Replay run:")
+    package = page.locator("#package")
+    package.get_by_text("текст", exact=True).wait_for()
+    assert package.locator("img[data-asset-id]").count() >= 2
+    page.locator("img[data-asset-id]").first.wait_for()
+    page.wait_for_function(
+        """() => Array.from(document.querySelectorAll('img[data-asset-id]')).some(img => img.src.startsWith('blob:'))"""
     )
-    replay_run_id = replay_run_line.split(":", 1)[1].strip()
-    assert replay_run_id.startswith("run-")
-    assert replay_run_id != source_run_id
-
-    page.locator("#showTrace").click()
-    trace_box = page.locator("#traceBox")
-    trace_box.wait_for()
-    trace_text = trace_box.inner_text()
-    assert "REPLAY" in trace_text
-    assert "PRODUCTION" in trace_text
-    assert "QC" in trace_text
-
-    persisted = service.content_runs.get(replay_run_id)
-    assert persisted is not None
-    assert persisted.status == "REVIEW"
-    assert persisted.result["content_brief"]["revision_id"] == revision_id
-    assert persisted.result["production"]["qc"]["status"] == "PASSED"
 
     assert page.locator("#approve").is_enabled()
-    approval = page.evaluate(
-        """async ({runId, token}) => {
-            const response = await fetch('/api/runs/' + encodeURIComponent(runId) + '/approve', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
-                body: JSON.stringify({decision_ref: 'browser-human-review', channel: 'telegram'})
-            });
-            return {status: response.status, body: await response.json()};
-        }""",
-        {"runId": replay_run_id, "token": "browser-e2e-token"},
+    page.locator("#approve").click()
+    page.get_by_text("Материал принят", exact=True).wait_for()
+
+    page.locator("#export").click()
+    page.get_by_text("Экспорт готов", exact=True).wait_for()
+    download_button = page.locator("#downloadExport")
+    assert download_button.count() == 1
+
+    with page.expect_download() as download_info:
+        download_button.click()
+    download = download_info.value
+    assert download.suggested_filename == "content-package.json"
+
+    page.locator("#editInstruction").fill(
+        "Сделай следующую версию менее рекламной и более объясняющей."
     )
-    assert approval["status"] == 200, approval
-    assert approval["body"]["status"] == "APPROVED"
-    page.evaluate("(runId) => loadRun(runId)", replay_run_id)
-    page.locator("#publish").wait_for(state="attached")
-    page.wait_for_function("document.querySelector('#publish').disabled === false")
-    publications = service.control.list_publications(replay_run_id)
-    assert len(publications) == 1
-    assert publications[0]["status"] == "PREPARED"
-    assert publications[0]["channel"] == "telegram"
-    assert publications[0]["destination"] == "browser-fake-chat"
-    assert json.loads(publications[0]["artifact_ids_json"])
+    page.locator("#regenerate").click()
+    page.get_by_text("Новая версия готова · QC пройден", exact=True).wait_for()
 
-
-    page.locator("#publish").click()
-    page.locator("#status").filter(has_text="Published").wait_for()
-    published = service.content_runs.get(replay_run_id)
-    assert published is not None
-    assert published.status == "PUBLISHED"
-    assert published.result["publication"]["status"] == "PUBLISHED"
-    assert published.result["publication"]["channel"] == "telegram"
-    assert published.result["publication"]["external_id"].startswith("fake-message-")
-    assert published.result["publication"]["published_at"]
-    assert published.result["information_flow"]["publications"][0]["status"] == "PUBLISHED"
+    assert page.locator("#package img[data-asset-id]").count() >= 2
+    assert service.content_runs.list()
+    runs = service.content_runs.list()
+    assert len(runs) >= 2
+    assert any(run.status == "REVIEW" for run in runs)
