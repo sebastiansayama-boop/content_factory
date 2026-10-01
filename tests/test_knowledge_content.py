@@ -134,3 +134,47 @@ def test_knowledge_content_builder_rejects_unknown_provenance(tmp_path):
         raise AssertionError("unknown durable provenance must be rejected")
     factory._store.close()
     store.close()
+
+
+def test_knowledge_content_builder_recovers_omitted_provenance_refs(tmp_path):
+    store = KnowledgeStore(tmp_path / "knowledge.sqlite3")
+    store.capture(run_id="research-omitted-refs", research=_research())
+    claim_id = store._connection.execute(
+        "SELECT claim_id FROM knowledge_claims"
+    ).fetchone()["claim_id"]
+    evidence_id = store._connection.execute(
+        "SELECT evidence_id FROM knowledge_evidence"
+    ).fetchone()["evidence_id"]
+    store.promote_claim(claim_id, decision_ref="DEC-EDITORIAL-003")
+
+    outputs = [
+        '{"ideas":[{"idea_id":"idea-1","title":"Spirit Houses","angle":"What offerings mean","audience":"general","purpose":"explain","formats":["short_video"]}]}',
+        '{"brief_id":"brief-1","title":"Spirit Houses","objective":"Explain offerings","audience":"general","angle":"What offerings mean","editorial_points":[{"point_id":"point-1","text":"Explain what offerings mean","role":"development"}],"content_elements":[{"element_id":"element-1","kind":"narration","editorial_point_ids":["point-1"],"purpose":"explain","production_intent":"voice narration"}],"formats":["short_video"],"constraints":["no alcohol"]}',
+        '{"spec_id":"spec-1","title":"Spirit Houses","objective":"Explain offerings","audience":"general","format":"short_video","tone":"clear","structure":["hook","explanation"],"constraints":["no alcohol"],"style_bible":{}}',
+        '{"script_id":"script-1","title":"Spirit Houses","units":[{"unit_id":"unit-1","kind":"narration","text":"Offerings are commonly associated with spirit houses.","visual_intent":"show spirit house"}]}',
+    ]
+
+    factory = FakeFactory(outputs, tmp_path)
+    result = KnowledgeContentBuilder(ContentWorkspace(factory), store).build(
+        run_id="run-omitted-refs",
+        topic="Thai spirit houses offerings",
+        audience="general",
+        goal="explain",
+        formats=["short_video"],
+        constraints=["no alcohol"],
+    )
+
+    assert result["editorial"]["selected_idea"]["claim_refs"] == [claim_id]
+    assert result["editorial"]["selected_idea"]["evidence_refs"] == [evidence_id]
+    assert result["content_brief"]["selected_claim_refs"] == [claim_id]
+    assert result["content_brief"]["evidence_refs"] == [evidence_id]
+    assert result["content_brief"]["editorial_points"][0]["claim_refs"] == [claim_id]
+    assert result["content_brief"]["editorial_points"][0]["evidence_refs"] == [evidence_id]
+    assert result["content_brief"]["content_elements"][0]["claim_refs"] == [claim_id]
+    assert result["content_brief"]["content_elements"][0]["evidence_refs"] == [evidence_id]
+    assert result["content_spec"]["claim_refs"] == [claim_id]
+    assert result["content_spec"]["evidence_refs"] == [evidence_id]
+    assert result["script"]["units"][0]["claim_refs"] == [claim_id]
+    assert result["script"]["units"][0]["evidence_refs"] == [evidence_id]
+    factory._store.close()
+    store.close()
