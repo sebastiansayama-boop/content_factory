@@ -81,8 +81,9 @@ def test_http_error_preserves_provider_error_code_and_message(monkeypatch):
     with pytest.raises(
         IntegrationError,
         match=r"provider HTTP error: 429; type=insufficient_quota; code=credit_balance_exhausted; message=No credits remain",
-    ):
+    ) as exc_info:
         adapter.call({"input": "test"})
+    assert exc_info.value.status_code == 429
 
 
 def test_url_error_preserves_safe_connectivity_reason(monkeypatch):
