@@ -50,6 +50,14 @@ jobs:
                       payload = raw
                   return exc.code, payload, time.monotonic() - started
 
+          status, analyzed, elapsed = req("POST", "/api/analyze", {
+              "title": "Plain Gemini diagnostic",
+              "source": "Convergent evolution is the independent evolution of similar traits in separate lineages."
+          })
+          print("plain_gemini_analyze:", status, "seconds:", round(elapsed, 2))
+          print(json.dumps(analyzed, ensure_ascii=False)[:6000])
+          assert status == 200, (status, analyzed)
+
           status, created, elapsed = req("POST", "/api/runs", {
               "title": "Live free retrieval proof v3",
               "brief": "Explain convergent evolution with a concise evidence-backed example.",
