@@ -34,7 +34,6 @@ class TelegramDistributionAdapter:
         return {
             "destination": self.chat_id,
             "text": text[:4096],
-            "parse_mode": "HTML",
         }
 
     def publish(self, payload: dict[str, Any], *, publication_id: str) -> dict[str, Any]:
@@ -44,7 +43,6 @@ class TelegramDistributionAdapter:
             data=json.dumps({
                 "chat_id": prepared["destination"],
                 "text": prepared["text"],
-                "parse_mode": prepared["parse_mode"],
             }, ensure_ascii=False).encode("utf-8"),
             headers={"Content-Type": "application/json"},
             method="POST",
@@ -93,7 +91,6 @@ class FakeTelegramDistributionAdapter:
         prepared = {
             "destination": self.destination,
             "text": TelegramDistributionAdapter._text(payload),
-            "parse_mode": "HTML",
         }
         if not prepared["text"]:
             raise ValueError("Telegram publication requires non-empty text")
