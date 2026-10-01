@@ -178,7 +178,7 @@ def test_real_http_replay_r1_creates_new_artifact_and_qc(tmp_path, monkeypatch):
         response = connection.getresponse()
         page = response.read().decode("utf-8")
         assert response.status == 200
-        assert "Replay an exact ContentBrief revision" in page
+        assert "Изменить / перегенерировать" in page
         connection.close()
     finally:
         server.shutdown()
@@ -519,6 +519,7 @@ def _server(tmp_path, monkeypatch):
     monkeypatch.setenv("FACTORY_PROVIDER", "local")
     monkeypatch.setenv("FACTORY_API_TOKEN", "e2e-token")
     monkeypatch.setenv("FACTORY_TELEGRAM_FAKE", "1")
+    monkeypatch.setattr(ProductHandler, "_rate_limited", lambda *args, **kwargs: False)
     monkeypatch.setenv("TELEGRAM_CHAT_ID", "fake-chat")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
