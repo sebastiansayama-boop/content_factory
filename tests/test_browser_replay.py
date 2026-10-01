@@ -105,26 +105,15 @@ def test_browser_replay_exact_content_brief_revision(factory_server, page):
     assert persisted.result["production"]["qc"]["status"] == "PASSED"
 
     page.locator("#approve").click()
-    deadline = time.monotonic() + 5
-    while time.monotonic() < deadline:
-        approved = service.content_runs.get(replay_run_id)
-        if approved is not None and approved.status == "APPROVED":
-            break
-        time.sleep(0.05)
-    approved = service.content_runs.get(replay_run_id)
-    assert approved is not None
-    assert approved.status == "APPROVED"
+    page.locator("#publish").wait_for(state="attached")
+    page.wait_for_function("document.querySelector('#publish').disabled === false")
+    assert "Approved" in page.locator("#status").inner_text()
     publications = service.control.list_publications(replay_run_id)
     assert len(publications) == 1
     assert publications[0]["status"] == "PREPARED"
 
-    page.locator("#publish").click(force=True)
-    deadline = time.monotonic() + 5
-    while time.monotonic() < deadline:
-        published = service.content_runs.get(replay_run_id)
-        if published is not None and published.status == "PUBLISHED":
-            break
-        time.sleep(0.05)
+    page.locator("#publish").click()
+    page.get_by_text("Published", exact=False).wait_for()
     published = service.content_runs.get(replay_run_id)
     assert published is not None
     assert published.status == "PUBLISHED"
