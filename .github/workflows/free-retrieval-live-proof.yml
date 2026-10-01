@@ -8,7 +8,7 @@ on:
 permissions: {}
 
 jobs:
-  live-proof:
+  read-live-knowledge:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,42 +18,28 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python -m pip install --upgrade pip
-      - run: pip install -e ".[dev]"
-      - name: Verify free retrieval path on live service
+      - name: Inspect live knowledge
         env:
           BASE_URL: "https://content-factory-1zij.onrender.com"
           FACTORY_API_TOKEN: ${{ secrets.FACTORY_API_TOKEN }}
         run: |
           python - <<'PY'
-          import json, os, urllib.error, urllib.request
-
+          import json, os, urllib.request
           base = os.environ["BASE_URL"].rstrip("/")
-          token = os.environ.get("FACTORY_API_TOKEN")
-          if not token:
-              raise SystemExit("FACTORY_API_TOKEN secret is missing")
-
-          def req(method, path, body=None):
-              data = json.dumps(body).encode() if body is not None else None
-              headers = {
-                  "Authorization": f"Bearer {token}",
-                  "Content-Type": "application/json",
-              }
-              request = urllib.request.Request(base + path, data=data, headers=headers, method=method)
-              try:
-                  with urllib.request.urlopen(request, timeout=120) as response:
-                      raw = response.read().decode()
-                      return response.status, json.loads(raw) if raw else None
-              except urllib.error.HTTPError as exc:
-                  raw = exc.read().decode()
-                  try:
-                      payload = json.loads(raw)
-                  except Exception:
-                      payload = raw
-                  return exc.code, payload
-
-          status, runs = req("GET", "/api/runs")
-          assert status == 200, (status, runs)
-          print(json.dumps(runs, ensure_ascii=False)[:20000])
-          print("READ_ONLY_LIVE_KNOWLEDGE=PASS")
+          token = os.environ["FACTORY_API_TOKEN"]
+          req = urllib.request.Request(
+              base + "/api/runs",
+              headers={"Authorization": f"Bearer {token}"},
+          )
+          with urllib.request.urlopen(req, timeout=60) as r:
+              payload = json.loads(r.read().decode())
+          for run in payload.get("runs", []):
+              claims = ((run.get("result") or {}).get("research") or {}).get("claims") or []
+              for claim in claims:
+                  print(json.dumps({
+                      "run_id": run.get("run_id"),
+                      "title": run.get("title"),
+                      "status": claim.get("status"),
+                      "text": claim.get("text"),
+                  }, ensure_ascii=False))
           PY
