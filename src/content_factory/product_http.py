@@ -11,7 +11,7 @@ from .content_run_planner import ContentRunPlanner
 from .assembly import ContentAssembler, QualityGate
 from .exporter import ContentExporter
 from .knowledge_content import KnowledgeContentBuilder, build_replay_production_package
-from .information_flow import build_information_flow
+from .information_flow import attach_publication, build_information_flow
 from .service import FactoryService, Handler
 from .runtime import FactoryRuntime, WorkItem
 from .workspace import ContentWorkspace
@@ -421,18 +421,61 @@ class ProductHandler(Handler):
                 if run is None:
                     self._json(404, {"error": "content run not found"})
                     return
-                if run.status != "EXPORTED":
-                    raise ValueError("only EXPORTED runs can be published")
+                if run.status not in {"APPROVED", "EXPORTED"}:
+                    raise ValueError("only APPROVED or EXPORTED runs can be published")
                 payload = self._body()
-                channel = str(payload.get("channel", "")).strip()
-                if not channel:
-                    raise ValueError("channel is required")
-                content_ref = str(payload.get("content_ref") or (run.result or {}).get("export", {}).get("artifact") or run_id)
-                prepared = self.service.control.prepare_publication(run_id, channel, content_ref, payload.get("content") if isinstance(payload.get("content"), dict) else (run.result or {}))
+                requested_publication_id = str(payload.get("publication_id") or "").strip()
+                publications = self.service.control.list_publications(run_id)
+                if requested_publication_id:
+                    prepared = next((item for item in publications if item["publication_id"] == requested_publication_id), None)
+                else:
+                    prepared = next((item for item in publications if item["status"] == "PREPARED"), None)
+                if prepared is None:
+                    channel = str(payload.get("channel") or "local").strip()
+                    if not channel:
+                        raise ValueError("channel is required")
+                    result = run.result or {}
+                    production = result.get("production") if isinstance(result.get("production"), dict) else {}
+                    assets = self.service.asset_registry.list_for_run(run_id)
+                    artifact_ids = [asset.asset_id for asset in assets]
+                    if not artifact_ids:
+                        raise ValueError("run has no production artifacts")
+                    content_ref = str(payload.get("content_ref") or (result.get("export") or {}).get("artifact") or (production.get("output") or {}).get("output_id") or run_id)
+                    prepared = self.service.control.prepare_publication(
+                        run_id,
+                        channel,
+                        content_ref,
+                        {"run_id": run_id, "content_ref": content_ref, "artifact_ids": artifact_ids},
+                    )
                 published = self.service.control.publish(
                     prepared["publication_id"],
                     url=os.environ.get("PUBLISH_URL", "").strip() or None,
                     token=os.environ.get("PUBLISH_AUTH_TOKEN"),
+                )
+                result = self.content_runs.get(run_id).result or {}
+                flow = result.get("information_flow")
+                if isinstance(flow, dict):
+                    artifact_ids = list((next((item for item in flow.get("publications", []) if item.get("publication_id") == prepared["publication_id"]), {}) or {}).get("artifact_ids") or [])
+                    if not artifact_ids:
+                        artifact_ids = [asset.asset_id for asset in self.service.asset_registry.list_for_run(run_id)]
+                    result["information_flow"] = attach_publication(
+                        flow,
+                        publication_id=str(published["publication_id"]),
+                        artifact_ids=artifact_ids,
+                        channel=str(published["channel"]),
+                        status=str(published["status"]),
+                    )
+                result["publication"] = published
+                self.content_runs.mark_published(run_id, published)
+                self.content_runs.save_result(run_id, result)
+                self._record_trace(
+                    run_id,
+                    stage="DISTRIBUTION",
+                    task="publish_content",
+                    tool="FactoryControlStore",
+                    action="publish",
+                    result={"status": published["status"], "publication_id": published["publication_id"], "channel": published["channel"]},
+                    decision="ACCEPT",
                 )
                 self._json(200, published)
                 return
@@ -730,15 +773,59 @@ class ProductHandler(Handler):
                     raise ValueError("only QC-passed runs can be approved")
                 payload = self._body()
                 decision_ref = str(payload.get("decision_ref", "")).strip()
+                channel = str(payload.get("channel") or "local").strip()
+                if not channel:
+                    raise ValueError("channel is required")
                 updated = self.content_runs.approve(run_id, decision_ref=decision_ref)
+                assets = self.service.asset_registry.list_for_run(run_id)
+                artifact_ids = [asset.asset_id for asset in assets]
+                if not artifact_ids:
+                    raise ValueError("approved run has no production artifacts")
+                content_ref = str(
+                    payload.get("content_ref")
+                    or (result.get("export") or {}).get("artifact")
+                    or (production.get("output") or {}).get("output_id")
+                    or run_id
+                )
+                publication = self.service.control.prepare_publication(
+                    run_id,
+                    channel,
+                    content_ref,
+                    {
+                        "run_id": run_id,
+                        "content_ref": content_ref,
+                        "content_brief_revision_id": result.get("content_brief_revision_id"),
+                        "output_id": (production.get("output") or {}).get("output_id"),
+                        "artifact_ids": artifact_ids,
+                    },
+                )
+                flow = result.get("information_flow")
+                if not isinstance(flow, dict):
+                    raise ValueError("approved run is missing information flow")
+                updated_flow = attach_publication(
+                    flow,
+                    publication_id=str(publication["publication_id"]),
+                    artifact_ids=artifact_ids,
+                    channel=channel,
+                    status=str(publication["status"]),
+                )
+                current = self.content_runs.get(run_id)
+                assert current is not None
+                approved_result = {
+                    **(current.result or {}),
+                    "information_flow": updated_flow,
+                    "publication": publication,
+                }
+                self.content_runs.save_result(run_id, approved_result)
                 self.service.control.record(
                     run_id,
                     "approval.completed",
                     status="APPROVED",
                     actor=decision_ref,
-                    output_refs=(str((updated.result or {}).get("approval", {}).get("decision_ref") or ""),),
+                    output_refs=(str((approved_result.get("approval") or {}).get("decision_ref") or ""), str(publication["publication_id"])),
+                    evidence={"channel": channel, "publication_id": publication["publication_id"]},
                 )
-                self._json(200, updated.to_dict())
+                self._json(200, self.content_runs.get(run_id).to_dict())
                 return
 
             if is_run_export:
