@@ -74,6 +74,10 @@ class FactoryControlStore:
                 external_id TEXT,
                 external_url TEXT,
                 response_json TEXT NOT NULL,
+                artifact_ids_json TEXT NOT NULL DEFAULT '[]',
+                destination TEXT,
+                provenance_json TEXT NOT NULL DEFAULT '{}',
+                published_at TEXT,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL
             );
@@ -101,6 +105,11 @@ class FactoryControlStore:
             );
             """
         )
+        existing_columns = {row["name"] for row of self.db.execute("PRAGMA table_info(publications)").fetchall()}
+        migrations = {"artifact_ids_json": "ALTER TABLE publications ADD COLUMN artifact_ids_json TEXT NOT NULL DEFAULT '[]'", "destination": "ALTER TABLE publications ADD COLUMN destination TEXT", "provenance_json": "ALTER TABLE publications ADD COLUMN provenance_json TEXT NOT NULL DEFAULT '{}'", "published_at": "ALTER TABLE publications ADD COLUMN published_at TEXT"}
+        with self.db:
+            for column, statement in migrations.items():
+                if column not in existing_columns: self.db.execute(statement)
         self.db.commit()
 
     def record(
@@ -161,78 +170,48 @@ class FactoryControlStore:
     ) -> dict[str, Any]:
         now = _now()
         publication_id = f"pub-{uuid4()}"
+        artifact_ids = list(dict.fromkeys(str(ref) for ref in payload.get("artifact_ids", []) if str(ref).strip()))
+        destination = str(payload.get("destination") or "").strip() or None
+        provenance = payload.get("provenance") if isinstance(payload.get("provenance"), dict) else {}
         with self.db:
-            existing = self.db.execute(
-                "SELECT * FROM publications WHERE run_id=? AND channel=? AND content_ref=?",
-                (run_id, channel, content_ref),
-            ).fetchone()
-            if existing:
-                return dict(existing)
-            self.db.execute(
-                """INSERT INTO publications
-                (publication_id,run_id,channel,status,content_ref,external_id,external_url,response_json,created_at,updated_at)
-                VALUES (?,?,?,?,?,?,?,?,?,?)""",
-                (publication_id, run_id, channel, "PREPARED", content_ref, None, None,
-                 _json(payload), now, now),
-            )
-        if record_event:
-            self.record(run_id, "publication.prepared", output_refs=(publication_id, channel))
-        return dict(self.db.execute(
-            "SELECT * FROM publications WHERE publication_id=?", (publication_id,)
-        ).fetchone())
+            existing = self.db.execute("SELECT * FROM publications WHERE run_id=? AND channel=? AND content_ref=?", (run_id, channel, content_ref)).fetchone()
+            if existing: return dict(existing)
+            self.db.execute("INSERT INTO publications (publication_id,run_id,channel,status,content_ref,external_id,external_url,response_json,artifact_ids_json,destination,provenance_json,published_at,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (publication_id,run_id,channel,"PREPARED",content_ref,None,None,_json(payload),_json(artifact_ids),destination,_json(provenance),None,now,now))
+        if record_event: self.record(run_id, "publication.prepared", output_refs=(publication_id, channel))
+        return dict(self.db.execute("SELECT * FROM publications WHERE publication_id=?", (publication_id,)).fetchone())
 
-    def publish(self, publication_id: str, *, url: str | None = None, token: str | None = None) -> dict[str, Any]:
-        row = self.db.execute(
-            "SELECT * FROM publications WHERE publication_id=?", (publication_id,)
-        ).fetchone()
-        if not row:
-            raise ValueError("publication not found")
-        if row["status"] == "PUBLISHED":
-            return dict(row)
-        if row["status"] != "PREPARED":
-            raise ValueError(f"publication cannot be published from status {row['status']}")
+    def publish(self, publication_id: str, *, url: str | None = None, token: str | None = None, publisher: Any | None = None) -> dict[str, Any]:
+        row = self.db.execute("SELECT * FROM publications WHERE publication_id=?", (publication_id,)).fetchone()
+        if not row: raise ValueError("publication not found")
+        if row["status"] == "PUBLISHED": return dict(row)
+        if row["status"] != "PREPARED": raise ValueError(f"publication cannot be published from status {row['status']}")
         payload = json.loads(row["response_json"])
-        channel = row["channel"]
-        external_id = f"local-{publication_id}"
-        external_url = None
-        response: dict[str, Any] = {"mode": "local", "channel": channel}
-        if url:
-            body = _json({
-                "publication_id": publication_id,
-                "channel": channel,
-                "content_ref": row["content_ref"],
-                "content": payload,
-            }).encode()
-            headers = {"Content-Type": "application/json", "Idempotency-Key": publication_id}
-            if token:
-                headers["Authorization"] = f"Bearer {token}"
-            request = urllib.request.Request(url, data=body, headers=headers, method="POST")
+        external_id, external_url = f"local-{publication_id}", None
+        response: dict[str, Any] = {"mode":"local", "channel":row["channel"]}
+        published_at = _now()
+        if publisher is not None:
+            result = publisher.publish(payload, publication_id=publication_id)
+            if not isinstance(result, dict): raise ValueError("publisher must return an object")
+            response = result.get("response") if isinstance(result.get("response"), dict) else result
+            external_id = str(result.get("external_id") or publication_id)
+            external_url = result.get("external_url")
+            published_at = str(result.get("published_at") or "").strip() or _now()
+        elif url:
+            body = _json({"publication_id":publication_id,"channel":row["channel"],"content_ref":row["content_ref"],"content":payload}).encode()
+            headers = {"Content-Type":"application/json", "Idempotency-Key":publication_id}
+            if token: headers["Authorization"] = f"Bearer {token}"
+            request = urllib.request.Request(url,data=body,headers=headers,method="POST")
             try:
-                with urllib.request.urlopen(request, timeout=30) as result:
-                    raw = result.read(8192).decode("utf-8", errors="replace")
-                    status_code = int(result.status)
-            except urllib.error.HTTPError as exc:
-                raise ValueError(f"publication endpoint returned HTTP {exc.code}") from exc
-            except urllib.error.URLError as exc:
-                raise ValueError(f"publication endpoint failed: {exc.reason}") from exc
-            if not 200 <= status_code < 300:
-                raise ValueError(f"publication endpoint returned HTTP {status_code}")
-            response = {"mode": "webhook", "http_status": status_code, "body": raw[:4000]}
-            external_id = publication_id
-            external_url = url
-        now = _now()
+                with urllib.request.urlopen(request,timeout=30) as result:
+                    raw=result.read(8192).decode("utf-8",errors="replace"); status_code=int(result.status)
+            except urllib.error.HTTPError as exc: raise ValueError(f"publication endpoint returned HTTP {exc.code}") from exc
+            except urllib.error.URLError as exc: raise ValueError(f"publication endpoint failed: {exc.reason}") from exc
+            if not 200 <= status_code < 300: raise ValueError(f"publication endpoint returned HTTP {status_code}")
+            response={"mode":"webhook","http_status":status_code,"body":raw[:4000]}; external_id=publication_id; external_url=url
         with self.db:
-            self.db.execute(
-                """UPDATE publications SET status='PUBLISHED', external_id=?, external_url=?,
-                response_json=?, updated_at=? WHERE publication_id=?""",
-                (external_id, external_url, _json(response), now, publication_id),
-            )
-        run_id = row["run_id"]
-        self.record(run_id, "publication.published", output_refs=(publication_id, external_id), evidence=response)
-        return dict(self.db.execute(
-            "SELECT * FROM publications WHERE publication_id=?", (publication_id,)
-        ).fetchone())
-
+            self.db.execute("UPDATE publications SET status='PUBLISHED', external_id=?, external_url=?, response_json=?, published_at=?, updated_at=? WHERE publication_id=?", (external_id,external_url,_json(response),published_at,_now(),publication_id))
+        self.record(row["run_id"], "publication.published", output_refs=(publication_id,external_id), evidence=response)
+        return dict(self.db.execute("SELECT * FROM publications WHERE publication_id=?", (publication_id,)).fetchone())
     def list_publications(self, run_id: str) -> list[dict[str, Any]]:
         return [dict(row) for row in self.db.execute(
             "SELECT * FROM publications WHERE run_id=? ORDER BY created_at", (run_id,)
