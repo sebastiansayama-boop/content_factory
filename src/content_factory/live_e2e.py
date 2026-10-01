@@ -82,8 +82,15 @@ def run() -> None:
                     "editorial_angles": [],
                 },
             )
+            seeded = service.knowledge.search(
+                "Automobiles changed expectations about urban mobility.",
+                include_candidates=True,
+            )["claims"]
+            if not seeded:
+                raise RuntimeError("live E2E seed claim was not captured")
+            seed_claim_id = str(seeded[0]["claim_id"])
             service.knowledge.promote_claim(
-                "live-e2e-seed-claim",
+                seed_claim_id,
                 decision_ref="LIVE-E2E-SEED",
             )
 
