@@ -24,19 +24,20 @@ def test_gemini_web_research_builds_native_grounding_request(monkeypatch):
 
         def read(self):
             return json.dumps({
-                "candidates": [{
-                    "content": {
-                        "parts": [{"text": "grounded response"}]
-                    },
-                    "groundingMetadata": {
-                        "groundingChunks": [{
-                            "web": {
-                                "uri": "https://example.com/source",
-                                "title": "Example source",
-                            }
-                        }]
-                    },
-                }]
+                "id": "int-1",
+                "output_text": "grounded response",
+                "steps": [{
+                    "type": "model_output",
+                    "content": [{
+                        "type": "text",
+                        "text": "grounded response",
+                        "annotations": [{
+                            "type": "url_citation",
+                            "url": "https://example.com/source",
+                            "title": "Example source",
+                        }],
+                    }],
+                }],
             }).encode("utf-8")
 
     from content_factory import integrations
@@ -64,9 +65,9 @@ def test_gemini_web_research_builds_native_grounding_request(monkeypatch):
 
 def test_gemini_web_research_joins_multiple_text_parts():
     result = ExternalCallResult(
-        integration_id="gemini.generate_content.google_search",
+        integration_id="gemini.interactions.google_search",
         status_code=200,
-        response_id=None,
+        response_id="int-1",
         payload={
             "steps": [{
                 "type": "model_output",
