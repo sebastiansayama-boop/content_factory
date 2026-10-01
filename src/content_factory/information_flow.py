@@ -335,6 +335,94 @@ def build_information_flow(
     return flow
 
 
+def attach_publication(
+    flow: dict[str, Any],
+    *,
+    publication_id: str,
+    artifact_ids: list[str] | tuple[str, ...],
+    channel: str,
+    status: str,
+) -> dict[str, Any]:
+    publication_id = str(publication_id).strip()
+    channel = str(channel).strip()
+    status = str(status).strip()
+    if not publication_id or not channel or not status:
+        raise InformationFlowError("publication requires id, channel and status")
+    artifact_ids = tuple(dict.fromkeys(str(ref).strip() for ref in artifact_ids if str(ref).strip()))
+    existing_artifacts = {
+        str(item.get("artifact_id"))
+        for item in flow.get("artifacts", [])
+        if isinstance(item, dict) and str(item.get("artifact_id") or "").strip()
+    }
+    if not artifact_ids or not set(artifact_ids).issubset(existing_artifacts):
+        raise InformationFlowError("publication must reference existing artifacts")
+    publications = [
+        dict(item)
+        for item in flow.get("publications", [])
+        if isinstance(item, dict) and str(item.get("publication_id") or "") != publication_id
+    ]
+    publications.append({
+        "publication_id": publication_id,
+        "artifact_ids": list(artifact_ids),
+        "channel": channel,
+        "status": status,
+    })
+    edges = [
+        dict(edge)
+        for edge in flow.get("edges", [])
+        if not (
+            str(edge.get("to_id") or "") == publication_id
+            and str(edge.get("relation") or "") == "artifact_to_publication"
+        )
+    ]
+    edges.extend({
+        "from_id": artifact_id,
+        "to_id": publication_id,
+        "relation": "artifact_to_publication",
+    } for artifact_id in artifact_ids)
+    updated = {**flow, "publications": publications, "edges": edges}
+    validate_information_flow_dict(updated)
+    return updated
+
+
+def validate_information_flow_dict(flow: dict[str, Any]) -> None:
+    publications = flow.get("publications", [])
+    artifacts = {
+        str(item.get("artifact_id"))
+        for item in flow.get("artifacts", [])
+        if isinstance(item, dict)
+    }
+    ids = {
+        str(item.get(key))
+        for key in ("source_id", "evidence_id", "claim_id", "point_id", "element_id", "artifact_id", "publication_id")
+        for item in (
+            flow.get("sources", [])
+            + flow.get("evidence", [])
+            + flow.get("claims", [])
+            + flow.get("editorial_points", [])
+            + flow.get("content_elements", [])
+            + flow.get("artifacts", [])
+            + publications
+        )
+        if isinstance(item, dict) and str(item.get(key) or "").strip()
+    }
+    for publication in publications:
+        if not isinstance(publication, dict):
+            raise InformationFlowError("publication must be an object")
+        refs = publication.get("artifact_ids")
+        if not publication.get("publication_id") or not publication.get("channel") or not publication.get("status"):
+            raise InformationFlowError("publication requires id, channel and status")
+        if not isinstance(refs, list) or not refs or not set(refs).issubset(artifacts):
+            raise InformationFlowError("publication references unknown artifact")
+    for edge in flow.get("edges", []):
+        if not isinstance(edge, dict):
+            raise InformationFlowError("lineage edge must be an object")
+        if edge.get("from_id") not in ids or edge.get("to_id") not in ids:
+            raise InformationFlowError("publication lineage edge references unknown object")
+        if edge.get("relation") == "artifact_to_publication" and edge.get("from_id") not in artifacts:
+            raise InformationFlowError("artifact_to_publication must originate from an artifact")
+
+
 def validate_information_flow(flow: InformationFlow) -> None:
     ids: set[str] = set()
     for collection in (
@@ -413,6 +501,7 @@ def validate_information_flow(flow: InformationFlow) -> None:
         "content_element_to_artifact",
         "claim_to_artifact",
         "evidence_to_artifact",
+        "artifact_to_publication",
     }
     for edge in flow.edges:
         if edge.from_id not in ids or edge.to_id not in ids:
