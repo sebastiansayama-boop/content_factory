@@ -482,7 +482,7 @@ class KnowledgeStore:
         # Reuse knowledge only when the query has substantial lexical overlap
         # with the stored claim. A single shared word is too weak and can route
         # unrelated topics into the editorial stage.
-        minimum_score = 1 if len(terms) == 1 else max(2, (len(terms) + 1) // 2)
+        minimum_score = 1 if len(terms) == 1 else 2
         scored_claims: list[tuple[int, sqlite3.Row]] = []
         for row in claim_rows:
             score = len(terms & _tokens(row["text"]))
