@@ -27,6 +27,7 @@ def test_control_plane_timeline_distribution_observation_learning_and_replay(tmp
     assert published["status"] == "PUBLISHED"
     assert published["published_at"]
     assert published["external_id"].startswith("local-")
+    assert published["response"]["mode"] == "local"
 
     observation = store.observe(
         prepared["publication_id"],
