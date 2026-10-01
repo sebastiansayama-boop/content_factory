@@ -1,6 +1,7 @@
 from content_factory.integrations import ExternalCallResult
 from content_factory.knowledge import KnowledgeStore
-from content_factory.research import GeminiWebResearchAdapter, OpenAIWebResearchAdapter, is_safe_source_url
+from content_factory.free_research import FreeWebGeminiAdapter
+from content_factory.research import OpenAIWebResearchAdapter, is_safe_source_url
 from content_factory.vertical_slice import ContentFactoryVerticalSlice, quality_check
 
 
@@ -134,13 +135,12 @@ def test_vertical_slice_selects_gemini_research_provider(monkeypatch):
     monkeypatch.setenv("FACTORY_PROVIDER", "gemini")
     monkeypatch.setenv("GEMINI_API_KEY", "test-key")
     monkeypatch.setenv("GEMINI_MODEL", "gemini-test")
-    monkeypatch.setenv("GEMINI_RESEARCH_MODEL", "gemini-research-test")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
     factory = ContentFactoryVerticalSlice()
 
-    assert isinstance(factory.research_adapter, GeminiWebResearchAdapter)
-    assert factory.research_adapter.model == "gemini-research-test"
+    assert isinstance(factory.research_adapter, FreeWebGeminiAdapter)
+    assert factory.research_adapter.config.model == "gemini-test"
 
 
 def test_vertical_slice_selects_local_when_no_provider_credentials(monkeypatch):

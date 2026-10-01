@@ -1,0 +1,183 @@
+import json
+
+from content_factory.free_research import FreeWebGeminiAdapter, FreeWebRetriever, RetrievalItem, RetrievalPacket
+from content_factory.gemini_adapter import GeminiConfig
+from content_factory.integrations import ExternalCallResult
+
+
+class FakeResponse:
+    def __init__(self, payload):
+        self.status = 200
+        self.payload = payload
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return False
+
+    def read(self):
+        return json.dumps(self.payload).encode("utf-8")
+
+
+def test_free_web_retriever_builds_wikipedia_and_openalex_evidence():
+    def fake_urlopen(request, timeout=20):
+        url = request.full_url
+        if "action=opensearch" in url:
+            return FakeResponse([
+                "convergent evolution",
+                ["Convergent evolution"],
+                [""],
+                ["https://en.wikipedia.org/wiki/Convergent_evolution"],
+            ])
+        if "action=query" in url:
+            return FakeResponse({
+                "query": {
+                    "pages": [{
+                        "title": "Convergent evolution",
+                        "extract": "Convergent evolution is the independent evolution of similar traits.",
+                    }]
+                }
+            })
+        if "api.openalex.org/works?search=" in url:
+            return FakeResponse({
+                "results": [{
+                    "id": "https://openalex.org/W1",
+                    "display_name": "Convergent evolution in biology",
+                    "doi": "https://doi.org/10.1234/example",
+                    "publication_date": "2024-01-01",
+                    "updated_date": "2024-02-01",
+                    "primary_location": {"license": "cc-by"},
+                }]
+            })
+        if "api.openalex.org/works/W1" in url:
+            return FakeResponse({
+                "id": "https://openalex.org/W1",
+                "display_name": "Convergent evolution in biology",
+                "abstract_inverted_index": {
+                    "Similar": [0],
+                    "traits": [1],
+                    "can": [2],
+                    "evolve": [3],
+                },
+            })
+        raise AssertionError(f"unexpected URL: {url}")
+
+    packet = FreeWebRetriever(
+        opener=fake_urlopen,
+        wiki_limit=1,
+        openalex_limit=1,
+    ).retrieve("convergent evolution")
+
+    assert len(packet.items) == 2
+    assert {item.provider for item in packet.items} == {"wikipedia", "openalex"}
+    assert all(item.source_id and item.evidence_id and item.excerpt for item in packet.items)
+    assert all(item.url.startswith("http") for item in packet.items)
+
+
+class FakeGemini:
+    def __init__(self):
+        self.prompts = []
+
+    def generate(self, prompt):
+        self.prompts.append(prompt)
+        text = '{"topic":"Convergent evolution","summary":"supported","claims":[],"sources":[],"evidence":[],"editorial_angles":[]}'
+        return ExternalCallResult(
+            integration_id="gemini.chat.completions",
+            status_code=200,
+            response_id="g-1",
+            payload={
+                "choices": [{
+                    "message": {
+                        "content": text,
+                    }
+                }]
+            },
+        )
+
+
+class FakeRetriever:
+    def __init__(self):
+        self.calls = 0
+
+    def retrieve(self, query):
+        self.calls += 1
+        return RetrievalPacket(
+            query=query,
+            retrieved_at="2026-10-01T00:00:00Z",
+            items=(
+                RetrievalItem(
+                    source_id="source:wikipedia:test",
+                    provider="wikipedia",
+                    external_id="Test",
+                    title="Test source",
+                    url="https://en.wikipedia.org/wiki/Test",
+                    excerpt="Evidence from the public source.",
+                ),
+            ),
+        )
+
+
+def test_free_web_gemini_reuses_retrieval_and_exposes_only_retrieved_sources():
+    retriever = FakeRetriever()
+    gemini = FakeGemini()
+    adapter = FreeWebGeminiAdapter(
+        GeminiConfig(model="gemini-test"),
+        retriever=retriever,
+        gemini=gemini,
+    )
+
+    research_prompt = """You are the research stage.
+Research the user's brief using live web search.
+USER BRIEF:
+convergent evolution
+"""
+    result = adapter.research(research_prompt)
+
+    assert retriever.calls == 1
+    assert "SUPPLIED RETRIEVAL PACK" in gemini.prompts[0]
+    assert "Do not perform or claim additional web search" in gemini.prompts[0]
+    assert "source:wikipedia:test" in gemini.prompts[0]
+    assert adapter.sources(result) == [{
+        "id": "source:wikipedia:test",
+        "title": "Test source",
+        "url": "https://en.wikipedia.org/wiki/Test",
+    }]
+
+    production_result = adapter.research(
+        'Create one article. Return ONLY JSON: {"content":"complete usable content"}'
+    )
+    assert retriever.calls == 1
+    assert "RETRIEVAL PACK USED FOR THIS RUN" in gemini.prompts[1]
+    assert adapter.text(production_result).startswith("{")
+
+
+def test_free_web_gemini_uses_plain_gemini_chat_api_without_search_tool(monkeypatch):
+    import content_factory.integrations as integrations
+
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key")
+    captured = {}
+
+    def fake_urlopen(request, timeout=30):
+        captured["url"] = request.full_url
+        captured["headers"] = dict(request.headers)
+        captured["payload"] = json.loads(request.data.decode("utf-8"))
+        return FakeResponse({
+            "id": "chat-1",
+            "choices": [{
+                "message": {"content": "ok"}
+            }],
+        })
+
+    monkeypatch.setattr(integrations, "urlopen", fake_urlopen)
+
+    adapter = FreeWebGeminiAdapter(
+        GeminiConfig(model="gemini-test"),
+        retriever=FakeRetriever(),
+    )
+    adapter.research("USER BRIEF:\nconvergent evolution")
+
+    assert captured["url"].endswith("/v1beta/openai/chat/completions")
+    assert captured["headers"]["Authorization"] == "Bearer test-key"
+    assert captured["payload"]["model"] == "gemini-test"
+    assert "tools" not in captured["payload"]
