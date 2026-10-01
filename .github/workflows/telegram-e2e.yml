@@ -2,6 +2,11 @@ name: Telegram E2E
 
 on:
   workflow_dispatch:
+    inputs:
+      ref:
+        description: Git ref to test
+        required: true
+        default: feat/information-flow-contract
 
 jobs:
   telegram-e2e:
@@ -9,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: feat/information-flow-contract
+          ref: ${{ inputs.ref }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
