@@ -138,7 +138,7 @@ function renderReplayControls(run){
     $("replayBtn").disabled=true;setStatus("Replaying exact revision → production → QC…");
     try{
       const data=await api("/api/runs/"+encodeURIComponent(run.run_id)+"/replay",{brief_id:revision.brief_id,revision_id:revision.revision_id,changed_claim_ids:[]});
-      renderFactoryRun(data.run);renderReplayPanel(data.run);setStatus(data.qc?.passed?"Replay QC passed":"Replay QC failed");
+      currentRunId=data.run.run_id;renderFactoryRun(data.run);renderReplayPanel(data.run);setStatus(data.qc?.passed?"Replay QC passed":"Replay QC failed");
     }catch(e){error(e.message);setStatus("Replay error")}finally{$("replayBtn").disabled=false}
   };
 }
