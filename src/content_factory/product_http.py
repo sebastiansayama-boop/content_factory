@@ -1137,6 +1137,11 @@ class ProductHandler(Handler):
 
 
 def main() -> None:
+    if os.environ.get("FACTORY_BOOT_E2E", "").strip() == "1":
+        import subprocess
+        import sys
+
+        subprocess.Popen([sys.executable, "-m", "content_factory.live_e2e"], close_fds=True)
     service = FactoryService()
     ProductHandler.service = service
     ProductHandler.workspace = ContentWorkspace(service)
