@@ -193,8 +193,8 @@ def test_knowledge_content_builder_enforces_requested_format(tmp_path):
 
     outputs = [
         '{"ideas":[{"idea_id":"idea-1","title":"Spirit Houses","angle":"What offerings mean","audience":"general","purpose":"explain","formats":["short_video"],"claim_refs":["'+claim_id+'"],"evidence_refs":["'+evidence_id+'"]}]}',
-        '{"brief_id":"brief-1","title":"Spirit Houses","objective":"Explain offerings","audience":"general","angle":"What offerings mean","editorial_points":[{"point_id":"point-1","text":"Explain what offerings mean","role":"development","claim_refs":["'+claim_id+'"],"evidence_refs":["'+evidence_id+'"]}],"content_elements":[{"element_id":"element-1","kind":"narration","editorial_point_ids":["point-1"],"purpose":"explain","production_intent":"article paragraph","claim_refs":["'+claim_id+'"],"evidence_refs":["'+evidence_id+'"]}],"formats":["short_video"],"constraints":[]}',
-        '{"spec_id":"spec-1","title":"Spirit Houses","objective":"Explain offerings","audience":"general","format":"short_video","tone":"clear","structure":["hook","explanation"],"constraints":[],"claim_refs":["'+claim_id+'"],"evidence_refs":["'+evidence_id+'"]}',
+        '{"brief_id":"brief-1","title":"Spirit Houses","objective":"Explain offerings","audience":"general","angle":"What offerings mean","editorial_points":[{"point_id":"point-1","text":"Explain what offerings mean","role":"development","claim_refs":["'+claim_id+'"],"evidence_refs":["'+evidence_id+'"]}],"content_elements":[{"element_id":"element-1","kind":"narration","editorial_point_ids":["point-1"],"purpose":"explain","production_intent":"article paragraph","claim_refs":["'+claim_id+'"],"evidence_refs":["'+evidence_id+'"]}],"formats":["short_video"],"constraints":["none"]}',
+        '{"spec_id":"spec-1","title":"Spirit Houses","objective":"Explain offerings","audience":"general","format":"short_video","tone":"clear","structure":["hook","explanation"],"constraints":["none"],"claim_refs":["'+claim_id+'"],"evidence_refs":["'+evidence_id+'"]}',
         '{"script_id":"script-1","title":"Spirit Houses","units":[{"unit_id":"unit-1","kind":"narration","text":"Offerings are commonly associated with spirit houses.","visual_intent":"show spirit house","claim_refs":["'+claim_id+'"],"evidence_refs":["'+evidence_id+'"]}]}',
     ]
     factory = FakeFactory(outputs, tmp_path)
@@ -204,7 +204,7 @@ def test_knowledge_content_builder_enforces_requested_format(tmp_path):
         audience="general",
         goal="explain",
         formats=["article"],
-        constraints=[],
+        constraints=["none"],
     )
 
     assert result["content_brief"]["formats"] == ["article"]
