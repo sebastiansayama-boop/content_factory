@@ -105,7 +105,7 @@ class FactoryControlStore:
             );
             """
         )
-        existing_columns = {row["name"] for row of self.db.execute("PRAGMA table_info(publications)").fetchall()}
+        existing_columns = {row["name"] for row in self.db.execute("PRAGMA table_info(publications)").fetchall()}
         migrations = {"artifact_ids_json": "ALTER TABLE publications ADD COLUMN artifact_ids_json TEXT NOT NULL DEFAULT '[]'", "destination": "ALTER TABLE publications ADD COLUMN destination TEXT", "provenance_json": "ALTER TABLE publications ADD COLUMN provenance_json TEXT NOT NULL DEFAULT '{}'", "published_at": "ALTER TABLE publications ADD COLUMN published_at TEXT"}
         with self.db:
             for column, statement in migrations.items():
