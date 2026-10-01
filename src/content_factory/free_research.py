@@ -5,8 +5,8 @@ import os
 import re
 import urllib.parse
 import urllib.request
-import xml.etree.ElementTree as ET
 from html import unescape
+from defusedxml import ElementTree as ET
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Protocol
