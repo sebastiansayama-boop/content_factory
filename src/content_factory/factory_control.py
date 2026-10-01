@@ -183,7 +183,10 @@ class FactoryControlStore:
     def publish(self, publication_id: str, *, url: str | None = None, token: str | None = None, publisher: Any | None = None) -> dict[str, Any]:
         row = self.db.execute("SELECT * FROM publications WHERE publication_id=?", (publication_id,)).fetchone()
         if not row: raise ValueError("publication not found")
-        if row["status"] == "PUBLISHED": return dict(row)
+        if row["status"] == "PUBLISHED":
+            published = dict(row)
+            published["response"] = json.loads(published["response_json"])
+            return published
         if row["status"] != "PREPARED": raise ValueError(f"publication cannot be published from status {row['status']}")
         payload = json.loads(row["response_json"])
         external_id, external_url = f"local-{publication_id}", None
@@ -211,7 +214,9 @@ class FactoryControlStore:
         with self.db:
             self.db.execute("UPDATE publications SET status='PUBLISHED', external_id=?, external_url=?, response_json=?, published_at=?, updated_at=? WHERE publication_id=?", (external_id,external_url,_json(response),published_at,_now(),publication_id))
         self.record(row["run_id"], "publication.published", output_refs=(publication_id,external_id), evidence=response)
-        return dict(self.db.execute("SELECT * FROM publications WHERE publication_id=?", (publication_id,)).fetchone())
+        published = dict(self.db.execute("SELECT * FROM publications WHERE publication_id=?", (publication_id,)).fetchone())
+        published["response"] = response
+        return published
     def list_publications(self, run_id: str) -> list[dict[str, Any]]:
         return [dict(row) for row in self.db.execute(
             "SELECT * FROM publications WHERE run_id=? ORDER BY created_at", (run_id,)
