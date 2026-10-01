@@ -47,13 +47,40 @@ class LocalTextAdapter:
                 "constraints": ["use only supplied knowledge"],
             }
         elif '"units":' in prompt:
+            title = "Evidence-grounded story"
+            claims_data = []
+            marker = "ACCEPTED KNOWLEDGE:"
+            if marker in prompt:
+                try:
+                    context = json.loads(prompt.split(marker, 1)[1].strip())
+                    claims_data = context.get("claims", []) if isinstance(context, dict) else []
+                except json.JSONDecodeError:
+                    claims_data = []
+            claim_text = next(
+                (str(item.get("text")).strip() for item in claims_data if isinstance(item, dict) and item.get("text")),
+                "The supplied evidence supports the selected claim.",
+            )
+            claim_id = next(
+                (str(item.get("claim_id")).strip() for item in claims_data if isinstance(item, dict) and item.get("claim_id")),
+                claim,
+            )
+            evidence_id = next(
+                (
+                    str(evidence_id).strip()
+                    for item in claims_data
+                    if isinstance(item, dict) and item.get("claim_id") == claim_id
+                    for evidence_id in item.get("evidence_ids", [])
+                    if isinstance(evidence_id, str) and evidence_id.strip()
+                ),
+                evidence,
+            )
             value = {
-                "script_id": "script-local-1", "title": "Evidence-grounded short",
+                "script_id": "script-local-1", "title": title,
                 "units": [
-                    {"unit_id": "unit-1", "kind": "hook", "text": "Here is what the evidence tells us.", "visual_intent": "establish topic", "claim_refs": [claim], "evidence_refs": [evidence]},
-                    {"unit_id": "unit-2", "kind": "narration", "text": "We examine the supplied claim and its supporting evidence.", "visual_intent": "show evidence", "claim_refs": [claim], "evidence_refs": [evidence]},
-                    {"unit_id": "unit-3", "kind": "narration", "text": "The story stays within the supplied evidence and its stated limits.", "visual_intent": "show context", "claim_refs": [claim], "evidence_refs": [evidence]},
-                    {"unit_id": "unit-4", "kind": "cta", "text": "Follow for more evidence-grounded stories.", "visual_intent": "close", "claim_refs": [claim], "evidence_refs": [evidence]},
+                    {"unit_id": "unit-1", "kind": "hook", "text": f"What does the evidence show about this topic? {claim_text}", "visual_intent": "establish topic", "claim_refs": [claim_id], "evidence_refs": [evidence_id]},
+                    {"unit_id": "unit-2", "kind": "narration", "text": claim_text, "visual_intent": "show evidence", "claim_refs": [claim_id], "evidence_refs": [evidence_id]},
+                    {"unit_id": "unit-3", "kind": "narration", "text": "The interpretation is limited to the supplied evidence and its stated scope.", "visual_intent": "show context", "claim_refs": [claim_id], "evidence_refs": [evidence_id]},
+                    {"unit_id": "unit-4", "kind": "cta", "text": "Follow for more evidence-grounded stories.", "visual_intent": "close", "claim_refs": [claim_id], "evidence_refs": [evidence_id]},
                 ]
             }
         elif '"style_bible":' in prompt:
