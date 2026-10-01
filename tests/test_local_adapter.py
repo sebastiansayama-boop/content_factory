@@ -10,11 +10,12 @@ Every factual unit must retain the relevant durable claim and evidence refs from
 CONTENT SPEC:
 {"spec_id":"spec-1","title":"Thai spirit houses","claim_refs":["kc-123"],"evidence_refs":["ke-456"]}
 ACCEPTED KNOWLEDGE:
-{"claims":[{"claim_id":"kc-123","text":"Thai spirit houses are commonly associated with offerings.","evidence_ids":["ke-456"]}]}
+{"claims":[{"claim_id":"kc-123","text":"Thai spirit houses are commonly associated with offerings.","evidence_ids":["ke-456"],"scope":"Thailand"}]}
 """
     result = LocalTextAdapter().generate(prompt)
     payload = json.loads(LocalTextAdapter.response_text(result))
 
     texts = [unit["text"] for unit in payload["units"]]
     assert any("Thai spirit houses are commonly associated with offerings." in text for text in texts)
+    assert any("This claim is scoped to Thailand." in text for text in texts)
     assert not any(text == "Here is what the evidence tells us." for text in texts)
