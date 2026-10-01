@@ -61,7 +61,7 @@ jobs:
               "constraints": ["short", "clear"]
           })
           assert status in (200, 201), (status, created)
-          run_id = created["id"]
+          run_id = created["run_id"]
           print("run_id:", run_id)
 
           status, result = req("POST", f"/api/runs/{run_id}/factory")
