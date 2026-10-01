@@ -122,7 +122,7 @@ def test_browser_topic_to_package_edit_and_export(factory_server, page):
     assert page.locator(".script").inner_text().strip()
     images = page.locator(".asset-card img")
     assert images.count() >= 1
-    assert images.first.evaluate("(img) => img.complete && img.naturalWidth > 0")
+    page.wait_for_function("document.querySelector(\'.asset-card img\')?.complete && document.querySelector(\'.asset-card img\').naturalWidth > 0")
 
     page.locator("#editInstruction").fill("Сделай начало более прямым и оставь только самый важный тезис.")
     page.locator("#regenerate").click()
