@@ -181,7 +181,8 @@ def run() -> None:
                 assert required in stages, stages
 
             script_units = result["script"]["units"]
-            assert any(candidate_text in str(unit.get("text") or "") for unit in script_units), script_units
+            assert script_units, result["script"]
+            assert all(candidate_id in list(unit.get("claim_refs") or []) for unit in script_units), script_units
 
             content_spec = result["content_spec"]
             assert content_spec["claim_refs"] == [candidate_id], content_spec
