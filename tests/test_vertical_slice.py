@@ -1,6 +1,6 @@
 from content_factory.integrations import ExternalCallResult
 from content_factory.knowledge import KnowledgeStore
-from content_factory.research import GeminiWebResearchAdapter, OpenAIWebResearchAdapter
+from content_factory.research import GeminiWebResearchAdapter, OpenAIWebResearchAdapter, is_safe_source_url
 from content_factory.vertical_slice import ContentFactoryVerticalSlice, quality_check
 
 
@@ -70,6 +70,16 @@ def test_vertical_slice_produces_research_text_visual_and_qc():
     assert result.information_flow["status"] == "DEFERRED"
     assert result.information_flow["reason"]
     assert all(asset["evidence_refs"] == ["evidence-1"] for asset in result.package["package"])
+
+
+def test_source_url_safety_allows_public_urls_and_rejects_local_targets():
+    assert is_safe_source_url("https://example.com/article") is True
+    assert is_safe_source_url("http://example.com/article") is True
+    assert is_safe_source_url("https://127.0.0.1/article") is False
+    assert is_safe_source_url("https://192.168.1.10/article") is False
+    assert is_safe_source_url("https://localhost/article") is False
+    assert is_safe_source_url("file:///tmp/article") is False
+    assert is_safe_source_url("https://user:pass@example.com/article") is False
 
 
 def test_quality_check_rejects_unknown_claim_reference():
