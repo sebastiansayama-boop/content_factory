@@ -1,0 +1,116 @@
+name: Live Free Retrieval Proof
+
+on:
+  push:
+    branches:
+      - "tmp/live-free-retrieval-proof-20261001"
+
+permissions: {}
+
+jobs:
+  live-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: "tmp/live-free-retrieval-proof-20261001"
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e ".[dev]"
+      - name: Live free retrieval and Gemini proof
+        env:
+          BASE_URL: "https://content-factory-1zij.onrender.com"
+          FACTORY_API_TOKEN: ${{ secrets.FACTORY_API_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json, os, urllib.error, urllib.request
+
+          base = os.environ["BASE_URL"].rstrip("/")
+          token = os.environ.get("FACTORY_API_TOKEN")
+          if not token:
+              raise SystemExit("FACTORY_API_TOKEN secret is missing")
+
+          def req(method, path, body=None):
+              data = None if body is None else json.dumps(body).encode()
+              headers = {
+                  "Authorization": f"Bearer {token}",
+                  "Content-Type": "application/json",
+              }
+              request = urllib.request.Request(base + path, data=data, headers=headers, method=method)
+              try:
+                  with urllib.request.urlopen(request, timeout=120) as response:
+                      raw = response.read().decode()
+                      return response.status, json.loads(raw) if raw else {}
+              except urllib.error.HTTPError as exc:
+                  raw = exc.read().decode()
+                  try:
+                      payload = json.loads(raw)
+                  except Exception:
+                      payload = raw
+                  return exc.code, payload
+
+          status, created = req("POST", "/api/runs", {
+              "title": "Live free retrieval proof",
+              "brief": "Explain convergent evolution with a concise evidence-backed example.",
+              "audience": "general readers",
+              "goal": "produce a concise Telegram-ready explainer",
+              "formats": ["telegram"],
+              "constraints": ["short", "clear"],
+          })
+          assert status == 201, (status, created)
+          run_id = created["run_id"]
+          print("run_id:", run_id)
+
+          status, result = req("POST", f"/api/runs/{run_id}/factory", {})
+          print("factory_attempt:", status)
+          print(json.dumps(result, ensure_ascii=False)[:12000])
+
+          if status == 409:
+              candidates = result.get("candidates", [])
+              assert candidates, result
+              candidate_id = candidates[0]["claim_id"]
+              status, promoted = req(
+                  "POST",
+                  f"/api/knowledge/{candidate_id}/promote",
+                  {"decision_ref": "LIVE-FREE-RETRIEVAL-PROOF"},
+              )
+              assert status == 200, (status, promoted)
+              print("promoted:", candidate_id)
+
+              status, result = req("POST", f"/api/runs/{run_id}/factory", {})
+              print("factory_retry:", status)
+              print(json.dumps(result, ensure_ascii=False)[:12000])
+
+          assert status == 200, (status, result)
+
+          status, run = req("GET", f"/api/runs/{run_id}")
+          assert status == 200, (status, run)
+          assert run["status"] == "REVIEW", run
+          assert run["result"]["qc"]["status"] == "PASSED", run
+
+          research = run["result"]["research"]
+          assert research["sources"], research
+          assert research["evidence"], research
+          source_urls = [s["url"] for s in research["sources"]]
+          assert any("wikipedia.org" in url or "openalex.org" in url or "doi.org" in url for url in source_urls), source_urls
+
+          claim = next(c for c in run["information_flow"]["claims"] if c.get("status") == "ACCEPTED")
+          claim_text = claim["claim_text"]
+          script = run["result"]["content_package"]["script"]
+          assert claim_text in script, {"claim_text": claim_text, "script": script}
+
+          status, approval = req("POST", f"/api/runs/{run_id}/approve", {"channel": "local"})
+          assert status == 200, (status, approval)
+          assert approval["status"] == "APPROVED", approval
+          assert approval["publication"]["status"] == "PREPARED", approval
+
+          print("LIVE_FREE_RETRIEVAL_PROOF=PASS")
+          print("retrieval_sources=", len(research["sources"]))
+          print("retrieval_evidence=", len(research["evidence"]))
+          print("claim_propagates=true")
+          print("qc=PASSED")
+          print("approval=APPROVED")
+          PY
