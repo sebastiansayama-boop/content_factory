@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import mimetypes
 import os
 import time
 from pathlib import Path
@@ -92,7 +93,76 @@ class ProductHandler(Handler):
             if self.path == "/api/runs":
                 self._json(200, {"runs": [run.to_dict() for run in self.content_runs.list()]})
                 return
-            run_id = self.path.removeprefix("/api/runs/").strip("/")
+            raw_run_path = self.path.removeprefix("/api/runs/").strip("/")
+            if "/assets/" in raw_run_path:
+                run_id, asset_id = raw_run_path.split("/assets/", 1)
+                run_id = run_id.strip("/")
+                asset_id = asset_id.strip("/")
+                if not run_id or not asset_id or "/" in asset_id:
+                    self._json(400, {"error": "run id and asset id are required"})
+                    return
+                if self.content_runs.get(run_id) is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                asset = self.service.asset_registry.get(asset_id)
+                if asset is None or asset.run_id != run_id:
+                    self._json(404, {"error": "asset not found"})
+                    return
+                asset_path = Path(asset.uri).resolve()
+                data_root = Path(os.environ.get("FACTORY_DATA_DIR", "./data")).resolve()
+                try:
+                    asset_path.relative_to(data_root)
+                except ValueError:
+                    self._json(404, {"error": "asset not found"})
+                    return
+                if not asset_path.is_file():
+                    self._json(404, {"error": "asset file not found"})
+                    return
+                raw = asset_path.read_bytes()
+                content_type = mimetypes.guess_type(asset_path.name)[0] or "application/octet-stream"
+                self.send_response(200)
+                self.send_header("Content-Type", content_type)
+                self.send_header("Content-Length", str(len(raw)))
+                self.send_header("Cache-Control", "private, max-age=300")
+                self.end_headers()
+                self.wfile.write(raw)
+                return
+
+            if raw_run_path.endswith("/export/download"):
+                run_id = raw_run_path.removesuffix("/export/download").strip("/")
+                run = self.content_runs.get(run_id)
+                if run is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                export = (run.result or {}).get("export")
+                if not isinstance(export, dict) or not export.get("artifact"):
+                    self._json(404, {"error": "export not found"})
+                    return
+                filename = str(export["artifact"]).strip()
+                if not filename or Path(filename).name != filename:
+                    self._json(404, {"error": "export artifact not found"})
+                    return
+                export_path = (Path(os.environ.get("FACTORY_DATA_DIR", "./data")) / "exports" / run_id / filename).resolve()
+                export_root = (Path(os.environ.get("FACTORY_DATA_DIR", "./data")) / "exports" / run_id).resolve()
+                try:
+                    export_path.relative_to(export_root)
+                except ValueError:
+                    self._json(404, {"error": "export artifact not found"})
+                    return
+                if not export_path.is_file():
+                    self._json(404, {"error": "export artifact not found"})
+                    return
+                raw = export_path.read_bytes()
+                content_type = mimetypes.guess_type(export_path.name)[0] or "application/octet-stream"
+                self.send_response(200)
+                self.send_header("Content-Type", content_type)
+                self.send_header("Content-Length", str(len(raw)))
+                self.send_header("Content-Disposition", f'attachment; filename="{export_path.name}"')
+                self.end_headers()
+                self.wfile.write(raw)
+                return
+
+            run_id = raw_run_path
             if run_id.endswith("/plan"):
                 run_id = run_id.removesuffix("/plan").strip("/")
             if run_id.endswith("/content-brief/revisions"):
@@ -517,6 +587,46 @@ class ProductHandler(Handler):
                     payload.get("proposed_changes") if isinstance(payload.get("proposed_changes"), dict) else {},
                 )
                 self._json(201, result)
+                return
+
+            if self.path.startswith("/api/runs/") and self.path.endswith("/regenerate"):
+                source_run_id = self.path.removeprefix("/api/runs/").removesuffix("/regenerate").strip("/")
+                source_run = self.content_runs.get(source_run_id)
+                if source_run is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                payload = self._body()
+                instruction = str(payload.get("instruction", "")).strip()
+                if not instruction:
+                    raise ValueError("instruction is required")
+                if len(instruction) > 4_000:
+                    raise ValueError("instruction exceeds maximum length")
+                constraints = tuple(source_run.constraints) + (f"revision instruction: {instruction}",)
+                new_run = self.content_runs.create(
+                    title=str(payload.get("title") or source_run.title),
+                    brief=source_run.brief,
+                    audience=source_run.audience,
+                    goal=source_run.goal,
+                    formats=source_run.formats,
+                    constraints=constraints,
+                )
+                self.content_runs.start_planning(new_run.run_id)
+                self.service.control.record(
+                    new_run.run_id,
+                    "regeneration.created",
+                    actor="api",
+                    input_refs=(source_run_id,),
+                    output_refs=(new_run.run_id,),
+                    evidence={"source_run_id": source_run_id, "instruction": instruction},
+                )
+                self._json(201, {
+                    "run": new_run.to_dict(),
+                    "regeneration": {
+                        "source_run_id": source_run_id,
+                        "instruction": instruction,
+                    },
+                    "next": "call /api/runs/{run_id}/factory",
+                })
                 return
 
             if is_run_factory:
