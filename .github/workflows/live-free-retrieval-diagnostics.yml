@@ -1,0 +1,67 @@
+name: Live Free Retrieval Diagnostics
+
+on:
+  push:
+    branches:
+      - "tmp/free-retrieval-diagnostics-live-20261001"
+
+permissions: {}
+
+jobs:
+  diagnostics:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: "tmp/free-retrieval-diagnostics-live-20261001"
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e ".[dev]"
+      - name: Diagnose hosted retrieval
+        env:
+          BASE_URL: "https://content-factory-1zij.onrender.com"
+          FACTORY_API_TOKEN: ${{ secrets.FACTORY_API_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json, os, urllib.error, urllib.request
+
+          base = os.environ["BASE_URL"].rstrip("/")
+          token = os.environ["FACTORY_API_TOKEN"]
+          headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+
+          request = urllib.request.Request(
+              base + "/api/runs",
+              data=json.dumps({
+                  "title":"Free retrieval diagnostics",
+                  "brief":"Explain convergent evolution with one evidence-backed example.",
+                  "audience":"general readers",
+                  "goal":"diagnostics",
+                  "formats":["telegram"],
+                  "constraints":["short"],
+              }).encode(),
+              headers=headers,
+              method="POST",
+          )
+          with urllib.request.urlopen(request, timeout=30) as response:
+              created=json.loads(response.read().decode())
+          run_id=created["run_id"]
+          print("run_id:", run_id)
+
+          request = urllib.request.Request(
+              base + f"/api/runs/{run_id}/factory",
+              data=b"{}",
+              headers=headers,
+              method="POST",
+          )
+          try:
+              with urllib.request.urlopen(request, timeout=60) as response:
+                  print("factory_status:", response.status)
+                  print(response.read().decode())
+          except urllib.error.HTTPError as exc:
+              body=exc.read().decode()
+              print("factory_status:", exc.code)
+              print(body)
+          PY
