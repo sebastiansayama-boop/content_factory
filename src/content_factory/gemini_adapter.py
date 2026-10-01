@@ -12,6 +12,7 @@ class GeminiConfig:
     model: str = "gemini-3.5-flash-lite"
     endpoint: str = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
     secret_env: str = "GEMINI_API_KEY"
+    research_model: str = "gemini-2.5-flash-lite"
 
     @classmethod
     def from_env(cls) -> "GeminiConfig":
@@ -19,6 +20,7 @@ class GeminiConfig:
             model=os.environ.get("GEMINI_MODEL", cls.model).strip() or cls.model,
             endpoint=os.environ.get("GEMINI_ENDPOINT", cls.endpoint).strip() or cls.endpoint,
             secret_env=os.environ.get("GEMINI_API_KEY_ENV", cls.secret_env).strip() or cls.secret_env,
+            research_model=os.environ.get("GEMINI_RESEARCH_MODEL", cls.research_model).strip() or cls.research_model,
         )
 
 
