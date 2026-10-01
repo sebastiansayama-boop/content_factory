@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: "feat/information-flow-contract"
+          ref: "main"
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
@@ -28,6 +28,10 @@ jobs:
         run: pytest -q tests/test_local_adapter.py
       - name: Factory HTTP E2E
         run: pytest -q tests/test_product_http_routes.py -m "not external"
+      - name: Browser user vertical slice
+        run: |
+          python -m playwright install --with-deps chromium
+          pytest -q tests/test_browser_replay.py -m browser --browser chromium
 
   telegram-proof:
     if: ${{ inputs.run_telegram }}
@@ -35,7 +39,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: "feat/information-flow-contract"
+          ref: "main"
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
