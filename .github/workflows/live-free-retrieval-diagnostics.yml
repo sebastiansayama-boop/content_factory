@@ -57,11 +57,68 @@ jobs:
               method="POST",
           )
           try:
-              with urllib.request.urlopen(request, timeout=60) as response:
-                  print("factory_status:", response.status)
-                  print(response.read().decode())
+              with urllib.request.urlopen(request, timeout=120) as response:
+                  first=json.loads(response.read().decode())
+                  status=response.status
           except urllib.error.HTTPError as exc:
               body=exc.read().decode()
-              print("factory_status:", exc.code)
-              print(body)
+              first=json.loads(body)
+              status=exc.code
+
+          print("factory_first_status:", status)
+          print(json.dumps(first, ensure_ascii=False)[:12000])
+          assert status == 409, first
+
+          candidate_id = first["candidates"][0]["claim_id"]
+          promote = urllib.request.Request(
+              base + f"/api/knowledge/{candidate_id}/promote",
+              data=json.dumps({"decision_ref":"LIVE-FREE-RETRIEVAL-FULL-PROOF"}).encode(),
+              headers=headers,
+              method="POST",
+          )
+          with urllib.request.urlopen(promote, timeout=60) as response:
+              assert response.status == 200
+              promoted=json.loads(response.read().decode())
+          print("promoted:", candidate_id)
+
+          retry = urllib.request.Request(
+              base + f"/api/runs/{run_id}/factory",
+              data=b"{}",
+              headers=headers,
+              method="POST",
+          )
+          try:
+              with urllib.request.urlopen(retry, timeout=180) as response:
+                  final=json.loads(response.read().decode())
+                  status=response.status
+          except urllib.error.HTTPError as exc:
+              body=exc.read().decode()
+              final=json.loads(body)
+              status=exc.code
+
+          print("factory_retry_status:", status)
+          print(json.dumps(final, ensure_ascii=False)[:16000])
+          assert status == 200, final
+
+          get_run = urllib.request.Request(base + f"/api/runs/{run_id}", headers=headers, method="GET")
+          with urllib.request.urlopen(get_run, timeout=60) as response:
+              run=json.loads(response.read().decode())
+
+          assert run["status"] == "REVIEW", run
+          assert run["result"]["qc"]["status"] == "PASSED", run
+          research=run["result"]["research"]
+          assert research["sources"] and research["evidence"], research
+          assert any(str(source["url"]).startswith("https://news.google.com/") or "wikipedia.org" in str(source["url"]) or "doi.org" in str(source["url"]) for source in research["sources"])
+
+          accepted=[claim for claim in run["information_flow"]["claims"] if claim.get("status") == "ACCEPTED"]
+          assert accepted, run["information_flow"]
+          claim_text=accepted[0]["claim_text"]
+          script=run["result"]["content_package"]["script"]
+          assert claim_text in script, {"claim_text":claim_text,"script":script}
+
+          print("LIVE_FREE_RETRIEVAL_FULL_PROOF=PASS")
+          print("retrieval_sources:", len(research["sources"]))
+          print("retrieval_evidence:", len(research["evidence"]))
+          print("claim_propagates=true")
+          print("qc=PASSED")
           PY
