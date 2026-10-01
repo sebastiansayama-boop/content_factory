@@ -211,7 +211,7 @@ def test_free_web_retriever_retries_wikipedia_with_compact_query():
         url = request.full_url
         if "action=opensearch" in url:
             query_value = parse_qs(urlparse(url).query)["search"][0]
-            if query_value.startswith("Explain how volcanic"):
+            if query_value == "Explain how volcanic lightning forms during explosive eruptions and what remains uncertain.":
                 return FakeResponse(["query", [], [], []])
             return FakeResponse([
                 "volcanic lightning",
