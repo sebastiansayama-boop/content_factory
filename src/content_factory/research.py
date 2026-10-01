@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import ipaddress
 import json
 from typing import Any
+from urllib.parse import urlparse
 
 from .gemini_adapter import GeminiConfig
 
@@ -139,6 +141,32 @@ class GeminiWebResearchAdapter:
                     })
                     seen.add(url)
         return found
+
+
+def is_safe_source_url(url: str) -> bool:
+    """Accept normal web URLs and reject obvious local/private targets."""
+    value = str(url or "").strip()
+    if not value:
+        return False
+    parsed = urlparse(value)
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+        return False
+    if parsed.username or parsed.password:
+        return False
+    hostname = parsed.hostname.rstrip(".").lower()
+    if hostname == "localhost" or hostname.endswith(".local"):
+        return False
+    try:
+        address = ipaddress.ip_address(hostname)
+    except ValueError:
+        return True
+    return not (
+        address.is_private
+        or address.is_loopback
+        or address.is_link_local
+        or address.is_reserved
+        or address.is_multicast
+    )
 
 
 def parse_research_json(text: str) -> dict[str, Any]:
