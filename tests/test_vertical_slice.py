@@ -1,6 +1,6 @@
 from content_factory.integrations import ExternalCallResult
 from content_factory.knowledge import KnowledgeStore
-from content_factory.research import OpenAIWebResearchAdapter
+from content_factory.research import GeminiWebResearchAdapter, OpenAIWebResearchAdapter
 from content_factory.vertical_slice import ContentFactoryVerticalSlice, quality_check
 
 
@@ -118,3 +118,25 @@ def test_vertical_slice_captures_and_reuses_knowledge(tmp_path):
     assert third.research["knowledge"]["accepted_usage_count"] == 1
     assert store.usages_for_claim(claim_id)[0]["run_id"] == "run-knowledge-3"
     store.close()
+
+
+def test_vertical_slice_selects_gemini_research_provider(monkeypatch):
+    monkeypatch.setenv("FACTORY_PROVIDER", "gemini")
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key")
+    monkeypatch.setenv("GEMINI_MODEL", "gemini-test")
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+
+    factory = ContentFactoryVerticalSlice()
+
+    assert isinstance(factory.research_adapter, GeminiWebResearchAdapter)
+    assert factory.research_adapter.model == "gemini-test"
+
+
+def test_vertical_slice_selects_local_when_no_provider_credentials(monkeypatch):
+    monkeypatch.setenv("FACTORY_PROVIDER", "local")
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+
+    factory = ContentFactoryVerticalSlice()
+
+    assert factory.research_adapter.__class__.__name__ == "LocalResearchAdapter"
