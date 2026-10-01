@@ -88,6 +88,8 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
         candidates = first_factory["candidates"]
         assert candidates, first_factory
         claim_id = candidates[0]["claim_id"]
+        claim_text = str(candidates[0]["text"]).strip()
+        assert claim_text
 
         status, promoted = _request(
             base_url,
@@ -101,6 +103,8 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
         status, factory = _request(base_url, "POST", f"/api/runs/{run_id}/factory")
         assert status == 200, factory
         assert factory["qc"]["status"] == "PASSED"
+        script_units = factory["run"]["result"]["script"]["units"]
+        assert any(claim_text in str(unit.get("text") or "") for unit in script_units)
 
         status, approved = _request(
             base_url,
@@ -134,6 +138,7 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
         assert published["response"]["mode"] == "telegram"
         assert published["response"]["telegram_ok"] is True
         assert published["response"]["message_id"] == int(published["external_id"])
+        assert claim_text in published["response"]["text"]
 
         status, final = _request(base_url, "GET", f"/api/runs/{run_id}")
         assert status == 200, final
