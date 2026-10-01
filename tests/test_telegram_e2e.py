@@ -79,7 +79,9 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
             },
         )
         assert status == 201, created
-        run = created.get("run", created)\n        assert isinstance(run, dict), created\n        run_id = run["run_id"]
+        run = created.get("run", created)
+        assert isinstance(run, dict), created
+        run_id = run["run_id"]
 
         status, first_factory = _request(base_url, "POST", f"/api/runs/{run_id}/factory")
         assert status == 409, first_factory
