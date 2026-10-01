@@ -56,33 +56,72 @@ class LocalTextAdapter:
                     claims_data = context.get("claims", []) if isinstance(context, dict) else []
                 except json.JSONDecodeError:
                     claims_data = []
-            claim_text = next(
-                (str(item.get("text")).strip() for item in claims_data if isinstance(item, dict) and item.get("text")),
-                "The supplied evidence supports the selected claim.",
+
+            claim_item = next(
+                (item for item in claims_data if isinstance(item, dict) and item.get("text")),
+                {},
             )
-            claim_id = next(
-                (str(item.get("claim_id")).strip() for item in claims_data if isinstance(item, dict) and item.get("claim_id")),
-                claim,
+            claim_text = str(claim_item.get("text") or "").strip() or (
+                "The supplied evidence supports the selected claim."
             )
+            claim_id = str(claim_item.get("claim_id") or "").strip() or claim
+            evidence_ids = claim_item.get("evidence_ids", [])
             evidence_id = next(
-                (
-                    str(evidence_id).strip()
-                    for item in claims_data
-                    if isinstance(item, dict) and item.get("claim_id") == claim_id
-                    for evidence_id in item.get("evidence_ids", [])
-                    if isinstance(evidence_id, str) and evidence_id.strip()
-                ),
+                (str(item).strip() for item in evidence_ids if isinstance(item, str) and item.strip()),
                 evidence,
             )
-            value = {
-                "script_id": "script-local-1", "title": title,
-                "units": [
-                    {"unit_id": "unit-1", "kind": "hook", "text": f"What does the evidence show about this topic? {claim_text}", "visual_intent": "establish topic", "claim_refs": [claim_id], "evidence_refs": [evidence_id]},
-                    {"unit_id": "unit-2", "kind": "narration", "text": claim_text, "visual_intent": "show evidence", "claim_refs": [claim_id], "evidence_refs": [evidence_id]},
-                    {"unit_id": "unit-3", "kind": "narration", "text": "The interpretation is limited to the supplied evidence and its stated scope.", "visual_intent": "show context", "claim_refs": [claim_id], "evidence_refs": [evidence_id]},
-                    {"unit_id": "unit-4", "kind": "cta", "text": "Follow for more evidence-grounded stories.", "visual_intent": "close", "claim_refs": [claim_id], "evidence_refs": [evidence_id]},
+            scope = str(claim_item.get("scope") or "").strip()
+
+            units = [
+                {
+                    "unit_id": "unit-1",
+                    "kind": "hook",
+                    "text": f"What does the evidence show about this topic? {claim_text}",
+                    "visual_intent": "establish topic",
+                    "claim_refs": [claim_id],
+                    "evidence_refs": [evidence_id],
+                },
+                {
+                    "unit_id": "unit-2",
+                    "kind": "narration",
+                    "text": claim_text,
+                    "visual_intent": "show evidence",
+                    "claim_refs": [claim_id],
+                    "evidence_refs": [evidence_id],
+                },
+            ]
+            if scope:
+                units.append(
+                    {
+                        "unit_id": "unit-3",
+                        "kind": "narration",
+                        "text": f"This claim is scoped to {scope}.",
+                        "visual_intent": "show context",
+                        "claim_refs": [claim_id],
+                        "evidence_refs": [evidence_id],
+                    }
+                )
+            units.extend(
+                [
+                    {
+                        "unit_id": f"unit-{len(units) + 1}",
+                        "kind": "narration",
+                        "text": "The interpretation is limited to the supplied evidence and its stated scope.",
+                        "visual_intent": "show context",
+                        "claim_refs": [claim_id],
+                        "evidence_refs": [evidence_id],
+                    },
+                    {
+                        "unit_id": f"unit-{len(units) + 2}",
+                        "kind": "cta",
+                        "text": "Follow for more evidence-grounded stories.",
+                        "visual_intent": "close",
+                        "claim_refs": [claim_id],
+                        "evidence_refs": [evidence_id],
+                    },
                 ]
-            }
+            )
+            value = {"script_id": "script-local-1", "title": title, "units": units}
         elif '"style_bible":' in prompt:
             value = {
                 "spec_id": "spec-local-1", "title": "Evidence-grounded short", "objective": "Create a concise evidence-grounded short",
