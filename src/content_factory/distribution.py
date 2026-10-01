@@ -57,7 +57,7 @@ class TelegramDistributionAdapter:
             raise ValueError("Telegram response has no message_id")
         return {
             "external_id": message_id,
-            "external_url": None,
+            "external_url": self._message_url(message_id),
             "published_at": datetime.now(timezone.utc).isoformat(),
             "response": {
                 "mode": "telegram",
@@ -67,6 +67,18 @@ class TelegramDistributionAdapter:
                 "publication_id": publication_id,
             },
         }
+
+    def _message_url(self, message_id: str) -> str | None:
+        chat = self.chat_id.strip()
+        if chat.startswith("@") and len(chat) > 1:
+            return f"https://t.me/{chat[1:]}/{message_id}"
+        if chat.startswith("https://t.me/"):
+            username = chat.removeprefix("https://t.me/").strip("/").split("/", 1)[0]
+            if username:
+                return f"https://t.me/{username}/{message_id}"
+        if chat.startswith("-100"):
+            return f"https://t.me/c/{chat[4:]}/{message_id}"
+        return None
 
     @staticmethod
     def _text(payload: dict[str, Any]) -> str:
