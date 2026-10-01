@@ -65,6 +65,7 @@ class TelegramDistributionAdapter:
                 "chat_id": prepared["destination"],
                 "message_id": int(message_id),
                 "telegram_ok": True,
+                "text": str(message.get("text") or prepared["text"]),
                 "publication_id": publication_id,
             },
         }
