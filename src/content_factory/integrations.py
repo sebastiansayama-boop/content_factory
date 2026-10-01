@@ -11,6 +11,10 @@ import os
 class IntegrationError(Exception):
     """Expected failure while communicating with an external integration."""
 
+    def __init__(self, message: str, status_code: int | None = None) -> None:
+        super().__init__(message)
+        self.status_code = status_code
+
 
 @dataclass(frozen=True)
 class IntegrationConfig:
@@ -100,7 +104,7 @@ class HttpJsonAdapter:
                 raw_response = body.get("raw_response")
                 if isinstance(raw_response, str) and raw_response.strip():
                     details.append(f"raw_response={raw_response.strip()[:1000]}")
-            raise IntegrationError("; ".join(details)) from exc
+            raise IntegrationError("; ".join(details), status_code=exc.code) from exc
         except URLError as exc:
             reason = exc.reason
             reason_type = type(reason).__name__
