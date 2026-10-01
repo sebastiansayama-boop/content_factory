@@ -58,10 +58,10 @@ jobs:
 
           status, created = req("POST", "/api/runs", {
               "title": "Live free retrieval proof",
-              "brief": "Explain convergent evolution with one clear evidence-based example.",
+              "brief": "Explain how earwax layers can be used to estimate the age of North Atlantic right whales.",
               "audience": "general readers",
-              "goal": "test free retrieval plus Gemini generation",
-              "formats": ["article"],
+              "goal": "test API-key-free retrieval plus plain Gemini generation",
+              "formats": ["visual_card"],
               "constraints": ["short", "clear"],
           })
           assert status in (200, 201), (status, created)
@@ -76,10 +76,14 @@ jobs:
           run = first["run"]
           research = run["result"]["research"]
           sources = research.get("sources", [])
-          assert sources, research
-          providers = {s.get("provider") for s in sources if isinstance(s, dict)}
+          evidence = research.get("evidence", [])
+          claims = research.get("claims", [])
+          assert sources and evidence and claims, research
+          source_ids = {str(s.get("id") or "") for s in sources if isinstance(s, dict)}
           print("source_count:", len(sources))
-          print("source_providers:", sorted(providers))
+          print("source_ids:", sorted(source_ids))
+          assert any(v.startswith("source:wikipedia:") for v in source_ids) or any(v.startswith("source:openalex:") for v in source_ids) or any(v.startswith("source:google-news:") for v in source_ids)
+          assert all(isinstance(c, dict) and c.get("source_ids") and c.get("evidence_ids") for c in claims)
 
           candidates = first.get("candidates", [])
           assert candidates, first
