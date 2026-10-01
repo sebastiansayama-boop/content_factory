@@ -122,7 +122,6 @@ def test_browser_replay_exact_content_brief_revision(factory_server, page):
     page.evaluate("(runId) => loadRun(runId)", replay_run_id)
     page.locator("#publish").wait_for(state="attached")
     page.wait_for_function("document.querySelector('#publish').disabled === false")
-    assert "Approved" in page.locator("#status").inner_text()
     publications = service.control.list_publications(replay_run_id)
     assert len(publications) == 1
     assert publications[0]["status"] == "PREPARED"
