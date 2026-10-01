@@ -94,3 +94,52 @@ def test_browser_user_vertical_slice(factory_server, page):
     runs = service.content_runs.list()
     assert len(runs) >= 2
     assert any(run.status == "REVIEW" for run in runs)
+
+
+def test_browser_topic_to_package_edit_and_export(factory_server, page):
+    base_url, service = factory_server
+    page.goto(base_url, wait_until="domcontentloaded")
+
+    page.locator("#token").fill("browser-e2e-token")
+    page.locator("#source").fill(
+        "Convergent evolution describes the independent emergence of similar functional traits "
+        "in unrelated lineages facing similar environmental pressures."
+    )
+    page.locator('input[name="platform"][value="instagram"]').check()
+    page.locator("#tone").select_option("analytical")
+    page.locator("#length").select_option("short")
+
+    page.locator("#runFactory").click()
+    page.get_by_text("Research complete · knowledge review required", exact=True).wait_for()
+
+    promote = page.locator("#knowledgeReview button[data-claim]").first
+    assert promote.count() == 1
+    promote.click()
+    page.get_by_text("QC пройден · материал готов", exact=True).wait_for()
+
+    run_id = page.locator("#runResult").inner_text().strip()
+    assert run_id.startswith("run-")
+    assert page.locator(".script").inner_text().strip()
+    images = page.locator(".asset-card img")
+    assert images.count() >= 1
+    assert images.first.evaluate("(img) => img.complete && img.naturalWidth > 0")
+
+    page.locator("#editInstruction").fill("Сделай начало более прямым и оставь только самый важный тезис.")
+    page.locator("#regenerate").click()
+    page.get_by_text("Новая версия готова · QC пройден", exact=True).wait_for()
+
+    regenerated_run_id = page.locator("#runResult").inner_text().strip()
+    assert regenerated_run_id.startswith("run-")
+    assert regenerated_run_id != run_id
+    assert service.content_runs.get(regenerated_run_id).status == "REVIEW"
+
+    page.locator("#approve").click()
+    page.get_by_text("Материал принят · экспорт доступен", exact=True).wait_for()
+
+    page.locator("#export").click()
+    page.get_by_text("Экспорт готов", exact=True).wait_for()
+    assert page.locator("#lineage a[href*='/export/download']").count() == 1
+    exported = service.content_runs.get(regenerated_run_id)
+    assert exported is not None
+    assert exported.status == "EXPORTED"
+    assert exported.result["export"]["status"] == "EXPORTED"
