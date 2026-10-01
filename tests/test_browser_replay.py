@@ -127,7 +127,7 @@ def test_browser_replay_exact_content_brief_revision(factory_server, page):
     assert publications[0]["status"] == "PREPARED"
 
     page.locator("#publish").click()
-    page.get_by_text("Published", exact=False).wait_for()
+    page.locator("#status").filter(has_text="Published").wait_for()
     published = service.content_runs.get(replay_run_id)
     assert published is not None
     assert published.status == "PUBLISHED"
