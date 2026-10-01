@@ -33,6 +33,13 @@
       <div class="field"><label for="language">Язык</label><select id="language" class="select"><option>Русский</option><option>English</option></select></div>
       <div class="field"><label for="tone">Стиль</label><select id="tone" class="select"><option>Естественный</option><option>Деловой</option><option>Объясняющий</option><option>Публицистический</option></select></div>
       <div class="field"><label for="length">Длина</label><select id="length" class="select"><option>Коротко</option><option>Средне</option><option>Подробно</option></select></div>
+      <div class="field"><label>Платформа</label><div class="chips" id="platforms">
+        <label class="card selected" style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;padding:8px 10px"><input type="radio" name="platform" value="telegram" checked> Telegram</label>
+        <label class="card" style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;padding:8px 10px"><input type="radio" name="platform" value="instagram"> Instagram</label>
+        <label class="card" style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;padding:8px 10px"><input type="radio" name="platform" value="x"> X / Twitter</label>
+        <label class="card" style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;padding:8px 10px"><input type="radio" name="platform" value="article"> Article</label>
+        <label class="card" style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;padding:8px 10px"><input type="radio" name="platform" value="youtube"> YouTube</label>
+      </div></div>
       <button id="runFactory" class="btn" style="width:100%;margin-top:4px">Создать контент</button>
       <div class="token field" style="margin-top:12px"><label for="token">API token</label><input id="token" class="input" type="password" placeholder="FACTORY_API_TOKEN"><small>Хранится только в sessionStorage браузера.</small></div>
     </section>
@@ -91,6 +98,16 @@ function setStep(name){
   const idx=names.indexOf(name);
   names.forEach((n,i)=>{const el=$("step-"+n);el.classList.toggle("active",i===idx);el.classList.toggle("done",i<idx)})
 }
+function selectedPlatform(){return document.querySelector('input[name="platform"]:checked')?.value||"telegram"}
+function platformFormat(platform){
+  const formats={telegram:"social_post",instagram:"social_post",x:"social_post",article:"article",youtube:"short_video"};
+  return formats[platform]||"social_post"
+}
+document.querySelectorAll('input[name="platform"]').forEach(input=>input.addEventListener("change",()=>{
+  document.querySelectorAll('#platforms .card').forEach(card=>card.classList.remove("selected"));
+  input.closest(".card")?.classList.add("selected");
+}));
+
 $("source").addEventListener("input",()=>{$("sourceCount").textContent=`${$("source").value.length.toLocaleString()} символов`});
 $("runFactory").onclick=async()=>{
   clearError(); const brief=$("source").value.trim();
@@ -105,8 +122,9 @@ $("runFactory").onclick=async()=>{
       brief,
       audience:"",
       goal:"Create a publishable content package",
-      formats:["short_video"],
+      formats:[platformFormat(selectedPlatform())],
       constraints:[
+        `platform: ${selectedPlatform()}`,
         `language: ${$("language").value}`,
         `style: ${$("tone").value}`,
         `length: ${$("length").value}`

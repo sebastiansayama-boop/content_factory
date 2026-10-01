@@ -178,3 +178,37 @@ def test_knowledge_content_builder_recovers_omitted_provenance_refs(tmp_path):
     assert result["script"]["units"][0]["evidence_refs"] == [evidence_id]
     factory._store.close()
     store.close()
+
+
+def test_knowledge_content_builder_enforces_requested_format(tmp_path):
+    store = KnowledgeStore(tmp_path / "knowledge.sqlite3")
+    store.capture(run_id="research-format", research=_research())
+    claim_id = store._connection.execute(
+        "SELECT claim_id FROM knowledge_claims"
+    ).fetchone()["claim_id"]
+    evidence_id = store._connection.execute(
+        "SELECT evidence_id FROM knowledge_evidence"
+    ).fetchone()["evidence_id"]
+    store.promote_claim(claim_id, decision_ref="DEC-FORMAT-001")
+
+    outputs = [
+        '{"ideas":[{"idea_id":"idea-1","title":"Spirit Houses","angle":"What offerings mean","audience":"general","purpose":"explain","formats":["short_video"],"claim_refs":["'+claim_id+'"],"evidence_refs":["'+evidence_id+'"]}]}',
+        '{"brief_id":"brief-1","title":"Spirit Houses","objective":"Explain offerings","audience":"general","angle":"What offerings mean","editorial_points":[{"point_id":"point-1","text":"Explain what offerings mean","role":"development","claim_refs":["'+claim_id+'"],"evidence_refs":["'+evidence_id+'"]}],"content_elements":[{"element_id":"element-1","kind":"narration","editorial_point_ids":["point-1"],"purpose":"explain","production_intent":"article paragraph","claim_refs":["'+claim_id+'"],"evidence_refs":["'+evidence_id+'"]}],"formats":["short_video"],"constraints":[]}',
+        '{"spec_id":"spec-1","title":"Spirit Houses","objective":"Explain offerings","audience":"general","format":"short_video","tone":"clear","structure":["hook","explanation"],"constraints":[],"claim_refs":["'+claim_id+'"],"evidence_refs":["'+evidence_id+'"]}',
+        '{"script_id":"script-1","title":"Spirit Houses","units":[{"unit_id":"unit-1","kind":"narration","text":"Offerings are commonly associated with spirit houses.","visual_intent":"show spirit house","claim_refs":["'+claim_id+'"],"evidence_refs":["'+evidence_id+'"]}]}',
+    ]
+    factory = FakeFactory(outputs, tmp_path)
+    result = KnowledgeContentBuilder(ContentWorkspace(factory), store).build(
+        run_id="run-format",
+        topic="Thai spirit houses offerings",
+        audience="general",
+        goal="explain",
+        formats=["article"],
+        constraints=[],
+    )
+
+    assert result["content_brief"]["formats"] == ["article"]
+    assert result["content_spec"]["format"] == "article"
+    assert result["production_plan"]["format"] == "article"
+    factory._store.close()
+    store.close()

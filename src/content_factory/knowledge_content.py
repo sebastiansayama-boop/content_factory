@@ -438,7 +438,7 @@ USER CONSTRAINTS:
             evidence_refs=tuple(selected_evidence),
             editorial_points=tuple(points),
             content_elements=tuple(elements),
-            formats=tuple(str(v) for v in _refs(brief_raw.get("formats") or formats, "formats")),
+            formats=tuple(formats),
             constraints=tuple(str(v) for v in _refs(brief_raw.get("constraints") or constraints or ["none"], "constraints")),
         )
         if not brief.brief_id or not brief.title or not brief.objective or not brief.angle:
@@ -471,7 +471,7 @@ USER CONSTRAINTS:
             title=str(spec_raw.get("title") or "").strip(),
             objective=str(spec_raw.get("objective") or "").strip(),
             audience=str(spec_raw.get("audience") or audience).strip(),
-            format=str(spec_raw.get("format") or (formats[0] if formats else "article")).strip(),
+            format=(formats[0] if formats else "article"),
             tone=str(spec_raw.get("tone") or "").strip(),
             structure=tuple(structure),
             constraints=tuple(str(v) for v in _refs(spec_raw.get("constraints"), "constraints")),
