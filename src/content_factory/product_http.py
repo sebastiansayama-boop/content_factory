@@ -828,7 +828,7 @@ class ProductHandler(Handler):
                     "information_flow": updated_flow,
                     "publication": publication,
                 }
-                self.content_runs.save_result(run_id, approved_result)
+                self.content_runs.save_result_preserving_status(run_id, approved_result)
                 self._json(200, self.content_runs.get(run_id).to_dict())
                 return
 
