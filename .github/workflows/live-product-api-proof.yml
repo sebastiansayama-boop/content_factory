@@ -1,0 +1,106 @@
+name: Live Product API Proof
+
+on:
+  push:
+    branches:
+      - "tmp/live-product-api-proof-20261001"
+
+permissions: {}
+
+jobs:
+  live-api-proof:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: "tmp/live-product-api-proof-20261001"
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e ".[dev]"
+      - name: Live product API proof
+        env:
+          BASE_URL: "https://content-factory-1zij.onrender.com"
+          FACTORY_API_TOKEN: ${{ secrets.FACTORY_API_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json, os, sys, urllib.error, urllib.request
+
+          base = os.environ["BASE_URL"].rstrip("/")
+          token = os.environ.get("FACTORY_API_TOKEN")
+          if not token:
+              raise SystemExit("FACTORY_API_TOKEN secret is missing")
+
+          def req(method, path, body=None):
+              data = None
+              headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+              if body is not None:
+                  data = json.dumps(body).encode()
+              request = urllib.request.Request(base + path, data=data, headers=headers, method=method)
+              try:
+                  with urllib.request.urlopen(request, timeout=90) as r:
+                      raw = r.read().decode()
+                      return r.status, json.loads(raw) if raw else None
+              except urllib.error.HTTPError as e:
+                  raw = e.read().decode()
+                  try:
+                      payload = json.loads(raw)
+                  except Exception:
+                      payload = raw
+                  return e.code, payload
+
+          topic = "convergent evolution"
+          status, created = req("POST", "/api/runs", {
+              "topic": topic,
+              "platform": "telegram",
+              "language": "en",
+              "tone": "clear",
+              "tone_strength": 0.5,
+              "length": "short"
+          })
+          assert status in (200, 201), (status, created)
+          run_id = created["id"]
+          print("run_id:", run_id)
+
+          status, result = req("POST", f"/api/runs/{run_id}/factory")
+          print("factory_attempt:", status)
+          print(json.dumps(result, ensure_ascii=False)[:12000])
+
+          if status == 409:
+              candidates = result.get("knowledge_candidates") or result.get("candidates") or []
+              assert candidates, result
+              candidate_id = candidates[0]["id"]
+              status, promoted = req("POST", f"/api/knowledge/{candidate_id}/promote")
+              assert status in (200, 201), (status, promoted)
+              print("promoted:", candidate_id, promoted)
+
+              status, result = req("POST", f"/api/runs/{run_id}/factory")
+              print("factory_retry:", status)
+              print(json.dumps(result, ensure_ascii=False)[:12000])
+
+          assert status == 200, (status, result)
+
+          status, run = req("GET", f"/api/runs/{run_id}")
+          assert status == 200, (status, run)
+          assert run["status"] == "REVIEW", run
+          assert run["result"]["qc"]["status"] == "PASSED", run
+
+          script_text = run["result"]["content_package"]["script"]
+          claims = run["information_flow"]["claims"]
+          accepted = [c for c in claims if c.get("status") == "ACCEPTED"]
+          assert accepted, claims
+          claim_text = accepted[0]["claim_text"]
+          assert claim_text in script_text, {"claim_text": claim_text, "script": script_text}
+
+          status, approval = req("POST", f"/api/runs/{run_id}/approve", {"channel": "local"})
+          assert status == 200, (status, approval)
+          assert approval["status"] == "APPROVED", approval
+          assert approval["publication"]["status"] == "PREPARED", approval
+
+          print("LIVE_E2E_PROOF=PASS")
+          print("claim_propagates=true")
+          print("qc=PASSED")
+          print("approval=APPROVED")
+          PY
