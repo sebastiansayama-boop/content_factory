@@ -54,12 +54,11 @@ jobs:
           topic = "convergent evolution"
           status, created = req("POST", "/api/runs", {
               "title": "Live E2E proof: convergent evolution",
-              "topic": topic,
-              "platform": "telegram",
-              "language": "en",
-              "tone": "clear",
-              "tone_strength": 0.5,
-              "length": "short"
+              "brief": "Explain convergent evolution with one clear evidence-based example.",
+              "audience": "general readers",
+              "goal": "produce a concise Telegram-ready explainer",
+              "formats": ["telegram"],
+              "constraints": ["short", "clear"]
           })
           assert status in (200, 201), (status, created)
           run_id = created["id"]
