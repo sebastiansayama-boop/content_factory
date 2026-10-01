@@ -157,7 +157,7 @@ class FactoryControlStore:
         ]
 
     def prepare_publication(
-        self, run_id: str, channel: str, content_ref: str, payload: dict[str, Any]
+        self, run_id: str, channel: str, content_ref: str, payload: dict[str, Any], *, record_event: bool = True
     ) -> dict[str, Any]:
         now = _now()
         publication_id = f"pub-{uuid4()}"
@@ -175,7 +175,8 @@ class FactoryControlStore:
                 (publication_id, run_id, channel, "PREPARED", content_ref, None, None,
                  _json(payload), now, now),
             )
-        self.record(run_id, "publication.prepared", output_refs=(publication_id, channel))
+        if record_event:
+            self.record(run_id, "publication.prepared", output_refs=(publication_id, channel))
         return dict(self.db.execute(
             "SELECT * FROM publications WHERE publication_id=?", (publication_id,)
         ).fetchone())
