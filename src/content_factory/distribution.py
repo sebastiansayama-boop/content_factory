@@ -52,7 +52,8 @@ class TelegramDistributionAdapter:
         if not body.get("ok"):
             raise ValueError(f"Telegram publish failed: {body}")
         message = body.get("result") or {}
-        message_id = str(message.get("message_id") or "").strip()
+        raw_message_id = message.get("message_id")
+        message_id = str(raw_message_id or "").strip()
         if not message_id:
             raise ValueError("Telegram response has no message_id")
         return {
@@ -62,7 +63,7 @@ class TelegramDistributionAdapter:
             "response": {
                 "mode": "telegram",
                 "chat_id": prepared["destination"],
-                "message_id": message_id,
+                "message_id": int(message_id),
                 "telegram_ok": True,
                 "publication_id": publication_id,
             },
