@@ -17,6 +17,7 @@ from .runtime import FactoryRuntime, WorkItem
 from .workspace import ContentWorkspace
 from .vertical_slice import ContentFactoryVerticalSlice
 from .distribution import TelegramDistributionAdapter, FakeTelegramDistributionAdapter
+from .integrations import IntegrationError
 
 
 class ProductHandler(Handler):
@@ -1126,6 +1127,9 @@ class ProductHandler(Handler):
             self._json(400, {"error": "request body must be UTF-8"})
         except ValueError as exc:
             self._json(400, {"error": str(exc)})
+        except IntegrationError as exc:
+            status = 429 if exc.status_code == 429 else 502
+            self._json(status, {"error": str(exc)})
         except Exception as exc:
             import logging
             logging.getLogger(__name__).exception("product API request failed", exc_info=exc)
