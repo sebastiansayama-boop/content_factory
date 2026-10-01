@@ -165,6 +165,7 @@ Required deployment secrets:
 
 ```text
 OPENAI_API_KEY
+GEMINI_API_KEY       # used when FACTORY_PROVIDER=gemini
 FACTORY_API_TOKEN
 PUBLISH_URL
 PUBLISH_AUTH_TOKEN   # optional, if the destination requires it
@@ -187,6 +188,30 @@ No secret value belongs in Git.
 ```
 
 The response exposes the Work Item state, execution identity, exact output revision, event chain and publication record when delivery succeeds. This makes the runtime inspectable from outside the chat.
+
+## Free web retrieval + Gemini
+
+When `FACTORY_PROVIDER=gemini`, research uses a separate retrieval layer rather than Gemini Search Grounding:
+
+```text
+USER BRIEF
+   ↓
+WIKIMEDIA + OPENALEX RETRIEVAL
+   ↓
+SOURCE / EVIDENCE PACK
+   ↓
+GEMINI 3.5 FLASH-LITE (plain chat)
+   ↓
+CLAIMS + EDITORIAL SYNTHESIS
+   ↓
+PRODUCTION
+```
+
+Implementation: `src/content_factory/free_research.py`.
+
+The retrieval layer is API-key-free and stores source URLs plus concrete evidence excerpts. Gemini receives that pack as context and is not given a web-search tool. The same retrieval pack is reused for production formats in the same run.
+
+The previous `GeminiWebResearchAdapter` remains available for isolated legacy tests, but it is no longer selected by the default `gemini` provider path.
 
 ## Evidence and research layers
 
