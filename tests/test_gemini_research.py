@@ -51,9 +51,10 @@ def test_gemini_web_research_builds_native_grounding_request(monkeypatch):
 
     result = adapter.research("Research how people imagined the future.")
     assert result.status_code == 200
-    assert captured["url"].endswith("/v1beta/models/gemini-test:generateContent")
+    assert captured["url"].endswith("/v1beta/interactions")
     assert captured["headers"]["X-goog-api-key"] == "test-key"
-    assert captured["payload"]["tools"] == [{"google_search": {}}]
+    assert captured["payload"]["model"] == "gemini-research-test"
+    assert captured["payload"]["tools"] == [{"type": "google_search"}]
     assert adapter.text(result) == "grounded response"
     assert adapter.sources(result) == [{
         "url": "https://example.com/source",
@@ -67,10 +68,9 @@ def test_gemini_web_research_joins_multiple_text_parts():
         status_code=200,
         response_id=None,
         payload={
-            "candidates": [{
-                "content": {
-                    "parts": [{"text": "one "}, {"text": "two"}]
-                }
+            "steps": [{
+                "type": "model_output",
+                "content": [{"type": "text", "text": "one "}, {"type": "text", "text": "two"}],
             }]
         },
     )
