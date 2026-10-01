@@ -18,6 +18,8 @@ def factory_server(tmp_path, monkeypatch):
     monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
     monkeypatch.setenv("FACTORY_PROVIDER", "local")
     monkeypatch.setenv("FACTORY_API_TOKEN", "browser-e2e-token")
+    monkeypatch.setenv("FACTORY_TELEGRAM_FAKE", "1")
+    monkeypatch.setenv("TELEGRAM_CHAT_ID", "browser-fake-chat")
     monkeypatch.setattr(ProductHandler, "_rate_limited", lambda *args, **kwargs: False)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
@@ -111,7 +113,7 @@ def test_browser_replay_exact_content_brief_revision(factory_server, page):
             const response = await fetch('/api/runs/' + encodeURIComponent(runId) + '/approve', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token},
-                body: JSON.stringify({decision_ref: 'browser-human-review', channel: 'local'})
+                body: JSON.stringify({decision_ref: 'browser-human-review', channel: 'telegram'})
             });
             return {status: response.status, body: await response.json()};
         }""",
@@ -125,6 +127,10 @@ def test_browser_replay_exact_content_brief_revision(factory_server, page):
     publications = service.control.list_publications(replay_run_id)
     assert len(publications) == 1
     assert publications[0]["status"] == "PREPARED"
+    assert publications[0]["channel"] == "telegram"
+    assert publications[0]["destination"] == "browser-fake-chat"
+    assert json.loads(publications[0]["artifact_ids_json"])
+
 
     page.locator("#publish").click()
     page.locator("#status").filter(has_text="Published").wait_for()
@@ -132,4 +138,7 @@ def test_browser_replay_exact_content_brief_revision(factory_server, page):
     assert published is not None
     assert published.status == "PUBLISHED"
     assert published.result["publication"]["status"] == "PUBLISHED"
+    assert published.result["publication"]["channel"] == "telegram"
+    assert published.result["publication"]["external_id"].startswith("fake-message-")
+    assert published.result["publication"]["published_at"]
     assert published.result["information_flow"]["publications"][0]["status"] == "PUBLISHED"
