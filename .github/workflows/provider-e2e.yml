@@ -1,0 +1,22 @@
+name: provider E2E
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  live-provider-e2e:
+    runs-on: ubuntu-latest
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e ".[dev]"
+      - name: Require Gemini credential
+        run: test -n "$GEMINI_API_KEY"
+      - name: Run live provider E2E
+        run: pytest -q tests/test_provider_e2e.py -m external
