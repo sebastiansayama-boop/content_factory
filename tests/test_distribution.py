@@ -38,3 +38,36 @@ def test_telegram_message_url_for_public_channel():
 def test_telegram_message_url_for_private_supergroup_or_channel():
     adapter = TelegramDistributionAdapter("token", "-1001234567890")
     assert adapter._message_url("42") == "https://t.me/c/1234567890/42"
+
+
+def test_telegram_adapter_can_publish_a_local_photo(monkeypatch, tmp_path):
+    image = tmp_path / "hero.jpg"
+    image.write_bytes(b"fake-jpeg")
+    calls = []
+
+    class Response:
+        def __enter__(self):
+            return self
+        def __exit__(self, *args):
+            return False
+        def read(self):
+            return b'{"ok":true,"result":{"message_id":42,"caption":"Caption"}}'
+
+    def fake_urlopen(request, timeout=30):
+        calls.append(request)
+        return Response()
+
+    monkeypatch.setattr("content_factory.distribution.urllib.request.urlopen", fake_urlopen)
+    adapter = TelegramDistributionAdapter("token", "@example")
+    result = adapter.publish(
+        {
+            "text": "Caption",
+            "media": [{"media_id": "asset-1", "type": "image", "origin": "openverse", "uri": str(image), "license": "cc-by"}],
+        },
+        publication_id="pub-media-1",
+    )
+    assert result["external_id"] == "42"
+    assert result["response"]["media_count"] == 1
+    assert result["response"]["media"][0]["origin"] == "openverse"
+    assert calls and b"fake-jpeg" in calls[0].data
+    assert b"sendPhoto" not in calls[0].data

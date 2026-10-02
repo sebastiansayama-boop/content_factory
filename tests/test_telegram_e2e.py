@@ -100,6 +100,9 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
         assert factory["qc"]["status"] == "PASSED"
         result = factory["run"]["result"]
         assert claim_id in result["content_spec"]["claim_refs"]
+        media = list((result.get("package") or {}).get("media") or [])
+        assert media, result.get("package")
+        assert any(item.get("type") == "image" and item.get("origin") == "openverse" for item in media), media
         script_units = result["script"]["units"]
         assert any(claim_id in (unit.get("claim_refs") or []) for unit in script_units)
 
@@ -135,6 +138,8 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
         assert published["response"]["mode"] == "telegram"
         assert published["response"]["telegram_ok"] is True
         assert published["response"]["message_id"] == int(published["external_id"])
+        assert published["response"]["media_count"] >= 1, published["response"]
+        assert any(item.get("origin") == "openverse" for item in published["response"].get("media") or []), published["response"]
         published_text = str(published["response"]["text"])
         assert published_text.strip()
         assert "Development fixture claim" not in published_text

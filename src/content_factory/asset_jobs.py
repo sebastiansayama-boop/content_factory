@@ -24,6 +24,7 @@ class AssetJob:
     status: str
     claim_refs: tuple[str, ...]
     evidence_refs: tuple[str, ...]
+    visual_intent: str
     acceptance_criteria: tuple[str, ...]
     result: dict[str, object] | None
     created_at: str
@@ -61,6 +62,7 @@ class AssetJobStore:
                 status TEXT NOT NULL,
                 claim_refs_json TEXT NOT NULL,
                 evidence_refs_json TEXT NOT NULL,
+                visual_intent TEXT NOT NULL DEFAULT '',
                 acceptance_criteria_json TEXT NOT NULL,
                 result_json TEXT,
                 created_at TEXT NOT NULL,
@@ -69,6 +71,9 @@ class AssetJobStore:
             )
             """
         )
+        columns = {row["name"] for row in self._connection.execute("PRAGMA table_info(asset_jobs)").fetchall()}
+        if "visual_intent" not in columns:
+            self._connection.execute("ALTER TABLE asset_jobs ADD COLUMN visual_intent TEXT NOT NULL DEFAULT ''")
         self._connection.execute(
             "CREATE INDEX IF NOT EXISTS idx_asset_jobs_run ON asset_jobs(run_id, created_at)"
         )
@@ -92,6 +97,7 @@ class AssetJobStore:
                     raise ValueError("asset request requires id, script_unit_id and type")
                 claim_refs = self._strings(request.get("claim_refs"), "claim_refs")
                 evidence_refs = self._strings(request.get("evidence_refs"), "evidence_refs")
+                visual_intent = str(request.get("visual_intent") or "").strip()
                 criteria = self._strings(request.get("acceptance_criteria"), "acceptance_criteria")
                 job = AssetJob(
                     job_id=f"job-{run_id}-{request_id}",
@@ -102,6 +108,7 @@ class AssetJobStore:
                     status="QUEUED",
                     claim_refs=tuple(claim_refs),
                     evidence_refs=tuple(evidence_refs),
+                    visual_intent=visual_intent,
                     acceptance_criteria=tuple(criteria),
                     result=None,
                     created_at=now,
@@ -111,14 +118,14 @@ class AssetJobStore:
                     """
                     INSERT OR IGNORE INTO asset_jobs(
                         job_id, run_id, asset_request_id, script_unit_id, asset_type,
-                        status, claim_refs_json, evidence_refs_json,
+                        status, claim_refs_json, evidence_refs_json, visual_intent,
                         acceptance_criteria_json, result_json, created_at, updated_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         job.job_id, job.run_id, job.asset_request_id, job.script_unit_id,
                         job.asset_type, job.status, json.dumps(job.claim_refs),
-                        json.dumps(job.evidence_refs), json.dumps(job.acceptance_criteria),
+                        json.dumps(job.evidence_refs), job.visual_intent, json.dumps(job.acceptance_criteria),
                         None, job.created_at, job.updated_at,
                     ),
                 )
@@ -196,6 +203,7 @@ class AssetJobStore:
             status=row["status"],
             claim_refs=tuple(json.loads(row["claim_refs_json"])),
             evidence_refs=tuple(json.loads(row["evidence_refs_json"])),
+            visual_intent=str(row["visual_intent"] or ""),
             acceptance_criteria=tuple(json.loads(row["acceptance_criteria_json"])),
             result=json.loads(row["result_json"]) if row["result_json"] else None,
             created_at=row["created_at"],
