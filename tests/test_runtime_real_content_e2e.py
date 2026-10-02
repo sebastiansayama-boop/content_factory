@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 
 import pytest
 
@@ -13,7 +14,13 @@ from content_factory.runtime_store import RuntimeStore
 from content_factory.vertical_slice import quality_check
 
 
-pytestmark = pytest.mark.external
+pytestmark = [
+    pytest.mark.external,
+    pytest.mark.skipif(
+        not os.environ.get("GEMINI_API_KEY"),
+        reason="real provider credentials are required for this E2E",
+    ),
+]
 
 
 def test_runtime_executes_real_research_production_qc_chain(tmp_path):
