@@ -41,11 +41,7 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
         pytest.fail("TELEGRAM_BOT_TOKEN is required")
     if not os.environ.get("TELEGRAM_CHAT_ID"):
         pytest.fail("TELEGRAM_CHAT_ID is required")
-    if not os.environ.get("GEMINI_API_KEY"):
-        pytest.fail("GEMINI_API_KEY is required")
-
     monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
-    monkeypatch.setenv("FACTORY_PROVIDER", "gemini")
     monkeypatch.setenv("FACTORY_API_TOKEN", "telegram-e2e-token")
     monkeypatch.delenv("FACTORY_TELEGRAM_FAKE", raising=False)
     monkeypatch.delenv("PUBLISH_URL", raising=False)
