@@ -109,9 +109,11 @@ def register_content_tools(
         )
 
     def review_content(*, run: Any, result: dict[str, Any]) -> Any:
-        from .content_reviewer import ContentReviewer
+        reviewer_impl = reviewer
+        if reviewer_impl is None:
+            from .content_reviewer import ContentReviewer
 
-        reviewer_impl = reviewer or ContentReviewer(workspace)
+            reviewer_impl = ContentReviewer(workspace)
         return reviewer_impl.review(
             run_id=run.run_id,
             brief=run.brief,
