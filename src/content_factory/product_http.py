@@ -510,8 +510,8 @@ class ProductHandler(Handler):
                 if run is None:
                     self._json(404, {"error": "content run not found"})
                     return
-                if run.status not in {"REVIEW", "APPROVED"}:
-                    raise ValueError("only REVIEW or APPROVED runs can edit the content package")
+                if run.status != "REVIEW":
+                    raise ValueError("only REVIEW runs can edit the content package")
                 payload = self._body()
                 current = (run.result or {}).get("package")
                 if not isinstance(current, dict):
@@ -1094,6 +1094,13 @@ class ProductHandler(Handler):
                     **result,
                     "production": {**production, "status": "READY_FOR_REVIEW" if qc["passed"] else "QC_FAILED", "qc": qc},
                 }
+                package = final_result.get("package")
+                if isinstance(package, dict):
+                    final_result["package"] = {
+                        **package,
+                        "qc": qc,
+                        "approval": {},
+                    }
                 updated = self.content_runs.save_result(run_id, final_result) if qc["passed"] else self.content_runs.save_production_result(run_id, final_result)
                 self.service.control.record(run_id, "qc.completed", status="COMPLETED" if qc["passed"] else "FAILED", output_refs=(qc.get("qc_id", ""),), evidence=qc)
                 self._json(200, {"run": updated.to_dict(), "qc": qc})
