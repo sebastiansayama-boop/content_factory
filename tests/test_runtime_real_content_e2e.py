@@ -40,7 +40,7 @@ def test_runtime_executes_real_research_production_qc_chain(tmp_path):
 Return ONLY JSON:
 {{"topic":"string","summary":"string","claims":[{{"id":"claim-1","text":"atomic factual claim","confidence":"high|medium|low","source_ids":["source-1"],"evidence_ids":["evidence-1"],"scope":"string","known_unknowns":["string"]}}],"sources":[{{"id":"source-1","title":"string","url":"https://..."}}],"evidence":[{{"id":"evidence-1","source_id":"source-1","excerpt":"short supporting passage","locator":"string","provenance":"string"}}],"editorial_angles":["string"]}}
 Every factual claim must have source_ids and evidence_ids. Use only real public source URLs.
-BRIEF: {topic}"""
+USER BRIEF: {topic}"""
             result = research.research(prompt)
             if not 200 <= result.status_code < 300:
                 raise RuntimeError(f"research HTTP {result.status_code}")
