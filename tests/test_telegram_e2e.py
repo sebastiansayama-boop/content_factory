@@ -14,6 +14,8 @@ from content_factory.workspace import ContentWorkspace
 
 pytestmark = pytest.mark.external
 
+# Real publication proof is triggered by a commit message containing [telegram-e2e].
+
 
 def _request(base_url, method, path, payload=None, token="telegram-e2e-token"):
     from urllib.parse import urlsplit
