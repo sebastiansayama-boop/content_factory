@@ -90,7 +90,6 @@ class ExecutionResult:
 
 
 @dataclass(frozen=True)
-@dataclass(frozen=True)
 class CapabilityChainResult:
     work_item_id: str
     state: str
@@ -98,6 +97,7 @@ class CapabilityChainResult:
     final_payload: Any
 
 
+@dataclass(frozen=True)
 class VerificationResult:
     output_revision_id: str
     passed: bool
