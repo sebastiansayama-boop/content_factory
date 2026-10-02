@@ -1,6 +1,8 @@
 name: Content Factory Vertical Slice Proof
 
 on:
+  push:
+    branches: ["main"]
   workflow_dispatch:
     inputs:
       run_telegram:
@@ -34,7 +36,7 @@ jobs:
           pytest -q tests/test_browser_replay.py -m browser --browser chromium
 
   telegram-proof:
-    if: ${{ inputs.run_telegram }}
+    if: ${{ inputs.run_telegram || contains(github.event.head_commit.message, '[telegram-e2e]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
