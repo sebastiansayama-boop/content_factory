@@ -304,3 +304,90 @@ def test_cancel_is_durable(tmp_path):
     with RuntimeStore(database) as store:
         recovered = FactoryRuntime(runtime_store=store)
         assert recovered.states[item.work_item_id] == FactoryState.CANCELLED
+
+
+def test_capability_chain_passes_results_between_capabilities_and_records_trace(tmp_path):
+    database = tmp_path / "runtime.sqlite3"
+    artifacts = ArtifactStore(tmp_path / "artifacts")
+    with RuntimeStore(database) as store:
+        runtime = FactoryRuntime(runtime_store=store, artifact_store=artifacts)
+        calls = []
+
+        def register(name, suffix):
+            def execute(item, execution_id):
+                input_value = next(value for value in item.inputs if value.startswith("capability_input:"))
+                import json
+                payload = json.loads(input_value.split(":", 1)[1])
+                calls.append((name, payload))
+                return ExecutionResult(execution_id, name, f"{name}-r1", f"{payload}->{suffix}", (f"{name}-evidence",))
+            runtime.register_capability(Capability(name, lambda item: None, execute))
+
+        register("research.search", "searched")
+        register("content.generate", "generated")
+        register("content.qc", "qc-pass")
+        item = WorkItem(
+            work_item_id="wi-chain",
+            operation_id="op-chain",
+            revision_id="chain-r1",
+            objective="execute a capability chain",
+            requested_outcome="final artifact",
+            inputs=("topic:animals",),
+            knowledge_basis=(),
+            required_capabilities=("research.search", "content.generate", "content.qc"),
+            owner="intelligence",
+            acceptance_criteria=("all capabilities executed",),
+            release_requirements=("internal",),
+        )
+        runtime.submit(item)
+        result = runtime.run_capability_chain(item, initial_payload="topic:animals")
+        assert result.state == "PRODUCED"
+        assert result.final_payload == "topic:animals->searched->generated->qc-pass"
+        assert [name for name, _ in calls] == ["research.search", "content.generate", "content.qc"]
+        assert calls[1][1] == "topic:animals->searched"
+        assert calls[2][1] == "topic:animals->searched->generated"
+        assert [event.operation for event in runtime.provenance(item.work_item_id) if event.operation.startswith("capability.")] == [
+            "capability.started", "capability.completed",
+            "capability.started", "capability.completed",
+            "capability.started", "capability.completed",
+        ]
+        persisted = store.load_record(item.work_item_id, "capability_chain")
+        assert persisted is not None
+        assert len(persisted["executions"]) == 3
+        assert (tmp_path / "artifacts/06_production/wi-chain.json").exists()
+
+
+def test_capability_chain_resumes_from_persisted_completed_steps(tmp_path):
+    database = tmp_path / "runtime.sqlite3"
+    item = WorkItem(
+        work_item_id="wi-chain-resume", operation_id="op-chain-resume", revision_id="chain-r1",
+        objective="resume capability chain", requested_outcome="final artifact", inputs=("topic:x",),
+        knowledge_basis=(), required_capabilities=("step-a", "step-b"), owner="intelligence",
+        acceptance_criteria=("chain completes",), release_requirements=("internal",),
+    )
+    calls = []
+    with RuntimeStore(database) as store:
+        runtime = FactoryRuntime(runtime_store=store)
+        def step_a(item, execution_id):
+            calls.append("a")
+            return ExecutionResult(execution_id, "step-a", "a-r1", "A")
+        def step_b(item, execution_id):
+            calls.append("b")
+            return ExecutionResult(execution_id, "step-b", "b-r1", "AB")
+        runtime.register_capability(Capability("step-a", lambda _: None, step_a))
+        runtime.register_capability(Capability("step-b", lambda _: None, step_b))
+        runtime.submit(item)
+        runtime.run_capability_chain(item, initial_payload="X")
+        store.save_record(item.work_item_id, "capability_chain", {
+            "next_step": 1,
+            "executions": [{
+                "execution_id": runtime.executions[item.work_item_id].execution_id,
+                "capability_id": "step-a", "output_revision_id": "a-r1", "payload": "A", "evidence_refs": [],
+            }],
+        })
+    with RuntimeStore(database) as store:
+        runtime = FactoryRuntime(runtime_store=store)
+        runtime.register_capability(Capability("step-a", lambda _: None, lambda *_: (_ for _ in ()).throw(AssertionError("step-a reran"))))
+        runtime.register_capability(Capability("step-b", lambda _: None, lambda item, execution_id: ExecutionResult(execution_id, "step-b", "b-r2", "AB")))
+        result = runtime.run_capability_chain(item, initial_payload="X")
+        assert result.final_payload == "AB"
+
