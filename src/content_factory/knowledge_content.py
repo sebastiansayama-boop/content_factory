@@ -369,7 +369,7 @@ ACCEPTED KNOWLEDGE:
                 angle=str(raw.get("angle") or "").strip(),
                 audience=str(raw.get("audience") or audience).strip(),
                 purpose=str(raw.get("purpose") or "").strip(),
-                formats=tuple(str(v) for v in _refs(raw.get("formats"), "formats")),
+                formats=tuple(\n                    str(v)\n                    for v in _refs_or_default(raw.get("formats"), "formats", formats)\n                ),
                 claim_refs=tuple(claims_ref),
                 evidence_refs=tuple(evidence_ref),
             ))
