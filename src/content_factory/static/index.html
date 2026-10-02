@@ -57,6 +57,12 @@
       <h2>Готовый материал</h2>
       <div id="packageEmpty" class="empty">Здесь появится текст и визуальные материалы после Production и QC.</div>
       <div id="package" class="package"></div>
+      <div id="packageEditor" class="review hidden">
+        <strong>Редактирование</strong>
+        <div class="field" style="margin-top:8px"><label for="packageTitle">Заголовок</label><input id="packageTitle" class="input"></div>
+        <div class="field"><label for="packageText">Текст</label><textarea id="packageText" class="textarea"></textarea></div>
+        <button id="savePackage" class="btn">Сохранить изменения и проверить заново</button>
+      </div>
       <div id="review" class="review hidden">
         <strong>Проверка</strong>
         <div id="reviewState" class="review-state">Ожидает проверки</div>
@@ -198,6 +204,13 @@ function renderPackage(run){
     html+=`<div class="asset-body" style="padding:0"><div class="key" style="padding:8px 0">Визуалы</div><div class="asset-grid">${visuals.map(a=>`<div class="asset"><img data-asset-id="${esc(a.asset_id)}" alt="${esc(a.asset_id)}"><div class="asset-body"><div class="format">visual</div><div class="key">Claims: ${esc((a.claim_refs||[]).join(", "))}</div></div></div>`).join("")}</div></div>`;
   }
   $("package").innerHTML=html||"<div class='empty'>Production не вернул материалов.</div>";
+  if(run.status==="REVIEW"){
+    $("packageEditor").classList.remove("hidden");
+    $("packageTitle").value=result.package?.title||result.content_spec?.title||run.title||"";
+    $("packageText").value=result.package?.text||units.map(u=>u.text||"").join("\n\n");
+  }else{
+    $("packageEditor").classList.add("hidden");
+  }
   visuals.forEach(loadAsset);
 }
 function renderTimeline(events){
@@ -206,6 +219,20 @@ function renderTimeline(events){
   $("timeline").innerHTML="<strong>Ход выполнения</strong>"+events.filter(e=>e.event_type||e.operation).map(e=>"<div style='margin-top:5px'>✓ "+esc(e.event_type||e.operation)+"</div>").join("");
 }
 $("showTrace").onclick=async()=>{try{const d=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/execution-trace","GET");$("traceBox").classList.remove("hidden");$("traceBox").innerHTML="<strong>Trace</strong>"+d.events.map(e=>"<div style='margin-top:4px'>"+esc(e.data?.stage||"")+" · "+esc(e.data?.task||"")+" · "+esc(e.data?.decision||"")+"</div>").join("")}catch(e){error(e.message)}};
+$("savePackage").onclick=async()=>{
+  clearError();
+  const patch={title:$("packageTitle").value,text:$("packageText").value};
+  $("savePackage").disabled=true; setStatus("Сохраняю изменения…");
+  try{
+    const d=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/package","POST",patch);
+    currentRun=d.run; renderRun(currentRun);
+    setStatus("Изменения сохранены · запускаю QC…");
+    const checked=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/qc","POST",{});
+    currentRun=checked.run; renderRun(currentRun);
+    setStatus(checked.qc?.passed?"Изменения проверены · можно принять":"QC не пройден · исправь материал");
+  }catch(e){error(e.message);setStatus("Ошибка")}
+  finally{$("savePackage").disabled=false}
+};
 $("approve").onclick=async()=>{clearError();try{const d=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/approve","POST",{decision_ref:"browser-user-approval",channel:"local"});currentRun=d.run||d;renderRun(currentRun);setStatus("Материал принят")}catch(e){error(e.message)}};
 $("export").onclick=async()=>{clearError();try{const d=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/export","POST",{});currentRun=d.run||currentRun;renderRun(currentRun);const link=$("exportLink");link.innerHTML='<button class="link-btn" id="downloadExport">Скачать экспорт</button> · SHA256: '+esc(d.export?.sha256||"");$("downloadExport").onclick=downloadExport;setStatus("Экспорт готов")}catch(e){error(e.message)}};
 async function downloadExport(){
