@@ -101,6 +101,43 @@ class ContentAssembler:
         return manifest | {"uri": str(manifest_path)}
 
 
+_HIGH_RISK_EPISTEMIC_OUTPUT_PATTERNS = (
+    "доказывает, что",
+    "доказывает",
+    "опровергнуто",
+    "опровергает",
+    "строгим закономерностям",
+    "исключительно случайност",
+    "исключительно хаот",
+    "proves that",
+    "proves",
+    "refutes",
+    "strict laws",
+    "entirely random",
+    "purely random",
+    "fundamentally not random",
+)
+
+
+def _epistemic_output_violations(output: dict[str, Any]) -> list[str]:
+    """Find high-certainty formulations in the assembled user-facing text."""
+    texts = [str(output.get("title") or "")]
+    sequence = output.get("sequence")
+    if isinstance(sequence, list):
+        texts.extend(
+            str(item.get("text") or "")
+            for item in sequence
+            if isinstance(item, dict)
+        )
+    violations: list[str] = []
+    for text in texts:
+        folded = text.casefold()
+        for pattern in _HIGH_RISK_EPISTEMIC_OUTPUT_PATTERNS:
+            if pattern in folded:
+                violations.append(pattern)
+    return list(dict.fromkeys(violations))
+
+
 class QualityGate:
     """Deterministic QC over the assembled output graph and semantic lineage."""
 
@@ -140,6 +177,16 @@ class QualityGate:
             [str(item.get("unit_id")) for item in units if isinstance(item, dict)],
         )
         check("output_uri_present", bool(str(output.get("uri") or "").strip()), "sequence manifest exists", [str(output.get("output_id") or "")])
+
+        epistemic_violations = _epistemic_output_violations(output)
+        check(
+            "epistemic_scope",
+            not epistemic_violations,
+            "assembled output does not contain unsupported high-certainty formulations"
+            if not epistemic_violations
+            else "assembled output contains high-certainty formulations: " + ", ".join(epistemic_violations),
+            [str(output.get("output_id") or ""), *epistemic_violations],
+        )
 
         if isinstance(units, list):
             asset_units = {asset.script_unit_id for asset in assets}
