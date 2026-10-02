@@ -12,6 +12,10 @@ class LLMProvider(Protocol):
     def generate(self, prompt: str) -> ExternalCallResult:
         ...
 
+    @staticmethod
+    def response_text(result: ExternalCallResult) -> str:
+        ...
+
 
 @runtime_checkable
 class ResearchProvider(Protocol):
