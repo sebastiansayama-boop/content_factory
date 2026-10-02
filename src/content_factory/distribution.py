@@ -53,8 +53,6 @@ class TelegramDistributionAdapter:
             "text": prepared["text"],
         })
         message = body.get("result") or {}
-        if message.get("message_id") is None and isinstance(message, list) and message:
-            message = message[0]
         message_id = str(message.get("message_id") or "").strip()
         if not message_id:
             raise ValueError("Telegram response has no message_id")
@@ -82,15 +80,13 @@ class TelegramDistributionAdapter:
             return (path.name, path.read_bytes(), mimetypes.guess_type(path.name)[0] or "application/octet-stream")
         if len(media) > 1:
             if len(prepared["text"]) <= 1024:
-                self._send_album(
+                album_body = self._send_album(
                     prepared["destination"],
                     media[:10],
                     caption=prepared["text"],
                 )
-                message = {
-                    "message_id": None,
-                    "caption": prepared["text"],
-                }
+                album_messages = album_body.get("result") or []
+                message = album_messages[0] if album_messages else {}
             else:
                 text_body = self._api_json("sendMessage", {"chat_id": prepared["destination"], "text": prepared["text"]})
                 self._send_album(prepared["destination"], media[:10])
