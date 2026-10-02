@@ -23,10 +23,15 @@ def test_ollama_generate_payload_without_network():
             return ExternalCallResult("ollama.generate", 200, None, {"response": "{}"})
 
     adapter = OllamaAdapter.__new__(OllamaAdapter)
-    adapter.config = OllamaConfig(model="test:model")
+    adapter.config = OllamaConfig(model="test:model", timeout=45)
     adapter._http = FakeHttp()
     result = adapter.generate("hello")
     assert result.status_code == 200
     assert adapter._http.payload["model"] == "test:model"
     assert adapter._http.payload["stream"] is False
     assert adapter._http.payload["format"] == "json"
+
+
+def test_ollama_timeout_is_forwarded_to_http_config():
+    adapter = OllamaAdapter(OllamaConfig(model="test:model", timeout=77))
+    assert adapter._http.config.timeout == 77
