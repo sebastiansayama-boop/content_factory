@@ -70,11 +70,7 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
             "/api/runs",
             {
                 "title": "Evidence-grounded Telegram integration test",
-                "brief": (
-                    "Why have people in different eras imagined the future as prophecy, "
-                    "cycles, or an open possibility? Create one short evidence-grounded "
-                    "Telegram post using the accepted evidence."
-                ),
+                "brief": "Why do unrelated animals sometimes evolve similar traits? Create one short evidence-grounded Telegram post.",
                 "audience": "general audience",
                 "goal": "verify Gemini content generation and real Telegram publication",
                 "formats": ["social_post"],
