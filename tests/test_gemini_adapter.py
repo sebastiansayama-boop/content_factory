@@ -65,4 +65,4 @@ def test_gemini_generate_requests_json_object(monkeypatch):
 
     adapter.generate("return JSON")
 
-    assert captured["response_format"] == {\n        "type": "json_schema",\n        "json_schema": {\n            "name": "content_factory_output",\n            "schema": {\n                "type": "object",\n                "additionalProperties": True,\n            },\n        },\n    }
+    assert captured["response_format"] == {\n        "type": "json_schema",\n        "json_schema": {\n            "name": "content_factory_output",\n            "strict": True,\n            "schema": {\n                "type": "object",\n                "additionalProperties": True,\n            },\n        },\n    }
