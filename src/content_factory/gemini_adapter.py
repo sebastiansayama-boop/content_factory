@@ -46,6 +46,7 @@ class GeminiOpenAICompatibleAdapter:
                 "messages": [
                     {"role": "user", "content": prompt},
                 ],
+                "response_format": {"type": "json_object"},
             }
         )
 
