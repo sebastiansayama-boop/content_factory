@@ -1,9 +1,6 @@
 name: Content Factory Vertical Slice Proof
 
 on:
-  push:
-    branches:
-      - experiment/real-gemini-telegram-e2e
   workflow_dispatch:
     inputs:
       run_telegram:
