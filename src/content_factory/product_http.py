@@ -18,7 +18,7 @@ from .runtime import FactoryRuntime, WorkItem
 from .workspace import ContentWorkspace
 from .vertical_slice import ContentFactoryVerticalSlice
 from .distribution import TelegramDistributionAdapter, FakeTelegramDistributionAdapter
-from .content_package import apply_package_edit, build_content_package
+from .content_package import apply_package_edit, build_content_package, platform_from_constraints
 from .integrations import IntegrationError
 
 
@@ -172,7 +172,7 @@ class ProductHandler(Handler):
                 result = run.result or {}
                 package = result.get("package") if isinstance(result.get("package"), dict) else None
                 if package is None:
-                    platform = str((run.formats[0] if run.formats else "telegram")).strip().lower()
+                    platform = platform_from_constraints(run.constraints)
                     package = build_content_package(run_id=run_id, result=result, platform=platform)
                 self._json(200, {"run_id": run_id, "package": package})
                 return
@@ -515,7 +515,7 @@ class ProductHandler(Handler):
                 payload = self._body()
                 current = (run.result or {}).get("package")
                 if not isinstance(current, dict):
-                    platform = str(payload.get("platform") or (run.formats[0] if run.formats else "telegram")).strip().lower()
+                    platform = str(payload.get("platform") or platform_from_constraints(run.constraints)).strip().lower()
                     current = build_content_package(run_id=run_id, result=run.result or {}, platform=platform)
                 updated_result, package = apply_package_edit(result=run.result or {}, package=current, patch=payload)
                 updated = self.content_runs.save_result_preserving_status(run_id, updated_result)
@@ -864,7 +864,7 @@ class ProductHandler(Handler):
                     final["package"] = build_content_package(
                         run_id=run_id,
                         result=final,
-                        platform=str(run.formats[0] if run.formats else "telegram").strip().lower(),
+                        platform=platform_from_constraints(run.constraints),
                     )
                     final["package_revision_id"] = "r1"
                     final["package_edited"] = False
