@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import struct
 import wave
 import zlib
@@ -170,10 +171,12 @@ class AssetExecutor:
         if not query:
             raise AssetExecutionError("Openverse visual job requires visual_intent")
         provider = OpenverseImageProvider()
-        candidates = provider.search(query, limit=8)
-        if not candidates:
-            raise AssetExecutionError(f"Openverse returned no image candidates for: {query}")
-        candidate = candidates[0]
+        candidates = provider.search(query, limit=12)
+        candidate = self._select_relevant_openverse_candidate(query, candidates)
+        if candidate is None:
+            raise AssetExecutionError(
+                f"Openverse returned no sufficiently relevant image candidates for: {query}"
+            )
         directory = self.root / "asset_jobs" / job.run_id
         directory.mkdir(parents=True, exist_ok=True)
         path = directory / f"{job.asset_request_id}.jpg"
@@ -227,6 +230,48 @@ class AssetExecutor:
                 },
             },
         )
+
+    @staticmethod
+    def _select_relevant_openverse_candidate(query: str, candidates: list[Any]) -> Any | None:
+        """Select an image whose metadata is lexically grounded in the visual intent.
+
+        Openverse ranks results globally, so the first result is not a sufficient
+        relevance guarantee. Keep this gate deterministic: score candidate title
+        and landing URL against meaningful query tokens, require at least one
+        meaningful match, and prefer candidates matching the query phrase.
+        """
+        if not candidates:
+            return None
+
+        stopwords = {
+            "a", "an", "and", "at", "for", "from", "in", "of", "on", "or",
+            "the", "to", "with", "near", "over", "under", "into", "image",
+            "photo", "picture", "photograph", "wildlife", "scene",
+        }
+        tokens = [
+            token for token in re.findall(r"[a-z0-9]+", query.lower())
+            if len(token) >= 3 and token not in stopwords
+        ]
+        if not tokens:
+            return None
+
+        query_phrase = " ".join(tokens)
+        ranked: list[tuple[int, int, Any]] = []
+        for candidate in candidates:
+            title = str(getattr(candidate, "title", "") or "").lower()
+            landing = str(getattr(candidate, "foreign_landing_url", "") or "").lower()
+            searchable = re.sub(r"[^a-z0-9]+", " ", f"{title} {landing}").strip()
+            searchable_tokens = set(searchable.split())
+            overlap = sum(1 for token in tokens if token in searchable_tokens)
+            phrase_bonus = 6 if query_phrase and query_phrase in searchable else 0
+            score = overlap * 3 + phrase_bonus
+            ranked.append((score, overlap, candidate))
+
+        ranked.sort(key=lambda item: (item[0], item[1]), reverse=True)
+        score, overlap, candidate = ranked[0]
+        if overlap < 1:
+            return None
+        return candidate
 
     def _execute_higgsfield_image(self, job: AssetJob) -> AssetExecution:
         key = os.environ.get("HF_KEY", "").strip()
