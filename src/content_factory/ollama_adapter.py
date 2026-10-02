@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import hashlib
 import os
 from typing import Any
 
@@ -30,7 +31,18 @@ class OllamaAdapter:
     def generate(self, prompt: str) -> ExternalCallResult:
         if not prompt.strip():
             raise ValueError("prompt must not be empty")
-        return self._http.call({"model": self.config.model, "prompt": prompt, "stream": False, "format": "json"})
+        result = self._http.call({"model": self.config.model, "prompt": prompt, "stream": False, "format": "json"})
+        if result.response_id:
+            return result
+        digest = hashlib.sha256(
+            f"{self.config.model}\n{prompt}\n{result.payload}".encode("utf-8")
+        ).hexdigest()[:16]
+        return ExternalCallResult(
+            integration_id=result.integration_id,
+            status_code=result.status_code,
+            response_id=f"ollama-{digest}",
+            payload=result.payload,
+        )
 
     @staticmethod
     def response_text(result: ExternalCallResult) -> str:

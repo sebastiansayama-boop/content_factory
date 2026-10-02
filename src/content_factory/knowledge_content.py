@@ -320,8 +320,9 @@ class KnowledgeContentBuilder:
         goal: str,
         formats: list[str],
         constraints: list[str],
+        knowledge_context: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        context = self.knowledge.search(topic)
+        context = knowledge_context if knowledge_context is not None else self.knowledge.search(topic)
         claims = context["claims"]
         if not claims:
             context = self.knowledge.accepted_for_run(run_id)
@@ -368,7 +369,7 @@ ACCEPTED KNOWLEDGE:
                 angle=str(raw.get("angle") or "").strip(),
                 audience=str(raw.get("audience") or audience).strip(),
                 purpose=str(raw.get("purpose") or "").strip(),
-                formats=tuple(str(v) for v in _refs(raw.get("formats"), "formats")),
+                formats=tuple(str(v) for v in _refs_or_default(raw.get("formats"), "formats", formats)),
                 claim_refs=tuple(claims_ref),
                 evidence_refs=tuple(evidence_ref),
             ))

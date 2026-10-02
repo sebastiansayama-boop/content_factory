@@ -1,129 +1,207 @@
 from __future__ import annotations
 
-import json
 import os
+from pathlib import Path
 
 import pytest
 
+from content_factory.agent_tool_capability import (
+    register_agent_tool_capabilities,
+    content_tool_capability_specs,
+)
+from content_factory.agent_tools import AgentToolRegistry, register_content_tools
 from content_factory.artifacts import ArtifactStore
-from content_factory.free_research import FreeWebGeminiAdapter, FreeWebRetriever
+from content_factory.content_run import ContentRunStore
+from content_factory.factory_control import FactoryControlStore
+from content_factory.knowledge import KnowledgeStore
 from content_factory.ollama_adapter import OllamaAdapter
-from content_factory.providers import LLMProvider
-from content_factory.runtime import Capability, ExecutionResult, FactoryRuntime, WorkItem
+from content_factory.runtime import Capability, FactoryRuntime, ExecutionResult, WorkItem
 from content_factory.runtime_store import RuntimeStore
-from content_factory.vertical_slice import quality_check
+from content_factory.service import FactoryService
+from content_factory.text_capability import text_generation_capability
+from content_factory.workspace import ContentWorkspace
 
 
 pytestmark = [
     pytest.mark.external,
     pytest.mark.skipif(
-        not os.environ.get("GEMINI_API_KEY"),
-        reason="real provider credentials are required for this E2E",
+        not os.environ.get("OLLAMA_MODEL"),
+        reason="real Ollama provider configuration is required for this E2E",
     ),
 ]
 
 
-def test_runtime_executes_real_research_production_qc_chain(tmp_path):
-    topic = "Why can unrelated animals independently evolve similar traits?"
-    research = FreeWebGeminiAdapter(retriever=FreeWebRetriever(wiki_limit=1, openalex_limit=2, news_limit=2))
-    production = OllamaAdapter()
-    assert isinstance(production, LLMProvider)
+class DeterministicReviewer:
+    def review(self, *, run_id, brief, audience, goal, result):
+        if not isinstance(result, dict) or not result.get("script"):
+            raise ValueError("content review requires a generated script")
+        script = result["script"]
+        units = script.get("units") if isinstance(script, dict) else None
+        if not isinstance(units, list) or not units:
+            raise ValueError("content review requires script units")
+        return {
+            "review": "PASS",
+            "run_id": run_id,
+            "claim_refs": result["knowledge"]["claim_refs"],
+            "evidence_refs": result["knowledge"]["evidence_refs"],
+            "unit_count": len(units),
+        }
 
-    with RuntimeStore(tmp_path / "runtime.sqlite3") as store:
-        runtime = FactoryRuntime(
-            runtime_store=store,
-            artifact_store=ArtifactStore(tmp_path / "artifacts"),
+
+class OllamaWorkspaceFactory:
+    def __init__(self, service: FactoryService, capability: Capability) -> None:
+        self._store = service.runtime_store
+        self._artifacts = service._artifacts
+        self._capability = capability
+        self._verify = service._verify
+
+
+def _seed_accepted_knowledge(knowledge: KnowledgeStore) -> tuple[str, str]:
+    research = {
+        "topic": "Why can unrelated animals independently evolve similar traits?",
+        "summary": "Similar environmental pressures can be associated with independently evolved traits.",
+        "claims": [{
+            "id": "claim-1",
+            "text": "Similar environmental pressures can be associated with independently evolved traits in unrelated lineages.",
+            "confidence": "high",
+            "source_ids": ["source-1"],
+            "evidence_ids": ["evidence-1"],
+            "scope": "This is a bounded statement about recurring evolutionary outcomes, not identical mechanisms.",
+            "known_unknowns": ["The same phenotype does not imply the same underlying genetic or developmental mechanism."],
+        }],
+        "sources": [{
+            "id": "source-1",
+            "title": "Convergent evolution",
+            "url": "https://www.ncbi.nlm.nih.gov/books/NBK22584/",
+        }],
+        "evidence": [{
+            "id": "evidence-1",
+            "source_id": "source-1",
+            "excerpt": "Convergent evolution occurs when similar traits evolve independently in unrelated organisms.",
+            "locator": "NCBI Bookshelf",
+            "provenance": "public reference used as the source basis for this test knowledge",
+        }],
+        "editorial_angles": ["Why does evolution sometimes arrive at similar solutions?"],
+    }
+    knowledge.capture(run_id="seed-run", research=research)
+    captured = knowledge.search("similar environmental pressures independently evolved traits", include_candidates=True)
+    claim_id = captured["claims"][0]["claim_id"]
+    evidence_id = captured["claims"][0]["evidence_ids"][0]
+    knowledge.promote_claim(claim_id, decision_ref="e2e-test-accepted-knowledge")
+    return claim_id, evidence_id
+
+
+def test_runtime_executes_real_registered_content_tools_with_real_ollama(tmp_path, monkeypatch):
+    monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path / "service-data"))
+    service = FactoryService()
+    try:
+        claim_id, evidence_id = _seed_accepted_knowledge(service.knowledge)
+        run = service.content_runs.create(
+            title="Runtime real content",
+            brief="Why can unrelated animals independently evolve similar traits?",
+            audience="general",
+            goal="explain the phenomenon clearly",
+            formats=("article",),
+            constraints=("Russian",),
         )
 
-        def research_execute(item, execution_id):
-            prompt = f"""Research this Content Factory brief using live web search.
-Return ONLY JSON:
-{{"topic":"string","summary":"string","claims":[{{"id":"claim-1","text":"atomic factual claim","confidence":"high|medium|low","source_ids":["source-1"],"evidence_ids":["evidence-1"],"scope":"string","known_unknowns":["string"]}}],"sources":[{{"id":"source-1","title":"string","url":"https://..."}}],"evidence":[{{"id":"evidence-1","source_id":"source-1","excerpt":"short supporting passage","locator":"string","provenance":"string"}}],"editorial_angles":["string"]}}
-Every factual claim must have source_ids and evidence_ids. Use only real public source URLs.
-USER BRIEF: {topic}"""
-            result = research.research(prompt)
-            if not 200 <= result.status_code < 300:
-                raise RuntimeError(f"research HTTP {result.status_code}")
-            from content_factory.research import parse_research_json
-            payload = parse_research_json(research.text(result))
-            if not payload.get("claims") or not payload.get("sources"):
-                raise ValueError("research returned no claims or sources")
-            return ExecutionResult(
-                execution_id, "research.search", "research-r1", payload,
-                tuple(str(x.get("id")) for x in payload.get("evidence", []) if isinstance(x, dict) and x.get("id")),
-            )
-
-        def production_execute(item, execution_id):
-            research_payload = json.loads(
-                next(x for x in item.inputs if x.startswith("capability_input:")).split(":", 1)[1]
-            )
-            prompt = f"""Create one article for the researched topic below.
-Return ONLY JSON:
-{{"content":"complete usable article","title":"string","claim_refs":["claim-id"],"source_refs":["source-id"]}}
-Use only supplied claims. Do not introduce factual claims outside them. Copy claim_refs EXACTLY from the supplied claim ids and source_refs EXACTLY from the supplied source ids. Never output placeholder values such as "claim-id" or "source-id".
-Topic: {research_payload.get("topic", topic)}
-Summary: {research_payload.get("summary", "")}
-Claims: {json.dumps(research_payload["claims"], ensure_ascii=False)}
-Sources: {json.dumps(research_payload["sources"], ensure_ascii=False)}
-"""
-            result = production.generate(prompt)
-            if not 200 <= result.status_code < 300:
-                raise RuntimeError(f"production HTTP {result.status_code}")
-            from content_factory.research import parse_research_json
-            asset = parse_research_json(production.response_text(result))
-            asset["id"] = "runtime-article-v1"
-            asset["format"] = "article"
-            return ExecutionResult(
-                execution_id, "content.generate", "article-r1",
-                {"topic": research_payload.get("topic", topic), "package": [asset], "research": research_payload},
-                tuple(asset.get("source_refs", [])),
-            )
-
-        def qc_execute(item, execution_id):
-            production_payload = json.loads(
-                next(x for x in item.inputs if x.startswith("capability_input:")).split(":", 1)[1]
-            )
-            quality = quality_check(production_payload, production_payload["research"])
-            if quality["status"] != "PASS":
-                raise ValueError(f"QC failed: {quality}")
-            return ExecutionResult(
-                execution_id, "content.qc", "qc-r1",
-                {"package": production_payload, "quality": quality},
-                tuple(production_payload["package"][0].get("source_refs", [])),
-            )
-
-        runtime.register_capability(Capability("research.search", lambda item: None, research_execute))
-        runtime.register_capability(Capability("content.generate", lambda item: None, production_execute))
-        runtime.register_capability(Capability("content.qc", lambda item: None, qc_execute))
-
-        item = WorkItem(
-            work_item_id="runtime-real-content-e2e",
-            revision_id="objective-r1",
-            operation_id="runtime-real-content-e2e-op",
-            objective=topic,
-            requested_outcome="research-backed article with provenance and QC",
-            inputs=(f"topic:{topic}",),
-            knowledge_basis=(),
-            required_capabilities=("research.search", "content.generate", "content.qc"),
-            owner="intelligence",
-            acceptance_criteria=("claims have evidence", "article has provenance", "QC PASS"),
-            release_requirements=("internal",),
+        ollama = OllamaAdapter()
+        ollama_capability = text_generation_capability(
+            capability_id="ollama.text.generate",
+            provider=ollama,
+            generate=ollama.generate,
+            response_text=ollama.response_text,
         )
-        runtime.submit(item, actor="intelligence")
-        result = runtime.run_capability_chain(item, initial_payload={"topic": topic})
+        workspace = ContentWorkspace(service)
+        workspace.factory = OllamaWorkspaceFactory(service, ollama_capability)
 
-        assert result.state == "PRODUCED"
-        assert [x.capability_id for x in result.executions] == [
-            "research.search", "content.generate", "content.qc"
-        ]
-        assert result.executions[0].payload["claims"]
-        assert result.executions[0].payload["sources"]
-        assert result.executions[1].payload["package"][0]["content"]
-        assert result.executions[1].payload["package"][0]["claim_refs"]
-        assert result.executions[1].payload["package"][0]["source_refs"]
-        assert result.final_payload["quality"]["status"] == "PASS"
+        registry = AgentToolRegistry()
+        register_content_tools(
+            registry,
+            service=service,
+            workspace=workspace,
+            reviewer=DeterministicReviewer(),
+        )
 
-        persisted = store.load_record(item.work_item_id, "capability_chain")
-        assert persisted is not None
-        assert len(persisted["executions"]) == 3
-        assert (tmp_path / "artifacts/06_production/runtime-real-content-e2e.json").exists()
+        control = service.control
+        with RuntimeStore(tmp_path / "runtime.sqlite3") as runtime_store:
+            runtime = FactoryRuntime(
+                runtime_store=runtime_store,
+                artifact_store=ArtifactStore(tmp_path / "artifacts"),
+            )
+            register_agent_tool_capabilities(
+                runtime,
+                registry,
+                run_loader=service.content_runs.get,
+                control=control,
+                specs=content_tool_capability_specs(),
+            )
+
+            item = WorkItem(
+                work_item_id=run.run_id,
+                revision_id="runtime-real-content-r1",
+                objective=run.brief,
+                requested_outcome="verified Russian article from accepted knowledge",
+                inputs=(f"brief:{run.brief}",),
+                knowledge_basis=(claim_id, evidence_id),
+                required_capabilities=("knowledge.search", "content.write", "content.review"),
+                owner="intelligence",
+                acceptance_criteria=("accepted knowledge consumed", "content generated from that knowledge", "review PASS"),
+                release_requirements=("internal",),
+            )
+            runtime.submit(item, actor="intelligence")
+            result = runtime.run_capability_chain(item)
+
+            assert result.state == "PRODUCED"
+            assert [x.capability_id for x in result.executions] == [
+                "knowledge.search",
+                "content.write",
+                "content.review",
+            ]
+
+            knowledge_payload = result.executions[0].payload
+            content_payload = result.executions[1].payload
+            review_payload = result.final_payload
+
+            assert knowledge_payload["claims"]
+            assert knowledge_payload["claims"][0]["claim_id"] == claim_id
+            assert evidence_id in knowledge_payload["claims"][0]["evidence_ids"]
+
+            assert content_payload["knowledge"]["claim_refs"] == [claim_id]
+            assert content_payload["knowledge"]["evidence_refs"] == [evidence_id]
+            assert content_payload["script"]["units"]
+            assert all(claim_id in unit["claim_refs"] for unit in content_payload["script"]["units"])
+            assert all(evidence_id in unit["evidence_refs"] for unit in content_payload["script"]["units"])
+
+            assert review_payload["review"] == "PASS"
+            assert review_payload["claim_refs"] == [claim_id]
+            assert review_payload["evidence_refs"] == [evidence_id]
+
+            persisted = runtime_store.load_record(run.run_id, "capability_chain")
+            assert persisted is not None
+            assert len(persisted["executions"]) == 3
+            assert (tmp_path / "artifacts/06_production" / f"{run.run_id}.json").exists()
+
+            events = control.timeline(run.run_id)
+            assert [event.event_type for event in events] == [
+                "agent.tool.started",
+                "agent.tool.completed",
+                "agent.tool.started",
+                "agent.tool.completed",
+                "agent.tool.started",
+                "agent.tool.completed",
+            ]
+    finally:
+        service.close()
+
+
+def _previous_payload(item: WorkItem) -> dict:
+    import json
+
+    for value in reversed(item.inputs):
+        if value.startswith("capability_input:"):
+            payload = json.loads(value[len("capability_input:"):])
+            if isinstance(payload, dict):
+                return payload
+            return {"input": payload}
+    return {}

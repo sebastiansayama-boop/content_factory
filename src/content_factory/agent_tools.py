@@ -92,7 +92,7 @@ def register_content_tools(
             formats=list(run.formats) or ["article", "social_post", "visual_card"],
         )
 
-    def write_content(*, run: Any, review_feedback: list[str]) -> Any:
+    def write_content(*, run: Any, review_feedback: list[str], knowledge: dict[str, Any] | None = None) -> Any:
         from .knowledge_content import KnowledgeContentBuilder
 
         return KnowledgeContentBuilder(
@@ -105,14 +105,15 @@ def register_content_tools(
             goal=run.goal,
             formats=list(run.formats),
             constraints=list(run.constraints) + list(review_feedback),
-            tone=run.tone,
-            tone_strength=run.tone_strength,
+            knowledge_context=knowledge,
         )
 
     def review_content(*, run: Any, result: dict[str, Any]) -> Any:
-        from .content_reviewer import ContentReviewer
+        reviewer_impl = reviewer
+        if reviewer_impl is None:
+            from .content_reviewer import ContentReviewer
 
-        reviewer_impl = reviewer or ContentReviewer(workspace)
+            reviewer_impl = ContentReviewer(workspace)
         return reviewer_impl.review(
             run_id=run.run_id,
             brief=run.brief,
