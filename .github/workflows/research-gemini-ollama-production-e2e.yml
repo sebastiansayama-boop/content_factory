@@ -1,0 +1,72 @@
+name: Research Gemini to Ollama production E2E
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  research-gemini-production-ollama:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      OLLAMA_MODEL: llama3.2:1b
+      OLLAMA_ENDPOINT: http://127.0.0.1:11434/api/generate
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install project
+        run: python -m pip install -e ".[dev]"
+      - name: Require Gemini credential
+        run: test -n "$GEMINI_API_KEY"
+      - name: Install Ollama
+        run: curl -fsSL https://ollama.com/install.sh | sh
+      - name: Start Ollama
+        run: |
+          nohup ollama serve >/tmp/ollama.log 2>&1 &
+          for i in {1..30}; do
+            curl -fsS http://127.0.0.1:11434/api/tags && break
+            sleep 2
+          done
+      - name: Pull local model
+        run: ollama pull llama3.2:1b
+      - name: Run real vertical slice
+        run: |
+          python - <<'PY'
+          from content_factory.free_research import FreeWebGeminiAdapter
+          from content_factory.ollama_adapter import OllamaAdapter
+          from content_factory.providers import LLMProvider
+          from content_factory.vertical_slice import ContentFactoryVerticalSlice
+
+          research = FreeWebGeminiAdapter()
+          production = OllamaAdapter()
+          assert isinstance(production, LLMProvider)
+
+          result = ContentFactoryVerticalSlice(
+              research_adapter=research,
+              llm_provider=production,
+          ).run(
+              run_id="gemini-research-ollama-production",
+              brief="Why can unrelated animals independently evolve similar traits?",
+              formats=["article"],
+          )
+
+          assert result.research["claims"]
+          assert result.research["sources"]
+          assert result.package["package"]
+          asset = result.package["package"][0]
+          assert asset["content"]
+          assert asset["claim_refs"]
+          assert asset["source_refs"]
+          assert result.quality["status"] == "PASS"
+          print({
+              "research_provider": research.provider,
+              "production_provider": type(production).__name__,
+              "asset_format": asset["format"],
+              "claim_refs": asset["claim_refs"],
+              "source_refs": asset["source_refs"],
+          })
+          PY
