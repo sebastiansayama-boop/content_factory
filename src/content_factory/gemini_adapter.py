@@ -60,6 +60,68 @@ class GeminiOpenAICompatibleAdapter:
             }
         )
 
+    def generate_multimodal(
+        self,
+        prompt: str,
+        images: list[tuple[str, bytes, str]],
+    ) -> ExternalCallResult:
+        if not prompt.strip():
+            raise ValueError("prompt must not be empty")
+        if not images:
+            raise ValueError("at least one image is required")
+        content: list[dict[str, Any]] = [{"type": "text", "text": prompt}]
+        import base64
+        for candidate_id, image_bytes, mime_type in images:
+            if not candidate_id.strip():
+                raise ValueError("candidate id must not be empty")
+            if not image_bytes:
+                raise ValueError(f"image bytes missing for candidate {candidate_id}")
+            encoded = base64.b64encode(image_bytes).decode("ascii")
+            content.append(
+                {
+                    "type": "text",
+                    "text": f"Candidate ID: {candidate_id}",
+                }
+            )
+            content.append(
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:{mime_type};base64,{encoded}",
+                    },
+                }
+            )
+        return self._http.call(
+            {
+                "model": os.environ.get("GEMINI_VISION_MODEL", self.config.research_model).strip()
+                or self.config.research_model,
+                "messages": [
+                    {"role": "user", "content": content},
+                ],
+                "response_format": {
+                    "type": "json_schema",
+                    "json_schema": {
+                        "name": "visual_relevance_output",
+                        "strict": True,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "candidates": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "additionalProperties": True,
+                                    },
+                                },
+                            },
+                            "required": ["candidates"],
+                            "additionalProperties": False,
+                        },
+                    },
+                },
+            }
+        )
+
     @staticmethod
     def response_text(result: ExternalCallResult) -> str:
         body: Any = result.payload
