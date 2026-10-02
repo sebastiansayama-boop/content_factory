@@ -16,7 +16,7 @@ from typing import Any
 
 from .asset_jobs import AssetJob, AssetJobStore
 from .openverse_adapter import OpenverseImageProvider
-from .visual_relevance import GeminiVisualRelevanceVerifier
+from .visual_relevance import OpenAIVisualRelevanceVerifier
 
 
 class AssetExecutionError(RuntimeError):
@@ -200,7 +200,7 @@ class AssetExecutor:
                 f"Openverse candidates could not be prepared for visual verification: {', '.join(preview_errors)}"
             )
 
-        verifier = GeminiVisualRelevanceVerifier()
+        verifier = OpenAIVisualRelevanceVerifier()
         verifications = verifier.verify_candidates(query, verification_candidates, preview_parts)
         accepted = [item for item in verifications if item.accepted]
         if not accepted:
