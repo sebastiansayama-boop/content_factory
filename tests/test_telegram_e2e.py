@@ -157,4 +157,3 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
         server.server_close()
         thread.join(timeout=2)
         service.close()
-}
