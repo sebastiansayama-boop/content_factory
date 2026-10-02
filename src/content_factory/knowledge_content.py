@@ -307,6 +307,7 @@ class KnowledgeContentBuilder:
             revision_id="content-editorial-v1",
             objective="turn accepted knowledge into content ideas",
             prompt=f"""Create 3 distinct content ideas using ONLY the accepted knowledge below.
+Write all user-facing text (titles, angles, purposes) in the requested output language. If the constraints specify Russian, write in natural Russian.
 Return JSON: {{"ideas":[{{"idea_id":"idea-1","title":"string","angle":"string","audience":"string","purpose":"string","formats":["format"],"claim_refs":["kc-*"],"evidence_refs":["ke-*"]}}]}}
 Every claim_refs/evidence_refs value must be copied from the supplied accepted knowledge.
 No new factual claims. Requested formats: {json.dumps(formats)}.
@@ -351,6 +352,7 @@ ACCEPTED KNOWLEDGE:
             revision_id="content-brief-v1",
             objective="turn selected knowledge claims into an explicit editorial content brief",
             prompt=f"""Create one explicit ContentBrief from the selected content idea.
+Write all user-facing text in the requested output language. If the constraints specify Russian, write the title, objective, angle, editorial points, purposes, and production intent in natural Russian.
 Return JSON: {{"brief_id":"brief-1","title":"string","objective":"string","audience":"string","angle":"string","selected_claim_refs":["kc-*"],"evidence_refs":["ke-*"],"editorial_points":[{{"point_id":"point-1","text":"editorial point","role":"hook|context|development|counterpoint|conclusion|cta","claim_refs":["kc-*"],"evidence_refs":["ke-*"]}}],"content_elements":[{{"element_id":"element-1","kind":"hook|narration|visual|cta|transition","editorial_point_ids":["point-1"],"purpose":"string","production_intent":"string","claim_refs":["kc-*"],"evidence_refs":["ke-*"]}}],"formats":["format"],"constraints":["constraint"]}}
 Every selected claim, editorial point and content element must retain only claim/evidence refs supplied by the selected idea. Every editorial point must have claims and evidence. Build a real editorial progression: 4-6 editorial points covering hook, context, development, and conclusion/takeaway; add counterpoint or CTA only when useful. Every content element must reference at least one editorial point, claim and evidence. Do not invent factual claims.
 SELECTED IDEA:
@@ -453,6 +455,7 @@ USER CONSTRAINTS:
             revision_id="content-spec-v1",
             objective="turn a content idea into an executable content specification",
             prompt=f"""Create one executable ContentSpec for the selected idea.
+Write all user-facing text in the requested output language. If the constraints specify Russian, write the title, objective, tone, structure, constraints, and style-bible text in natural Russian.
 Return JSON: {{"spec_id":"spec-1","title":"string","objective":"string","audience":"string","format":"string","tone":"string","structure":["step"],"constraints":["constraint"],"claim_refs":["kc-*"],"evidence_refs":["ke-*"],"style_bible":{{"visual_style":"string","palette":"string","lighting":"string","subject_continuity":"string","negative_constraints":"string","voice":"string","pace":"string","music":"string"}}}}
 Preserve provenance exactly from the idea. Do not invent claims. The structure must describe a developed piece rather than a single fact: use at least 4 ordered structural steps corresponding to hook, context, development, and conclusion/takeaway.
 CONTENT BRIEF:
@@ -490,6 +493,7 @@ USER CONSTRAINTS:
             revision_id="content-script-v1",
             objective="turn a content specification into a provenance-grounded script",
             prompt=f"""Create a complete, developed script from this ContentSpec.
+The requested output language is explicitly specified in USER CONSTRAINTS. Write the entire user-facing script, including title and every unit, in that language. If it says Russian, do not answer in English or mix languages unless a proper name or necessary technical term has no natural Russian equivalent.
 Return JSON: {{"script_id":"script-1","title":"string","units":[{{"unit_id":"unit-1","kind":"hook|beat|narration|cta","text":"complete spoken/on-screen text","visual_intent":"string","claim_refs":["kc-*"],"evidence_refs":["ke-*"]}}]}}
 Write 4-6 ordered units, not one compressed claim. The sequence must contain: (1) a hook that creates a question or tension, (2) context that explains what is being discussed, (3) development that explains the evidence and why it matters, and (4) a conclusion/takeaway that resolves the thread. A CTA may be added as a separate final unit when appropriate to the requested format.
 Use natural prose and vary sentence openings. Do not use generic templates such as “Did you know?”, “Think again”, or “Follow for more” unless the ContentSpec explicitly requests that style. Do not simply restate the research claim; develop the idea using the supplied evidence.
