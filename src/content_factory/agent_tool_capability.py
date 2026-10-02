@@ -82,7 +82,7 @@ def content_tool_capability_specs() -> tuple[AgentToolCapabilitySpec, ...]:
             capability_id="content.write",
             tool_name="content.write",
             actor="writer",
-            build_kwargs=lambda item, run: {"run": run, "review_feedback": []},
+            build_kwargs=lambda item, run: {"run": run, "review_feedback": [], "knowledge": _previous_payload(item)},
         ),
         AgentToolCapabilitySpec(
             capability_id="content.review",
