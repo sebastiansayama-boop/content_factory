@@ -169,6 +169,7 @@ def test_openverse_relevance_gate_rejects_unrelated_candidates():
     assert selected is None
 
 
+# Real image selection regression: vision must reject cruise metadata matches. [telegram-e2e]
 def test_openverse_pipeline_uses_visual_gate_to_reject_nile_cruise(tmp_path, monkeypatch):
     from content_factory.openverse_adapter import OpenverseImage
     from content_factory.visual_relevance import VisualVerification
