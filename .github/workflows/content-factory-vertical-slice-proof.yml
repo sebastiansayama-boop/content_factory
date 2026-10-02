@@ -55,4 +55,4 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: pytest -q tests/test_telegram_e2e.py -m external
+        run: pytest -s -q tests/test_telegram_e2e.py -m external
