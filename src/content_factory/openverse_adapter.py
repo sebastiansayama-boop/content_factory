@@ -16,6 +16,8 @@ class OpenverseImage:
     title: str
     creator: str
     license: str
+    license_url: str = ""
+    foreign_landing_url: str = ""
     source: str = "openverse"
 
     def to_dict(self) -> dict[str, str]:
@@ -26,6 +28,8 @@ class OpenverseImage:
             "title": self.title,
             "creator": self.creator,
             "license": self.license,
+            "license_url": self.license_url,
+            "foreign_landing_url": self.foreign_landing_url,
             "source": self.source,
         }
 
@@ -70,6 +74,8 @@ class OpenverseImageProvider:
                 title=str(item.get("title") or "").strip(),
                 creator=str(item.get("creator") or "").strip(),
                 license=str(item.get("license") or "").strip(),
+                license_url=str(item.get("license_url") or "").strip(),
+                foreign_landing_url=str(item.get("foreign_landing_url") or "").strip(),
             ))
         return images
 
