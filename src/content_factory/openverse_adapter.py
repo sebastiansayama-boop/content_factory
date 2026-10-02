@@ -91,9 +91,14 @@ class OpenverseImageProvider:
         if tokens:
             queries.append(tokens[0])
         seen: set[str] = set()
+        collected: list[OpenverseImage] = []
         for candidate_query in dict.fromkeys(queries):
             images = self._search_once(candidate_query, limit)
-            unique = [image for image in images if image.url not in seen]
-            if unique:
-                return unique
-        return []
+            for image in images:
+                if image.url in seen:
+                    continue
+                seen.add(image.url)
+                collected.append(image)
+                if len(collected) >= limit:
+                    return collected[:limit]
+        return collected[:limit]
