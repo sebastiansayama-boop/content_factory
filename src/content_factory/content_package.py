@@ -8,6 +8,14 @@ PLATFORM_VALUES = {"telegram", "instagram", "threads", "x", "article", "youtube"
 MEDIA_TYPES = {"image", "video"}
 
 
+def platform_from_constraints(constraints: tuple[str, ...] | list[str], default: str = "telegram") -> str:
+    for item in constraints:
+        value = str(item).strip()
+        if value.lower().startswith("platform:"):
+            candidate = value.split(":", 1)[1].strip().lower()
+            if candidate in PLATFORM_VALUES:
+                return candidate
+    return default
 def build_content_package(*, run_id: str, result: dict[str, Any], platform: str) -> dict[str, Any]:
     """Build the platform-neutral review package from the current durable run result."""
     platform = platform.strip().lower()
