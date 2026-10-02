@@ -1367,6 +1367,12 @@ def main() -> None:
         )
     else:
         ProductHandler.telegram_bot = None
+    print(
+        "telegram_gateway_configured="
+        f"{bool(telegram_token and telegram_chat_id and factory_api_token)} "
+        f"webhook_secret_configured={bool(os.environ.get('TELEGRAM_WEBHOOK_SECRET', '').strip())}",
+        flush=True,
+    )
     try:
         server.serve_forever()
     finally:
