@@ -13,7 +13,7 @@ jobs:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       OLLAMA_MODEL: qwen3:4b
       OLLAMA_ENDPOINT: http://127.0.0.1:11434/api/generate
-      OLLAMA_TIMEOUT: "180"
+      OLLAMA_TIMEOUT: "600"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
