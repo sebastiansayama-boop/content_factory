@@ -644,6 +644,8 @@ class ProductHandler(Handler):
                     self._record_trace(run_id, stage="RESEARCH", task="load_knowledge_context", tool="KnowledgeStore", action="search", result={"status": "completed"}, decision="CONTEXT_LOADED")
                     prior = self.service.knowledge.search(run.brief)
                     if not prior["claims"]:
+                        prior = self.service.knowledge.accepted_for_run(run_id)
+                    if not prior["claims"]:
                         if run.status in {"DRAFT", "FAILED", "PLANNING"}:
                             self.content_runs.start_execution(run_id)
                         research_result = ContentFactoryVerticalSlice(
@@ -662,7 +664,7 @@ class ProductHandler(Handler):
                             output_refs=tuple(research_dict.get("research", {}).get("knowledge_refs", {}).get("claims", {}).values()),
                             evidence=research_dict.get("quality", {}),
                         )
-                        candidates = self.service.knowledge.search(run.brief, include_candidates=True)["claims"]
+                        candidates = self.service.knowledge.candidates_for_run(run_id)
                         self._json(409, {
                             "error": "knowledge review required",
                             "run": ready.to_dict(),
@@ -738,6 +740,8 @@ class ProductHandler(Handler):
                         for asset in assets
                     ]
                     durable_context = self.service.knowledge.search(run.brief)
+                    if not durable_context["claims"]:
+                        durable_context = self.service.knowledge.accepted_for_run(run_id)
                     canonical_research = {
                         "claims": [
                             {

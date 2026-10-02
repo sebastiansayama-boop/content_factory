@@ -294,6 +294,9 @@ class KnowledgeContentBuilder:
         context = self.knowledge.search(topic)
         claims = context["claims"]
         if not claims:
+            context = self.knowledge.accepted_for_run(run_id)
+            claims = context["claims"]
+        if not claims:
             raise WorkspaceError("no accepted knowledge matches the topic")
         claim_ids = {item["claim_id"] for item in claims}
         evidence_ids = {e for item in claims for e in item["evidence_ids"]}

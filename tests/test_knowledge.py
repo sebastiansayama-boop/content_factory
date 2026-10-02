@@ -161,6 +161,34 @@ def test_accepted_knowledge_usage_is_explicit_and_candidates_are_blocked(tmp_pat
     store.close()
 
 
+def test_candidates_for_run_ignores_lexical_overlap(tmp_path):
+    store = KnowledgeStore(tmp_path / "knowledge.sqlite3")
+    store.capture(run_id="run-gemini", research=research_payload())
+
+    candidates = store.candidates_for_run("run-gemini")
+
+    assert len(candidates) == 1
+    assert candidates[0]["text"] == research_payload()["claims"][0]["text"]
+    assert candidates[0]["status"] == KnowledgeStore.CANDIDATE
+    assert store.candidates_for_run("other-run") == []
+    store.close()
+
+
+def test_accepted_for_run_returns_only_explicitly_promoted_claims(tmp_path):
+    store = KnowledgeStore(tmp_path / "knowledge.sqlite3")
+    store.capture(run_id="run-gemini", research=research_payload())
+    claim_id = store._connection.execute("SELECT claim_id FROM knowledge_claims").fetchone()["claim_id"]
+
+    assert store.accepted_for_run("run-gemini")["claims"] == []
+    store.promote_claim(claim_id, decision_ref="DEC-GEMINI-RUN")
+
+    result = store.accepted_for_run("run-gemini")
+    assert [item["claim_id"] for item in result["claims"]] == [claim_id]
+    assert result["claims"][0]["status"] == KnowledgeStore.ACCEPTED
+    assert result["evidence"]
+    store.close()
+
+
 def test_search_ignores_weak_single_token_overlap(tmp_path):
     store = KnowledgeStore(tmp_path / "knowledge.sqlite3")
     store.capture(run_id="run-1", research=research_payload())
