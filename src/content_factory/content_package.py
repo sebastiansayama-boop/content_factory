@@ -46,13 +46,16 @@ def build_content_package(*, run_id: str, result: dict[str, Any], platform: str)
         media_type = "video" if asset_type in {"video", "visual_video"} else "image" if asset_type in {"visual", "image"} else None
         if media_type is None:
             continue
+        metadata = asset.get("metadata") if isinstance(asset.get("metadata"), dict) else {}
         media.append({
             "media_id": str(asset.get("asset_id") or ""),
             "type": media_type,
-            "origin": str(asset.get("origin") or asset.get("provider") or "generated"),
+            "origin": str(asset.get("origin") or asset.get("provider") or metadata.get("source") or "generated"),
             "uri": str(asset.get("uri") or ""),
-            "source": asset.get("source"),
-            "license": asset.get("license"),
+            "source": asset.get("source") or metadata.get("foreign_landing_url") or metadata.get("source_url"),
+            "license": asset.get("license") or metadata.get("license"),
+            "license_url": asset.get("license_url") or metadata.get("license_url"),
+            "creator": asset.get("creator") or metadata.get("creator"),
             "prompt": asset.get("prompt"),
             "claim_refs": list(asset.get("claim_refs") or []),
             "evidence_refs": list(asset.get("evidence_refs") or []),
