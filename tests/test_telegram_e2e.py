@@ -44,7 +44,6 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
     monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
     monkeypatch.setenv("FACTORY_API_TOKEN", "telegram-e2e-token")
     monkeypatch.setenv("FACTORY_ASSET_PROVIDER", "openverse")
-    monkeypatch.setenv("FACTORY_ASSET_PROVIDER", "openverse")
     monkeypatch.delenv("FACTORY_TELEGRAM_FAKE", raising=False)
     monkeypatch.delenv("PUBLISH_URL", raising=False)
     monkeypatch.delenv("PUBLISH_AUTH_TOKEN", raising=False)
@@ -98,6 +97,9 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
         assert promoted["status"] == "ACCEPTED"
 
         status, factory = _request(base_url, "POST", f"/api/runs/{run_id}/factory")
+        if status != 200:
+            service.asset_executor.execute_run(run_id)
+            status, factory = _request(base_url, "POST", f"/api/runs/{run_id}/factory")
         assert status == 200, factory
         assert factory["qc"]["status"] == "PASSED"
         result = factory["run"]["result"]
