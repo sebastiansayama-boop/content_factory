@@ -14,7 +14,7 @@ from content_factory.workspace import ContentWorkspace
 
 pytestmark = pytest.mark.external
 
-# Real publication proof is triggered by a commit message containing [telegram-e2e].
+# Real publication proof is triggered by a commit message containing [telegram-e2e].\n# Visual search intents are generated in English for Openverse compatibility.
 
 
 def _request(base_url, method, path, payload=None, token="telegram-e2e-token"):
