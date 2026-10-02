@@ -177,18 +177,28 @@ class AssetExecutor:
         directory = self.root / "asset_jobs" / job.run_id
         directory.mkdir(parents=True, exist_ok=True)
         path = directory / f"{job.asset_request_id}.jpg"
-        try:
-            with urllib.request.urlopen(
-                urllib.request.Request(
-                    candidate.url,
-                    headers={"User-Agent": "content-factory/1.0"},
-                    method="GET",
-                ),
-                timeout=30,
-            ) as response:
-                image_data = response.read()
-        except Exception as exc:
-            raise AssetExecutionError(f"Openverse image download failed: {exc}") from exc
+        download_urls = [candidate.url]
+        if candidate.preview_url and candidate.preview_url != candidate.url:
+            download_urls.append(candidate.preview_url)
+        image_data = b""
+        last_error: Exception | None = None
+        for download_url in download_urls:
+            try:
+                with urllib.request.urlopen(
+                    urllib.request.Request(
+                        download_url,
+                        headers={"User-Agent": "content-factory/1.0"},
+                        method="GET",
+                    ),
+                    timeout=30,
+                ) as response:
+                    image_data = response.read()
+                if image_data:
+                    break
+            except Exception as exc:
+                last_error = exc
+        if not image_data:
+            raise AssetExecutionError(f"Openverse image download failed: {last_error}") from last_error
         if not image_data:
             raise AssetExecutionError("Openverse returned an empty image")
         if len(image_data) > 10 * 1024 * 1024:
