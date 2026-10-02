@@ -92,3 +92,17 @@ def test_model_validation_rejects_cycle(model):
     broken["gates"]["T01"]["depends_on"] = ["T02"]
     with pytest.raises(ValueError, match="cycle"):
         validate_model(broken)
+
+
+def test_impact_engine_change_selects_only_impact_gate_and_baseline(model):
+    plan = plan_for_files(model, ["scripts/test_impact.py"])
+    assert plan["unknown_files"] == []
+    assert plan["fallback_used"] is False
+    assert set(plan["closure"]) == {"T00", "T01", "T02"}
+    assert plan["ordered_gates"] == ["T01", "T02", "T00"]
+
+
+def test_empty_change_set_selects_no_gates(model):
+    plan = plan_for_files(model, [])
+    assert plan["closure"] == []
+    assert plan["ordered_gates"] == []
