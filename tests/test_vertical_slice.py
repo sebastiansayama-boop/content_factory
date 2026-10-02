@@ -1,6 +1,5 @@
 from content_factory.integrations import ExternalCallResult
 from content_factory.knowledge import KnowledgeStore
-from content_factory.free_research import FreeWebGeminiAdapter
 from content_factory.research import OpenAIWebResearchAdapter, is_safe_source_url
 from content_factory.vertical_slice import ContentFactoryVerticalSlice, quality_check
 
@@ -145,19 +144,7 @@ def test_vertical_slice_captures_and_reuses_knowledge(tmp_path):
     store.close()
 
 
-def test_vertical_slice_selects_gemini_research_provider(monkeypatch):
-    monkeypatch.setenv("FACTORY_PROVIDER", "gemini")
-    monkeypatch.setenv("GEMINI_API_KEY", "test-key")
-    monkeypatch.setenv("GEMINI_MODEL", "gemini-test")
-    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-
-    factory = ContentFactoryVerticalSlice()
-
-    assert isinstance(factory.research_adapter, FreeWebGeminiAdapter)
-    assert factory.research_adapter.config.model == "gemini-test"
-
-
-def test_vertical_slice_selects_local_when_no_provider_credentials(monkeypatch):
+def test_vertical_slice_defaults_to_openai_when_available(monkeypatch):    monkeypatch.delenv("FACTORY_PROVIDER", raising=False)    monkeypatch.delenv("FACTORY_LLM_PROVIDER", raising=False)    monkeypatch.setenv("OPENAI_API_KEY", "test-key")    monkeypatch.delenv("GEMINI_API_KEY", raising=False)    factory = ContentFactoryVerticalSlice()    assert isinstance(factory.research_adapter, OpenAIWebResearchAdapter)    assert factory.llm_provider.__class__.__name__ == "OpenAIResponsesAdapter"def test_vertical_slice_rejects_gemini_provider(monkeypatch):    monkeypatch.setenv("FACTORY_PROVIDER", "gemini")    monkeypatch.setenv("GEMINI_API_KEY", "test-key")    monkeypatch.delenv("OPENAI_API_KEY", raising=False)    try:        ContentFactoryVerticalSlice()    except ValueError as exc:        assert "Gemini provider is disabled" in str(exc)    else:        raise AssertionError("Gemini provider must be disabled")def test_vertical_slice_selects_local_when_no_provider_credentials(monkeypatch):
     monkeypatch.setenv("FACTORY_PROVIDER", "local")
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
