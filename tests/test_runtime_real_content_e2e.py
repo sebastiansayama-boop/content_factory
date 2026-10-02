@@ -53,6 +53,7 @@ class OllamaWorkspaceFactory:
         self._store = service.runtime_store
         self._artifacts = service._artifacts
         self._capability = capability
+        self._verify = service._verify
 
 
 def _seed_accepted_knowledge(knowledge: KnowledgeStore) -> tuple[str, str]:
