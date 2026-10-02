@@ -100,6 +100,7 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
 
         status, factory = _request(base_url, "POST", f"/api/runs/{run_id}/factory")
         if status != 200:
+            pytest.fail(f"factory failed before asset execution: status={status}, body={factory}")
             asset_results = service.asset_executor.execute_run(run_id)
             failed_visual = [job.to_dict() for job in asset_results if job.asset_type == "visual" and job.status != "COMPLETED"]
             assert not failed_visual, failed_visual
