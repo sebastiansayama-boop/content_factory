@@ -1,6 +1,6 @@
 from content_factory.artifacts import ArtifactStore
 from content_factory.knowledge import KnowledgeStore
-from content_factory.knowledge_content import KnowledgeContentBuilder
+from content_factory.knowledge_content import KnowledgeContentBuilder, _structure_steps
 from content_factory.runtime import Capability, ExecutionResult
 from content_factory.runtime_store import RuntimeStore
 from content_factory.workspace import ContentWorkspace
@@ -247,3 +247,20 @@ def test_knowledge_content_builder_rejects_high_certainty_epistemic_overclaim(tm
         raise AssertionError("high-certainty epistemic overclaim must be rejected")
     factory._store.close()
     store.close()
+
+
+
+def test_structure_steps_normalizes_structured_model_output():
+    assert _structure_steps([
+        {
+            "step": "Introduction",
+            "purpose": "set context",
+            "claim_refs": ["kc-1"],
+            "evidence_refs": ["ke-1"],
+        },
+        "Development",
+        {
+            "step": "Conclusion",
+            "purpose": "summarize",
+        },
+    ]) == ["Introduction", "Development", "Conclusion"]
