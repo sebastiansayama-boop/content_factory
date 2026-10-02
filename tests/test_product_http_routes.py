@@ -181,3 +181,34 @@ def test_factory_research_review_then_builds_production(tmp_path, monkeypatch):
         assert publish.response["external_id"].startswith("local-")
     finally:
         service.close()
+
+
+def test_factory_service_never_selects_gemini(monkeypatch, tmp_path):
+    monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
+    monkeypatch.delenv("FACTORY_PROVIDER", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setenv("GEMINI_API_KEY", "disabled-test-key")
+
+    from content_factory.service import FactoryService
+
+    service = FactoryService()
+    try:
+        assert service.health()["provider"] == "local"
+    finally:
+        service.close()
+
+
+def test_factory_service_rejects_explicit_gemini(monkeypatch, tmp_path):
+    monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("FACTORY_PROVIDER", "gemini")
+    monkeypatch.setenv("GEMINI_API_KEY", "disabled-test-key")
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+
+    from content_factory.service import FactoryService
+
+    try:
+        FactoryService()
+    except ValueError as exc:
+        assert "Gemini provider is disabled" in str(exc)
+    else:
+        raise AssertionError("Gemini provider must be disabled")
