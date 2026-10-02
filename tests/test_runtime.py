@@ -377,12 +377,11 @@ def test_capability_chain_resumes_from_persisted_completed_steps(tmp_path):
         runtime.register_capability(Capability("step-b", lambda _: None, step_b))
         runtime.submit(item)
         runtime.run_capability_chain(item, initial_payload="X")
+        persisted = store.load_record(item.work_item_id, "capability_chain")
+        assert persisted is not None
         store.save_record(item.work_item_id, "capability_chain", {
             "next_step": 1,
-            "executions": [{
-                "execution_id": runtime.executions[item.work_item_id].execution_id,
-                "capability_id": "step-a", "output_revision_id": "a-r1", "payload": "A", "evidence_refs": [],
-            }],
+            "executions": [persisted["executions"][0]],
         })
     with RuntimeStore(database) as store:
         runtime = FactoryRuntime(runtime_store=store)
