@@ -47,3 +47,22 @@ def test_gemini_response_text_rejects_missing_text():
         assert str(exc) == "Gemini response contains no text output"
     else:
         raise AssertionError("expected missing Gemini text to fail")
+
+def test_gemini_generate_requests_json_object(monkeypatch):
+    adapter = GeminiOpenAICompatibleAdapter()
+    captured = {}
+
+    def fake_call(payload):
+        captured.update(payload)
+        return ExternalCallResult(
+            integration_id="gemini.chat.completions",
+            status_code=200,
+            response_id="resp-1",
+            payload={"choices": [{"message": {"content": '{"ok": true}'}}]},
+        )
+
+    monkeypatch.setattr(adapter._http, "call", fake_call)
+
+    adapter.generate("return JSON")
+
+    assert captured["response_format"] == {"type": "json_object"}
