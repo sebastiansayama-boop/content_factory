@@ -106,3 +106,64 @@ def test_higgsfield_executor_downloads_completed_image_and_preserves_provenance(
     status_urls = [url for url, method, _ in calls if method == "GET" and url.endswith("/status")]
     assert status_urls == ["https://api.higgsfield.ai/requests/req-1/status"] * 2
     jobs.close()
+
+
+def test_openverse_relevance_gate_prefers_matching_candidate():
+    from content_factory.openverse_adapter import OpenverseImage
+
+    candidates = [
+        OpenverseImage(
+            id="irrelevant",
+            url="https://example.com/people.jpg",
+            preview_url="https://example.com/people-thumb.jpg",
+            title="People sitting outside",
+            creator="x",
+            license="cc-by",
+        ),
+        OpenverseImage(
+            id="hyena",
+            url="https://example.com/hyena.jpg",
+            preview_url="https://example.com/hyena-thumb.jpg",
+            title="Spotted hyena in African savanna",
+            creator="x",
+            license="cc-by",
+        ),
+    ]
+
+    selected = AssetExecutor._select_relevant_openverse_candidate(
+        "spotted hyena in African savanna",
+        candidates,
+    )
+
+    assert selected is not None
+    assert selected.id == "hyena"
+
+
+def test_openverse_relevance_gate_rejects_unrelated_candidates():
+    from content_factory.openverse_adapter import OpenverseImage
+
+    candidates = [
+        OpenverseImage(
+            id="people",
+            url="https://example.com/people.jpg",
+            preview_url="https://example.com/people-thumb.jpg",
+            title="People sitting outside",
+            creator="x",
+            license="cc-by",
+        ),
+        OpenverseImage(
+            id="zebra",
+            url="https://example.com/zebra.jpg",
+            preview_url="https://example.com/zebra-thumb.jpg",
+            title="Zebra and wildebeest in grassland",
+            creator="x",
+            license="cc-by",
+        ),
+    ]
+
+    selected = AssetExecutor._select_relevant_openverse_candidate(
+        "spotted hyena in African savanna",
+        candidates,
+    )
+
+    assert selected is None
