@@ -73,7 +73,7 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
                 "audience": "general audience",
                 "goal": "verify Gemini content generation and real Telegram publication",
                 "formats": ["social_post"],
-                "constraints": ["short", "plain text", "language: Русский"],
+                "constraints": ["short", "plain text", "language: Русский", "avoid absolute certainty; do not use: доказывает, доказывают, полностью меняет"],
             },
         )
         assert status == 201, created
