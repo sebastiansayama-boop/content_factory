@@ -597,6 +597,7 @@ ACCEPTED KNOWLEDGE:
                 "content_element_ids": [element.element_id for element in matching_elements],
                 "claim_refs": list(unit.claim_refs),
                 "evidence_refs": list(unit.evidence_refs),
+                "visual_intent": unit.visual_intent,
                 "acceptance_criteria": ["preserve script intent", "preserve provenance", "preserve content brief lineage"],
             }
             asset_requests.extend(
