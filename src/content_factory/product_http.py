@@ -564,6 +564,7 @@ class ProductHandler(Handler):
                     )
                 published = self.service.control.publish(
                     prepared["publication_id"],
+                    run_status=run.status,
                     url=os.environ.get("PUBLISH_URL", "").strip() or None,
                     token=os.environ.get("PUBLISH_AUTH_TOKEN"),
                     publisher=publisher,
