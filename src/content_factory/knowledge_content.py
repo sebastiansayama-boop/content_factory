@@ -352,7 +352,7 @@ ACCEPTED KNOWLEDGE:
             objective="turn selected knowledge claims into an explicit editorial content brief",
             prompt=f"""Create one explicit ContentBrief from the selected content idea.
 Return JSON: {{"brief_id":"brief-1","title":"string","objective":"string","audience":"string","angle":"string","selected_claim_refs":["kc-*"],"evidence_refs":["ke-*"],"editorial_points":[{{"point_id":"point-1","text":"editorial point","role":"hook|context|development|counterpoint|conclusion|cta","claim_refs":["kc-*"],"evidence_refs":["ke-*"]}}],"content_elements":[{{"element_id":"element-1","kind":"hook|narration|visual|cta|transition","editorial_point_ids":["point-1"],"purpose":"string","production_intent":"string","claim_refs":["kc-*"],"evidence_refs":["ke-*"]}}],"formats":["format"],"constraints":["constraint"]}}
-Every selected claim, editorial point and content element must retain only claim/evidence refs supplied by the selected idea. Every editorial point must have claims and evidence. Every content element must reference at least one editorial point, claim and evidence. Do not invent factual claims.
+Every selected claim, editorial point and content element must retain only claim/evidence refs supplied by the selected idea. Every editorial point must have claims and evidence. Build a real editorial progression: 4-6 editorial points covering hook, context, development, and conclusion/takeaway; add counterpoint or CTA only when useful. Every content element must reference at least one editorial point, claim and evidence. Do not invent factual claims.
 SELECTED IDEA:
 {selected_json}
 REQUESTED FORMATS:
@@ -454,7 +454,7 @@ USER CONSTRAINTS:
             objective="turn a content idea into an executable content specification",
             prompt=f"""Create one executable ContentSpec for the selected idea.
 Return JSON: {{"spec_id":"spec-1","title":"string","objective":"string","audience":"string","format":"string","tone":"string","structure":["step"],"constraints":["constraint"],"claim_refs":["kc-*"],"evidence_refs":["ke-*"],"style_bible":{{"visual_style":"string","palette":"string","lighting":"string","subject_continuity":"string","negative_constraints":"string","voice":"string","pace":"string","music":"string"}}}}
-Preserve provenance exactly from the idea. Do not invent claims.
+Preserve provenance exactly from the idea. Do not invent claims. The structure must describe a developed piece rather than a single fact: use at least 4 ordered structural steps corresponding to hook, context, development, and conclusion/takeaway.
 CONTENT BRIEF:
 {brief_json}
 USER CONSTRAINTS:
@@ -489,9 +489,11 @@ USER CONSTRAINTS:
             work_item_id=f"content-script-{run_id}",
             revision_id="content-script-v1",
             objective="turn a content specification into a provenance-grounded script",
-            prompt=f"""Create a complete script from this ContentSpec.
+            prompt=f"""Create a complete, developed script from this ContentSpec.
 Return JSON: {{"script_id":"script-1","title":"string","units":[{{"unit_id":"unit-1","kind":"hook|beat|narration|cta","text":"complete spoken/on-screen text","visual_intent":"string","claim_refs":["kc-*"],"evidence_refs":["ke-*"]}}]}}
-Every factual unit must retain the relevant durable claim and evidence refs from the ContentSpec. Use the supplied accepted knowledge to write complete, usable material, not generic placeholder copy. Do not invent facts. Each unit should express or explain a supplied claim when appropriate, while hooks and calls to action may be non-factual.
+Write 4-6 ordered units, not one compressed claim. The sequence must contain: (1) a hook that creates a question or tension, (2) context that explains what is being discussed, (3) development that explains the evidence and why it matters, and (4) a conclusion/takeaway that resolves the thread. A CTA may be added as a separate final unit when appropriate to the requested format.
+Use natural prose and vary sentence openings. Do not use generic templates such as “Did you know?”, “Think again”, or “Follow for more” unless the ContentSpec explicitly requests that style. Do not simply restate the research claim; develop the idea using the supplied evidence.
+Every factual unit must retain the relevant durable claim and evidence refs from the ContentSpec. Use the supplied accepted knowledge to write complete, usable material, not generic placeholder copy. Do not invent facts. Hooks and calls to action may be non-factual.
 CONTENT SPEC:
 {json.dumps(spec.to_dict(), ensure_ascii=False)}
 ACCEPTED KNOWLEDGE:
@@ -500,6 +502,8 @@ ACCEPTED KNOWLEDGE:
         units_raw = script_raw.get("units")
         if not isinstance(units_raw, list) or not units_raw:
             raise WorkspaceError("script output must contain units")
+        if len(units_raw) < 4:
+            raise WorkspaceError("script must contain at least 4 ordered units: hook, context, development, conclusion")
         units: list[ScriptUnit] = []
         for raw in units_raw:
             if not isinstance(raw, dict):
