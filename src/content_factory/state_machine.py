@@ -27,7 +27,7 @@ STATE_TRANSITIONS: Mapping[str, Mapping[str, frozenset[str]]] = {
     },
     "content_run": {
         "DRAFT": frozenset({"RESEARCHING", "RESEARCH_READY", "PLANNING", "FAILED"}),
-        "RESEARCHING": frozenset({"RESEARCH_READY", "FAILED"}),
+        "RESEARCHING": frozenset({"RESEARCH_READY", "REVIEW", "FAILED"}),
         "RESEARCH_READY": frozenset({"PLANNING", "FAILED"}),
         "PLANNING": frozenset({"RESEARCHING", "PRODUCING", "REVIEW", "FAILED"}),
         "PRODUCING": frozenset({"PRODUCING", "REVIEW", "FAILED"}),
