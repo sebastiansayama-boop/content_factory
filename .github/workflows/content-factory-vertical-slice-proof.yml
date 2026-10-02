@@ -1,10 +1,6 @@
 name: Content Factory Vertical Slice Proof
-# temporary live proof trigger
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       run_telegram:
