@@ -212,3 +212,38 @@ def test_knowledge_content_builder_enforces_requested_format(tmp_path):
     assert result["production_plan"]["format"] == "article"
     factory._store.close()
     store.close()
+
+
+def test_knowledge_content_builder_rejects_high_certainty_epistemic_overclaim(tmp_path):
+    store = KnowledgeStore(tmp_path / "knowledge.sqlite3")
+    store.capture(run_id="research-epistemic", research=_research())
+    claim_id = store._connection.execute(
+        "SELECT claim_id FROM knowledge_claims"
+    ).fetchone()["claim_id"]
+    evidence_id = store._connection.execute(
+        "SELECT evidence_id FROM knowledge_evidence"
+    ).fetchone()["evidence_id"]
+    store.promote_claim(claim_id, decision_ref="DEC-EPISTEMIC-001")
+
+    outputs = [
+        '{"ideas":[{"idea_id":"idea-1","title":"Spirit Houses","angle":"What offerings mean","audience":"general","purpose":"explain","formats":["article"],"claim_refs":["'+claim_id+'"],"evidence_refs":["'+evidence_id+'"]}]}',
+        '{"brief_id":"brief-1","title":"Spirit Houses","objective":"Explain offerings","audience":"general","angle":"What offerings mean","editorial_points":[{"point_id":"point-1","text":"Explain the documented association","role":"development","claim_refs":["'+claim_id+'"],"evidence_refs":["'+evidence_id+'"]}],"content_elements":[{"element_id":"element-1","kind":"narration","editorial_point_ids":["point-1"],"purpose":"explain","production_intent":"article paragraph","claim_refs":["'+claim_id+'"],"evidence_refs":["'+evidence_id+'"]}],"formats":["article"],"constraints":["none"]}',
+        '{"spec_id":"spec-1","title":"Spirit Houses","objective":"Explain offerings","audience":"general","format":"article","tone":"clear","structure":["hook","context","development","conclusion"],"constraints":["none"],"claim_refs":["'+claim_id+'"],"evidence_refs":["'+evidence_id+'"]}',
+        '{"script_id":"script-1","title":"Spirit Houses","units":[{"unit_id":"unit-1","kind":"hook","text":"The evidence shows a documented association.","visual_intent":"show spirit house","claim_refs":["'+claim_id+'"],"evidence_refs":["'+evidence_id+'"]},{"unit_id":"unit-2","kind":"beat","text":"The practice has a specific cultural context.","visual_intent":"show context","claim_refs":["'+claim_id+'"],"evidence_refs":["'+evidence_id+'"]},{"unit_id":"unit-3","kind":"narration","text":"The evidence supports this documented association.","visual_intent":"show evidence","claim_refs":["'+claim_id+'"],"evidence_refs":["'+evidence_id+'"]},{"unit_id":"unit-4","kind":"cta","text":"This proves that the practice has one universal meaning.","visual_intent":"show takeaway","claim_refs":["'+claim_id+'"],"evidence_refs":["'+evidence_id+'"]}]}',
+    ]
+    factory = FakeFactory(outputs, tmp_path)
+    try:
+        KnowledgeContentBuilder(ContentWorkspace(factory), store).build(
+            run_id="run-epistemic",
+            topic="Thai spirit houses offerings",
+            audience="general",
+            goal="explain",
+            formats=["article"],
+            constraints=[],
+        )
+    except Exception as exc:
+        assert "exceeds accepted epistemic scope" in str(exc)
+    else:
+        raise AssertionError("high-certainty epistemic overclaim must be rejected")
+    factory._store.close()
+    store.close()
