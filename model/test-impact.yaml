@@ -24,6 +24,7 @@
     "T15": {"risk":"R0","depends_on":["T14"],"kind":"external_observation","command":"Telegram E2E: external observation"}
   },
   "file_rules": [
+    {"pattern":"scripts/test_impact.py","gates":["T00"]},
     {"pattern":"src/content_factory/knowledge_content.py","gates":["T03","T04","T05"]},
     {"pattern":"tests/test_knowledge_content.py","gates":["T03","T04","T05"]},
     {"pattern":"src/content_factory/knowledge.py","gates":["T04"]},
