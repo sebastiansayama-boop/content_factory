@@ -125,7 +125,7 @@ class AssetJobStore:
                     (
                         job.job_id, job.run_id, job.asset_request_id, job.script_unit_id,
                         job.asset_type, job.status, json.dumps(job.claim_refs),
-                        json.dumps(job.evidence_refs), json.dumps(job.acceptance_criteria),
+                        json.dumps(job.evidence_refs), job.visual_intent, json.dumps(job.acceptance_criteria),
                         None, job.created_at, job.updated_at,
                     ),
                 )
