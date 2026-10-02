@@ -1,4 +1,5 @@
 name: Content Factory Vertical Slice Proof
+# temporary live proof trigger
 
 on:
   push:
