@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from .asset_jobs import AssetJob, AssetJobStore
+from .openverse_adapter import OpenverseImageProvider
 
 
 class AssetExecutionError(RuntimeError):
@@ -64,12 +65,16 @@ class AssetExecutor:
         provider = os.environ.get("FACTORY_ASSET_PROVIDER", "stub").strip().lower() or "stub"
         if provider == "stub":
             return self._execute_stub(job)
+        if provider == "openverse":
+            if job.asset_type == "visual":
+                return self._execute_openverse_image(job)
+            return self._execute_stub(job)
         if provider == "higgsfield":
             if job.asset_type == "visual":
                 return self._execute_higgsfield_image(job)
             # Higgsfield is currently a visual provider; keep voice deterministic.
             return self._execute_stub(job)
-        raise AssetExecutionError("FACTORY_ASSET_PROVIDER must be 'stub' or 'higgsfield'")
+        raise AssetExecutionError("FACTORY_ASSET_PROVIDER must be 'stub', 'openverse' or 'higgsfield'")
 
     def _execute_stub(self, job: AssetJob) -> AssetExecution:
         digest = hashlib.sha256(
@@ -159,6 +164,59 @@ class AssetExecutor:
                 value = int(amplitude * math.sin(2 * math.pi * frequency * index / sample_rate))
                 samples.extend(struct.pack("<h", value))
             handle.writeframes(samples)
+
+    def _execute_openverse_image(self, job: AssetJob) -> AssetExecution:
+        query = job.visual_intent.strip()
+        if not query:
+            raise AssetExecutionError("Openverse visual job requires visual_intent")
+        provider = OpenverseImageProvider()
+        candidates = provider.search(query, limit=8)
+        if not candidates:
+            raise AssetExecutionError(f"Openverse returned no image candidates for: {query}")
+        candidate = candidates[0]
+        directory = self.root / "asset_jobs" / job.run_id
+        directory.mkdir(parents=True, exist_ok=True)
+        path = directory / f"{job.asset_request_id}.jpg"
+        try:
+            with urllib.request.urlopen(
+                urllib.request.Request(
+                    candidate.url,
+                    headers={"User-Agent": "content-factory/1.0"},
+                    method="GET",
+                ),
+                timeout=30,
+            ) as response:
+                image_data = response.read()
+        except Exception as exc:
+            raise AssetExecutionError(f"Openverse image download failed: {exc}") from exc
+        if not image_data:
+            raise AssetExecutionError("Openverse returned an empty image")
+        if len(image_data) > 10 * 1024 * 1024:
+            raise AssetExecutionError("Openverse image exceeds Telegram 10 MB photo limit")
+        path.write_bytes(image_data)
+        digest_full = hashlib.sha256(image_data).hexdigest()
+        return AssetExecution(
+            provider="openverse",
+            state="COMPLETED",
+            result={
+                "asset_id": f"asset-{digest_full[:16]}",
+                "job_id": job.job_id,
+                "type": job.asset_type,
+                "status": "READY",
+                "claim_refs": list(job.claim_refs),
+                "evidence_refs": list(job.evidence_refs),
+                "acceptance_criteria": list(job.acceptance_criteria),
+                "provider": "openverse",
+                "path": str(path),
+                "metadata": {
+                    **candidate.to_dict(),
+                    "query": query,
+                    "source_url": candidate.foreign_landing_url,
+                    "license_url": candidate.license_url,
+                    "content_sha256": digest_full,
+                },
+            },
+        )
 
     def _execute_higgsfield_image(self, job: AssetJob) -> AssetExecution:
         key = os.environ.get("HF_KEY", "").strip()
