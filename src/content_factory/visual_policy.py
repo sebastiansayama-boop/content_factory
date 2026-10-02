@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import sqlite3
+import threading
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -15,6 +16,13 @@ from .visual_relevance import VisualVerification
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _serialized(method):
+    def wrapper(self, *args, **kwargs):
+        with self._lock:
+            return method(self, *args, **kwargs)
+    return wrapper
 
 
 @dataclass(frozen=True)
@@ -52,6 +60,7 @@ class VisualPolicyStore:
     def __init__(self, path: str | Path) -> None:
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        self._lock = threading.RLock()
         self.db = sqlite3.connect(self.path, check_same_thread=False)
         self.db.row_factory = sqlite3.Row
         self._initialize()
@@ -136,6 +145,7 @@ class VisualPolicyStore:
     def close(self) -> None:
         self.db.close()
 
+    @_serialized
     def active_policy(self) -> VisualPolicy:
         row = self.db.execute(
             "SELECT * FROM visual_policies WHERE status='ACTIVE' ORDER BY rowid DESC LIMIT 1"
@@ -144,6 +154,7 @@ class VisualPolicyStore:
             raise RuntimeError("no active visual policy")
         return self._policy_from_row(row)
 
+    @_serialized
     def get_policy(self, policy_id: str) -> VisualPolicy:
         row = self.db.execute(
             "SELECT * FROM visual_policies WHERE policy_id=?", (policy_id,)
@@ -152,12 +163,14 @@ class VisualPolicyStore:
             raise ValueError("visual policy not found")
         return self._policy_from_row(row)
 
+    @_serialized
     def list_policies(self) -> list[dict[str, Any]]:
         rows = self.db.execute(
             "SELECT * FROM visual_policies ORDER BY rowid DESC"
         ).fetchall()
         return [self._policy_dict(row) for row in rows]
 
+    @_serialized
     def policy_for_run(self, run_id: str) -> VisualPolicy:
         active = self.active_policy()
         candidate_id = os.environ.get("FACTORY_VISUAL_POLICY_CANARY_ID", "").strip()
@@ -185,6 +198,7 @@ class VisualPolicyStore:
         bucket = int(hashlib.sha256(run_id.encode("utf-8")).hexdigest()[:12], 16)
         return candidate if bucket / float(16**12 - 1) < rate else active
 
+    @_serialized
     def record_decision(
         self,
         *,
@@ -222,6 +236,7 @@ class VisualPolicyStore:
             )
         return decision_id
 
+    @_serialized
     def record_feedback(
         self,
         decision_id: str,
@@ -275,6 +290,7 @@ class VisualPolicyStore:
         ).fetchone()
         return dict(row)
 
+    @_serialized
     def propose_candidate(self) -> dict[str, Any]:
         active = self.active_policy()
         rows = self.db.execute(
@@ -389,6 +405,7 @@ class VisualPolicyStore:
             ).fetchone()
         )
 
+    @_serialized
     def promote(self, policy_id: str, decision_ref: str) -> dict[str, Any]:
         if not decision_ref.strip():
             raise ValueError("decision_ref is required")
