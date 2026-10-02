@@ -514,7 +514,17 @@ USER CONSTRAINTS:
             {**spec_raw, "evidence_refs": _refs_or_default(spec_raw.get("evidence_refs"), "evidence_refs", brief.evidence_refs)},
             evidence_ids,
         )
-        structure = _refs(spec_raw.get("structure"), "structure")
+        raw_structure = spec_raw.get("structure")
+        if isinstance(raw_structure, list) and raw_structure and all(isinstance(v, dict) for v in raw_structure):
+            structure = _refs(
+                [
+                    str(item.get("step") or item.get("title") or item.get("purpose") or "").strip()
+                    for item in raw_structure
+                ],
+                "structure",
+            )
+        else:
+            structure = _refs(raw_structure, "structure")
         spec = ContentSpec(
             spec_id=str(spec_raw.get("spec_id") or "").strip(),
             title=str(spec_raw.get("title") or "").strip(),
