@@ -71,7 +71,7 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
                 "title": "Evidence-grounded Telegram integration test",
                 "brief": "Why do unrelated animals sometimes evolve similar traits? Create one short evidence-grounded Telegram post.",
                 "audience": "general audience",
-                "goal": "verify Gemini content generation and real Telegram publication",
+                "goal": "verify OpenAI content generation and real Telegram publication",
                 "formats": ["social_post"],
                 "constraints": ["short", "plain text", "language: Русский", "avoid absolute certainty; do not use: доказывает, доказывают, полностью меняет"],
             },
