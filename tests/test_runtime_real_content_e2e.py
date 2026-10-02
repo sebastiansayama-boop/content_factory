@@ -6,7 +6,7 @@ import os
 import pytest
 
 from content_factory.artifacts import ArtifactStore
-from content_factory.free_research import FreeWebGeminiAdapter
+from content_factory.free_research import FreeWebGeminiAdapter, FreeWebRetriever
 from content_factory.ollama_adapter import OllamaAdapter
 from content_factory.providers import LLMProvider
 from content_factory.runtime import Capability, ExecutionResult, FactoryRuntime, WorkItem
@@ -25,7 +25,7 @@ pytestmark = [
 
 def test_runtime_executes_real_research_production_qc_chain(tmp_path):
     topic = "Why can unrelated animals independently evolve similar traits?"
-    research = FreeWebGeminiAdapter()
+    research = FreeWebGeminiAdapter(retriever=FreeWebRetriever(wiki_limit=1, openalex_limit=2, news_limit=2))
     production = OllamaAdapter()
     assert isinstance(production, LLMProvider)
 
@@ -40,7 +40,7 @@ def test_runtime_executes_real_research_production_qc_chain(tmp_path):
 Return ONLY JSON:
 {{"topic":"string","summary":"string","claims":[{{"id":"claim-1","text":"atomic factual claim","confidence":"high|medium|low","source_ids":["source-1"],"evidence_ids":["evidence-1"],"scope":"string","known_unknowns":["string"]}}],"sources":[{{"id":"source-1","title":"string","url":"https://..."}}],"evidence":[{{"id":"evidence-1","source_id":"source-1","excerpt":"short supporting passage","locator":"string","provenance":"string"}}],"editorial_angles":["string"]}}
 Every factual claim must have source_ids and evidence_ids. Use only real public source URLs.
-BRIEF: {topic}"""
+USER BRIEF: {topic}"""
             result = research.research(prompt)
             if not 200 <= result.status_code < 300:
                 raise RuntimeError(f"research HTTP {result.status_code}")
@@ -60,7 +60,7 @@ BRIEF: {topic}"""
             prompt = f"""Create one article for the researched topic below.
 Return ONLY JSON:
 {{"content":"complete usable article","title":"string","claim_refs":["claim-id"],"source_refs":["source-id"]}}
-Use only supplied claims. Do not introduce factual claims outside them.
+Use only supplied claims. Do not introduce factual claims outside them. Copy claim_refs EXACTLY from the supplied claim ids and source_refs EXACTLY from the supplied source ids. Never output placeholder values such as "claim-id" or "source-id".
 Topic: {research_payload.get("topic", topic)}
 Summary: {research_payload.get("summary", "")}
 Claims: {json.dumps(research_payload["claims"], ensure_ascii=False)}

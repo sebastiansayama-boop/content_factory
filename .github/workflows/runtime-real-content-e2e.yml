@@ -4,6 +4,8 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
   runtime-real-content:
@@ -11,7 +13,7 @@ jobs:
     timeout-minutes: 15
     env:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      OLLAMA_MODEL: llama3.2:1b
+      OLLAMA_MODEL: qwen2.5:1.5b
       OLLAMA_ENDPOINT: http://127.0.0.1:11434/api/generate
       OLLAMA_TIMEOUT: "180"
     steps:
