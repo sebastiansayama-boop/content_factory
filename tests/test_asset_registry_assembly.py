@@ -129,3 +129,63 @@ def test_qc_rejects_missing_provenance(tmp_path):
 
     jobs.close()
     registry.close()
+
+
+def test_qc_rejects_high_certainty_epistemic_output(tmp_path):
+    jobs = AssetJobStore(tmp_path / "jobs.sqlite3")
+    registry = AssetRegistry(tmp_path / "assets.sqlite3")
+    plan = {
+        "asset_requests": [
+            {
+                "asset_request_id": "request-visual",
+                "script_unit_id": "unit-1",
+                "type": "visual",
+                "claim_refs": ["kc-1"],
+                "evidence_refs": ["ke-1"],
+                "acceptance_criteria": ["preserve provenance"],
+            },
+            {
+                "asset_request_id": "request-voice",
+                "script_unit_id": "unit-1",
+                "type": "voice",
+                "claim_refs": ["kc-1"],
+                "evidence_refs": ["ke-1"],
+                "acceptance_criteria": ["preserve provenance"],
+            },
+        ],
+        "format": "short_video",
+    }
+    jobs.create_from_plan("run-epistemic", plan)
+    completed = AssetExecutor(jobs, tmp_path).execute_run("run-epistemic")
+    assets = [registry.register_completed_job(job) for job in completed]
+    output = {
+        "output_id": "output-run-epistemic",
+        "uri": "file://sequence.json",
+        "format": "short_video",
+        "title": "Эволюция не случайная",
+        "sequence": [{
+            "script_unit_id": "unit-1",
+            "text": "Это открытие доказывает, что эволюционные процессы подчиняются строгим закономерностям.",
+        }],
+    }
+    information_flow = {
+        "claims": [{"claim_id": "kc-1", "evidence_ids": ["ke-1"]}],
+        "evidence": [{"evidence_id": "ke-1", "source_id": "ks-1"}],
+        "editorial_points": [{"point_id": "point-1", "claim_ids": ["kc-1"], "evidence_ids": ["ke-1"]}],
+        "content_elements": [{"element_id": "element-1", "artifact_id": "artifact-1"}],
+        "artifacts": [{"artifact_id": "artifact-1", "content_element_ids": ["element-1"]}],
+    }
+    qc = QualityGate().evaluate(
+        run_id="run-epistemic",
+        script={"units": [{"unit_id": "unit-1", "claim_refs": ["kc-1"]}]},
+        production_plan=plan,
+        assets=assets,
+        output=output,
+        information_flow=information_flow,
+    )
+    assert qc["passed"] is False
+    check = next(item for item in qc["checks"] if item["check"] == "epistemic_scope")
+    assert check["passed"] is False
+    assert "доказывает" in check["detail"]
+    jobs.close()
+    registry.close()
