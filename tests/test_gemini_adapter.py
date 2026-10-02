@@ -48,7 +48,8 @@ def test_gemini_response_text_rejects_missing_text():
     else:
         raise AssertionError("expected missing Gemini text to fail")
 
-def test_gemini_generate_requests_json_object(monkeypatch):
+def test_gemini_generate_requests_json_schema(monkeypatch):
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key")
     adapter = GeminiOpenAICompatibleAdapter()
     captured = {}
 
