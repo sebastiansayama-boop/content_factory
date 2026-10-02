@@ -1,0 +1,120 @@
+name: Gemini access diagnostic
+
+on:
+  push:
+    branches: ["diagnostic/gemini-access-20261002"]
+
+permissions: {}
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Minimal Gemini API diagnostic
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import urllib.error
+          import urllib.parse
+          import urllib.request
+
+          key = os.environ.get("GEMINI_API_KEY", "").strip()
+          if not key:
+              print("RESULT: NO_GITHUB_SECRET")
+              raise SystemExit(2)
+
+          base = "https://generativelanguage.googleapis.com/v1beta"
+
+          def request(method, url, payload=None):
+              data = None
+              headers = {"Content-Type": "application/json"}
+              if payload is not None:
+                  data = json.dumps(payload).encode("utf-8")
+              req = urllib.request.Request(url, data=data, headers=headers, method=method)
+              try:
+                  with urllib.request.urlopen(req, timeout=30) as resp:
+                      body = resp.read().decode("utf-8", "replace")
+                      return resp.status, body
+              except urllib.error.HTTPError as e:
+                  body = e.read().decode("utf-8", "replace")
+                  return e.code, body
+              except Exception as e:
+                  return 0, json.dumps({"error_type": type(e).__name__, "error": str(e)})
+
+          list_url = base + "/models?" + urllib.parse.urlencode({"key": key})
+          status, raw = request("GET", list_url)
+
+          print(f"MODELS_HTTP_STATUS={status}")
+          if status != 200:
+              try:
+                  obj = json.loads(raw)
+                  err = obj.get("error", {}) if isinstance(obj, dict) else {}
+                  print("MODELS_ERROR_STATUS=" + str(err.get("status", "")))
+                  print("MODELS_ERROR_REASON=" + str(err.get("status", "")))
+                  print("MODELS_ERROR_MESSAGE=" + str(err.get("message", ""))[:500])
+              except Exception:
+                  print("MODELS_ERROR_BODY=" + raw[:500])
+              raise SystemExit(10 if status == 403 else 11)
+
+          obj = json.loads(raw)
+          models = obj.get("models", [])
+          candidates = []
+          for m in models:
+              if not isinstance(m, dict):
+                  continue
+              methods = m.get("supportedGenerationMethods", [])
+              name = m.get("name")
+              if name and "generateContent" in methods:
+                  candidates.append(name)
+
+          if not candidates:
+              print("RESULT=NO_GENERATE_CONTENT_MODEL")
+              raise SystemExit(12)
+
+          preferred = [
+              m for m in candidates
+              if any(token in m.lower() for token in ("flash", "flash-lite"))
+          ]
+          model = preferred[0] if preferred else candidates[0]
+          print("GENERATE_CONTENT_MODEL=" + model)
+
+          generate_url = base + "/" + model + ":generateContent?" + urllib.parse.urlencode({"key": key})
+          payload = {
+              "contents": [
+                  {"parts": [{"text": "Reply with exactly: GEMINI_ACCESS_TEST_OK"}]}
+              ]
+          }
+          status, raw = request("POST", generate_url, payload)
+          print(f"GENERATE_CONTENT_HTTP_STATUS={status}")
+
+          try:
+              body = json.loads(raw)
+              err = body.get("error", {}) if isinstance(body, dict) else {}
+              if status == 200:
+                  print("RESULT=API_ACCESS_OK")
+              elif status == 403:
+                  print("RESULT=ACCESS_DENIED")
+                  print("ERROR_STATUS=" + str(err.get("status", "")))
+                  print("ERROR_MESSAGE=" + str(err.get("message", ""))[:500])
+                  raise SystemExit(20)
+              elif status == 429:
+                  print("RESULT=RATE_OR_QUOTA_LIMIT")
+                  print("ERROR_STATUS=" + str(err.get("status", "")))
+                  print("ERROR_MESSAGE=" + str(err.get("message", ""))[:500])
+                  raise SystemExit(21)
+              else:
+                  print("RESULT=OTHER_API_ERROR")
+                  print("ERROR_STATUS=" + str(err.get("status", "")))
+                  print("ERROR_MESSAGE=" + str(err.get("message", ""))[:500])
+                  raise SystemExit(22)
+          except json.JSONDecodeError:
+              print("RESULT=NON_JSON_API_RESPONSE")
+              print("ERROR_BODY=" + raw[:500])
+              raise SystemExit(23)
+          PY
