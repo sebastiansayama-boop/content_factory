@@ -41,9 +41,11 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
         pytest.fail("TELEGRAM_BOT_TOKEN is required")
     if not os.environ.get("TELEGRAM_CHAT_ID"):
         pytest.fail("TELEGRAM_CHAT_ID is required")
+    if not os.environ.get("GEMINI_API_KEY"):
+        pytest.fail("GEMINI_API_KEY is required")
 
     monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
-    monkeypatch.setenv("FACTORY_PROVIDER", "local")
+    monkeypatch.setenv("FACTORY_PROVIDER", "gemini")
     monkeypatch.setenv("FACTORY_API_TOKEN", "telegram-e2e-token")
     monkeypatch.delenv("FACTORY_TELEGRAM_FAKE", raising=False)
     monkeypatch.delenv("PUBLISH_URL", raising=False)
@@ -67,13 +69,14 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
             "POST",
             "/api/runs",
             {
-                "title": "Telegram distribution integration test",
+                "title": "Evidence-grounded Telegram integration test",
                 "brief": (
-                    "This is a controlled integration test of the Content Factory "
-                    "Telegram distribution path. Publish one short test message."
+                    "Why have people in different eras imagined the future as prophecy, "
+                    "cycles, or an open possibility? Create one short evidence-grounded "
+                    "Telegram post using the accepted evidence."
                 ),
-                "audience": "integration test",
-                "goal": "verify real Telegram publication",
+                "audience": "general audience",
+                "goal": "verify Gemini content generation and real Telegram publication",
                 "formats": ["social_post"],
                 "constraints": ["short", "plain text"],
             },
@@ -103,8 +106,10 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
         status, factory = _request(base_url, "POST", f"/api/runs/{run_id}/factory")
         assert status == 200, factory
         assert factory["qc"]["status"] == "PASSED"
-        script_units = factory["run"]["result"]["script"]["units"]
-        assert any(claim_text in str(unit.get("text") or "") for unit in script_units)
+        result = factory["run"]["result"]
+        assert claim_id in result["content_spec"]["claim_refs"]
+        script_units = result["script"]["units"]
+        assert any(claim_id in (unit.get("claim_refs") or []) for unit in script_units)
 
         status, approved = _request(
             base_url,
@@ -138,7 +143,9 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
         assert published["response"]["mode"] == "telegram"
         assert published["response"]["telegram_ok"] is True
         assert published["response"]["message_id"] == int(published["external_id"])
-        assert claim_text in published["response"]["text"]
+        published_text = str(published["response"]["text"])
+        assert published_text.strip()
+        assert "Development fixture claim" not in published_text
 
         status, final = _request(base_url, "GET", f"/api/runs/{run_id}")
         assert status == 200, final
