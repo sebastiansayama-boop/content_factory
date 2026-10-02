@@ -11,6 +11,8 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
+from content_factory.state_machine import InvalidStateTransition, require_publication_parent, validate_transition
+
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -180,39 +182,84 @@ class FactoryControlStore:
         if record_event: self.record(run_id, "publication.prepared", output_refs=(publication_id, channel))
         return dict(self.db.execute("SELECT * FROM publications WHERE publication_id=?", (publication_id,)).fetchone())
 
-    def publish(self, publication_id: str, *, url: str | None = None, token: str | None = None, publisher: Any | None = None) -> dict[str, Any]:
+    def publish(self, publication_id: str, *, run_status: str, url: str | None = None, token: str | None = None, publisher: Any | None = None) -> dict[str, Any]:
         row = self.db.execute("SELECT * FROM publications WHERE publication_id=?", (publication_id,)).fetchone()
         if not row: raise ValueError("publication not found")
         if row["status"] == "PUBLISHED":
             published = dict(row)
             published["response"] = json.loads(published["response_json"])
             return published
-        if row["status"] != "PREPARED": raise ValueError(f"publication cannot be published from status {row['status']}")
+        if row["status"] != "PREPARED":
+            raise InvalidStateTransition(
+                f"publication cannot be published from status {row['status']}"
+            )
+        require_publication_parent(run_status, row["status"], "PUBLISHING")
+        now = _now()
+        with self.db:
+            cursor = self.db.execute(
+                "UPDATE publications SET status='PUBLISHING', updated_at=? "
+                "WHERE publication_id=? AND status='PREPARED'",
+                (now, publication_id),
+            )
+        if cursor.rowcount != 1:
+            raise InvalidStateTransition("publication was changed by another execution")
         payload = json.loads(row["response_json"])
         external_id, external_url = f"local-{publication_id}", None
         response: dict[str, Any] = {"mode":"local", "channel":row["channel"]}
         published_at = _now()
-        if publisher is not None:
-            result = publisher.publish(payload, publication_id=publication_id)
-            if not isinstance(result, dict): raise ValueError("publisher must return an object")
-            response = result.get("response") if isinstance(result.get("response"), dict) else result
-            external_id = str(result.get("external_id") or publication_id)
-            external_url = result.get("external_url")
-            published_at = str(result.get("published_at") or "").strip() or _now()
-        elif url:
-            body = _json({"publication_id":publication_id,"channel":row["channel"],"content_ref":row["content_ref"],"content":payload}).encode()
-            headers = {"Content-Type":"application/json", "Idempotency-Key":publication_id}
-            if token: headers["Authorization"] = f"Bearer {token}"
-            request = urllib.request.Request(url,data=body,headers=headers,method="POST")
-            try:
-                with urllib.request.urlopen(request,timeout=30) as result:
-                    raw=result.read(8192).decode("utf-8",errors="replace"); status_code=int(result.status)
-            except urllib.error.HTTPError as exc: raise ValueError(f"publication endpoint returned HTTP {exc.code}") from exc
-            except urllib.error.URLError as exc: raise ValueError(f"publication endpoint failed: {exc.reason}") from exc
-            if not 200 <= status_code < 300: raise ValueError(f"publication endpoint returned HTTP {status_code}")
-            response={"mode":"webhook","http_status":status_code,"body":raw[:4000]}; external_id=publication_id; external_url=url
+        try:
+            if publisher is not None:
+                result = publisher.publish(payload, publication_id=publication_id)
+                if not isinstance(result, dict):
+                    raise ValueError("publisher must return an object")
+                response = result.get("response") if isinstance(result.get("response"), dict) else result
+                external_id = str(result.get("external_id") or publication_id)
+                external_url = result.get("external_url")
+                published_at = str(result.get("published_at") or "").strip() or _now()
+            elif url:
+                body = _json({
+                    "publication_id": publication_id,
+                    "channel": row["channel"],
+                    "content_ref": row["content_ref"],
+                    "content": payload,
+                }).encode()
+                headers = {"Content-Type": "application/json", "Idempotency-Key": publication_id}
+                if token:
+                    headers["Authorization"] = f"Bearer {token}"
+                request = urllib.request.Request(url, data=body, headers=headers, method="POST")
+                with urllib.request.urlopen(request, timeout=30) as result:
+                    raw = result.read(8192).decode("utf-8", errors="replace")
+                    status_code = int(result.status)
+                if not 200 <= status_code < 300:
+                    raise ValueError(f"publication endpoint returned HTTP {status_code}")
+                response = {"mode": "webhook", "http_status": status_code, "body": raw[:4000]}
+                external_id = publication_id
+                external_url = url
+        except Exception as exc:
+            with self.db:
+                self.db.execute(
+                    "UPDATE publications SET status='UNKNOWN', response_json=?, updated_at=? "
+                    "WHERE publication_id=? AND status='PUBLISHING'",
+                    (_json({"mode": "unknown", "error": str(exc)[:1000]}), _now(), publication_id),
+                )
+            self.record(
+                row["run_id"],
+                "publication.unknown",
+                status="UNKNOWN",
+                output_refs=(publication_id,),
+                evidence={"error_type": type(exc).__name__},
+            )
+            raise
+        validate_transition("publication", "PUBLISHING", "PUBLISHED")
+        if not external_id.strip():
+            raise InvalidStateTransition("published publication requires external_id")
         with self.db:
-            self.db.execute("UPDATE publications SET status='PUBLISHED', external_id=?, external_url=?, response_json=?, published_at=?, updated_at=? WHERE publication_id=?", (external_id,external_url,_json(response),published_at,_now(),publication_id))
+            self.db.execute(
+                "UPDATE publications SET status='PUBLISHED', external_id=?, external_url=?, "
+                "response_json=?, published_at=?, updated_at=? "
+                "WHERE publication_id=? AND status='PUBLISHING'",
+                (external_id, external_url, _json(response), published_at, _now(), publication_id),
+            )
         self.record(row["run_id"], "publication.published", output_refs=(publication_id,external_id), evidence=response)
         published = dict(self.db.execute("SELECT * FROM publications WHERE publication_id=?", (publication_id,)).fetchone())
         published["response"] = response

@@ -9,6 +9,8 @@ from uuid import uuid4
 
 from typing import Any
 
+from content_factory.state_machine import InvalidStateTransition, validate_transition
+
 
 STATUSES = {
     "DRAFT",
@@ -19,6 +21,7 @@ STATUSES = {
     "REVIEW",
     "APPROVED",
     "EXPORTED",
+    "PUBLISHED",
     "FAILED",
 }
 
@@ -190,6 +193,10 @@ class ContentRunStore:
         return [self._from_row(row) for row in rows]
 
     def start_planning(self, run_id: str) -> ContentRun:
+        current = self.get(run_id)
+        if current is None:
+            raise ValueError("content run not found")
+        validate_transition("content_run", current.status, "PLANNING")
         now = _now()
         with self._connection:
             cursor = self._connection.execute(
@@ -210,6 +217,10 @@ class ContentRunStore:
         return run
 
     def save_plan(self, run_id: str, plan: dict[str, object]) -> ContentRun:
+        current = self.get(run_id)
+        if current is None:
+            raise ValueError("content run not found")
+        validate_transition("content_run", current.status, "PLANNING")
         now = _now()
         with self._connection:
             cursor = self._connection.execute(
@@ -301,6 +312,10 @@ class ContentRunStore:
         ]
 
     def start_execution(self, run_id: str) -> ContentRun:
+        current = self.get(run_id)
+        if current is None:
+            raise ValueError("content run not found")
+        validate_transition("content_run", current.status, "RESEARCHING")
         now = _now()
         with self._connection:
             cursor = self._connection.execute(
@@ -321,6 +336,10 @@ class ContentRunStore:
         return run
 
     def start_producing(self, run_id: str) -> ContentRun:
+        current = self.get(run_id)
+        if current is None:
+            raise ValueError("content run not found")
+        validate_transition("content_run", current.status, "PRODUCING")
         now = _now()
         with self._connection:
             cursor = self._connection.execute(
@@ -341,6 +360,10 @@ class ContentRunStore:
         return run
 
     def save_research_result(self, run_id: str, result: dict[str, object]) -> ContentRun:
+        current = self.get(run_id)
+        if current is None:
+            raise ValueError("content run not found")
+        validate_transition("content_run", current.status, "RESEARCH_READY")
         now = _now()
         with self._connection:
             cursor = self._connection.execute(
@@ -358,6 +381,10 @@ class ContentRunStore:
         return run
 
     def save_result(self, run_id: str, result: dict[str, object]) -> ContentRun:
+        current = self.get(run_id)
+        if current is None:
+            raise ValueError("content run not found")
+        validate_transition("content_run", current.status, "REVIEW")
         now = _now()
         with self._connection:
             cursor = self._connection.execute(
@@ -392,6 +419,10 @@ class ContentRunStore:
         return run
 
     def save_production_result(self, run_id: str, result: dict[str, object]) -> ContentRun:
+        current = self.get(run_id)
+        if current is None:
+            raise ValueError("content run not found")
+        validate_transition("content_run", current.status, "PRODUCING")
         now = _now()
         with self._connection:
             cursor = self._connection.execute(
@@ -409,6 +440,10 @@ class ContentRunStore:
         return run
 
     def approve(self, run_id: str, *, decision_ref: str) -> ContentRun:
+        current = self.get(run_id)
+        if current is None:
+            raise ValueError("content run not found")
+        validate_transition("content_run", current.status, "APPROVED")
         decision_ref = decision_ref.strip()
         if not decision_ref:
             raise ValueError("decision_ref is required")
@@ -446,6 +481,15 @@ class ContentRunStore:
         return run
 
     def mark_published(self, run_id: str, publication: dict[str, object], result: dict[str, object] | None = None) -> ContentRun:
+        publication_status = str(publication.get("status") or "").strip()
+        if publication_status != "PUBLISHED":
+            raise InvalidStateTransition("content run can become PUBLISHED only after publication is PUBLISHED")
+        if not str(publication.get("external_id") or "").strip():
+            raise InvalidStateTransition("published publication requires external_id")
+        current = self.get(run_id)
+        if current is None:
+            raise ValueError("content run not found")
+        validate_transition("content_run", current.status, "PUBLISHED")
         now = _now()
         with self._connection:
             cursor = self._connection.execute(
@@ -477,6 +521,10 @@ class ContentRunStore:
         return run
 
     def mark_exported(self, run_id: str, export: dict[str, object]) -> ContentRun:
+        current = self.get(run_id)
+        if current is None:
+            raise ValueError("content run not found")
+        validate_transition("content_run", current.status, "EXPORTED")
         now = _now()
         with self._connection:
             cursor = self._connection.execute(
@@ -507,6 +555,10 @@ class ContentRunStore:
         return run
 
     def mark_failed(self, run_id: str) -> ContentRun:
+        current = self.get(run_id)
+        if current is None:
+            raise ValueError("content run not found")
+        validate_transition("content_run", current.status, "FAILED")
         now = _now()
         with self._connection:
             cursor = self._connection.execute(

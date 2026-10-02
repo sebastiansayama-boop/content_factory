@@ -7,6 +7,7 @@
     "no_gate_patterns": ["docs/**", "README.md", "README*", "LICENSE*"]
   },
   "gates": {
+    "T00": {"risk":"R1","depends_on":["T02"],"kind":"impact_model","command":"pytest -q tests/test_test_impact.py"},
     "T01": {"risk":"R0","depends_on":[],"kind":"unit_integration","command":"pytest -q -m \"not browser\""},
     "T02": {"risk":"R0","depends_on":["T01"],"kind":"ci","command":"GitHub Actions: CI"},
     "T03": {"risk":"R0","depends_on":["T02"],"kind":"llm_contract","command":"pytest -q tests/test_knowledge_content.py"},
@@ -24,6 +25,7 @@
     "T15": {"risk":"R0","depends_on":["T14"],"kind":"external_observation","command":"Telegram E2E: external observation"}
   },
   "file_rules": [
+    {"pattern":"scripts/test_impact.py","gates":["T00"]},
     {"pattern":"src/content_factory/knowledge_content.py","gates":["T03","T04","T05"]},
     {"pattern":"tests/test_knowledge_content.py","gates":["T03","T04","T05"]},
     {"pattern":"src/content_factory/knowledge.py","gates":["T04"]},
@@ -32,7 +34,8 @@
     {"pattern":"src/content_factory/agent_tool_capability.py","gates":["T08"]},
     {"pattern":"src/content_factory/agent_tools.py","gates":["T08"]},
     {"pattern":"src/content_factory/runtime_store.py","gates":["T09"]},
-    {"pattern":"src/content_factory/factory_control.py","gates":["T10"]},
+    {"pattern":"src/content_factory/factory_control.py","gates":["T10","T13","T14","T15"]},
+    {"pattern":"src/content_factory/state_machine.py","gates":["T01","T10","T13","T14","T15"]},
     {"pattern":"tests/test_runtime.py","gates":["T08","T09","T10"]},
     {"pattern":"tests/test_runtime_trace.py","gates":["T08","T10"]},
     {"pattern":"tests/test_runtime_real_content_e2e.py","gates":["T08"]},

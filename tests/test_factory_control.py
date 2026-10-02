@@ -23,7 +23,7 @@ def test_control_plane_timeline_distribution_observation_learning_and_replay(tmp
     assert prepared["status"] == "PREPARED"
     assert prepared["destination"] == "chat-123"
     assert prepared["artifact_ids_json"] == '["asset-1"]'
-    published = store.publish(prepared["publication_id"])
+    published = store.publish(prepared["publication_id"], run_status="APPROVED")
     assert published["status"] == "PUBLISHED"
     assert published["published_at"]
     assert published["external_id"].startswith("local-")
@@ -75,4 +75,58 @@ def test_control_plane_timeline_distribution_observation_learning_and_replay(tmp
     assert replay["retain_asset_ids"] == ["asset-2"]
     assert replay["revise"] == ["content_spec.style_bible"]
     assert replay["rerun"] == ["production", "assembly", "qc", "approval", "export"]
+    store.close()
+
+def test_publication_requires_approved_content_run(tmp_path):
+    from content_factory.state_machine import InvalidStateTransition
+
+    store = FactoryControlStore(tmp_path / "control.sqlite3")
+    prepared = store.prepare_publication(
+        "run-guard",
+        "telegram",
+        "content-1",
+        {"text": "hello", "destination": "chat-1"},
+    )
+    try:
+        store.publish(prepared["publication_id"], run_status="REVIEW")
+    except InvalidStateTransition:
+        pass
+    else:
+        raise AssertionError("publication was allowed before ContentRun approval")
+    assert store.list_publications("run-guard")[0]["status"] == "PREPARED"
+    store.close()
+
+
+def test_external_publication_failure_becomes_unknown(tmp_path):
+    from content_factory.state_machine import InvalidStateTransition
+
+    class BrokenPublisher:
+        def publish(self, payload, *, publication_id):
+            raise RuntimeError("telegram timeout")
+
+    store = FactoryControlStore(tmp_path / "control.sqlite3")
+    prepared = store.prepare_publication(
+        "run-unknown",
+        "telegram",
+        "content-1",
+        {"text": "hello", "destination": "chat-1"},
+    )
+    try:
+        store.publish(
+            prepared["publication_id"],
+            run_status="APPROVED",
+            publisher=BrokenPublisher(),
+        )
+    except RuntimeError:
+        pass
+    else:
+        raise AssertionError("broken external publisher did not raise")
+    publication = store.list_publications("run-unknown")[0]
+    assert publication["status"] == "UNKNOWN"
+    try:
+        store.publish(publication["publication_id"], run_status="APPROVED", publisher=BrokenPublisher())
+    except InvalidStateTransition:
+        pass
+    else:
+        raise AssertionError("UNKNOWN publication was automatically retried")
     store.close()
