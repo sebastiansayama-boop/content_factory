@@ -3,6 +3,8 @@ name: Gemini access diagnostic
 on:
   push:
     branches: ["diagnostic/gemini-access-20261002"]
+  pull_request:
+    branches: ["main"]
 
 permissions: {}
 
