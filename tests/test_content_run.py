@@ -327,3 +327,36 @@ def test_content_brief_revisions_are_durable_and_independently_readable(tmp_path
     reopened = ContentRunStore(path)
     assert reopened.get_content_brief(run.run_id, revision_id=second.revision_id).payload["title"] == "Revised angle"
     reopened.close()
+
+
+def test_published_run_requires_confirmed_publication_and_is_terminal(tmp_path):
+    import pytest
+    from content_factory.state_machine import InvalidStateTransition
+
+    store = ContentRunStore(tmp_path / "runs.sqlite3")
+    run = store.create(title="Publish", brief="Brief")
+    store.start_planning(run.run_id)
+    store.save_result(
+        run.run_id,
+        {
+            "production": {"qc": {"status": "PASSED"}},
+            "script": {"script_id": "script-1", "units": []},
+        },
+    )
+    approved = store.approve(run.run_id, decision_ref="human-1")
+
+    with pytest.raises(InvalidStateTransition):
+        store.mark_published(
+            approved.run_id,
+            {"publication_id": "pub-1", "status": "PREPARED", "external_id": "1"},
+        )
+
+    published = store.mark_published(
+        approved.run_id,
+        {"publication_id": "pub-1", "status": "PUBLISHED", "external_id": "1"},
+    )
+    assert published.status == "PUBLISHED"
+
+    with pytest.raises(InvalidStateTransition):
+        store.mark_failed(published.run_id)
+    store.close()
