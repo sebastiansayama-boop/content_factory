@@ -46,7 +46,7 @@ class GeminiOpenAICompatibleAdapter:
                 "messages": [
                     {"role": "user", "content": prompt},
                 ],
-                "response_format": {"type": "json_object"},
+                "response_format": {\n                "type": "json_schema",\n                "json_schema": {\n                    "name": "content_factory_output",\n                    "schema": {\n                        "type": "object",\n                        "additionalProperties": True,\n                    },\n                },\n            },
             }
         )
 
