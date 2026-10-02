@@ -9,6 +9,7 @@ from typing import Any, Callable
 from .knowledge import KnowledgeStore
 from .local_research import LocalResearchAdapter
 from .research import OpenAIWebResearchAdapter, is_safe_source_url, parse_research_json
+from .openai_adapter import OpenAIResponsesAdapter
 from .ollama_adapter import OllamaAdapter
 from .local_adapter import LocalTextAdapter
 from .providers import LLMProvider
@@ -122,13 +123,15 @@ class ContentFactoryVerticalSlice:
                 or ("openai" if os.environ.get("OPENAI_API_KEY", "").strip() else "local")
             )
             if llm_name == "gemini":
-                raise ValueError("Gemini LLM provider is disabled; use 'openai' or 'local'")
-            if llm_name == "ollama":
+                raise ValueError("Gemini LLM provider is disabled; use 'openai', 'ollama', or 'local'")
+            if llm_name == "openai":
+                self.llm_provider = OpenAIResponsesAdapter()
+            elif llm_name == "ollama":
                 self.llm_provider = OllamaAdapter()
             elif llm_name == "local":
                 self.llm_provider = LocalTextAdapter()
             else:
-                raise ValueError("FACTORY_LLM_PROVIDER must be 'openai', 'ollama', or 'local'")
+                raise ValueError("FACTORY_LLM_PROVIDER must be 'openai', 'ollama', or 'local'; Gemini is disabled")
 
     def run(self, *, run_id: str, brief: str, formats: list[str] | None = None) -> VerticalSliceResult:
         if not brief.strip():
