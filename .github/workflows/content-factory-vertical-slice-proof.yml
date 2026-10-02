@@ -8,11 +8,15 @@ on:
         required: false
         default: false
         type: boolean
+  push:
+    branches:
+      - main
 
 permissions: {}
 
 jobs:
   local-proof:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +38,7 @@ jobs:
           pytest -q tests/test_browser_replay.py -m browser --browser chromium
 
   telegram-proof:
-    if: ${{ inputs.run_telegram }}
+    if: ${{ inputs.run_telegram || contains(github.event.head_commit.message, '[telegram-proof]') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
