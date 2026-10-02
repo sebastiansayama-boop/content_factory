@@ -33,6 +33,20 @@ class PromptRecordingFakeResearchAdapter:
         return []
 
 
+class FakeLLMProvider:
+    def generate(self, prompt: str) -> ExternalCallResult:
+        return ExternalCallResult(
+            integration_id="fake.llm",
+            status_code=200,
+            response_id="llm-1",
+            payload={"text": '{"title":"Generated asset","content":"A grounded draft.","claim_refs":["claim-1"],"source_refs":["source-1"]}'},
+        )
+
+    @staticmethod
+    def response_text(result: ExternalCallResult) -> str:
+        return str(result.payload["text"])
+
+
 class FakeResearchAdapter:
     def __init__(self) -> None:
         self.calls = 0
@@ -60,7 +74,7 @@ class FakeResearchAdapter:
 
 
 def test_vertical_slice_produces_research_text_visual_and_qc():
-    result = ContentFactoryVerticalSlice(FakeResearchAdapter()).run(
+    result = ContentFactoryVerticalSlice(FakeResearchAdapter(), llm_provider=FakeLLMProvider()).run(
         run_id="run-test-1",
         brief="Explain why unrelated animals can evolve similar traits.",
     )
