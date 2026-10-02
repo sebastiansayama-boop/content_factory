@@ -11,7 +11,7 @@ from content_factory.providers import ImageProvider, QCProvider, ResearchProvide
 from content_factory.research import parse_research_json
 
 
-pytestmark = pytest.mark.integration
+pytestmark = pytest.mark.external
 
 
 @pytest.mark.skipif(
