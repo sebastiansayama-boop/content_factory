@@ -6,7 +6,7 @@ import os
 import pytest
 
 from content_factory.artifacts import ArtifactStore
-from content_factory.free_research import FreeWebGeminiAdapter
+from content_factory.free_research import FreeWebGeminiAdapter, FreeWebRetriever
 from content_factory.ollama_adapter import OllamaAdapter
 from content_factory.providers import LLMProvider
 from content_factory.runtime import Capability, ExecutionResult, FactoryRuntime, WorkItem
@@ -25,7 +25,7 @@ pytestmark = [
 
 def test_runtime_executes_real_research_production_qc_chain(tmp_path):
     topic = "Why can unrelated animals independently evolve similar traits?"
-    research = FreeWebGeminiAdapter()
+    research = FreeWebGeminiAdapter(retriever=FreeWebRetriever(wiki_limit=1, openalex_limit=2, news_limit=2))
     production = OllamaAdapter()
     assert isinstance(production, LLMProvider)
 
