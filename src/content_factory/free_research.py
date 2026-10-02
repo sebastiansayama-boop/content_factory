@@ -58,7 +58,7 @@ class Retriever(Protocol):
 
 
 class FreeWebRetriever:
-    """API-key-free retrieval from Wikimedia, OpenAlex and Google News RSS.
+    """API-key-free retrieval from Wikimedia and OpenAlex.
 
     Retrieval is deliberately separate from model generation. The model never
     receives a search tool; it receives only this normalized source/evidence pack.
@@ -70,13 +70,11 @@ class FreeWebRetriever:
         opener=urllib.request.urlopen,
         wiki_limit: int = 1,
         openalex_limit: int = 2,
-        news_limit: int = 3,
         timeout: float = 10.0,
     ) -> None:
         self._opener = opener
         self.wiki_limit = max(0, wiki_limit)
         self.openalex_limit = max(0, openalex_limit)
-        self.news_limit = max(0, news_limit)
         self.timeout = timeout
 
     def _json_get(self, url: str) -> Any:
@@ -149,45 +147,6 @@ class FreeWebRetriever:
                     tokens.append((position, word))
         return " ".join(word for _, word in sorted(tokens))
 
-    def _google_news(self, query: str) -> list[RetrievalItem]:
-        if self.news_limit <= 0:
-            return []
-        params = urllib.parse.urlencode({
-            "q": query,
-            "hl": "en-US",
-            "gl": "US",
-            "ceid": "US:en",
-        })
-        request = urllib.request.Request(
-            f"https://news.google.com/rss/search?{params}",
-            headers={
-                "Accept": "application/rss+xml, application/xml, text/xml",
-                "User-Agent": "content-factory-free-retrieval/1.0",
-            },
-        )
-        with self._opener(request, timeout=self.timeout) as response:
-            root = ET.fromstring(response.read())
-        items: list[RetrievalItem] = []
-        for entry in root.findall("./channel/item")[: self.news_limit]:
-            title = (entry.findtext("title") or "").strip()
-            url = (entry.findtext("link") or "").strip()
-            description = unescape(entry.findtext("description") or "").strip()
-            description = re.sub(r"<[^>]+>", " ", description)
-            description = re.sub(r"\s+", " ", description).strip()
-            if not title or not url or not description:
-                continue
-            external_id = url
-            key = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-") or "story"
-            items.append(RetrievalItem(
-                source_id=f"source:google-news:{key}",
-                provider="google_news",
-                external_id=external_id,
-                title=title,
-                url=url,
-                excerpt=description,
-            ))
-        return items
-
     def _openalex(self, query: str) -> list[RetrievalItem]:
         if self.openalex_limit <= 0:
             return []
@@ -252,11 +211,10 @@ class FreeWebRetriever:
         for name, retriever in (
             ("wikipedia", self._wikipedia),
             ("openalex", self._openalex),
-            ("google_news", self._google_news),
         ):
             try:
                 candidates = retriever(normalized)
-                if not candidates and fallback_query != normalized and name in {"wikipedia", "google_news"}:
+                if not candidates and fallback_query != normalized and name == "wikipedia":
                     candidates = retriever(fallback_query)
             except Exception as exc:
                 detail = str(exc).strip().replace("\n", " ")[:240]
