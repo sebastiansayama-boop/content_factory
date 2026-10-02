@@ -740,6 +740,8 @@ class ProductHandler(Handler):
                         for asset in assets
                     ]
                     durable_context = self.service.knowledge.search(run.brief)
+                    if not durable_context["claims"]:
+                        durable_context = self.service.knowledge.accepted_for_run(run_id)
                     canonical_research = {
                         "claims": [
                             {
