@@ -44,6 +44,7 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
     monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
     monkeypatch.setenv("FACTORY_API_TOKEN", "telegram-e2e-token")
     monkeypatch.setenv("FACTORY_ASSET_PROVIDER", "openverse")
+    monkeypatch.setenv("FACTORY_ASSET_PROVIDER", "openverse")
     monkeypatch.delenv("FACTORY_TELEGRAM_FAKE", raising=False)
     monkeypatch.delenv("PUBLISH_URL", raising=False)
     monkeypatch.delenv("PUBLISH_AUTH_TOKEN", raising=False)
