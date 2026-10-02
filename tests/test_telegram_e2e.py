@@ -140,6 +140,7 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
         assert published["response"]["telegram_ok"] is True
         assert published["response"]["message_id"] == int(published["external_id"])
         published_text = str(published["response"]["text"])
+        print("\n=== TELEGRAM PUBLISHED TEXT ===\n" + published_text + "\n=== END TELEGRAM PUBLISHED TEXT ===", flush=True)
         assert published_text.strip()
         assert "Development fixture claim" not in published_text
 
