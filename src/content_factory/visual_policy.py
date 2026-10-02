@@ -53,7 +53,7 @@ class VisualPolicyStore:
     MIN_CANARY_SAMPLES = 20
     MAX_ALLOWED_ERROR_INCREASE = 0.0
     MAX_FALSE_NEGATIVE_RATE_INCREASE = 0.02
-    MAX_COVERAGE_DROP = 0.05
+    MAX_FALSE_POSITIVE_RATE_INCREASE = 0.0
     MIN_ERROR_IMPROVEMENT = 0.01
     HOLDOUT_MODULUS = 5
 
@@ -793,13 +793,13 @@ class VisualPolicyStore:
         fn_ok = candidate["false_negative_rate"] <= (
             baseline["false_negative_rate"] + cls.MAX_FALSE_NEGATIVE_RATE_INCREASE
         )
-        coverage_ok = candidate["coverage"] >= (
-            baseline["coverage"] - cls.MAX_COVERAGE_DROP
+        fp_ok = candidate["false_positive_rate"] <= (
+            baseline["false_positive_rate"] + cls.MAX_FALSE_POSITIVE_RATE_INCREASE
         )
         improved = candidate["error_rate"] <= (
             baseline["error_rate"] - cls.MIN_ERROR_IMPROVEMENT
         )
-        return error_ok and fn_ok and coverage_ok and (improved if require_improvement else True)
+        return error_ok and fn_ok and fp_ok and (improved if require_improvement else True)
 
     @staticmethod
     def _require_both_classes(rows: list[sqlite3.Row], label: str) -> None:
@@ -839,6 +839,7 @@ class VisualPolicyStore:
         total = len(rows)
         positives = tp + fn
         coverage = (tp + fp) / total if total else 0.0
+        negatives = fp + tn
         return {
             "samples": total,
             "true_positive": tp,
@@ -847,6 +848,7 @@ class VisualPolicyStore:
             "false_negative": fn,
             "error_rate": (fp + fn) / total if total else 0.0,
             "false_negative_rate": fn / positives if positives else 0.0,
+            "false_positive_rate": fp / negatives if negatives else 0.0,
             "coverage": coverage,
         }
 
