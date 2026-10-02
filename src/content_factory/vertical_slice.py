@@ -10,6 +10,10 @@ from .knowledge import KnowledgeStore
 from .free_research import FreeWebGeminiAdapter
 from .local_research import LocalResearchAdapter
 from .research import OpenAIWebResearchAdapter, is_safe_source_url, parse_research_json
+from .gemini_adapter import GeminiOpenAICompatibleAdapter
+from .ollama_adapter import OllamaAdapter
+from .local_adapter import LocalTextAdapter
+from .providers import LLMProvider
 
 
 @dataclass(frozen=True)
@@ -92,6 +96,7 @@ class ContentFactoryVerticalSlice:
         research_adapter: OpenAIWebResearchAdapter | None = None,
         knowledge_store: KnowledgeStore | None = None,
         trace_event: Callable[..., None] | None = None,
+        llm_provider: LLMProvider | None = None,
     ) -> None:
         if research_adapter is not None:
             self.research_adapter = research_adapter
@@ -108,6 +113,19 @@ class ContentFactoryVerticalSlice:
                 raise ValueError("FACTORY_PROVIDER must be 'gemini', 'openai', or 'local'")
         self.knowledge_store = knowledge_store
         self.trace_event = trace_event
+        if llm_provider is not None:
+            self.llm_provider = llm_provider
+        else:
+            configured_llm = os.environ.get("FACTORY_LLM_PROVIDER", "").strip().lower()
+            llm_name = configured_llm or os.environ.get("FACTORY_PROVIDER", "").strip().lower() or "local"
+            if llm_name == "gemini":
+                self.llm_provider = GeminiOpenAICompatibleAdapter()
+            elif llm_name == "ollama":
+                self.llm_provider = OllamaAdapter()
+            elif llm_name == "local":
+                self.llm_provider = LocalTextAdapter()
+            else:
+                raise ValueError("FACTORY_LLM_PROVIDER must be 'gemini', 'ollama', or 'local'")
 
     def run(self, *, run_id: str, brief: str, formats: list[str] | None = None) -> VerticalSliceResult:
         if not brief.strip():
@@ -211,18 +229,18 @@ Sources:
 {source_lines}
 """
             if self.trace_event is not None:
-                self.trace_event(stage="PRODUCTION", task=f"produce_{fmt}", tool=type(self.research_adapter).__name__, action="provider_call", result={"status": "started", "format": fmt})
+                self.trace_event(stage="PRODUCTION", task=f"produce_{fmt}", tool=type(self.llm_provider).__name__, action="provider_call", result={"status": "started", "format": fmt})
             try:
-                generated = self.research_adapter.research(production_prompt)
+                generated = self.llm_provider.generate(production_prompt)
             except Exception as exc:
                 if self.trace_event is not None:
-                    self.trace_event(stage="PRODUCTION", task=f"produce_{fmt}", tool=type(self.research_adapter).__name__, action="provider_call", result={"status": "failed", "format": fmt, "error_type": type(exc).__name__}, decision="FAILED")
+                    self.trace_event(stage="PRODUCTION", task=f"produce_{fmt}", tool=type(self.llm_provider).__name__, action="provider_call", result={"status": "failed", "format": fmt, "error_type": type(exc).__name__}, decision="FAILED")
                 raise
             if self.trace_event is not None:
-                self.trace_event(stage="PRODUCTION", task=f"produce_{fmt}", tool=type(self.research_adapter).__name__, action="provider_call", result={"status": "completed", "format": fmt, "http_status": generated.status_code}, decision="ACCEPT" if 200 <= generated.status_code < 300 else "FAIL")
+                self.trace_event(stage="PRODUCTION", task=f"produce_{fmt}", tool=type(self.llm_provider).__name__, action="provider_call", result={"status": "completed", "format": fmt, "http_status": generated.status_code}, decision="ACCEPT" if 200 <= generated.status_code < 300 else "FAIL")
             if generated.status_code < 200 or generated.status_code >= 300:
                 raise ValueError(f"production provider returned HTTP {generated.status_code}")
-            asset = parse_research_json(self.research_adapter.text(generated))
+            asset = parse_research_json(self.llm_provider.response_text(generated))
             asset["id"] = f"{_slug(topic)}-{fmt}-v1"
             asset["format"] = fmt
             package["package"].append(asset)
