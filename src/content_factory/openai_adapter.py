@@ -36,6 +36,15 @@ class OpenAIResponsesAdapter:
             }
         )
 
+    def generate_multimodal(self, content: list[dict[str, Any]]) -> ExternalCallResult:
+        if not content:
+            raise ValueError("multimodal content must not be empty")
+        return self._http.call(
+            {
+                "model": self.config.model,
+                "input": [{"role": "user", "content": content}],
+            }
+        )
     @staticmethod
     def response_text(result: ExternalCallResult) -> str:
         body: Any = result.payload
