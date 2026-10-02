@@ -1,6 +1,9 @@
 name: Content Factory Vertical Slice Proof
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       run_telegram:
@@ -34,7 +37,7 @@ jobs:
           pytest -q tests/test_browser_replay.py -m browser --browser chromium
 
   telegram-proof:
-    if: ${{ inputs.run_telegram }}
+    if: ${{ inputs.run_telegram || github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -51,5 +54,6 @@ jobs:
           RUN_TELEGRAM_E2E: "1"
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: pytest -q tests/test_telegram_e2e.py -m external
