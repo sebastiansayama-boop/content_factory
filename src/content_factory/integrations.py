@@ -23,6 +23,7 @@ class IntegrationConfig:
     secret_env: str | None = None
     secret_header: str = "Authorization"
     secret_prefix: str = "Bearer "
+    timeout: float = 30.0
 
     def validate(self) -> None:
         if not self.endpoint.startswith(("https://", "http://")):
@@ -68,7 +69,7 @@ class HttpJsonAdapter:
             method="POST",
         )
         try:
-            with urlopen(request, timeout=30) as response:
+            with urlopen(request, timeout=self.config.timeout) as response:
                 raw = response.read().decode("utf-8")
                 try:
                     body = json.loads(raw) if raw else {}
