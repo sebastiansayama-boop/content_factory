@@ -74,7 +74,7 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
                 "audience": "general audience",
                 "goal": "verify Gemini content generation and real Telegram publication",
                 "formats": ["social_post"],
-                "constraints": ["short", "plain text"],
+                "constraints": ["short", "plain text", "language: Русский"],
             },
         )
         assert status == 201, created
@@ -142,6 +142,7 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
         published_text = str(published["response"]["text"])
         assert published_text.strip()
         assert "Development fixture claim" not in published_text
+        assert any(ch in published_text for ch in "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"), published_text
 
         status, final = _request(base_url, "GET", f"/api/runs/{run_id}")
         assert status == 200, final
