@@ -12,7 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       OLLAMA_MODEL: qwen2.5:1.5b
       OLLAMA_ENDPOINT: http://127.0.0.1:11434/api/generate
       OLLAMA_TIMEOUT: "180"
@@ -23,8 +22,6 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install --upgrade pip
       - run: pip install -e ".[dev]"
-      - name: Require Gemini credential
-        run: test -n "$GEMINI_API_KEY"
       - name: Install Ollama
         run: curl -fsSL https://ollama.com/install.sh | sh
       - name: Start Ollama
