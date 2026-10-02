@@ -275,6 +275,11 @@ class AssetExecutor:
         return data
 
     @staticmethod
+    def _select_relevant_openverse_candidate(query: str, candidates: list[Any]) -> Any | None:
+        ranked = AssetExecutor._rank_relevant_openverse_candidates(query, candidates)
+        return ranked[0] if ranked else None
+
+    @staticmethod
     def _rank_relevant_openverse_candidates(query: str, candidates: list[Any]) -> list[Any]:
         if not candidates:
             return []
