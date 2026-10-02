@@ -153,20 +153,32 @@ def _refs_or_default(value: Any, name: str, default: set[str] | list[str] | tupl
     return _refs(value, name)
 
 
+def _canonicalize_refs(refs: list[str], allowed: set[str], *, label: str) -> list[str]:
+    """Normalize model-added revision suffixes to the authorized durable IDs."""
+    normalized: list[str] = []
+    unknown: set[str] = set()
+    for ref in refs:
+        if ref in allowed:
+            normalized.append(ref)
+            continue
+        base, separator, revision = ref.rpartition("-r")
+        if separator and revision.isdigit() and base in allowed:
+            normalized.append(base)
+            continue
+        unknown.add(ref)
+    if unknown:
+        raise WorkspaceError(f"unknown knowledge {label} refs: {', '.join(sorted(unknown))}")
+    return list(dict.fromkeys(normalized))
+
+
 def _validate_claim_refs(value: dict[str, Any], allowed: set[str]) -> list[str]:
     refs = _refs(value.get("claim_refs"), "claim_refs")
-    unknown = set(refs) - allowed
-    if unknown:
-        raise WorkspaceError(f"unknown knowledge claim refs: {', '.join(sorted(unknown))}")
-    return refs
+    return _canonicalize_refs(refs, allowed, label="claim")
 
 
 def _validate_evidence_refs(value: dict[str, Any], allowed: set[str]) -> list[str]:
     refs = _refs(value.get("evidence_refs"), "evidence_refs")
-    unknown = set(refs) - allowed
-    if unknown:
-        raise WorkspaceError(f"unknown knowledge evidence refs: {', '.join(sorted(unknown))}")
-    return refs
+    return _canonicalize_refs(refs, allowed, label="evidence")
 
 
 def build_replay_production_package(
