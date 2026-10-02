@@ -95,8 +95,9 @@ def test_injected_fpr_degradation_is_detectable():
         thresholds=thresholds,
     )
     assert result.stable_critical_false_positive_rate < 0.05
-    assert result.critical_detection_rate == 1.0
-    assert result.critical_median_delay_days is not None
+    assert result.warning_detection_rate == 1.0
+    assert result.warning_median_delay_days is not None
+    assert result.critical_detection_rate == 0.0
 
 
 def test_sparse_backtest_keeps_critical_false_alerts_low():
@@ -141,3 +142,36 @@ def test_golden_regression_blocks_promotion():
     assert result["failed"] == 1
     assert result["regressions"] == ["HN-002"]
     assert result["promotion_blocked"] is True
+
+
+def test_strong_degradation_reaches_critical():
+    stable = _historical_rows(days=90)
+    onset = datetime(2026, 3, 15, tzinfo=timezone.utc)
+    degraded = inject_binary_degradation(
+        stable,
+        onset=onset,
+        metric="fpr",
+        delta=0.30,
+        category="vehicles/ships",
+        seed=7,
+    )
+    thresholds = MonitoringThresholds(
+        warning_delta=0.05,
+        critical_delta=0.10,
+        warning_probability=0.95,
+        critical_probability=0.99,
+        monte_carlo_draws=1200,
+        min_effective_samples=20,
+    )
+    result = backtest_threshold_pair(
+        stable_observations=stable,
+        degraded_observations=degraded,
+        onset=onset,
+        category="vehicles/ships",
+        metric="fpr",
+        thresholds=thresholds,
+        window_days=7,
+    )
+    assert result.critical_detection_rate == 1.0
+    assert result.critical_median_delay_days is not None
+    assert result.critical_median_delay_days <= 14
