@@ -1368,9 +1368,13 @@ def main() -> None:
     else:
         ProductHandler.telegram_bot = None
     print(
-        "telegram_gateway_configured="
-        f"{bool(telegram_token and telegram_chat_id and factory_api_token)} "
-        f"webhook_secret_configured={bool(os.environ.get('TELEGRAM_WEBHOOK_SECRET', '').strip())}",
+        "telegram_token_configured="
+        f"{bool(telegram_token)} "
+        f"telegram_chat_configured={bool(telegram_chat_id)} "
+        f"factory_api_token_configured={bool(factory_api_token)} "
+        f"webhook_secret_configured={bool(os.environ.get('TELEGRAM_WEBHOOK_SECRET', '').strip())} "
+        f"gemini_api_key_configured={bool(os.environ.get('GEMINI_API_KEY', '').strip())} "
+        f"openai_api_key_configured={bool(os.environ.get('OPENAI_API_KEY', '').strip())}",
         flush=True,
     )
     try:
