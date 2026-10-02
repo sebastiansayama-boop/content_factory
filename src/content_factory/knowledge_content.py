@@ -257,6 +257,36 @@ def build_replay_production_package(
     }
 
 
+_HIGH_RISK_EPISTEMIC_PATTERNS = (
+    "доказывает, что",
+    "доказывает",
+    "опровергнуто",
+    "опровергает",
+    "строгим закономерностям",
+    "исключительно случайност",
+    "исключительно хаот",
+    "proves that",
+    "proves",
+    "refutes",
+    "strict laws",
+    "entirely random",
+    "purely random",
+    "fundamentally not random",
+)
+
+
+def _validate_epistemic_scope(units: list[ScriptUnit]) -> None:
+    """Reject high-certainty formulations that can silently widen accepted evidence."""
+    for unit in units:
+        text = unit.text.casefold()
+        for pattern in _HIGH_RISK_EPISTEMIC_PATTERNS:
+            if pattern in text:
+                raise WorkspaceError(
+                    "script exceeds accepted epistemic scope: "
+                    f"high-certainty formulation '{pattern}' in {unit.unit_id}"
+                )
+
+
 class KnowledgeContentBuilder:
     """Build the editorial-to-script chain from accepted durable knowledge."""
 
@@ -539,6 +569,7 @@ ACCEPTED KNOWLEDGE:
         )
         if not script.script_id:
             raise WorkspaceError("script requires script_id")
+        _validate_epistemic_scope(list(script.units))
 
         asset_requests = []
         for index, unit in enumerate(script.units, start=1):
