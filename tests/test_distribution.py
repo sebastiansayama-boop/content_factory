@@ -71,3 +71,35 @@ def test_telegram_adapter_can_publish_a_local_photo(monkeypatch, tmp_path):
     assert result["response"]["media"][0]["origin"] == "openverse"
     assert calls and b"fake-jpeg" in calls[0].data
     assert b"sendPhoto" not in calls[0].data
+
+
+def test_telegram_adapter_publishes_multiple_photos_as_one_album(monkeypatch, tmp_path):
+    images = []
+    for index in range(4):
+        path = tmp_path / f"image-{index}.jpg"
+        path.write_bytes(f"fake-jpeg-{index}".encode())
+        images.append({"media_id": f"asset-{index}", "type": "image", "origin": "openverse", "uri": str(path), "license": "cc-by"})
+    calls = []
+
+    class Response:
+        def __enter__(self):
+            return self
+        def __exit__(self, *args):
+            return False
+        def read(self):
+            return b'{"ok":true,"result":[{"message_id":42,"caption":"Caption"},{"message_id":43},{"message_id":44},{"message_id":45}]}'
+
+    def fake_urlopen(request, timeout=30):
+        calls.append(request)
+        return Response()
+
+    monkeypatch.setattr("content_factory.distribution.urllib.request.urlopen", fake_urlopen)
+    adapter = TelegramDistributionAdapter("token", "@example")
+    result = adapter.publish({"text": "Caption", "media": images}, publication_id="pub-album-1")
+
+    assert result["external_id"] == "42"
+    assert result["response"]["media_count"] == 4
+    assert len(calls) == 1
+    assert b'"caption": "Caption"' in calls[0].data
+    assert b"image-0.jpg" in calls[0].data
+    assert b"image-3.jpg" in calls[0].data
