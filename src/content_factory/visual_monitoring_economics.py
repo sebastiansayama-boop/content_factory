@@ -93,7 +93,18 @@ class BreakEvenPoint:
 class EconomicSweepPoint:
     decisions_per_day: float
     costs: Mapping[MonitoringMethod, float]
-    lowest_cost_method: MonitoringMethod
+    lowest_cost_method: MonitoringMethod | None
+
+
+@dataclass(frozen=True)
+class EconomicSurfacePoint:
+    decisions_per_day: float
+    false_alert_cost: float
+    missed_drift_cost: float
+    bad_decision_cost: float
+    latency_sla_days: float | None
+    costs: Mapping[MonitoringMethod, float]
+    lowest_cost_method: MonitoringMethod | None
 
 
 def _cost_at_volume(
@@ -233,7 +244,7 @@ def sweep_economic_cost(
             method: _cost_at_volume(performance, assumptions, volume).total_cost
             for method, performance in performances.items()
         }
-        lowest = min(costs, key=costs.get)
+        lowest = min(costs, key=costs.get) if costs else None
         points.append(
             EconomicSweepPoint(
                 decisions_per_day=volume,
@@ -241,6 +252,78 @@ def sweep_economic_cost(
                 lowest_cost_method=lowest,
             )
         )
+    return points
+
+
+def sweep_economic_surface(
+    performances: Mapping[MonitoringMethod, EconomicPerformance],
+    assumptions: EconomicAssumptions,
+    volumes_per_day: list[float],
+    false_alert_costs: list[float],
+    missed_drift_costs: list[float],
+    bad_decision_costs: list[float],
+    latency_slas_days: list[float | None],
+) -> list[EconomicSurfacePoint]:
+    if not volumes_per_day or not false_alert_costs or not missed_drift_costs:
+        raise ValueError("surface axes must not be empty")
+    if not bad_decision_costs or not latency_slas_days:
+        raise ValueError("surface axes must not be empty")
+    for values in (
+        false_alert_costs,
+        missed_drift_costs,
+        bad_decision_costs,
+    ):
+        if any(value < 0 for value in values):
+            raise ValueError("cost sweep values must be >= 0")
+    if any(
+        value is not None and value < 0
+        for value in latency_slas_days
+    ):
+        raise ValueError("latency SLA values must be >= 0 or None")
+
+    points: list[EconomicSurfacePoint] = []
+    for volume in volumes_per_day:
+        for false_alert_cost in false_alert_costs:
+            for missed_drift_cost in missed_drift_costs:
+                for bad_decision_cost in bad_decision_costs:
+                    for latency_sla_days in latency_slas_days:
+                        candidate_assumptions = EconomicAssumptions(
+                            period_days=assumptions.period_days,
+                            decisions_per_day=volume,
+                            review_hourly_cost=assumptions.review_hourly_cost,
+                            review_minutes_per_alert=assumptions.review_minutes_per_alert,
+                            false_alert_cost=false_alert_cost,
+                            missed_drift_cost=missed_drift_cost,
+                            bad_decision_cost=bad_decision_cost,
+                            affected_traffic_fraction=assumptions.affected_traffic_fraction,
+                            drift_incidents_per_period=assumptions.drift_incidents_per_period,
+                            infrastructure_cost_by_method=assumptions.infrastructure_cost_by_method,
+                        )
+                        costs: dict[MonitoringMethod, float] = {}
+                        for method, performance in performances.items():
+                            if (
+                                latency_sla_days is not None
+                                and performance.median_detection_delay_days is not None
+                                and performance.median_detection_delay_days > latency_sla_days
+                            ):
+                                continue
+                            costs[method] = _cost_at_volume(
+                                performance,
+                                candidate_assumptions,
+                                volume,
+                            ).total_cost
+                        lowest = min(costs, key=costs.get) if costs else None
+                        points.append(
+                            EconomicSurfacePoint(
+                                decisions_per_day=volume,
+                                false_alert_cost=false_alert_cost,
+                                missed_drift_cost=missed_drift_cost,
+                                bad_decision_cost=bad_decision_cost,
+                                latency_sla_days=latency_sla_days,
+                                costs=costs,
+                                lowest_cost_method=lowest,
+                            )
+                        )
     return points
 
 
@@ -260,16 +343,16 @@ def find_cost_frontier(
 def build_performance_from_backtest(
     *,
     method: MonitoringMethod,
-    stable_false_positive_rate: float,
+    stable_false_alerts_per_1k: float,
     detection_rate: float,
     median_delay_days: float | None,
     compute_cost_per_1k: float,
 ) -> EconomicPerformance:
-    if not 0.0 <= stable_false_positive_rate <= 1.0:
-        raise ValueError("stable_false_positive_rate must be within [0, 1]")
+    if stable_false_alerts_per_1k < 0:
+        raise ValueError("stable_false_alerts_per_1k must be >= 0")
     return EconomicPerformance(
         method=method,
-        stable_false_alerts_per_1k=stable_false_positive_rate * 1000.0,
+        stable_false_alerts_per_1k=stable_false_alerts_per_1k,
         detection_rate=detection_rate,
         median_detection_delay_days=median_delay_days,
         compute_cost_per_1k=compute_cost_per_1k,
