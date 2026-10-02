@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
@@ -39,11 +40,7 @@ class OpenverseImageProvider:
         self._opener = opener
         self.timeout = timeout
 
-    def search(self, query: str, limit: int = 8) -> list[OpenverseImage]:
-        query = str(query or "").strip()
-        if not query:
-            raise ValueError("image query must not be empty")
-        limit = max(1, min(int(limit), 20))
+    def _search_once(self, query: str, limit: int) -> list[OpenverseImage]:
         url = self.endpoint + "?" + urllib.parse.urlencode({
             "q": query,
             "page_size": str(limit),
@@ -75,3 +72,22 @@ class OpenverseImageProvider:
                 license=str(item.get("license") or "").strip(),
             ))
         return images
+
+    def search(self, query: str, limit: int = 8) -> list[OpenverseImage]:
+        query = str(query or "").strip()
+        if not query:
+            raise ValueError("image query must not be empty")
+        limit = max(1, min(int(limit), 20))
+        queries = [query]
+        tokens = re.findall(r"[A-Za-z0-9]+", query)
+        if len(tokens) > 2:
+            queries.append(" ".join(tokens[:2]))
+        if tokens:
+            queries.append(tokens[0])
+        seen: set[str] = set()
+        for candidate_query in dict.fromkeys(queries):
+            images = self._search_once(candidate_query, limit)
+            unique = [image for image in images if image.url not in seen]
+            if unique:
+                return unique
+        return []
