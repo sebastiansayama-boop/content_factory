@@ -49,7 +49,7 @@ def test_runtime_change_does_not_pull_provider_or_telegram(model):
 def test_workflow_change_maps_to_its_direct_gate(model):
     plan = plan_for_files(model, [".github/workflows/ollama-live-main.yml"])
     assert plan["fallback_used"] is False
-    assert set(plan["closure"]) == {"T01","T02","T06","T07","T08","T11","T13","T14","T15"}
+    assert set(plan["closure"]) == {"T01","T02","T06","T07","T08","T09","T10","T11","T13","T14","T15"}
 
 
 def test_docs_change_has_no_gates(model):
