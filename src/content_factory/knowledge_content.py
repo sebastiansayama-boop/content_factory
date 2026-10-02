@@ -502,6 +502,8 @@ ACCEPTED KNOWLEDGE:
         units_raw = script_raw.get("units")
         if not isinstance(units_raw, list) or not units_raw:
             raise WorkspaceError("script output must contain units")
+        if len(units_raw) < 4:
+            raise WorkspaceError("script must contain at least 4 ordered units: hook, context, development, conclusion")
         units: list[ScriptUnit] = []
         for raw in units_raw:
             if not isinstance(raw, dict):
