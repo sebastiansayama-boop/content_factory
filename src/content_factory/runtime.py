@@ -90,6 +90,14 @@ class ExecutionResult:
 
 
 @dataclass(frozen=True)
+@dataclass(frozen=True)
+class CapabilityChainResult:
+    work_item_id: str
+    state: str
+    executions: tuple[ExecutionResult, ...]
+    final_payload: Any
+
+
 class VerificationResult:
     output_revision_id: str
     passed: bool
@@ -302,6 +310,80 @@ class FactoryRuntime:
         if capability.capability_id in self.capabilities:
             raise ValueError(f"capability already registered: {capability.capability_id}")
         self.capabilities[capability.capability_id] = capability
+
+    def run_capability_chain(self, work_item: WorkItem, *, initial_payload: Any = None, actor: str = "intelligence") -> CapabilityChainResult:
+        """Execute all required capabilities in order and pass each result to the next."""
+        self._require_known_operation(work_item)
+        state = self.states.get(work_item.work_item_id)
+        if state is None:
+            raise InvalidTransition("work item has not been submitted")
+        if state in {FactoryState.FAILED, FactoryState.CANCELLED, FactoryState.UNKNOWN}:
+            raise InvalidTransition(f"cannot execute capability chain from {state.value}")
+        if state == FactoryState.RECEIVED:
+            self._transition(work_item, FactoryState.ADMITTED, "admit_chain", actor)
+
+        record_type = "capability_chain"
+        persisted = self.runtime_store.load_record(work_item.work_item_id, record_type) if self.runtime_store else None
+        executions: list[ExecutionResult] = []
+        current_payload = initial_payload
+        start_index = 0
+        if persisted:
+            executions = [ExecutionResult(item["execution_id"], item["capability_id"], item["output_revision_id"], item["payload"], tuple(item.get("evidence_refs", []))) for item in persisted.get("executions", [])]
+            if executions:
+                current_payload = executions[-1].payload
+                start_index = len(executions)
+
+        for index, capability_id in enumerate(work_item.required_capabilities[start_index:], start=start_index):
+            capability = self.capabilities.get(capability_id)
+            if capability is None:
+                self._fail(work_item, f"capability not registered: {capability_id}")
+                raise CapabilityNotFound(capability_id)
+            step_item = WorkItem(
+                work_item_id=work_item.work_item_id,
+                revision_id=f"{work_item.revision_id}:step-{index + 1}",
+                objective=work_item.objective,
+                requested_outcome=work_item.requested_outcome,
+                inputs=tuple(work_item.inputs) + (f"capability_input:{json.dumps(current_payload, ensure_ascii=False, sort_keys=True)}",),
+                knowledge_basis=work_item.knowledge_basis,
+                required_capabilities=(capability_id,),
+                owner=work_item.owner,
+                acceptance_criteria=work_item.acceptance_criteria,
+                release_requirements=work_item.release_requirements,
+                constraints=work_item.constraints,
+                dependencies=work_item.dependencies,
+                success_signals=work_item.success_signals,
+                operation_id=work_item.operation_id,
+            )
+            execution_id = str(uuid4())
+            start_event = self._new_event(work_item, FactoryState.ADMITTED, "capability.started", actor, execution_id=execution_id, capability_id=capability_id, step=index + 1)
+            start_event = Event(**{**start_event.__dict__, "revision_id": step_item.revision_id})
+            if self.runtime_store:
+                self.runtime_store.append_event(start_event.__dict__)
+            self.events.append(start_event)
+            try:
+                capability.input_contract(step_item)
+                execution = capability.executor(step_item, execution_id)
+                if execution.execution_id != execution_id:
+                    raise ValueError("capability executor must preserve execution_id")
+                if execution.capability_id != capability_id:
+                    raise ValueError("capability executor must preserve capability_id")
+                self._jsonable(execution.payload)
+                executions.append(execution)
+                current_payload = execution.payload
+                complete_event = self._new_event(work_item, FactoryState.ADMITTED, "capability.completed", actor, execution_id=execution_id, capability_id=capability_id, step=index + 1)
+                complete_event = Event(**{**complete_event.__dict__, "revision_id": execution.output_revision_id})
+                if self.runtime_store:
+                    self.runtime_store.append_event(complete_event.__dict__)
+                    self.runtime_store.save_record(work_item.work_item_id, record_type, {"next_step": index + 1, "executions": [{"execution_id": item.execution_id, "capability_id": item.capability_id, "output_revision_id": item.output_revision_id, "payload": item.payload, "evidence_refs": list(item.evidence_refs)} for item in executions]})
+                self.events.append(complete_event)
+            except Exception as exc:
+                self._fail(work_item, f"capability {capability_id} failed: {exc}")
+                raise
+
+        if self.states[work_item.work_item_id] == FactoryState.ADMITTED:
+            self._transition(work_item, FactoryState.PRODUCED, "capability_chain.completed", actor, execution_id=executions[-1].execution_id if executions else None)
+        self._materialize(work_item)
+        return CapabilityChainResult(work_item.work_item_id, self.states[work_item.work_item_id].value, tuple(executions), current_payload)
 
     def submit(self, work_item: WorkItem, actor: str = "factory") -> None:
         if work_item.work_item_id in self.states:
