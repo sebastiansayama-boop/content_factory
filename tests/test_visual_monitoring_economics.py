@@ -9,6 +9,7 @@ from content_factory.visual_monitoring_economics import (
     compare_economic_costs,
     find_break_even_volume,
     find_cost_frontier,
+    sweep_economic_surface,
 )
 
 
@@ -116,7 +117,7 @@ def test_cost_frontier_changes_with_traffic_in_benchmark_scenario():
 def test_backtest_metrics_convert_to_economic_performance():
     performance = build_performance_from_backtest(
         method="hierarchical_bayesian",
-        stable_false_positive_rate=0.012,
+        stable_false_alerts_per_1k=12.0,
         detection_rate=0.90,
         median_delay_days=2.5,
         compute_cost_per_1k=0.04,
@@ -125,3 +126,54 @@ def test_backtest_metrics_convert_to_economic_performance():
     assert performance.stable_false_alerts_per_1k == pytest.approx(12.0)
     assert performance.detection_rate == 0.90
     assert performance.median_detection_delay_days == 2.5
+
+
+def test_economic_surface_enforces_latency_sla():
+    assumptions = _assumptions()
+    points = sweep_economic_surface(
+        _performances(),
+        assumptions,
+        volumes_per_day=[100],
+        false_alert_costs=[0.50, 5.00],
+        missed_drift_costs=[150.0],
+        bad_decision_costs=[1.0],
+        latency_slas_days=[0.5, 1.0, 2.0],
+    )
+
+    strict = [
+        point for point in points
+        if point.latency_sla_days == 0.5
+    ]
+    one_day = [
+        point for point in points
+        if point.latency_sla_days == 1.0
+    ]
+    two_days = [
+        point for point in points
+        if point.latency_sla_days == 2.0
+    ]
+
+    assert all(point.lowest_cost_method is None for point in strict)
+    assert all(point.lowest_cost_method == "hybrid" for point in one_day)
+    assert all(point.lowest_cost_method == "hierarchical_bayesian" for point in two_days)
+
+
+def test_economic_surface_sweeps_error_cost_axes():
+    assumptions = _assumptions()
+    points = sweep_economic_surface(
+        _performances(),
+        assumptions,
+        volumes_per_day=[50, 100],
+        false_alert_costs=[0.50, 5.00],
+        missed_drift_costs=[150.0, 500.0],
+        bad_decision_costs=[1.0],
+        latency_slas_days=[None],
+    )
+
+    assert len(points) == 2 * 2 * 2 * 1
+    assert {
+        point.false_alert_cost for point in points
+    } == {0.50, 5.00}
+    assert {
+        point.missed_drift_cost for point in points
+    } == {150.0, 500.0}
