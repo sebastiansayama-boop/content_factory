@@ -6,8 +6,8 @@ from pathlib import Path
 import pytest
 
 from content_factory.agent_tool_capability import (
-    AgentToolCapabilitySpec,
     register_agent_tool_capabilities,
+    content_tool_capability_specs,
 )
 from content_factory.agent_tools import AgentToolRegistry, register_content_tools
 from content_factory.artifacts import ArtifactStore
@@ -134,33 +134,7 @@ def test_runtime_executes_real_registered_content_tools_with_real_ollama(tmp_pat
                 registry,
                 run_loader=service.content_runs.get,
                 control=control,
-                specs=(
-                    AgentToolCapabilitySpec(
-                        capability_id="knowledge.search",
-                        tool_name="knowledge.search",
-                        actor="researcher",
-                        build_kwargs=lambda item, current_run: {"run": current_run},
-                    ),
-                    AgentToolCapabilitySpec(
-                        capability_id="content.write",
-                        tool_name="content.write",
-                        actor="writer",
-                        build_kwargs=lambda item, current_run: {
-                            "run": current_run,
-                            "review_feedback": [],
-                            "knowledge": _previous_payload(item),
-                        },
-                    ),
-                    AgentToolCapabilitySpec(
-                        capability_id="content.review",
-                        tool_name="content.review",
-                        actor="reviewer",
-                        build_kwargs=lambda item, current_run: {
-                            "run": current_run,
-                            "result": _previous_payload(item),
-                        },
-                    ),
-                ),
+                specs=content_tool_capability_specs(),
             )
 
             item = WorkItem(
