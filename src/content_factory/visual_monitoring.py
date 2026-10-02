@@ -377,8 +377,16 @@ def backtest_threshold_pair(
         ts for ts, alert in degraded_alerts
         if alert.severity == "CRITICAL"
     ]
-    warning_delays = [(ts - onset).total_seconds() / 86400.0 for ts in warning_hits]
-    critical_delays = [(ts - onset).total_seconds() / 86400.0 for ts in critical_hits]
+    warning_delays = (
+        [(warning_hits[0] - onset).total_seconds() / 86400.0]
+        if warning_hits
+        else []
+    )
+    critical_delays = (
+        [(critical_hits[0] - onset).total_seconds() / 86400.0]
+        if critical_hits
+        else []
+    )
 
     def _p90(values: list[float]) -> float | None:
         if not values:
