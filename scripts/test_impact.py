@@ -168,15 +168,14 @@ def plan_for_files(model: dict[str, Any], files: list[str]) -> dict[str, Any]:
         not _is_no_gate_file(path, policy.get("no_gate_patterns", []))
         for path in normalized
     )
-    if meaningful_change:
-        direct.update(policy.get("always_gates", []))
-
+    baseline_gates = set(policy.get("always_gates", [])) if meaningful_change else set()
     closure = downstream_closure(model, direct)
+    closure.update(baseline_gates)
     return {
         "changed_files": normalized,
         "unknown_files": sorted(unknown),
         "fallback_used": fallback_used,
-        "direct_gates": sorted(direct),
+        "direct_gates": sorted(direct | baseline_gates),
         "closure": sorted(closure),
         "ordered_gates": order_gates(model, closure),
     }

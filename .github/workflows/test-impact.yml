@@ -34,7 +34,5 @@ jobs:
             base=""
           fi
           python scripts/test_impact.py --base "$base" --head "$HEAD_SHA" --format text
-      - name: Install project
-        run: python -m pip install -e ".[dev]"
       - name: Validate impact model
         run: pytest -q tests/test_test_impact.py
