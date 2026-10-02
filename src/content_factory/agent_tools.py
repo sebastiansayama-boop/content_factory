@@ -106,8 +106,6 @@ def register_content_tools(
             formats=list(run.formats),
             constraints=list(run.constraints) + list(review_feedback),
             knowledge_context=knowledge,
-            tone=run.tone,
-            tone_strength=run.tone_strength,
         )
 
     def review_content(*, run: Any, result: dict[str, Any]) -> Any:
