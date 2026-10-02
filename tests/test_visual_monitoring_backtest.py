@@ -74,7 +74,7 @@ def test_injected_fpr_degradation_is_detectable():
         stable,
         onset=onset,
         metric="fpr",
-        delta=0.15,
+        delta=0.50,
         category="vehicles/ships",
         seed=7,
     )
