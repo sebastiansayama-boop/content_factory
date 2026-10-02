@@ -380,8 +380,12 @@ class FactoryRuntime:
                 self._fail(work_item, f"capability {capability_id} failed: {exc}")
                 raise
 
+        if not executions:
+            raise ValueError("capability chain requires at least one execution")
+        self.executions[work_item.work_item_id] = executions[-1]
+        self._save_execution(work_item, executions[-1])
         if self.states[work_item.work_item_id] == FactoryState.ADMITTED:
-            self._transition(work_item, FactoryState.PRODUCED, "capability_chain.completed", actor, execution_id=executions[-1].execution_id if executions else None)
+            self._transition(work_item, FactoryState.PRODUCED, "capability_chain.completed", actor, execution_id=executions[-1].execution_id)
         self._materialize(work_item)
         return CapabilityChainResult(work_item.work_item_id, self.states[work_item.work_item_id].value, tuple(executions), current_payload)
 
