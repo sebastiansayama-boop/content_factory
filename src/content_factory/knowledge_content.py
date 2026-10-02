@@ -146,6 +146,24 @@ def _refs(value: Any, name: str) -> list[str]:
     return list(dict.fromkeys(value))
 
 
+def _structure_steps(value: Any) -> list[str]:
+    """Normalize model structure steps while preserving the strict domain type."""
+    if not isinstance(value, list) or not value:
+        raise WorkspaceError("structure must be a non-empty array of strings")
+    normalized: list[str] = []
+    for item in value:
+        if isinstance(item, str) and item:
+            normalized.append(item)
+            continue
+        if isinstance(item, dict):
+            step = item.get("step")
+            if isinstance(step, str) and step:
+                normalized.append(step)
+                continue
+        raise WorkspaceError("structure must contain strings or objects with a non-empty step")
+    return list(dict.fromkeys(normalized))
+
+
 def _refs_or_default(value: Any, name: str, default: set[str] | list[str] | tuple[str, ...]) -> list[str]:
     """Use already-authorized provenance when the model omitted a required ref field."""
     if value is None or value == []:
@@ -514,7 +532,7 @@ USER CONSTRAINTS:
             {**spec_raw, "evidence_refs": _refs_or_default(spec_raw.get("evidence_refs"), "evidence_refs", brief.evidence_refs)},
             evidence_ids,
         )
-        structure = _refs(spec_raw.get("structure"), "structure")
+        structure = _structure_steps(spec_raw.get("structure"))
         spec = ContentSpec(
             spec_id=str(spec_raw.get("spec_id") or "").strip(),
             title=str(spec_raw.get("title") or "").strip(),
