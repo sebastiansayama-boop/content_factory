@@ -53,6 +53,8 @@ class TelegramDistributionAdapter:
             "text": prepared["text"],
         })
         message = body.get("result") or {}
+        if message.get("message_id") is None and isinstance(message, list) and message:
+            message = message[0]
         message_id = str(message.get("message_id") or "").strip()
         if not message_id:
             raise ValueError("Telegram response has no message_id")
@@ -80,9 +82,15 @@ class TelegramDistributionAdapter:
             return (path.name, path.read_bytes(), mimetypes.guess_type(path.name)[0] or "application/octet-stream")
         if len(media) > 1:
             if len(prepared["text"]) <= 1024:
-                first_body = self._multipart("sendPhoto", {"chat_id": prepared["destination"], "caption": prepared["text"]}, {"photo": photo_file(first_path)})
-                self._send_album(prepared["destination"], media[1:10])
-                message = first_body.get("result") or {}
+                self._send_album(
+                    prepared["destination"],
+                    media[:10],
+                    caption=prepared["text"],
+                )
+                message = {
+                    "message_id": None,
+                    "caption": prepared["text"],
+                }
             else:
                 text_body = self._api_json("sendMessage", {"chat_id": prepared["destination"], "text": prepared["text"]})
                 self._send_album(prepared["destination"], media[:10])
@@ -122,7 +130,7 @@ class TelegramDistributionAdapter:
             },
         }
 
-    def _send_album(self, destination: str, media: list[dict[str, Any]]) -> None:
+    def _send_album(self, destination: str, media: list[dict[str, Any]], *, caption: str | None = None) -> dict[str, Any]:
         files: dict[str, tuple[str, bytes, str]] = {}
         items = []
         for index, item in enumerate(media[:10]):
@@ -131,8 +139,11 @@ class TelegramDistributionAdapter:
                 raise ValueError(f"Telegram media file not found: {path}")
             field = f"photo{index}"
             files[field] = (path.name, path.read_bytes(), mimetypes.guess_type(path.name)[0] or "application/octet-stream")
-            items.append({"type": "photo", "media": f"attach://{field}"})
-        self._multipart("sendMediaGroup", {
+            item_payload = {"type": "photo", "media": f"attach://{field}"}
+            if index == 0 and caption:
+                item_payload["caption"] = caption
+            items.append(item_payload)
+        return self._multipart("sendMediaGroup", {
             "chat_id": destination,
             "media": json.dumps(items, ensure_ascii=False),
         }, files)
