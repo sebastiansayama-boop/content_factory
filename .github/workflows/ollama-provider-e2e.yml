@@ -1,0 +1,46 @@
+name: Ollama provider E2E
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/ollama-boundary-v1
+
+jobs:
+  ollama-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Ollama
+        run: curl -fsSL https://ollama.com/install.sh | sh
+      - name: Start Ollama
+        run: |
+          nohup ollama serve >/tmp/ollama.log 2>&1 &
+          for i in {1..30}; do
+            curl -fsS http://127.0.0.1:11434/api/tags && break
+            sleep 2
+          done
+      - name: Pull small local model
+        run: ollama pull llama3.2:1b
+      - name: Install test dependencies
+        run: python -m pip install -U pip pytest
+      - name: Contract tests
+        run: pytest -q tests/test_ollama_adapter.py tests/test_provider_boundaries.py
+      - name: Live topic to text
+        env:
+          OLLAMA_MODEL: llama3.2:1b
+          OLLAMA_ENDPOINT: http://127.0.0.1:11434/api/generate
+        run: |
+          python - <<'PY'
+          from content_factory.ollama_adapter import OllamaAdapter
+          result = OllamaAdapter().generate(
+              "Write one concise Russian sentence explaining why scientific claims should preserve evidence scope. Return JSON with a single key text."
+          )
+          text = OllamaAdapter.response_text(result)
+          assert text.strip()
+          print(text)
+          PY
