@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import mimetypes
 import json
 import os
 import re
@@ -15,6 +16,7 @@ from typing import Any
 
 from .asset_jobs import AssetJob, AssetJobStore
 from .openverse_adapter import OpenverseImageProvider
+from .visual_relevance import GeminiVisualRelevanceVerifier
 
 
 class AssetExecutionError(RuntimeError):
@@ -171,41 +173,57 @@ class AssetExecutor:
         if not query:
             raise AssetExecutionError("Openverse visual job requires visual_intent")
         provider = OpenverseImageProvider()
-        candidates = provider.search(query, limit=12)
-        candidate = self._select_relevant_openverse_candidate(query, candidates)
-        if candidate is None:
+        candidates = provider.search(query, limit=20)
+        ranked = self._rank_relevant_openverse_candidates(query, candidates)
+        if not ranked:
             raise AssetExecutionError(
-                f"Openverse returned no sufficiently relevant image candidates for: {query}"
+                f"Openverse returned no metadata-relevant candidates for: {query}"
             )
+
+        verify_limit = max(2, min(int(os.environ.get("FACTORY_VISUAL_VERIFY_CANDIDATES", "6")), 8))
+        verification_candidates = ranked[:verify_limit]
+        preview_parts: list[tuple[str, bytes, str]] = []
+        preview_errors: list[str] = []
+        for candidate in verification_candidates:
+            if not candidate.preview_url:
+                preview_errors.append(f"{candidate.id}: missing preview")
+                continue
+            try:
+                image_bytes = self._download_openverse_bytes(candidate.preview_url, max_bytes=2 * 1024 * 1024)
+                mime_type = mimetypes.guess_type(candidate.preview_url)[0] or "image/jpeg"
+                preview_parts.append((candidate.id, image_bytes, mime_type))
+            except Exception as exc:
+                preview_errors.append(f"{candidate.id}: {type(exc).__name__}")
+
+        if not preview_parts:
+            raise AssetExecutionError(
+                f"Openverse candidates could not be prepared for visual verification: {', '.join(preview_errors)}"
+            )
+
+        verifier = GeminiVisualRelevanceVerifier()
+        verifications = verifier.verify_candidates(query, verification_candidates, preview_parts)
+        accepted = [item for item in verifications if item.accepted]
+        if not accepted:
+            reasons = [f"{item.candidate_id}: {item.reason or item.decision}" for item in verifications]
+            raise AssetExecutionError(
+                f"visual relevance verification rejected all Openverse candidates for: {query}; "
+                f"details={'; '.join(reasons[:8])}"
+            )
+        best_verification = max(accepted, key=lambda item: item.score)
+        candidate = next(item for item in verification_candidates if item.id == best_verification.candidate_id)
+
         directory = self.root / "asset_jobs" / job.run_id
         directory.mkdir(parents=True, exist_ok=True)
         path = directory / f"{job.asset_request_id}.jpg"
-        download_urls = [candidate.url]
-        if candidate.preview_url and candidate.preview_url != candidate.url:
-            download_urls.append(candidate.preview_url)
-        image_data = b""
-        last_error: Exception | None = None
-        for download_url in download_urls:
-            try:
-                with urllib.request.urlopen(
-                    urllib.request.Request(
-                        download_url,
-                        headers={"User-Agent": "content-factory/1.0"},
-                        method="GET",
-                    ),
-                    timeout=30,
-                ) as response:
-                    image_data = response.read()
-                if image_data:
-                    break
-            except Exception as exc:
-                last_error = exc
-        if not image_data:
-            raise AssetExecutionError(f"Openverse image download failed: {last_error}") from last_error
+        try:
+            image_data = self._download_openverse_bytes(candidate.url, max_bytes=10 * 1024 * 1024)
+        except Exception as exc:
+            if candidate.preview_url and candidate.preview_url != candidate.url:
+                image_data = self._download_openverse_bytes(candidate.preview_url, max_bytes=10 * 1024 * 1024)
+            else:
+                raise AssetExecutionError(f"Openverse image download failed: {exc}") from exc
         if not image_data:
             raise AssetExecutionError("Openverse returned an empty image")
-        if len(image_data) > 10 * 1024 * 1024:
-            raise AssetExecutionError("Openverse image exceeds Telegram 10 MB photo limit")
         path.write_bytes(image_data)
         digest_full = hashlib.sha256(image_data).hexdigest()
         return AssetExecution(
@@ -227,35 +245,50 @@ class AssetExecutor:
                     "source_url": candidate.foreign_landing_url,
                     "license_url": candidate.license_url,
                     "content_sha256": digest_full,
+                    "visual_verification": {
+                        "candidate_id": best_verification.candidate_id,
+                        "decision": best_verification.decision,
+                        "score": best_verification.score,
+                        "subject_present": best_verification.subject_present,
+                        "scene_present": best_verification.scene_present,
+                        "forbidden_present": best_verification.forbidden_present,
+                        "image_type_match": best_verification.image_type_match,
+                        "reason": best_verification.reason,
+                    },
                 },
             },
         )
 
     @staticmethod
-    def _select_relevant_openverse_candidate(query: str, candidates: list[Any]) -> Any | None:
-        """Select an image whose metadata is lexically grounded in the visual intent.
+    def _download_openverse_bytes(url: str, *, max_bytes: int) -> bytes:
+        if not url.strip():
+            raise AssetExecutionError("Openverse download URL must not be empty")
+        request = urllib.request.Request(
+            url,
+            headers={"User-Agent": "content-factory/1.0"},
+            method="GET",
+        )
+        with urllib.request.urlopen(request, timeout=30) as response:
+            data = response.read(max_bytes + 1)
+        if len(data) > max_bytes:
+            raise AssetExecutionError(f"Openverse image exceeds {max_bytes} byte limit")
+        return data
 
-        Openverse ranks results globally, so the first result is not a sufficient
-        relevance guarantee. Keep this gate deterministic: score candidate title
-        and landing URL against meaningful query tokens, require at least one
-        meaningful match, and prefer candidates matching the query phrase.
-        """
+    @staticmethod
+    def _rank_relevant_openverse_candidates(query: str, candidates: list[Any]) -> list[Any]:
         if not candidates:
-            return None
-
+            return []
         stopwords = {
-            "a", "an", "and", "at", "for", "from", "in", "of", "on", "or",
-            "the", "to", "with", "near", "over", "under", "into", "image",
-            "photo", "picture", "photograph", "wildlife", "scene",
+            "a", "an", "and", "at", "for", "from", "in", "of", "on", "or", "the",
+            "to", "with", "near", "over", "under", "into", "image", "photo",
+            "picture", "photograph", "wildlife", "scene",
         }
         tokens = [
             token for token in re.findall(r"[a-z0-9]+", query.lower())
             if len(token) >= 3 and token not in stopwords
         ]
         if not tokens:
-            return None
-
-        query_phrase = " ".join(tokens)
+            return []
         ranked: list[tuple[int, int, Any]] = []
         for candidate in candidates:
             title = str(getattr(candidate, "title", "") or "").lower()
@@ -263,15 +296,12 @@ class AssetExecutor:
             searchable = re.sub(r"[^a-z0-9]+", " ", f"{title} {landing}").strip()
             searchable_tokens = set(searchable.split())
             overlap = sum(1 for token in tokens if token in searchable_tokens)
-            phrase_bonus = 6 if query_phrase and query_phrase in searchable else 0
+            phrase_bonus = 6 if " ".join(tokens) in searchable else 0
             score = overlap * 3 + phrase_bonus
-            ranked.append((score, overlap, candidate))
-
+            if overlap:
+                ranked.append((score, overlap, candidate))
         ranked.sort(key=lambda item: (item[0], item[1]), reverse=True)
-        score, overlap, candidate = ranked[0]
-        if overlap < 1:
-            return None
-        return candidate
+        return [candidate for _, _, candidate in ranked]
 
     def _execute_higgsfield_image(self, job: AssetJob) -> AssetExecution:
         key = os.environ.get("HF_KEY", "").strip()
