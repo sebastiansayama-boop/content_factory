@@ -1,9 +1,6 @@
 name: Content Factory Vertical Slice Proof
 
 on:
-  push:
-    branches:
-      - experiment/editorial-story-development-v1
   workflow_dispatch:
     inputs:
       run_telegram:
