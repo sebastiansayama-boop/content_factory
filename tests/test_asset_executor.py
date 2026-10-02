@@ -228,7 +228,7 @@ def test_openverse_pipeline_uses_visual_gate_to_reject_nile_cruise(tmp_path, mon
                 VisualVerification("crocodile", "ACCEPT", 0.96, True, True, False, True, "crocodile visible"),
             ]
 
-    monkeypatch.setattr("content_factory.asset_executor.GeminiVisualRelevanceVerifier", FakeVerifier)
+    monkeypatch.setattr("content_factory.asset_executor.OpenAIVisualRelevanceVerifier", FakeVerifier)
 
     jobs = AssetJobStore(tmp_path / "jobs.sqlite3")
     jobs.create_from_plan(
