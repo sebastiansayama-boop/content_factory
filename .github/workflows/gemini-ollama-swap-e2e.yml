@@ -1,0 +1,66 @@
+name: Gemini Ollama interchangeable E2E
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  interchangeable-llm-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      OLLAMA_MODEL: llama3.2:1b
+      OLLAMA_ENDPOINT: http://127.0.0.1:11434/api/generate
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install project
+        run: python -m pip install -e ".[dev]"
+      - name: Require Gemini credential
+        run: test -n "$GEMINI_API_KEY"
+      - name: Install Ollama
+        run: curl -fsSL https://ollama.com/install.sh | sh
+      - name: Start Ollama
+        run: |
+          nohup ollama serve >/tmp/ollama.log 2>&1 &
+          for i in {1..30}; do
+            curl -fsS http://127.0.0.1:11434/api/tags && break
+            sleep 2
+          done
+      - name: Pull local model
+        run: ollama pull llama3.2:1b
+      - name: Run same prompt through both providers
+        run: |
+          python - <<'PY'
+          import json
+          from content_factory.gemini_adapter import GeminiOpenAICompatibleAdapter
+          from content_factory.ollama_adapter import OllamaAdapter
+          from content_factory.providers import LLMProvider
+
+          prompt = """Return ONLY JSON with a single key text.
+          Write one concise Russian sentence explaining why a generated factual claim
+          must not be broader or stronger than its evidence."""
+
+          providers = [
+              ("gemini", GeminiOpenAICompatibleAdapter()),
+              ("ollama", OllamaAdapter()),
+          ]
+
+          outputs = {}
+          for name, provider in providers:
+              assert isinstance(provider, LLMProvider)
+              result = provider.generate(prompt)
+              assert 200 <= result.status_code < 300, (name, result.status_code, result.error)
+              text = provider.response_text(result)
+              payload = json.loads(text)
+              assert isinstance(payload.get("text"), str) and payload["text"].strip()
+              outputs[name] = payload["text"].strip()
+
+          print(json.dumps(outputs, ensure_ascii=False, indent=2))
+          assert set(outputs) == {"gemini", "ollama"}
+          assert outputs["gemini"] != outputs["ollama"] or outputs["gemini"]
+          PY
