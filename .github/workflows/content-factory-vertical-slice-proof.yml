@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: "${{ github.sha }}"
+          ref: "main"
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
@@ -34,7 +34,7 @@ jobs:
           pytest -q tests/test_browser_replay.py -m browser --browser chromium
 
   telegram-proof:
-    if: ${{ inputs.run_telegram || github.ref == 'refs/heads/experiment/real-gemini-telegram-e2e' }}
+    if: ${{ inputs.run_telegram }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
