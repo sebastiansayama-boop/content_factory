@@ -7,6 +7,7 @@
     "no_gate_patterns": ["docs/**", "README.md", "README*", "LICENSE*"]
   },
   "gates": {
+    "T00": {"risk":"R1","depends_on":["T02"],"kind":"impact_model","command":"pytest -q tests/test_test_impact.py"},
     "T01": {"risk":"R0","depends_on":[],"kind":"unit_integration","command":"pytest -q -m \"not browser\""},
     "T02": {"risk":"R0","depends_on":["T01"],"kind":"ci","command":"GitHub Actions: CI"},
     "T03": {"risk":"R0","depends_on":["T02"],"kind":"llm_contract","command":"pytest -q tests/test_knowledge_content.py"},
