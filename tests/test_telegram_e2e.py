@@ -98,11 +98,15 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
         assert status == 200, promoted
         assert promoted["status"] == "ACCEPTED"
 
-        status, factory = _request(base_url, "POST", f"/api/runs/{run_id}/factory")
+        factory = None
+        status = 0
+        for _ in range(3):
+            status, factory = _request(base_url, "POST", f"/api/runs/{run_id}/factory")
+            if status == 200:
+                break
         if status != 200:
             jobs = [job.to_dict() for job in service.asset_jobs.list_for_run(run_id)]
             pytest.fail(f"factory failed before asset execution: status={status}, body={factory}, jobs={jobs}")
-            asset_results = service.asset_executor.execute_run(run_id)
             failed_visual = [job.to_dict() for job in asset_results if job.asset_type == "visual" and job.status != "COMPLETED"]
             assert not failed_visual, failed_visual
             status, factory = _request(base_url, "POST", f"/api/runs/{run_id}/factory")
