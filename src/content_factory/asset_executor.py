@@ -38,9 +38,16 @@ class AssetExecutor:
     exercised without paid external calls. External providers are opt-in.
     """
 
-    def __init__(self, jobs: AssetJobStore, root: str | Path) -> None:
+    def __init__(
+        self,
+        jobs: AssetJobStore,
+        root: str | Path,
+        *,
+        policy_store: VisualPolicyStore | None = None,
+    ) -> None:
         self.jobs = jobs
         self.root = Path(root)
+        self.policy_store = policy_store
 
     def execute_run(self, run_id: str) -> list[AssetJob]:
         jobs = self.jobs.list_for_run(run_id)
@@ -202,16 +209,44 @@ class AssetExecutor:
             )
 
         verifier = OpenAIVisualRelevanceVerifier()
-        verifications = verifier.verify_candidates(query, verification_candidates, preview_parts)
-        accepted = [item for item in verifications if item.accepted]
-        if not accepted:
-            reasons = [f"{item.candidate_id}: {item.reason or item.decision}" for item in verifications]
-            raise AssetExecutionError(
-                f"visual relevance verification rejected all Openverse candidates for: {query}; "
-                f"details={'; '.join(reasons[:8])}"
+        policy_store = self.policy_store
+        owns_policy_store = policy_store is None
+        if policy_store is None:
+            policy_store = VisualPolicyStore(self.root / "visual_policy.sqlite3")
+        try:
+            policy = policy_store.policy_for_run(job.run_id)
+            verifications = verifier.verify_candidates(
+                query, verification_candidates, preview_parts
             )
-        best_verification = max(accepted, key=lambda item: item.score)
-        candidate = next(item for item in verification_candidates if item.id == best_verification.candidate_id)
+            decision_ids = {
+                item.candidate_id: policy_store.record_decision(
+                    run_id=job.run_id,
+                    job_id=job.job_id,
+                    query=query,
+                    verification=item,
+                    policy_version=policy.version,
+                )
+                for item in verifications
+            }
+            accepted = [item for item in verifications if policy.accepts(item)]
+            if not accepted:
+                reasons = [
+                    f"{item.candidate_id}: {item.reason or item.decision}"
+                    for item in verifications
+                ]
+                raise AssetExecutionError(
+                    f"visual relevance verification rejected all Openverse candidates for: {query}; "
+                    f"policy={policy.version} threshold={policy.score_threshold}; "
+                    f"details={'; '.join(reasons[:8])}"
+                )
+            best_verification = max(accepted, key=lambda item: item.score)
+            candidate = next(
+                item for item in verification_candidates
+                if item.id == best_verification.candidate_id
+            )
+        finally:
+            if owns_policy_store:
+                policy_store.close()
 
         directory = self.root / "asset_jobs" / job.run_id
         directory.mkdir(parents=True, exist_ok=True)
@@ -255,6 +290,8 @@ class AssetExecutor:
                         "forbidden_present": best_verification.forbidden_present,
                         "image_type_match": best_verification.image_type_match,
                         "reason": best_verification.reason,
+                        "policy_version": policy.version,
+                        "decision_id": decision_ids[best_verification.candidate_id],
                     },
                 },
             },
