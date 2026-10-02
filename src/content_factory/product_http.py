@@ -644,6 +644,8 @@ class ProductHandler(Handler):
                     self._record_trace(run_id, stage="RESEARCH", task="load_knowledge_context", tool="KnowledgeStore", action="search", result={"status": "completed"}, decision="CONTEXT_LOADED")
                     prior = self.service.knowledge.search(run.brief)
                     if not prior["claims"]:
+                        prior = self.service.knowledge.accepted_for_run(run_id)
+                    if not prior["claims"]:
                         if run.status in {"DRAFT", "FAILED", "PLANNING"}:
                             self.content_runs.start_execution(run_id)
                         research_result = ContentFactoryVerticalSlice(
