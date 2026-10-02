@@ -558,6 +558,41 @@ class KnowledgeStore:
         ]
         return {"claims": claims, "sources": sources, "evidence": evidence, "editorial_angles": angles}
 
+    def candidates_for_run(self, run_id: str, *, limit: int = 8) -> list[dict[str, Any]]:
+        """Return candidate claims captured by this research run, without lexical reranking."""
+        if not run_id.strip():
+            return []
+        rows = self._connection.execute(
+            """SELECT c.claim_id,c.text,c.confidence,c.revision_id,c.scope,c.status
+               FROM knowledge_claims c
+               JOIN knowledge_claim_runs cr ON cr.claim_id=c.claim_id
+               WHERE cr.run_id=? AND c.status=?
+               ORDER BY c.claim_id
+               LIMIT ?""",
+            (run_id, self.CANDIDATE, max(0, limit)),
+        ).fetchall()
+        claims: list[dict[str, Any]] = []
+        for row in rows:
+            source_rows = self._connection.execute(
+                "SELECT source_id FROM knowledge_claim_sources WHERE claim_id=? ORDER BY source_id",
+                (row["claim_id"],),
+            ).fetchall()
+            evidence_rows = self._connection.execute(
+                "SELECT evidence_id FROM knowledge_claim_evidence WHERE claim_id=? ORDER BY evidence_id",
+                (row["claim_id"],),
+            ).fetchall()
+            claims.append({
+                "claim_id": row["claim_id"],
+                "text": row["text"],
+                "confidence": row["confidence"],
+                "revision_id": row["revision_id"],
+                "scope": row["scope"],
+                "status": row["status"],
+                "source_ids": [str(item["source_id"]) for item in source_rows],
+                "evidence_ids": [str(item["evidence_id"]) for item in evidence_rows],
+            })
+        return claims
+
     def counts(self) -> dict[str, int]:
         return {
             "sources": self._connection.execute("SELECT COUNT(*) FROM knowledge_sources").fetchone()[0],
