@@ -15,7 +15,7 @@ class EconomicAssumptions:
     false_alert_cost: float
     missed_drift_cost: float
     bad_decision_cost: float
-    affected_decisions_per_day: float
+    affected_traffic_fraction: float
     drift_incidents_per_period: float
     infrastructure_cost_by_method: Mapping[str, float]
 
@@ -28,11 +28,12 @@ class EconomicAssumptions:
             "false_alert_cost",
             "missed_drift_cost",
             "bad_decision_cost",
-            "affected_decisions_per_day",
             "drift_incidents_per_period",
         ):
             if getattr(self, name) < 0:
                 raise ValueError(f"{name} must be >= 0")
+        if not 0.0 <= self.affected_traffic_fraction <= 1.0:
+            raise ValueError("affected_traffic_fraction must be within [0, 1]")
         if not self.infrastructure_cost_by_method:
             raise ValueError("infrastructure_cost_by_method must not be empty")
 
@@ -104,28 +105,31 @@ def _cost_at_volume(
         raise ValueError("decisions_per_day must be >= 0")
 
     volume = decisions_per_day * assumptions.period_days
-    alerts = volume / 1000.0 * performance.stable_false_alerts_per_1k
+    false_alerts = volume / 1000.0 * performance.stable_false_alerts_per_1k
     detected_incidents = (
         assumptions.drift_incidents_per_period * performance.detection_rate
     )
     missed_incidents = (
         assumptions.drift_incidents_per_period * (1.0 - performance.detection_rate)
     )
-    review_alerts = alerts + detected_incidents
+    review_alerts = false_alerts + detected_incidents
     review_cost = (
         review_alerts
         * assumptions.review_minutes_per_alert
         / 60.0
         * assumptions.review_hourly_cost
     )
-    false_alert_cost = alerts * assumptions.false_alert_cost
+    false_alert_cost = false_alerts * assumptions.false_alert_cost
     missed_drift_cost = missed_incidents * assumptions.missed_drift_cost
 
     delay_days = performance.median_detection_delay_days or 0.0
+    affected_decisions_per_day = (
+        decisions_per_day * assumptions.affected_traffic_fraction
+    )
     detection_delay_cost = (
         detected_incidents
         * delay_days
-        * assumptions.affected_decisions_per_day
+        * affected_decisions_per_day
         * assumptions.bad_decision_cost
     )
 
@@ -172,13 +176,13 @@ def compare_economic_costs(
     performances: Mapping[MonitoringMethod, EconomicPerformance],
     assumptions: EconomicAssumptions,
 ) -> dict[MonitoringMethod, EconomicCost]:
-    missing = set(performances) - {
+    unsupported = set(performances) - {
         "simple_threshold",
         "hierarchical_bayesian",
         "hybrid",
     }
-    if missing:
-        raise ValueError(f"unsupported methods: {sorted(missing)}")
+    if unsupported:
+        raise ValueError(f"unsupported methods: {sorted(unsupported)}")
     return {
         method: evaluate_economic_cost(performance, assumptions)
         for method, performance in performances.items()
@@ -226,11 +230,7 @@ def sweep_economic_cost(
     points: list[EconomicSweepPoint] = []
     for volume in volumes_per_day:
         costs = {
-            method: _cost_at_volume(
-                performance,
-                assumptions,
-                volume,
-            ).total_cost
+            method: _cost_at_volume(performance, assumptions, volume).total_cost
             for method, performance in performances.items()
         }
         lowest = min(costs, key=costs.get)
