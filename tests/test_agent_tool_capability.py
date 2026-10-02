@@ -80,7 +80,7 @@ def test_runtime_executes_existing_registered_agent_tool(tmp_path):
         "matches": ["accepted-knowledge-1"],
     }
     events = control.timeline(run.run_id)
-    assert [event["operation"] for event in events] == [
+    assert [event.event_type for event in events] == [
         "agent.tool.started",
         "agent.tool.completed",
     ]
