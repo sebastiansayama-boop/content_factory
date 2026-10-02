@@ -60,7 +60,7 @@ USER BRIEF: {topic}"""
             prompt = f"""Create one article for the researched topic below.
 Return ONLY JSON:
 {{"content":"complete usable article","title":"string","claim_refs":["claim-id"],"source_refs":["source-id"]}}
-Use only supplied claims. Do not introduce factual claims outside them.
+Use only supplied claims. Do not introduce factual claims outside them. Copy claim_refs EXACTLY from the supplied claim ids and source_refs EXACTLY from the supplied source ids. Never output placeholder values such as "claim-id" or "source-id".
 Topic: {research_payload.get("topic", topic)}
 Summary: {research_payload.get("summary", "")}
 Claims: {json.dumps(research_payload["claims"], ensure_ascii=False)}
