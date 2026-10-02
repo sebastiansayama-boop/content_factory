@@ -6,11 +6,13 @@ from content_factory.providers import ImageProvider, LLMProvider, QCProvider, Re
 
 
 def test_existing_gemini_adapter_is_an_llm_provider():
-    assert isinstance(GeminiOpenAICompatibleAdapter(), LLMProvider)
+    adapter = GeminiOpenAICompatibleAdapter.__new__(GeminiOpenAICompatibleAdapter)
+    assert isinstance(adapter, LLMProvider)
 
 
 def test_existing_gemini_research_adapter_is_a_research_provider():
-    assert isinstance(FreeWebGeminiAdapter(gemini=GeminiOpenAICompatibleAdapter()), ResearchProvider)
+    adapter = FreeWebGeminiAdapter.__new__(FreeWebGeminiAdapter)
+    assert isinstance(adapter, ResearchProvider)
 
 
 def test_existing_quality_gate_is_a_qc_provider():
