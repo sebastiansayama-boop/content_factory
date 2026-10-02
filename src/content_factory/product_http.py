@@ -18,6 +18,7 @@ from .runtime import FactoryRuntime, WorkItem
 from .workspace import ContentWorkspace
 from .vertical_slice import ContentFactoryVerticalSlice
 from .distribution import TelegramDistributionAdapter, FakeTelegramDistributionAdapter
+from .content_package import apply_package_edit, build_content_package
 from .integrations import IntegrationError
 
 
@@ -162,6 +163,20 @@ class ProductHandler(Handler):
                 self.wfile.write(raw)
                 return
 
+            if raw_run_path.endswith("/package"):
+                run_id = raw_run_path.removesuffix("/package").strip("/")
+                run = self.content_runs.get(run_id)
+                if run is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                result = run.result or {}
+                package = result.get("package") if isinstance(result.get("package"), dict) else None
+                if package is None:
+                    platform = str((run.formats[0] if run.formats else "telegram")).strip().lower()
+                    package = build_content_package(run_id=run_id, result=result, platform=platform)
+                self._json(200, {"run_id": run_id, "package": package})
+                return
+
             run_id = raw_run_path
             if run_id.endswith("/plan"):
                 run_id = run_id.removesuffix("/plan").strip("/")
@@ -262,12 +277,13 @@ class ProductHandler(Handler):
         is_run_factory = self.path.startswith("/api/runs/") and self.path.endswith("/factory")
         is_run_regenerate = self.path.startswith("/api/runs/") and self.path.endswith("/regenerate")
         is_run_publish = self.path.startswith("/api/runs/") and self.path.endswith("/publish")
+        is_run_package_edit = self.path.startswith("/api/runs/") and self.path.endswith("/package")
         is_run_observe = self.path.startswith("/api/runs/") and self.path.endswith("/observe")
         is_run_learn = self.path.startswith("/api/runs/") and self.path.endswith("/learn")
         is_learning_promote = self.path.startswith("/api/learning/") and self.path.endswith("/promote")
         is_run_replay = self.path.startswith("/api/runs/") and self.path.endswith("/replay")
         is_knowledge_promote = self.path.startswith("/api/knowledge/") and self.path.endswith("/promote")
-        if self.path not in {"/api/analyze", "/api/produce", "/api/regenerate", "/api/runs"} and not is_run_plan and not is_run_execute and not is_knowledge_promote and not is_run_build and not is_run_produce and not is_run_produce_execute and not is_run_produce_poll and not is_run_assemble and not is_run_qc and not is_run_approve and not is_run_export and not is_run_factory and not is_run_regenerate and not is_run_publish and not is_run_observe and not is_run_learn and not is_learning_promote and not is_run_replay:
+        if self.path not in {"/api/analyze", "/api/produce", "/api/regenerate", "/api/runs"} and not is_run_plan and not is_run_execute and not is_knowledge_promote and not is_run_build and not is_run_produce and not is_run_produce_execute and not is_run_produce_poll and not is_run_assemble and not is_run_qc and not is_run_approve and not is_run_export and not is_run_factory and not is_run_regenerate and not is_run_publish and not is_run_package_edit and not is_run_observe and not is_run_learn and not is_learning_promote and not is_run_replay:
             super().do_POST()
             return
 
@@ -486,6 +502,25 @@ class ProductHandler(Handler):
                         "changed_claim_ids": list(dict.fromkeys(changed)),
                     },
                 })
+                return
+
+            if is_run_package_edit:
+                run_id = self.path.removeprefix("/api/runs/").removesuffix("/package").strip("/")
+                run = self.content_runs.get(run_id)
+                if run is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                if run.status not in {"REVIEW", "APPROVED"}:
+                    raise ValueError("only REVIEW or APPROVED runs can edit the content package")
+                payload = self._body()
+                current = (run.result or {}).get("package")
+                if not isinstance(current, dict):
+                    platform = str(payload.get("platform") or (run.formats[0] if run.formats else "telegram")).strip().lower()
+                    current = build_content_package(run_id=run_id, result=run.result or {}, platform=platform)
+                updated_result, package = apply_package_edit(result=run.result or {}, package=current, patch=payload)
+                updated = self.content_runs.save_result_preserving_status(run_id, updated_result)
+                self._record_trace(run_id, stage="REVIEW", task="edit_content_package", tool="ContentPackage", action="edit", result={"status": "needs_recheck", "revision_id": package["revision"]["revision_id"]}, decision="RECHECK")
+                self._json(200, {"run": updated.to_dict(), "package": package, "next": "rerun QC before approval"})
                 return
 
             if is_run_publish:
@@ -826,6 +861,13 @@ class ProductHandler(Handler):
                         decision="ACCEPT" if qc["passed"] else "REJECT",
                     )
                     final = {**(run.result or {}), "production": {**(run.result.get("production") or {}), "status": "READY_FOR_REVIEW" if qc["passed"] else "QC_FAILED", "qc": qc}}
+                    final["package"] = build_content_package(
+                        run_id=run_id,
+                        result=final,
+                        platform=str(run.formats[0] if run.formats else "telegram").strip().lower(),
+                    )
+                    final["package_revision_id"] = "r1"
+                    final["package_edited"] = False
                     run = self.content_runs.save_result(run_id, final) if qc["passed"] else self.content_runs.save_production_result(run_id, final)
                     self.service.control.record(run_id, "qc.completed", status="COMPLETED" if qc["passed"] else "FAILED", output_refs=(qc["qc_id"],), evidence=qc)
                     self._json(200, {"run": run.to_dict(), "qc": qc, "events": [e.to_dict() for e in self.service.control.timeline(run_id)]})
@@ -891,6 +933,9 @@ class ProductHandler(Handler):
                     self._json(404, {"error": "content run not found"})
                     return
                 result = run.result or {}
+                package = result.get("package")
+                if isinstance(package, dict) and isinstance(package.get("qc"), dict) and package["qc"].get("status") == "NEEDS_RECHECK":
+                    raise ValueError("edited content package requires QC recheck before approval")
                 production = result.get("production")
                 qc = production.get("qc") if isinstance(production, dict) else None
                 if not isinstance(qc, dict) or qc.get("status") != "PASSED":
