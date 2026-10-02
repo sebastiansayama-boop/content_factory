@@ -43,7 +43,7 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
         pytest.fail("TELEGRAM_CHAT_ID is required")
     monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
     monkeypatch.setenv("FACTORY_API_TOKEN", "telegram-e2e-token")
-    monkeypatch.setenv("FACTORY_ASSET_PROVIDER", "stub")
+    monkeypatch.setenv("FACTORY_ASSET_PROVIDER", "openverse")
     monkeypatch.delenv("FACTORY_TELEGRAM_FAKE", raising=False)
     monkeypatch.delenv("PUBLISH_URL", raising=False)
     monkeypatch.delenv("PUBLISH_AUTH_TOKEN", raising=False)
@@ -108,7 +108,7 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
         assert claim_id in result["content_spec"]["claim_refs"]
         media = list((result.get("package") or {}).get("media") or [])
         assert media, result.get("package")
-        assert any(item.get("type") == "image" and item.get("origin") == "stub" for item in media), media
+        assert any(item.get("type") == "image" and item.get("origin") == "openverse" for item in media), media
         script_units = result["script"]["units"]
         assert any(claim_id in (unit.get("claim_refs") or []) for unit in script_units)
 
