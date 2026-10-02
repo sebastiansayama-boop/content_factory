@@ -17,6 +17,7 @@ from typing import Any
 from .asset_jobs import AssetJob, AssetJobStore
 from .openverse_adapter import OpenverseImageProvider
 from .visual_relevance import OpenAIVisualRelevanceVerifier
+from .visual_policy import VisualPolicyStore
 
 
 class AssetExecutionError(RuntimeError):
