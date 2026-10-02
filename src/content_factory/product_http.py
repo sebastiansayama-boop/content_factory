@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import mimetypes
 import os
+import threading
 import time
 from pathlib import Path
 from typing import Any
@@ -20,12 +21,14 @@ from .vertical_slice import ContentFactoryVerticalSlice
 from .distribution import TelegramDistributionAdapter, FakeTelegramDistributionAdapter
 from .content_package import apply_package_edit, build_content_package, platform_from_constraints
 from .integrations import IntegrationError
+from .telegram_bot import FactoryHttpClient, TelegramApi, TelegramFactoryBot
 
 
 class ProductHandler(Handler):
     workspace: ContentWorkspace
     content_runs: ContentRunStore
     content_run_planner: ContentRunPlanner
+    telegram_bot: TelegramFactoryBot | None = None
 
     def _body(self) -> dict[str, Any]:
         length = int(self.headers.get("Content-Length", "0"))
@@ -74,6 +77,38 @@ class ProductHandler(Handler):
     def _record_trace(self, run_id: str, revision_id: str = "r1", **kwargs: Any) -> None:
         runtime, item = self._trace_runtime(run_id, revision_id=revision_id)
         runtime.record_trace(item, **kwargs, actor="api")
+
+    def _handle_telegram_webhook(self) -> None:
+        expected_secret = os.environ.get("TELEGRAM_WEBHOOK_SECRET", "").strip()
+        if not expected_secret:
+            self._json(503, {"error": "Telegram webhook is not configured"})
+            return
+        presented_secret = self.headers.get("X-Telegram-Bot-Api-Secret-Token", "")
+        if not hmac.compare_digest(presented_secret, expected_secret):
+            self._json(401, {"error": "invalid Telegram webhook secret"})
+            return
+        bot = type(self).telegram_bot
+        if bot is None:
+            self._json(503, {"error": "Telegram bot is not configured"})
+            return
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+            if length < 0 or length > 64 * 1024:
+                raise ValueError("Telegram webhook payload exceeds maximum size")
+            raw = self.rfile.read(length)
+            if len(raw) != length:
+                raise ValueError("incomplete Telegram webhook payload")
+            payload = json.loads(raw.decode("utf-8"))
+            if not isinstance(payload, dict):
+                raise ValueError("Telegram webhook JSON body must be an object")
+        except json.JSONDecodeError:
+            self._json(400, {"error": "invalid Telegram webhook JSON"})
+            return
+        except (UnicodeDecodeError, ValueError) as exc:
+            self._json(400, {"error": str(exc)})
+            return
+        threading.Thread(target=bot.handle_update, args=(payload,), daemon=True).start()
+        self._json(200, {"ok": True})
 
     def do_GET(self) -> None:
         if self.path in {"/", "/index.html"}:
@@ -264,6 +299,10 @@ class ProductHandler(Handler):
         super().do_GET()
 
     def do_POST(self) -> None:
+        if self.path == "/telegram/webhook":
+            self._handle_telegram_webhook()
+            return
+
         is_run_plan = self.path.startswith("/api/runs/") and self.path.endswith("/plan")
         is_run_execute = self.path.startswith("/api/runs/") and self.path.endswith("/execute")
         is_run_build = self.path.startswith("/api/runs/") and self.path.endswith("/build")
@@ -1316,6 +1355,17 @@ def main() -> None:
     host = os.environ.get("HOST", "0.0.0.0")
     port = int(os.environ.get("PORT", "8080"))
     server = ThreadingHTTPServer((host, port), ProductHandler)
+    telegram_token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+    telegram_chat_id = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+    factory_api_token = os.environ.get("FACTORY_API_TOKEN", "").strip()
+    if telegram_token and telegram_chat_id and factory_api_token:
+        ProductHandler.telegram_bot = TelegramFactoryBot(
+            telegram=TelegramApi(telegram_token, telegram_chat_id),
+            factory=FactoryHttpClient(f"http://127.0.0.1:{port}", factory_api_token),
+            allowed_chat_id=telegram_chat_id,
+        )
+    else:
+        ProductHandler.telegram_bot = None
     try:
         server.serve_forever()
     finally:
