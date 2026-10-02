@@ -112,6 +112,34 @@ class VisualPolicyStore:
                     ON visual_decisions(policy_version);
                 CREATE INDEX IF NOT EXISTS idx_visual_feedback_decision
                     ON visual_feedback(decision_id);
+
+                CREATE TABLE IF NOT EXISTS visual_policy_activation (
+                    policy_key TEXT PRIMARY KEY,
+                    active_policy_id TEXT NOT NULL,
+                    generation INTEGER NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    FOREIGN KEY(active_policy_id) REFERENCES visual_policies(policy_id)
+                );
+
+                CREATE TABLE IF NOT EXISTS visual_policy_audit (
+                    audit_id TEXT PRIMARY KEY,
+                    policy_key TEXT NOT NULL,
+                    operation TEXT NOT NULL,
+                    from_policy_id TEXT,
+                    to_policy_id TEXT NOT NULL,
+                    from_version TEXT,
+                    to_version TEXT NOT NULL,
+                    reason TEXT NOT NULL,
+                    actor TEXT NOT NULL,
+                    decision_ref TEXT NOT NULL,
+                    generation_before INTEGER NOT NULL,
+                    generation_after INTEGER NOT NULL,
+                    request_id TEXT NOT NULL,
+                    created_at TEXT NOT NULL
+                );
+
+                CREATE INDEX IF NOT EXISTS idx_visual_policy_audit_created
+                    ON visual_policy_audit(created_at);
                 """
             )
             row = self.db.execute(
@@ -142,17 +170,73 @@ class VisualPolicyStore:
                     ),
                 )
 
+            active_row = self.db.execute(
+                "SELECT policy_id, version FROM visual_policies "
+                "WHERE status='ACTIVE' ORDER BY rowid DESC LIMIT 1"
+            ).fetchone()
+            if active_row is None:
+                raise RuntimeError("cannot initialize visual policy activation")
+            activation = self.db.execute(
+                "SELECT 1 FROM visual_policy_activation WHERE policy_key=?",
+                ("visual_relevance",),
+            ).fetchone()
+            if activation is None:
+                self.db.execute(
+                    """
+                    INSERT INTO visual_policy_activation(
+                        policy_key, active_policy_id, generation, updated_at
+                    ) VALUES (?, ?, ?, ?)
+                    """,
+                    ("visual_relevance", active_row["policy_id"], 1, _now()),
+                )
+
     def close(self) -> None:
         self.db.close()
 
     @_serialized
     def active_policy(self) -> VisualPolicy:
         row = self.db.execute(
-            "SELECT * FROM visual_policies WHERE status='ACTIVE' ORDER BY rowid DESC LIMIT 1"
+            """
+            SELECT p.* FROM visual_policies p
+            JOIN visual_policy_activation a
+              ON a.active_policy_id = p.policy_id
+            WHERE a.policy_key=?
+            """,
+            ("visual_relevance",),
         ).fetchone()
         if row is None:
             raise RuntimeError("no active visual policy")
         return self._policy_from_row(row)
+
+    @_serialized
+    def activation_state(self) -> dict[str, Any]:
+        row = self.db.execute(
+            """
+            SELECT a.active_policy_id, a.generation, a.updated_at, p.version
+            FROM visual_policy_activation a
+            JOIN visual_policies p ON p.policy_id=a.active_policy_id
+            WHERE a.policy_key=?
+            """,
+            ("visual_relevance",),
+        ).fetchone()
+        if row is None:
+            raise RuntimeError("visual policy activation is missing")
+        return {
+            "policy_key": "visual_relevance",
+            "active_policy_id": row["active_policy_id"],
+            "active_version": row["version"],
+            "generation": int(row["generation"]),
+            "updated_at": row["updated_at"],
+        }
+
+    @_serialized
+    def audit(self, limit: int = 100) -> list[dict[str, Any]]:
+        limit = max(1, min(int(limit), 500))
+        rows = self.db.execute(
+            "SELECT * FROM visual_policy_audit ORDER BY rowid DESC LIMIT ?",
+            (limit,),
+        ).fetchall()
+        return [dict(row) for row in rows]
 
     @_serialized
     def get_policy(self, policy_id: str) -> VisualPolicy:
@@ -406,42 +490,254 @@ class VisualPolicyStore:
         )
 
     @_serialized
-    def promote(self, policy_id: str, decision_ref: str) -> dict[str, Any]:
+    def promote(
+        self,
+        policy_id: str,
+        decision_ref: str,
+        *,
+        expected_generation: int | None = None,
+        actor: str = "api",
+        request_id: str | None = None,
+    ) -> dict[str, Any]:
         if not decision_ref.strip():
             raise ValueError("decision_ref is required")
         candidate = self.get_policy(policy_id)
         if candidate.status != "CANDIDATE":
             raise ValueError("visual policy must be CANDIDATE before promotion")
         evaluation = self._evaluation(policy_id)
-        if not bool(evaluation.get("holdout_passed")):
+        if not evaluation.get("holdout_passed"):
             raise ValueError("visual policy failed holdout gate")
-
         canary = self._canary_evaluation(candidate)
         if not canary["passed"]:
             raise ValueError(canary["reason"])
 
-        active = self.active_policy()
-        if candidate.parent_version != active.version:
-            raise ValueError("visual policy parent is no longer active")
+        request_id = request_id or f"policy-request-{uuid4()}"
+        self.db.execute("BEGIN IMMEDIATE")
+        try:
+            activation = self.db.execute(
+                "SELECT active_policy_id, generation FROM visual_policy_activation "
+                "WHERE policy_key=?",
+                ("visual_relevance",),
+            ).fetchone()
+            if activation is None:
+                raise RuntimeError("visual policy activation is missing")
+            generation_before = int(activation["generation"])
+            if expected_generation is not None and generation_before != expected_generation:
+                raise ValueError(
+                    f"visual policy generation conflict: expected {expected_generation}, "
+                    f"actual {generation_before}"
+                )
+            active_row = self.db.execute(
+                "SELECT * FROM visual_policies WHERE policy_id=?",
+                (activation["active_policy_id"],),
+            ).fetchone()
+            candidate_row = self.db.execute(
+                "SELECT * FROM visual_policies WHERE policy_id=?",
+                (policy_id,),
+            ).fetchone()
+            if active_row is None or candidate_row is None:
+                raise RuntimeError("visual policy version disappeared during promotion")
+            if candidate_row["status"] != "CANDIDATE":
+                raise ValueError("visual policy is no longer a candidate")
+            if candidate_row["parent_version"] != active_row["version"]:
+                raise ValueError("visual policy parent is no longer active")
 
-        now = _now()
-        with self.db:
+            now = _now()
+            next_generation = generation_before + 1
             self.db.execute(
-                "UPDATE visual_policies SET status='RETIRED' WHERE status='ACTIVE'"
+                "UPDATE visual_policies SET status='RETIRED' WHERE policy_id=?",
+                (active_row["policy_id"],),
             )
             self.db.execute(
-                """
-                UPDATE visual_policies
-                SET status='ACTIVE', promoted_at=?, decision_ref=?
-                WHERE policy_id=? AND status='CANDIDATE'
-                """,
+                "UPDATE visual_policies SET status='ACTIVE', promoted_at=?, decision_ref=? "
+                "WHERE policy_id=? AND status='CANDIDATE'",
                 (now, decision_ref.strip(), policy_id),
             )
+            changed = self.db.execute(
+                """
+                UPDATE visual_policy_activation
+                SET active_policy_id=?, generation=?, updated_at=?
+                WHERE policy_key=? AND generation=?
+                """,
+                (
+                    policy_id,
+                    next_generation,
+                    now,
+                    "visual_relevance",
+                    generation_before,
+                ),
+            )
+            if changed.rowcount != 1:
+                raise ValueError("visual policy activation changed concurrently")
+            self.db.execute(
+                """
+                INSERT INTO visual_policy_audit(
+                    audit_id, policy_key, operation, from_policy_id, to_policy_id,
+                    from_version, to_version, reason, actor, decision_ref,
+                    generation_before, generation_after, request_id, created_at
+                ) VALUES (?, ?, 'PROMOTE', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    f"vaudit-{uuid4()}",
+                    "visual_relevance",
+                    active_row["policy_id"],
+                    policy_id,
+                    active_row["version"],
+                    candidate_row["version"],
+                    "candidate passed holdout and canary gates",
+                    actor.strip() or "api",
+                    decision_ref.strip(),
+                    generation_before,
+                    next_generation,
+                    request_id,
+                    now,
+                ),
+            )
+            self.db.commit()
+        except Exception:
+            self.db.rollback()
+            raise
+
         return self._policy_dict(
             self.db.execute(
                 "SELECT * FROM visual_policies WHERE policy_id=?", (policy_id,)
             ).fetchone()
         )
+
+    @_serialized
+    def rollback(
+        self,
+        *,
+        expected_generation: int,
+        reason: str,
+        decision_ref: str,
+        actor: str = "api",
+        request_id: str | None = None,
+    ) -> dict[str, Any]:
+        if expected_generation < 1:
+            raise ValueError("expected_generation must be >= 1")
+        if not reason.strip():
+            raise ValueError("rollback reason is required")
+        if not decision_ref.strip():
+            raise ValueError("decision_ref is required")
+
+        request_id = request_id or f"policy-request-{uuid4()}"
+        self.db.execute("BEGIN IMMEDIATE")
+        try:
+            activation = self.db.execute(
+                "SELECT active_policy_id, generation FROM visual_policy_activation "
+                "WHERE policy_key=?",
+                ("visual_relevance",),
+            ).fetchone()
+            if activation is None:
+                raise RuntimeError("visual policy activation is missing")
+            generation_before = int(activation["generation"])
+            if generation_before != expected_generation:
+                raise ValueError(
+                    f"visual policy generation conflict: expected {expected_generation}, "
+                    f"actual {generation_before}"
+                )
+
+            current = self.db.execute(
+                "SELECT * FROM visual_policies WHERE policy_id=?",
+                (activation["active_policy_id"],),
+            ).fetchone()
+            if current is None:
+                raise RuntimeError("active visual policy not found")
+
+            last_activation = self.db.execute(
+                """
+                SELECT * FROM visual_policy_audit
+                WHERE policy_key=? AND to_policy_id=?
+                ORDER BY rowid DESC LIMIT 1
+                """,
+                ("visual_relevance", current["policy_id"]),
+            ).fetchone()
+            if last_activation is None or last_activation["operation"] != "PROMOTE":
+                raise ValueError(
+                    "rollback is available only for the latest promoted active policy"
+                )
+
+            target = self.db.execute(
+                "SELECT * FROM visual_policies WHERE policy_id=?",
+                (last_activation["from_policy_id"],),
+            ).fetchone()
+            if target is None:
+                raise RuntimeError("rollback target policy not found")
+            if target["policy_id"] == current["policy_id"]:
+                raise RuntimeError("rollback target equals active policy")
+
+            now = _now()
+            next_generation = generation_before + 1
+            self.db.execute(
+                "UPDATE visual_policies SET status='RETIRED' WHERE policy_id=?",
+                (current["policy_id"],),
+            )
+            self.db.execute(
+                "UPDATE visual_policies SET status='ACTIVE' WHERE policy_id=?",
+                (target["policy_id"],),
+            )
+            changed = self.db.execute(
+                """
+                UPDATE visual_policy_activation
+                SET active_policy_id=?, generation=?, updated_at=?
+                WHERE policy_key=? AND generation=?
+                """,
+                (
+                    target["policy_id"],
+                    next_generation,
+                    now,
+                    "visual_relevance",
+                    generation_before,
+                ),
+            )
+            if changed.rowcount != 1:
+                raise ValueError("visual policy activation changed concurrently")
+
+            self.db.execute(
+                """
+                INSERT INTO visual_policy_audit(
+                    audit_id, policy_key, operation, from_policy_id, to_policy_id,
+                    from_version, to_version, reason, actor, decision_ref,
+                    generation_before, generation_after, request_id, created_at
+                ) VALUES (?, ?, 'ROLLBACK', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    f"vaudit-{uuid4()}",
+                    "visual_relevance",
+                    current["policy_id"],
+                    target["policy_id"],
+                    current["version"],
+                    target["version"],
+                    reason.strip()[:2000],
+                    actor.strip() or "api",
+                    decision_ref.strip(),
+                    generation_before,
+                    next_generation,
+                    request_id,
+                    now,
+                ),
+            )
+            self.db.commit()
+        except Exception:
+            self.db.rollback()
+            raise
+
+        result = self._policy_dict(
+            self.db.execute(
+                "SELECT * FROM visual_policies WHERE policy_id=?",
+                (target["policy_id"],),
+            ).fetchone()
+        )
+        result["rollback"] = {
+            "from_version": current["version"],
+            "to_version": target["version"],
+            "generation_before": generation_before,
+            "generation_after": next_generation,
+            "decision_ref": decision_ref.strip(),
+            "request_id": request_id,
+        }
+        return result
 
     def _canary_evaluation(self, candidate: VisualPolicy) -> dict[str, Any]:
         active = self.active_policy()

@@ -200,3 +200,95 @@ def test_candidate_promotes_only_after_safe_canary(tmp_path):
         assert store.active_policy().version == "v2"
     finally:
         store.close()
+
+
+def test_atomic_rollback_uses_generation_and_appends_audit(tmp_path):
+    store = VisualPolicyStore(tmp_path / "visual_policy.sqlite3")
+    try:
+        active = store.active_policy()
+        with store.db:
+            store.db.execute(
+                """
+                INSERT INTO visual_policies(
+                    policy_id, version, status, parent_version, score_threshold,
+                    max_threshold_delta, evaluation_json, created_at, promoted_at, decision_ref
+                ) VALUES (?, ?, 'CANDIDATE', ?, ?, ?, ?, datetime('now'), NULL, NULL)
+                """,
+                (
+                    "candidate-rollback",
+                    "v2",
+                    active.version,
+                    0.08,
+                    0.10,
+                    '{"holdout_passed": true}',
+                ),
+            )
+
+        for i in range(20):
+            action = "ACCEPT" if i < 10 else "REJECT"
+            score = 0.08 if action == "ACCEPT" else 0.02
+            decision_id = store.record_decision(
+                run_id=f"rollback-canary-run-{i}",
+                job_id=f"rollback-canary-job-{i}",
+                query="subject",
+                verification=_verification(f"rollback-canary-{i}", score),
+                policy_version="v2",
+            )
+            store.record_feedback(
+                decision_id,
+                action=action,
+                reason="canary",
+                source="test",
+            )
+
+        promoted = store.promote(
+            "candidate-rollback",
+            "promote-before-rollback",
+            expected_generation=1,
+            actor="test",
+            request_id="req-promote",
+        )
+        assert promoted["status"] == "ACTIVE"
+        assert store.activation_state()["generation"] == 2
+
+        with pytest.raises(ValueError, match="generation conflict"):
+            store.rollback(
+                expected_generation=1,
+                reason="stale rollback request",
+                decision_ref="rollback-stale",
+                actor="test",
+            )
+        assert store.active_policy().version == "v2"
+        assert store.activation_state()["generation"] == 2
+
+        rolled_back = store.rollback(
+            expected_generation=2,
+            reason="canary regression",
+            decision_ref="rollback-001",
+            actor="test",
+            request_id="req-rollback",
+        )
+        assert rolled_back["status"] == "ACTIVE"
+        assert rolled_back["version"] == "v1"
+        assert rolled_back["rollback"]["from_version"] == "v2"
+        assert store.active_policy().version == "v1"
+        assert store.activation_state()["generation"] == 3
+
+        audit = store.audit()
+        assert [row["operation"] for row in audit[:2]] == ["ROLLBACK", "PROMOTE"]
+        assert audit[0]["from_version"] == "v2"
+        assert audit[0]["to_version"] == "v1"
+        assert audit[0]["generation_before"] == 2
+        assert audit[0]["generation_after"] == 3
+        assert audit[0]["decision_ref"] == "rollback-001"
+
+        with pytest.raises(ValueError, match="latest promoted active policy"):
+            store.rollback(
+                expected_generation=3,
+                reason="second rollback must be explicit re-promotion",
+                decision_ref="rollback-002",
+                actor="test",
+            )
+        assert store.active_policy().version == "v1"
+    finally:
+        store.close()
