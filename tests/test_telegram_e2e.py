@@ -99,7 +99,7 @@ def test_real_telegram_distribution_e2e(tmp_path, monkeypatch):
         status, factory = _request(base_url, "POST", f"/api/runs/{run_id}/factory")
         if status != 200:
             asset_results = service.asset_executor.execute_run(run_id)
-            assert all(job.status == "COMPLETED" for job in asset_results), [job.to_dict() for job in asset_results]
+            assert all(job.status == "COMPLETED" for job in asset_results), [{"asset_request_id": job.asset_request_id, "status": job.status, "result": job.result} for job in asset_results]
             status, factory = _request(base_url, "POST", f"/api/runs/{run_id}/factory")
         assert status == 200, factory
         assert factory["qc"]["status"] == "PASSED"
