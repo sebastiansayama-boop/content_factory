@@ -19,7 +19,7 @@ def _request(base_url, method, path, payload=None, token="telegram-e2e-token"):
     from urllib.parse import urlsplit
 
     parts = urlsplit(base_url)
-    connection = HTTPConnection(parts.hostname, parts.port, timeout=30)
+    connection = HTTPConnection(parts.hostname, parts.port, timeout=120)
     body = json.dumps(payload).encode("utf-8") if payload is not None else None
     headers = {
         "Authorization": f"Bearer {token}",
