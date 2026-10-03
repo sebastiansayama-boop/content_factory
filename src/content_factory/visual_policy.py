@@ -321,6 +321,21 @@ class VisualPolicyStore:
         return decision_id
 
     @_serialized
+    def decision_context(self, decision_id: str) -> dict[str, Any]:
+        row = self.db.execute(
+            """
+            SELECT decision_id, run_id, job_id, candidate_id, policy_version,
+                   query, machine_decision, score, created_at
+            FROM visual_decisions
+            WHERE decision_id=?
+            """,
+            (decision_id.strip(),),
+        ).fetchone()
+        if row is None:
+            raise ValueError("visual decision not found")
+        return dict(row)
+
+    @_serialized
     def record_feedback(
         self,
         decision_id: str,
