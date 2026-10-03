@@ -111,6 +111,7 @@ def _create_prepared_run(service: FactoryService, tmp_path, *, with_media: bool)
             "qc": {"status": "PASSED"},
         },
         "information_flow": {
+            "artifacts": [{"artifact_id": asset.asset_id, "format": "image", "content_element_ids": [], "claim_ids": [], "evidence_ids": []}],
             "publications": [],
             "edges": [],
         },
