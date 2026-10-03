@@ -62,6 +62,7 @@ def _create_prepared_run(service: FactoryService, tmp_path, *, with_media: bool)
     asset_path = tmp_path / f"{run.run_id}.jpg"
     Image.new("RGB", (64, 64), (120, 180, 220)).save(asset_path, format="JPEG")
     job = jobs[0]
+    service.asset_jobs.mark_running(job.job_id)
     service.asset_jobs.complete(
         job.job_id,
         {
