@@ -1466,6 +1466,15 @@ def main() -> None:
     telegram_token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
     telegram_chat_id = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
     factory_api_token = os.environ.get("FACTORY_API_TOKEN", "").strip()
+    webhook_url = os.environ.get("TELEGRAM_WEBHOOK_URL", "").strip()
+    webhook_secret = os.environ.get("TELEGRAM_WEBHOOK_SECRET", "").strip()
+    print(
+        "[telegram] config "
+        f"token={bool(telegram_token)} chat_id={bool(telegram_chat_id)} "
+        f"factory_token={bool(factory_api_token)} webhook_url={bool(webhook_url)} "
+        f"webhook_secret={bool(webhook_secret)}",
+        flush=True,
+    )
     if telegram_token and telegram_chat_id and factory_api_token:
         telegram_api = TelegramApi(telegram_token, telegram_chat_id)
         ProductHandler.telegram_bot = TelegramFactoryBot(
@@ -1473,10 +1482,9 @@ def main() -> None:
             factory=FactoryHttpClient(f"http://127.0.0.1:{port}", factory_api_token),
             allowed_chat_id=telegram_chat_id,
         )
-        webhook_url = os.environ.get("TELEGRAM_WEBHOOK_URL", "").strip()
-        webhook_secret = os.environ.get("TELEGRAM_WEBHOOK_SECRET", "").strip()
         if webhook_url and webhook_secret:
             telegram_api.set_webhook(webhook_url, webhook_secret)
+            print("[telegram] webhook registered", flush=True)
     else:
         ProductHandler.telegram_bot = None
     try:
