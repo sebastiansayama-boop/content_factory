@@ -31,6 +31,23 @@ class ProductHandler(Handler):
     content_runs: ContentRunStore
     content_run_planner: ContentRunPlanner
     telegram_bot: TelegramFactoryBot | None = None
+    _access_policy = CapabilityPolicy()
+
+    def _authorize_release_action(self, run, action: Action, actor_id: str) -> str:
+        actor_id = str(actor_id or "").strip()
+        result = run.result or {}
+        production = result.get("production") if isinstance(result.get("production"), dict) else {}
+        output = production.get("output") if isinstance(production.get("output"), dict) else {}
+        artifact_version = str(output.get("output_id") or result.get("content_brief_revision_id") or run.run_id)
+        approval = result.get("approval") if isinstance(result.get("approval"), dict) else {}
+        approved_version = str(approval.get("approved_version") or "").strip() or None
+        approval_status = str(approval.get("status") or "").strip() or None
+        qc = production.get("qc") if isinstance(production.get("qc"), dict) else {}
+        package = result.get("package") if isinstance(result.get("package"), dict) else {}
+        package_qc = package.get("qc") if isinstance(package.get("qc"), dict) else {}
+        qc_status = str(package_qc.get("status") or qc.get("status") or "").strip() or None
+        self._access_policy.authorize(ActorContext(actor_id=actor_id, roles=frozenset(Role), mode=Mode.PERSONAL), ActionContext(action=action, run_status=run.status, artifact=ArtifactContext(artifact_version=artifact_version, approved_version=approved_version, qc_status=qc_status, approval_status=approval_status, creator_id=str(result.get("creator_id") or "").strip() or None, editor_id=str(result.get("editor_id") or "").strip() or None, approver_id=str(approval.get("actor_id") or "").strip() or None, publisher_id=str(result.get("publisher_id") or "").strip() or None)))
+        return artifact_version
 
     def _body(self) -> dict[str, Any]:
         length = int(self.headers.get("Content-Length", "0"))
