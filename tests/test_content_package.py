@@ -65,3 +65,36 @@ def test_package_edit_creates_revision_and_invalidates_qc_and_approval():
     assert updated["approval"] == {}
     assert updated_result["package_edited"] is True
     assert "approval" not in updated_result
+
+
+def test_build_content_package_exposes_visual_decision_for_review():
+    result = {
+        "content_brief": {"title": "Крокодилы Нила", "revision_id": "brief-r1"},
+        "script": {"units": [{"text": "Текст."}]},
+        "production": {
+            "output": {"output_id": "out-1"},
+            "assets": [
+                {
+                    "asset_id": "asset-1",
+                    "asset_type": "visual",
+                    "origin": "openverse",
+                    "uri": "data/crocodile.jpg",
+                    "metadata": {
+                        "decision_id": "vdecision-123",
+                        "policy_version": "v1",
+                    },
+                }
+            ],
+            "qc": {"status": "PASSED", "passed": True},
+        },
+        "information_flow": {"research": {"claims": [], "evidence": []}},
+    }
+
+    package = build_content_package(
+        run_id="run-1",
+        result=result,
+        platform="telegram",
+    )
+
+    assert package["media"][0]["visual_decision_id"] == "vdecision-123"
+    assert package["media"][0]["visual_policy_version"] == "v1"
