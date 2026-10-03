@@ -1,0 +1,46 @@
+name: Content Factory Control Plane
+
+on:
+  issues:
+    types: [opened, edited, labeled]
+
+permissions:
+  contents: read
+  issues: write
+  actions: read
+
+jobs:
+  command:
+    if: github.event.issue.user.login == 'sebastiansayama-boop' && (startsWith(github.event.issue.title, 'control:') || contains(github.event.issue.labels.*.name, 'control'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: pip install -e '.[dev]'
+      - name: Parse command
+        id: command
+        env:
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: python scripts/control_plane.py parse
+      - name: Execute command
+        id: execute
+        env:
+          CONTROL_COMMAND: ${{ steps.command.outputs.command }}
+        run: python scripts/control_plane.py execute
+      - name: Publish result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          COMMAND: ${{ steps.command.outputs.command }}
+          COMMAND_STATUS: ${{ steps.execute.outcome }}
+        run: python scripts/control_plane.py report
