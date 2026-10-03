@@ -1044,6 +1044,7 @@ class ProductHandler(Handler):
                     "artifact_ids": artifact_ids,
                     "destination": destination or None,
                     "output": output,
+                    "text": str((result.get("package") or {}).get("text") or "").strip(),
                     "media": list((result.get("package") or {}).get("media") or []),
                     "title": str((result.get("content_brief") or {}).get("title") or run.title),
                     "provenance": {
