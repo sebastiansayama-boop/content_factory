@@ -172,7 +172,7 @@ def test_real_telegram_publication_text_smoke(tmp_path, monkeypatch):
         assert published["external_url"]
         assert published["response"]["telegram_ok"] is True
         assert published["response"]["media_count"] == 0
-        assert "Реальный Telegram publication smoke test." in published["response"]["text"]
+        assert published["response"]["text"].strip() == "Telegram publication smoke"
 
         final = service.content_runs.get(run.run_id)
         assert final is not None
