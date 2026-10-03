@@ -180,11 +180,11 @@ class FactoryHttpClient:
             {"decision_ref": decision_ref, "channel": "telegram"},
         )
 
-    def publish(self, run_id: str, publication_id: str) -> tuple[int, dict[str, Any]]:
+    def publish(self, run_id: str, publication_id: str, actor_id: str) -> tuple[int, dict[str, Any]]:
         return self.request(
             "POST",
             f"/api/runs/{run_id}/publish",
-            {"publication_id": publication_id},
+            {"publication_id": publication_id, "actor_id": actor_id},
         )
 
 
@@ -440,7 +440,7 @@ class TelegramFactoryBot:
         publication_id = str(publication.get("publication_id") or "")
         if not publication_id:
             raise RuntimeError("approved publication has no publication id")
-        status, published = self.factory.publish(run_id, publication_id)
+        status, published = self.factory.publish(run_id, publication_id, decision_ref)
         if status != 200:
             raise RuntimeError(published.get("error") or f"publish returned HTTP {status}")
         external_url = str(published.get("external_url") or "").strip()
