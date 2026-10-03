@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from .content_run import ContentRunStore
+from .access_policy import Action, ActionContext, ActorContext, ArtifactContext, CapabilityPolicy, Mode, Role
 from .content_run_planner import ContentRunPlanner
 from .assembly import ContentAssembler, QualityGate
 from .exporter import ContentExporter
@@ -572,6 +573,7 @@ class ProductHandler(Handler):
                 if run.status not in {"APPROVED", "EXPORTED"}:
                     raise ValueError("only APPROVED or EXPORTED runs can be published")
                 payload = self._body()
+                actor_id = str(payload.get("actor_id") or "").strip()
                 requested_publication_id = str(payload.get("publication_id") or "").strip()
                 publications = self.service.control.list_publications(run_id)
                 if requested_publication_id:
@@ -595,6 +597,11 @@ class ProductHandler(Handler):
                         content_ref,
                         {"run_id": run_id, "content_ref": content_ref, "artifact_ids": artifact_ids},
                     )
+                run = self.content_runs.get(run_id)
+                assert run is not None
+                prepared_payload = json.loads(prepared.get("response_json") or "{}") if isinstance(prepared.get("response_json"), str) else {}
+                actor_id = actor_id or str((prepared_payload.get("provenance") or {}).get("actor_id") or "").strip()
+                self._authorize_release_action(run, Action.PUBLISH, actor_id)
                 publisher = None
                 if str(prepared.get("channel") or "").lower() == "telegram":
                     publisher = (
@@ -983,10 +990,15 @@ class ProductHandler(Handler):
                     raise ValueError("only QC-passed runs can be approved")
                 payload = self._body()
                 decision_ref = str(payload.get("decision_ref", "")).strip()
+                actor_id = str(payload.get("actor_id") or decision_ref).strip()
                 channel = str(payload.get("channel") or "local").strip()
                 if not channel:
                     raise ValueError("channel is required")
+                artifact_version = self._authorize_release_action(run, Action.APPROVE, actor_id)
                 updated = self.content_runs.approve(run_id, decision_ref=decision_ref)
+                approved_result = dict(updated.result or {})
+                approved_result["approval"] = {**(approved_result.get("approval") if isinstance(approved_result.get("approval"), dict) else {}), "status": "APPROVED", "decision_ref": decision_ref, "actor_id": actor_id, "approved_version": artifact_version}
+                updated = self.content_runs.save_result_preserving_status(run_id, approved_result)
                 assets = self.service.asset_registry.list_for_run(run_id)
                 artifact_ids = [asset.asset_id for asset in assets]
                 if not artifact_ids:
@@ -1018,6 +1030,7 @@ class ProductHandler(Handler):
                     "media": list((result.get("package") or {}).get("media") or []),
                     "title": str((result.get("content_brief") or {}).get("title") or run.title),
                     "provenance": {
+                        "actor_id": actor_id,
                         "run_id": run_id,
                         "content_brief_revision_id": result.get("content_brief_revision_id"),
                         "artifact_ids": artifact_ids,
