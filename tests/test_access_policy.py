@@ -32,7 +32,7 @@ def actor(*roles, mode=Mode.PERSONAL, actor_id="actor-1"):
 
 
 def artifact(**kwargs):
-    return ArtifactContext("v2", **kwargs)
+    return ArtifactContext("v2", **kwargs) if "artifact_version" not in kwargs else ArtifactContext(**kwargs)
 
 
 def context_for(action, state):
