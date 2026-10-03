@@ -9,7 +9,7 @@ COMMANDS = {
     'product-test': ['python','-m','pytest','-q','tests/test_product_http_routes.py'],
     'visual-test': ['python','-m','pytest','-q','tests/test_visual_relevance.py'],
     'policy-test': ['python','-m','pytest','-q','tests/test_access_policy.py'],
-    'telegram-test': ['python','-m','pytest','-s','-q','tests/test_telegram_publication_smoke.py','-m','external'],
+    'telegram-test': ['python','-m','pytest','-s','-q','tests/test_telegram_publication_smoke.py','tests/test_telegram_historical_material_smoke.py','-m','external'],
 }
 def parse():
     title = os.environ.get('ISSUE_TITLE','')
