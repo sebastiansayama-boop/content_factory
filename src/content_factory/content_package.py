@@ -57,6 +57,8 @@ def build_content_package(*, run_id: str, result: dict[str, Any], platform: str)
             "license_url": asset.get("license_url") or metadata.get("license_url"),
             "creator": asset.get("creator") or metadata.get("creator"),
             "prompt": asset.get("prompt"),
+            "visual_decision_id": metadata.get("decision_id"),
+            "visual_policy_version": metadata.get("policy_version"),
             "claim_refs": list(asset.get("claim_refs") or []),
             "evidence_refs": list(asset.get("evidence_refs") or []),
         })

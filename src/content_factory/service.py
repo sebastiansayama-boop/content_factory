@@ -32,6 +32,7 @@ from .runtime import (
     WorkItem,
 )
 from .runtime_store import RuntimeStore
+from .visual_policy import VisualPolicyStore
 from .text_capability import text_generation_capability
 
 MAX_REQUEST_BYTES = 64 * 1024
@@ -110,7 +111,10 @@ class FactoryService:
         self._content_runs = ContentRunStore(root / "content_runs.sqlite3")
         self._knowledge = KnowledgeStore(root / "knowledge.sqlite3")
         self._asset_jobs = AssetJobStore(root / "asset_jobs.sqlite3")
-        self._asset_executor = AssetExecutor(self._asset_jobs, root)
+        self._visual_policy = VisualPolicyStore(root / "visual_policy.sqlite3")
+        self._asset_executor = AssetExecutor(
+            self._asset_jobs, root, policy_store=self._visual_policy
+        )
         self._asset_poller = AssetJobPoller(self._asset_jobs)
         self._asset_registry = AssetRegistry(root / "assets.sqlite3")
         self._control = FactoryControlStore(root / "factory_control.sqlite3")
@@ -167,6 +171,10 @@ class FactoryService:
         return self._asset_poller
 
     @property
+    def visual_policy(self) -> VisualPolicyStore:
+        return self._visual_policy
+
+    @property
     def asset_registry(self) -> AssetRegistry:
         return self._asset_registry
 
@@ -178,6 +186,7 @@ class FactoryService:
         self._content_runs.close()
         self._knowledge.close()
         self._asset_jobs.close()
+        self._visual_policy.close()
         self._asset_registry.close()
         self._control.close()
         self._store.close()
@@ -190,6 +199,7 @@ class FactoryService:
             "authorization_policy_configured": bool(
                 self._acceptance_authority and self._release_authority
             ),
+            "visual_policy_version": self._visual_policy.active_policy().version,
         }
 
     def run(self, payload: dict[str, Any]) -> dict[str, Any]:

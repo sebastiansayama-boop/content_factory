@@ -64,7 +64,12 @@ class TelegramApi:
             {"callback_query_id": callback_id, "text": text},
         )
 
-    def send_photo(self, path: Path, caption: str = "") -> dict[str, Any]:
+    def send_photo(
+        self,
+        path: Path,
+        caption: str = "",
+        reply_markup: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         if not path.is_file():
             raise ValueError(f"Telegram media file not found: {path}")
         boundary = f"----ContentFactory{uuid.uuid4().hex}"
@@ -81,6 +86,8 @@ class TelegramApi:
         field("chat_id", self.chat_id)
         if caption:
             field("caption", caption[:1024])
+        if reply_markup is not None:
+            field("reply_markup", json.dumps(reply_markup, ensure_ascii=False))
         body.extend(f"--{boundary}\r\n".encode())
         body.extend(
             f'Content-Disposition: form-data; name="photo"; filename="{path.name}"\r\n'.encode()
@@ -166,11 +173,41 @@ class FactoryHttpClient:
             {"decision_ref": decision_ref},
         )
 
-    def regenerate(self, run_id: str, instruction: str) -> tuple[int, dict[str, Any]]:
+    def regenerate(
+        self,
+        run_id: str,
+        instruction: str,
+        *,
+        visual_decision_id: str | None = None,
+        visual_reason: str = "",
+    ) -> tuple[int, dict[str, Any]]:
+        payload: dict[str, Any] = {"instruction": instruction}
+        if visual_decision_id:
+            payload["visual_decision_id"] = visual_decision_id
+        if visual_reason:
+            payload["visual_reason"] = visual_reason
         return self.request(
             "POST",
             f"/api/runs/{run_id}/regenerate",
-            {"instruction": instruction},
+            payload,
+        )
+
+    def visual_feedback(
+        self,
+        decision_id: str,
+        action: str,
+        *,
+        reason: str = "",
+    ) -> tuple[int, dict[str, Any]]:
+        return self.request(
+            "POST",
+            "/api/learning/visual/feedback",
+            {
+                "decision_id": decision_id,
+                "action": action,
+                "reason": reason,
+                "source": "telegram",
+            },
         )
 
     def approve(self, run_id: str, decision_ref: str) -> tuple[int, dict[str, Any]]:
@@ -349,16 +386,38 @@ class TelegramFactoryBot:
             with self._lock:
                 self._preview_runs[message_id] = run_id
 
-        for item in media[:10]:
+        for index, item in enumerate(media[:10], 1):
             if not isinstance(item, dict):
                 continue
             uri = str(item.get("uri") or "").strip()
             if not uri:
                 continue
+            decision_id = str(item.get("visual_decision_id") or "").strip()
+            caption = f"Изображение {index}"
+            reply_markup = None
+            if decision_id:
+                reply_markup = self._keyboard(
+                    [[
+                        {
+                            "text": "✓ Подходит",
+                            "callback_data": f"va:{decision_id}:A",
+                        },
+                        {
+                            "text": "✕ Не подходит",
+                            "callback_data": f"va:{decision_id}:R",
+                        },
+                    ]]
+                )
             try:
-                self.telegram.send_photo(Path(uri))
+                self.telegram.send_photo(
+                    Path(uri),
+                    caption=caption,
+                    reply_markup=reply_markup,
+                )
             except Exception:
-                self.telegram.send_message("Не удалось отправить одно из изображений preview.")
+                self.telegram.send_message(
+                    f"Не удалось отправить изображение {index} preview."
+                )
 
     def _handle_callback(self, callback: dict[str, Any]) -> None:
         message = callback.get("message") if isinstance(callback.get("message"), dict) else {}
@@ -378,7 +437,20 @@ class TelegramFactoryBot:
 
         try:
             action, _, value = data.partition(":")
-            if action == "k":
+            if action == "va":
+                parts = data.split(":", 2)
+                if len(parts) != 3:
+                    raise ValueError("visual feedback callback is malformed")
+                decision_id = parts[1].strip()
+                visual_action = {"A": "ACCEPT", "R": "REJECT"}.get(parts[2].strip().upper())
+                if not decision_id or visual_action is None:
+                    raise ValueError("visual feedback callback is invalid")
+                self._handle_visual_feedback(
+                    decision_id,
+                    visual_action,
+                    run_id_hint=self._preview_runs.get(message_id),
+                )
+            elif action == "k":
                 run_id = self._knowledge_run(message_id)
                 self._accept_claim(run_id, value)
             elif action == "p":
@@ -399,6 +471,59 @@ class TelegramFactoryBot:
                 self.telegram.send_message("Неизвестное действие.")
         except Exception as exc:
             self.telegram.send_message(f"Действие не выполнено: {str(exc)[:900]}")
+
+    def _handle_visual_feedback(
+        self,
+        decision_id: str,
+        action: str,
+        *,
+        run_id_hint: str | None = None,
+    ) -> None:
+        reason = (
+            "human accepted visual candidate in Telegram"
+            if action == "ACCEPT"
+            else "human rejected visual candidate in Telegram"
+        )
+        status, feedback = self.factory.visual_feedback(
+            decision_id,
+            action,
+            reason=reason,
+        )
+        if status != 201:
+            raise RuntimeError(
+                feedback.get("error")
+                or f"visual feedback returned HTTP {status}"
+            )
+        run_id = str(feedback.get("run_id") or run_id_hint or "").strip()
+        if not run_id:
+            raise RuntimeError("visual feedback returned no source run id")
+
+        if action == "ACCEPT":
+            self.telegram.send_message("Изображение принято.")
+            return
+
+        self.telegram.send_message("Изображение отклонено. Заменяю его и запускаю повторную проверку…")
+        instruction = (
+            "Замени отклонённое изображение новым визуально релевантным вариантом. "
+            "Сохрани текст и проверенные факты. Не возвращай прежнее изображение. "
+            f"Предыдущее визуальное решение: {decision_id}."
+        )
+        status, regenerated = self.factory.regenerate(
+            run_id,
+            instruction,
+            visual_decision_id=decision_id,
+            visual_reason=reason,
+        )
+        if status != 201:
+            raise RuntimeError(
+                regenerated.get("error")
+                or f"regenerate returned HTTP {status}"
+            )
+        new_run_id = str((regenerated.get("run") or {}).get("run_id") or "").strip()
+        if not new_run_id:
+            raise RuntimeError("visual regeneration returned no new run id")
+        self.telegram.send_message("Новый вариант готов. Проверяй изображение повторно.")
+        self._run_factory(new_run_id)
 
     def _knowledge_run(self, message_id: int) -> str:
         with self._lock:

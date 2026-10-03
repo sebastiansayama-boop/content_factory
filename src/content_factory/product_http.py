@@ -112,6 +112,22 @@ class ProductHandler(Handler):
         self._json(200, {"ok": True})
 
     def do_GET(self) -> None:
+        if self.path == "/api/learning/visual/policies":
+            if not self._protect_product_api():
+                return
+            self._json(200, {
+                "active": self.service.visual_policy.active_policy().version,
+                "activation": self.service.visual_policy.activation_state(),
+                "policies": self.service.visual_policy.list_policies(),
+            })
+            return
+
+        if self.path == "/api/learning/visual/audit":
+            if not self._protect_product_api():
+                return
+            self._json(200, {"audit": self.service.visual_policy.audit()})
+            return
+
         if self.path in {"/", "/index.html"}:
             raw = (Path(__file__).parent / "static" / "index.html").read_bytes()
             self.send_response(200)
@@ -320,10 +336,14 @@ class ProductHandler(Handler):
         is_run_package_edit = self.path.startswith("/api/runs/") and self.path.endswith("/package")
         is_run_observe = self.path.startswith("/api/runs/") and self.path.endswith("/observe")
         is_run_learn = self.path.startswith("/api/runs/") and self.path.endswith("/learn")
+        is_visual_feedback = self.path == "/api/learning/visual/feedback"
+        is_visual_propose = self.path == "/api/learning/visual/propose"
+        is_visual_rollback = self.path == "/api/learning/visual/rollback"
+        is_visual_promote = self.path.startswith("/api/learning/visual/") and self.path.endswith("/promote")
         is_learning_promote = self.path.startswith("/api/learning/") and self.path.endswith("/promote")
         is_run_replay = self.path.startswith("/api/runs/") and self.path.endswith("/replay")
         is_knowledge_promote = self.path.startswith("/api/knowledge/") and self.path.endswith("/promote")
-        if self.path not in {"/api/analyze", "/api/produce", "/api/regenerate", "/api/runs"} and not is_run_plan and not is_run_execute and not is_knowledge_promote and not is_run_build and not is_run_produce and not is_run_produce_execute and not is_run_produce_poll and not is_run_assemble and not is_run_qc and not is_run_approve and not is_run_export and not is_run_factory and not is_run_regenerate and not is_run_publish and not is_run_package_edit and not is_run_observe and not is_run_learn and not is_learning_promote and not is_run_replay:
+        if self.path not in {"/api/analyze", "/api/produce", "/api/regenerate", "/api/runs"} and not is_run_plan and not is_run_execute and not is_knowledge_promote and not is_run_build and not is_run_produce and not is_run_produce_execute and not is_run_produce_poll and not is_run_assemble and not is_run_qc and not is_run_approve and not is_run_export and not is_run_factory and not is_run_regenerate and not is_run_publish and not is_run_package_edit and not is_run_observe and not is_run_learn and not is_visual_feedback and not is_visual_propose and not is_visual_rollback and not is_visual_promote and not is_learning_promote and not is_run_replay:
             super().do_POST()
             return
 
@@ -331,6 +351,59 @@ class ProductHandler(Handler):
             return
 
         try:
+            if is_visual_feedback:
+                payload = self._body()
+                decision_id = str(payload.get("decision_id", "")).strip()
+                if not decision_id:
+                    raise ValueError("decision_id is required")
+                result = self.service.visual_policy.record_feedback(
+                    decision_id,
+                    action=str(payload.get("action", "")),
+                    reason=str(payload.get("reason", "")),
+                    source=str(payload.get("source") or "human"),
+                )
+                self._json(201, result)
+                return
+
+            if is_visual_propose:
+                result = self.service.visual_policy.propose_candidate()
+                self._json(201, result)
+                return
+
+            if is_visual_rollback:
+                payload = self._body()
+                result = self.service.visual_policy.rollback(
+                    expected_generation=int(payload.get("expected_generation", 0)),
+                    reason=str(payload.get("reason", "")),
+                    decision_ref=str(payload.get("decision_ref", "")),
+                    actor=str(payload.get("actor") or "api"),
+                    request_id=str(payload.get("request_id") or "") or None,
+                )
+                self._json(200, result)
+                return
+
+            if is_visual_promote:
+                policy_id = (
+                    self.path.removeprefix("/api/learning/visual/")
+                    .removesuffix("/promote")
+                    .strip("/")
+                )
+                if not policy_id or "/" in policy_id:
+                    raise ValueError("policy id is required")
+                payload = self._body()
+                expected_generation = payload.get("expected_generation")
+                if expected_generation is not None:
+                    expected_generation = int(expected_generation)
+                result = self.service.visual_policy.promote(
+                    policy_id,
+                    str(payload.get("decision_ref", "")),
+                    expected_generation=expected_generation,
+                    actor=str(payload.get("actor") or "api"),
+                    request_id=str(payload.get("request_id") or "") or None,
+                )
+                self._json(200, result)
+                return
+
             if is_learning_promote:
                 learning_id = self.path.removeprefix("/api/learning/").removesuffix("/promote").strip("/")
                 payload = self._body()
@@ -678,7 +751,24 @@ class ProductHandler(Handler):
                     raise ValueError("instruction is required")
                 if len(instruction) > 4_000:
                     raise ValueError("instruction exceeds maximum length")
-                constraints = tuple(source_run.constraints) + (f"revision instruction: {instruction}",)
+
+                visual_decision_id = str(payload.get("visual_decision_id") or "").strip()
+                visual_reason = str(payload.get("visual_reason") or "").strip()
+                visual_context = None
+                if visual_decision_id:
+                    visual_context = self.service.visual_policy.decision_context(
+                        visual_decision_id
+                    )
+                    if str(visual_context["run_id"]) != source_run_id:
+                        raise ValueError(
+                            "visual decision does not belong to source run"
+                        )
+                    if not visual_reason:
+                        visual_reason = "visual candidate rejected by human"
+
+                constraints = tuple(source_run.constraints) + (
+                    f"revision instruction: {instruction}",
+                )
                 new_run = self.content_runs.create(
                     title=str(payload.get("title") or source_run.title),
                     brief=source_run.brief,
@@ -694,13 +784,30 @@ class ProductHandler(Handler):
                     actor="api",
                     input_refs=(source_run_id,),
                     output_refs=(new_run.run_id,),
-                    evidence={"source_run_id": source_run_id, "instruction": instruction},
+                    evidence={
+                        "source_run_id": source_run_id,
+                        "instruction": instruction,
+                        "visual_decision_id": visual_decision_id or None,
+                        "visual_reason": visual_reason or None,
+                        "visual_candidate_id": (
+                            visual_context["candidate_id"]
+                            if visual_context
+                            else None
+                        ),
+                    },
                 )
                 self._json(201, {
                     "run": new_run.to_dict(),
                     "regeneration": {
                         "source_run_id": source_run_id,
                         "instruction": instruction,
+                        "visual_decision_id": visual_decision_id or None,
+                        "visual_reason": visual_reason or None,
+                        "visual_candidate_id": (
+                            visual_context["candidate_id"]
+                            if visual_context
+                            else None
+                        ),
                     },
                     "next": "call /api/runs/{run_id}/factory",
                 })
