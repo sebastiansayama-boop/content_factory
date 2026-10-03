@@ -37,6 +37,22 @@ class TelegramApi:
             raise RuntimeError(f"Telegram {method} failed: {body}")
         return body.get("result") or {}
 
+    def set_webhook(self, webhook_url: str, secret_token: str) -> dict[str, Any]:
+        webhook_url = webhook_url.strip()
+        secret_token = secret_token.strip()
+        if not webhook_url.startswith("https://"):
+            raise ValueError("Telegram webhook URL must use https://")
+        if not secret_token:
+            raise ValueError("Telegram webhook secret is required")
+        return self._call(
+            "setWebhook",
+            {
+                "url": webhook_url,
+                "secret_token": secret_token,
+                "allowed_updates": ["message", "callback_query"],
+            },
+        )
+
     def send_message(self, text: str, reply_markup: dict[str, Any] | None = None) -> dict[str, Any]:
         payload: dict[str, Any] = {"chat_id": self.chat_id, "text": text}
         if reply_markup:
