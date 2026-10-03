@@ -1,0 +1,31 @@
+name: Telegram webhook inspection
+
+on:
+  push:
+    branches: ["main"]
+
+permissions: {}
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect Telegram webhook
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+          token=os.environ["TELEGRAM_BOT_TOKEN"]
+          with urllib.request.urlopen(f"https://api.telegram.org/bot{token}/getWebhookInfo", timeout=30) as r:
+              data=json.load(r)
+          result=data.get("result") or {}
+          print(json.dumps({
+              "url": result.get("url"),
+              "pending_update_count": result.get("pending_update_count"),
+              "last_error_date": result.get("last_error_date"),
+              "last_error_message": result.get("last_error_message"),
+              "max_connections": result.get("max_connections"),
+              "allowed_updates": result.get("allowed_updates"),
+          }, ensure_ascii=False))
+          PY
