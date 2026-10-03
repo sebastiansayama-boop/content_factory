@@ -74,10 +74,22 @@ class CapabilityPolicy:
         }[context.action]
         if allowed is not None and context.run_status not in allowed:
             raise AuthorizationError(f"{context.action.value} requires state {sorted(allowed)}")
-        if context.action in {Action.EDIT, Action.REGENERATE} and context.artifact is None:
-            raise AuthorizationError("artifact context is required for mutation")
+        if context.action in {Action.EDIT, Action.REGENERATE}:
+            self._check_mutation(context)
         if context.action in {Action.APPROVE, Action.PUBLISH}:
             self._check_release_gate(actor, context)
+
+    def _check_mutation(self, context: ActionContext) -> None:
+        artifact = context.artifact
+        if artifact is None:
+            raise AuthorizationError("artifact context is required for mutation")
+        if (
+            context.run_status in {"APPROVED", "EXPORTED"}
+            and artifact.approved_version == artifact.artifact_version
+        ):
+            raise AuthorizationError(
+                "mutation of an approved version requires creating a new artifact version"
+            )
 
     def _check_release_gate(self, actor: ActorContext, context: ActionContext) -> None:
         artifact = context.artifact
