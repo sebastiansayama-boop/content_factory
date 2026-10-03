@@ -29,3 +29,5 @@ jobs:
               "allowed_updates": result.get("allowed_updates"),
           }, ensure_ascii=False))
           PY
+
+# webhook inspection checkpoint
