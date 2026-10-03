@@ -23,9 +23,15 @@ class FakeTelegram:
         self.answered.append({"id": callback_id, "text": text})
         return {}
 
-    def send_photo(self, path: Path, caption=""):
-        self.sent.append({"photo": str(path), "caption": caption})
-        return {"message_id": len(self.sent)}
+    def send_photo(self, path: Path, caption="", reply_markup=None):
+        message_id = len(self.sent) + 1
+        self.sent.append({
+            "photo": str(path),
+            "caption": caption,
+            "reply_markup": reply_markup,
+            "message_id": message_id,
+        })
+        return {"message_id": message_id}
 
 
 class FakeFactory:
@@ -34,6 +40,7 @@ class FakeFactory:
         self.approved = []
         self.published = []
         self.regenerated = []
+        self.visual_feedback_rows = []
         self.phase = {}
 
     def create_run(self, topic):
@@ -72,9 +79,19 @@ class FakeFactory:
         self.promoted.append((claim_id, decision_ref))
         return 200, {"claim_id": claim_id, "status": "ACCEPTED"}
 
-    def regenerate(self, run_id, instruction):
-        self.regenerated.append((run_id, instruction))
+    def regenerate(self, run_id, instruction, **kwargs):
+        self.regenerated.append((run_id, instruction, kwargs))
         return 201, {"run": {"run_id": "run-2"}}
+
+    def visual_feedback(self, decision_id, action, reason=""):
+        self.visual_feedback_rows.append((decision_id, action, reason))
+        return 201, {
+            "feedback_id": "feedback-1",
+            "decision_id": decision_id,
+            "action": action,
+            "reason": reason,
+            "run_id": "run-1",
+        }
 
     def approve(self, run_id, decision_ref):
         self.approved.append((run_id, decision_ref))
@@ -205,3 +222,83 @@ def test_callback_data_stays_within_telegram_limit():
     )
     raw = keyboard["inline_keyboard"][0][0]["callback_data"]
     assert len(raw.encode("utf-8")) <= 64
+
+
+def test_visual_preview_attaches_accept_reject_buttons_to_each_decision():
+    telegram = FakeTelegram()
+    factory = FakeFactory()
+    bot = TelegramFactoryBot(
+        telegram=telegram,
+        factory=factory,
+        allowed_chat_id="123",
+    )
+
+    run = {
+        "run_id": "run-1",
+        "title": "Тестовый материал",
+        "result": {
+            "package": {
+                "title": "Тестовый материал",
+                "text": "Готовый текст.",
+                "media": [
+                    {
+                        "media_id": "asset-1",
+                        "type": "image",
+                        "uri": str(Path(__file__).parent / "fixtures" / "sample.jpg"),
+                        "visual_decision_id": "decision-123",
+                        "visual_policy_version": "v1",
+                    }
+                ],
+                "claims": [],
+                "evidence": [],
+                "qc": {"status": "PASSED"},
+            }
+        },
+    }
+    sample = Path(__file__).parent / "fixtures" / "sample.jpg"
+    sample.parent.mkdir(parents=True, exist_ok=True)
+    sample.write_bytes(b"fake-image")
+
+    try:
+        bot._send_preview("run-1", run)
+        photos = [item for item in telegram.sent if "photo" in item]
+        assert len(photos) == 1
+        buttons = photos[0]["reply_markup"]["inline_keyboard"]
+        assert buttons[0][0]["callback_data"] == "va:decision-123:A"
+        assert buttons[0][1]["callback_data"] == "va:decision-123:R"
+    finally:
+        sample.unlink()
+
+
+def test_visual_reject_records_feedback_and_regenerates_source_run():
+    telegram = FakeTelegram()
+    factory = FakeFactory()
+    bot = TelegramFactoryBot(
+        telegram=telegram,
+        factory=factory,
+        allowed_chat_id="123",
+    )
+
+    bot.handle_update(_callback("va:decision-123:R", update_id=30, message_id=999))
+
+    assert factory.visual_feedback_rows[0][0:2] == ("decision-123", "REJECT")
+    assert factory.regenerated[0][0] == "run-1"
+    assert factory.regenerated[0][2]["visual_decision_id"] == "decision-123"
+    assert factory.regenerated[0][2]["visual_reason"]
+    assert any("Проверяй изображение повторно." in item["text"] for item in telegram.sent if "text" in item)
+
+
+def test_visual_accept_records_feedback_without_regeneration():
+    telegram = FakeTelegram()
+    factory = FakeFactory()
+    bot = TelegramFactoryBot(
+        telegram=telegram,
+        factory=factory,
+        allowed_chat_id="123",
+    )
+    bot._preview_runs[10] = "run-1"
+
+    bot.handle_update(_callback("va:decision-123:A", update_id=31, message_id=10))
+
+    assert factory.visual_feedback_rows[0][0:2] == ("decision-123", "ACCEPT")
+    assert factory.regenerated == []
