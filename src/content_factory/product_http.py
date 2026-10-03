@@ -751,7 +751,24 @@ class ProductHandler(Handler):
                     raise ValueError("instruction is required")
                 if len(instruction) > 4_000:
                     raise ValueError("instruction exceeds maximum length")
-                constraints = tuple(source_run.constraints) + (f"revision instruction: {instruction}",)
+
+                visual_decision_id = str(payload.get("visual_decision_id") or "").strip()
+                visual_reason = str(payload.get("visual_reason") or "").strip()
+                visual_context = None
+                if visual_decision_id:
+                    visual_context = self.service.visual_policy.decision_context(
+                        visual_decision_id
+                    )
+                    if str(visual_context["run_id"]) != source_run_id:
+                        raise ValueError(
+                            "visual decision does not belong to source run"
+                        )
+                    if not visual_reason:
+                        visual_reason = "visual candidate rejected by human"
+
+                constraints = tuple(source_run.constraints) + (
+                    f"revision instruction: {instruction}",
+                )
                 new_run = self.content_runs.create(
                     title=str(payload.get("title") or source_run.title),
                     brief=source_run.brief,
@@ -767,13 +784,30 @@ class ProductHandler(Handler):
                     actor="api",
                     input_refs=(source_run_id,),
                     output_refs=(new_run.run_id,),
-                    evidence={"source_run_id": source_run_id, "instruction": instruction},
+                    evidence={
+                        "source_run_id": source_run_id,
+                        "instruction": instruction,
+                        "visual_decision_id": visual_decision_id or None,
+                        "visual_reason": visual_reason or None,
+                        "visual_candidate_id": (
+                            visual_context["candidate_id"]
+                            if visual_context
+                            else None
+                        ),
+                    },
                 )
                 self._json(201, {
                     "run": new_run.to_dict(),
                     "regeneration": {
                         "source_run_id": source_run_id,
                         "instruction": instruction,
+                        "visual_decision_id": visual_decision_id or None,
+                        "visual_reason": visual_reason or None,
+                        "visual_candidate_id": (
+                            visual_context["candidate_id"]
+                            if visual_context
+                            else None
+                        ),
                     },
                     "next": "call /api/runs/{run_id}/factory",
                 })
