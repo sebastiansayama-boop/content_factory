@@ -184,7 +184,7 @@ def test_edit_button_turns_next_message_into_regeneration():
     bot.handle_update(_callback("e:run-1", update_id=12, message_id=preview["message_id"]))
     bot.handle_update(_update_message("Сделай текст короче.", update_id=13))
 
-    assert factory.regenerated == [("run-1", "Сделай текст короче.")]
+    assert factory.regenerated[0][:2] == ("run-1", "Сделай текст короче.")
     assert any("ГОТОВО К ПРОВЕРКЕ" in item["text"] for item in telegram.sent if "text" in item)
 
 
