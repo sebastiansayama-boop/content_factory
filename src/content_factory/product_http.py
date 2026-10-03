@@ -1467,11 +1467,16 @@ def main() -> None:
     telegram_chat_id = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
     factory_api_token = os.environ.get("FACTORY_API_TOKEN", "").strip()
     if telegram_token and telegram_chat_id and factory_api_token:
+        telegram_api = TelegramApi(telegram_token, telegram_chat_id)
         ProductHandler.telegram_bot = TelegramFactoryBot(
-            telegram=TelegramApi(telegram_token, telegram_chat_id),
+            telegram=telegram_api,
             factory=FactoryHttpClient(f"http://127.0.0.1:{port}", factory_api_token),
             allowed_chat_id=telegram_chat_id,
         )
+        webhook_url = os.environ.get("TELEGRAM_WEBHOOK_URL", "").strip()
+        webhook_secret = os.environ.get("TELEGRAM_WEBHOOK_SECRET", "").strip()
+        if webhook_url and webhook_secret:
+            telegram_api.set_webhook(webhook_url, webhook_secret)
     else:
         ProductHandler.telegram_bot = None
     try:
