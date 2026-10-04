@@ -541,6 +541,14 @@ ancient cyclical concepts of time Mesopotamia Egypt Greece India Maya historical
     assert claims
     assert len(sources) >= 2
     assert len(evidence) >= 2
+    claim_by_id = {str(x.get("id")): x for x in claims if x.get("id")}
+    source_by_id = {str(x.get("id")): x for x in sources if x.get("id")}
+    evidence_by_id = {str(x.get("id")): x for x in evidence if x.get("id")}
+    for claim in claims:
+        assert claim.get("source_ids") and claim.get("evidence_ids")
+        assert all(str(sid) in source_by_id or any(str(src.get("url")) == str(sid) for src in sources) for sid in claim["source_ids"])
+        assert all(str(eid) in evidence_by_id for eid in claim["evidence_ids"])
+    assert any(claim.get("source_ids") and claim.get("evidence_ids") for claim in claims)
 
     knowledge = json.dumps(
         {"claims": claims[:10], "sources": sources[:10], "evidence": evidence[:20]},
@@ -575,6 +583,12 @@ RESEARCH:
     assert any(marker in lowered for marker in ("пророч", "предсказ"))
 
     assert new_story_state.get("central_question") == story_state["central_question"]
+    generated_claim_ids = {str(x) for x in (new_story_state.get("claims") or [])}
+    generated_evidence_ids = {str(x) for x in (new_story_state.get("evidence") or [])}
+    assert generated_claim_ids
+    assert generated_evidence_ids
+    assert generated_claim_ids <= set(claim_by_id)
+    assert generated_evidence_ids <= set(evidence_by_id)
     assert len(new_story_state.get("established") or []) >= 2
     assert new_story_state.get("unresolved")
     assert any(
