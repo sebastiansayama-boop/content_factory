@@ -18,6 +18,7 @@ COMMANDS = {
     'telegram-series-episode-3-retry': ['python','-m','pytest','-s','-q','tests/test_telegram_historical_material_smoke.py::test_real_telegram_series_episode_3_continuity','-m','external'],
     'telegram-series-episode-3-r2': ['python','-m','pytest','-s','-q','tests/test_telegram_historical_material_smoke.py::test_real_telegram_series_episode_3_continuity','-m','external'],
     'telegram-series-episode-3-r3': ['python','-m','pytest','-s','-q','tests/test_telegram_historical_material_smoke.py::test_real_telegram_series_episode_3_continuity','-m','external'],
+    'telegram-series-episode-4': ['python','-m','pytest','-s','-q','tests/test_telegram_historical_material_smoke.py::test_real_telegram_series_episode_4_continuity','-m','external'],
 }
 def parse():
     title = os.environ.get('ISSUE_TITLE','')
