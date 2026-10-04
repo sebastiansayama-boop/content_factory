@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, experiment/dependency-aware-regeneration-v1, experiment/research-knowledge-v1]
+    branches: [main, experiment/dependency-aware-regeneration-v1, experiment/research-knowledge-v1, experiment/model-dataset-v1]
   pull_request:
   workflow_dispatch:
 
