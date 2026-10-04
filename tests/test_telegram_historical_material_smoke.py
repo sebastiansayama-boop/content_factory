@@ -352,3 +352,5 @@ ACCEPTED KNOWLEDGE:
         server.server_close()
         thread.join(timeout=2)
         service.close()
+
+# Trigger real Telegram publication proof after the series-aware test merge.
