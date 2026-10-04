@@ -7,6 +7,7 @@ from http.server import ThreadingHTTPServer
 
 import pytest
 
+from content_factory.publication_diversity import max_publication_similarity
 from tests.test_telegram_publication_smoke import _create_prepared_run, _request
 from content_factory.content_run_planner import ContentRunPlanner
 from content_factory.product_http import ProductHandler
@@ -289,9 +290,25 @@ ACCEPTED KNOWLEDGE:
         used_modes.add(variation_mode)
         validate_publication_text(text_value, rules)
         assert "—" not in text_value
-        generated.append((str(gp.get("title") or topic).strip(), text_value))
+        generated.append((str(gp.get("title") or topic).strip(), text_value, variation_mode))
     assert len({text_value for _, text_value in generated}) == 5
     assert len(used_modes) >= 3
+
+    # Surface the failure mode we saw in real Telegram output: different
+    # variation labels are not sufficient if the factual/narrative core repeats.
+    pair_scores = []
+    for left_index in range(len(generated)):
+        for right_index in range(left_index + 1, len(generated)):
+            score = max_publication_similarity(
+                generated[left_index][1],
+                [generated[right_index][1]],
+            )
+            pair_scores.append((left_index + 1, right_index + 1, score))
+    max_pair = max(pair_scores, key=lambda item: item[2])
+    assert max_pair[2] < 0.35, (
+        "publication diversity failed: "
+        f"pair {max_pair[0]} vs {max_pair[1]} similarity={max_pair[2]:.3f}"
+    )
 
     service = FactoryService()
     ProductHandler.service = service
