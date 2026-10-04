@@ -304,7 +304,8 @@
           "excerpt": "Smithsonian records the first Pong machine at Andy Capp’s Tavern and the coinbox filling with quarters shortly after installation."
         }
       ],
-      "publication": null
+      "publication": null,
+      "publication_attempt": 2
     },
     {
       "episode": 3,
