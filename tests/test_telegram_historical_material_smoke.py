@@ -102,7 +102,7 @@ def test_real_telegram_generated_historical_material_smoke(tmp_path, monkeypatch
         pytest.fail("GEMINI_API_KEY is required for generated Telegram smoke")
 
     monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
-    monkeypatch.setenv("FACTORY_API_TOKEN", "telegram-generated-publication-smoke-token")
+    monkeypatch.setenv("FACTORY_API_TOKEN", "telegram-publication-smoke-token")
     monkeypatch.delenv("FACTORY_TELEGRAM_FAKE", raising=False)
 
     research = FreeWebGeminiAdapter()
