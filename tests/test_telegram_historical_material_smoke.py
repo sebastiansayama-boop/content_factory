@@ -446,6 +446,10 @@ def test_real_telegram_series_episode_2_continuity(tmp_path, monkeypatch):
             },
             "qc": {"status": "PASSED"},
         }
+        service.content_runs.start_planning(seed.run_id)
+        service.content_runs.save_plan(seed.run_id, {"kind": "seed", "series_id": series_id})
+        service.content_runs.start_producing(seed.run_id)
+        service.content_runs.save_production_result(seed.run_id, seed_result)
         service.content_runs.save_result(seed.run_id, seed_result)
         service.content_runs.approve(seed.run_id, decision_ref="telegram-series-episode-1-seeded")
         service.content_runs.mark_published(
