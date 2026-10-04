@@ -1,0 +1,44 @@
+name: Publish Telegram Episode
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    if: startsWith(github.event.issue.title, 'publish: thai-spirit-episode-')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: telegram-publication
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e .
+      - name: Resolve episode
+        id: episode
+        shell: bash
+        run: |
+          title="${{ github.event.issue.title }}"
+          episode="${title#publish: thai-spirit-episode-}"
+          if ! [[ "$episode" =~ ^[0-9]+$ ]]; then
+            echo "Invalid episode: $episode"
+            exit 1
+          fi
+          echo "episode=$episode" >> "$GITHUB_OUTPUT"
+      - name: Publish exactly one episode
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_EPISODE: ${{ steps.episode.outputs.episode }}
+          TELEGRAM_LIBRARY_PATH: library/telegram/thai-spiritual-world.json
+        run: python scripts/publish_telegram_library.py
