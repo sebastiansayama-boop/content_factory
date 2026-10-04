@@ -564,14 +564,43 @@ CONTENT BRIEF:
 USER CONSTRAINTS:
 {json.dumps(constraints, ensure_ascii=False)}""",
         )
-        spec_claims = _validate_claim_refs(
-            {**spec_raw, "claim_refs": _refs_or_default(spec_raw.get("claim_refs"), "claim_refs", brief.selected_claim_refs)},
-            claim_ids,
-        )
-        spec_evidence = _validate_evidence_refs(
-            {**spec_raw, "evidence_refs": _refs_or_default(spec_raw.get("evidence_refs"), "evidence_refs", brief.evidence_refs)},
-            evidence_ids,
-        )
+        try:
+            spec_claims = _validate_claim_refs(
+                {**spec_raw, "claim_refs": _refs_or_default(spec_raw.get("claim_refs"), "claim_refs", brief.selected_claim_refs)},
+                claim_ids,
+            )
+            spec_evidence = _validate_evidence_refs(
+                {**spec_raw, "evidence_refs": _refs_or_default(spec_raw.get("evidence_refs"), "evidence_refs", brief.evidence_refs)},
+                evidence_ids,
+            )
+        except WorkspaceError as exc:
+            if not any(name in str(exc) for name in ("claim_refs", "evidence_refs")):
+                raise
+            spec_raw = self._generate(
+                work_item_id=f"content-spec-{run_id}-provenance-retry",
+                revision_id="content-spec-v1-provenance-retry",
+                objective="regenerate a content specification that satisfies the strict provenance contract",
+                prompt=f"""The previous ContentSpec response was rejected because claim_refs or evidence_refs did not match the required JSON array-of-strings contract.
+
+Return ONLY valid JSON matching this exact shape:
+{{"spec_id":"spec-1","title":"string","objective":"string","audience":"string","format":"string","tone":"string","structure":["hook","context","development","conclusion"],"constraints":["constraint"],"claim_refs":["kc-*"],"evidence_refs":["ke-*"],"style_bible":{{"visual_style":"string","palette":"string","lighting":"string","subject_continuity":"string","negative_constraints":"string","voice":"string","pace":"string","music":"string"}}}}
+
+claim_refs and evidence_refs MUST be JSON arrays of non-empty strings copied exactly from the supplied ContentBrief provenance. Do not serialize an array as a string. Do not invent, rename, or omit provenance. The structure field must also be an array of at least four non-empty strings.
+
+CONTENT BRIEF:
+{brief_json}
+
+USER CONSTRAINTS:
+{json.dumps(constraints, ensure_ascii=False)}""",
+            )
+            spec_claims = _validate_claim_refs(
+                {**spec_raw, "claim_refs": _refs_or_default(spec_raw.get("claim_refs"), "claim_refs", brief.selected_claim_refs)},
+                claim_ids,
+            )
+            spec_evidence = _validate_evidence_refs(
+                {**spec_raw, "evidence_refs": _refs_or_default(spec_raw.get("evidence_refs"), "evidence_refs", brief.evidence_refs)},
+                evidence_ids,
+            )
         try:
             structure = _structure_steps(spec_raw.get("structure"))
         except WorkspaceError as exc:
