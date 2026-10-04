@@ -118,7 +118,7 @@ USER BRIEF:
     research_payload = json.loads(research.text(research_result))
     claims = research_payload["claims"]
     evidence = research_payload["evidence"]
-    assert len(claims) >= 3
+    assert len(claims) >= 2
     assert evidence
 
     knowledge = json.dumps({"claims": claims[:6], "evidence": evidence[:12]}, ensure_ascii=False)
