@@ -378,6 +378,11 @@ class KnowledgeContentBuilder:
             for unit in previous_units
             if isinstance(unit, dict) and str(unit.get("text") or "").strip()
         ).strip()
+        previous_publication_variants = [previous_publication] + [
+            str(unit.get("text") or "").strip()
+            for unit in previous_units
+            if isinstance(unit, dict) and str(unit.get("text") or "").strip()
+        ]
         previous_claim_refs = {
             str(ref).strip()
             for unit in previous_units
@@ -675,8 +680,8 @@ ACCEPTED KNOWLEDGE:
             raise WorkspaceError("script requires script_id")
         _validate_epistemic_scope(list(script.units))
         publication_text = "\n\n".join(unit.text for unit in units if unit.text).strip()
-        if previous_publication and not is_sufficiently_distinct(publication_text, [previous_publication]):
-            retry_prompt = script_prompt + f"""\n\nDIVERSITY GUARD REJECTED THE CANDIDATE. Its deterministic similarity to the previous publication was {max_publication_similarity(publication_text, [previous_publication]):.3f}, above the allowed threshold. Regenerate with a materially different factual emphasis, supported claim subset, narrative movement, opening, and ending.\nPREVIOUS PUBLICATION:\n{previous_publication}\n"""
+        if previous_publication and not is_sufficiently_distinct(publication_text, previous_publication_variants):
+            retry_prompt = script_prompt + f"""\n\nDIVERSITY GUARD REJECTED THE CANDIDATE. Its deterministic similarity to the previous publication was {max_publication_similarity(publication_text, previous_publication_variants):.3f}, above the allowed threshold. Regenerate with a materially different factual emphasis, supported claim subset, narrative movement, opening, and ending.\nPREVIOUS PUBLICATION:\n{previous_publication}\n"""
             script_raw = self._generate(
                 work_item_id=f"content-script-{run_id}-diversity-retry",
                 revision_id="content-script-v1-diversity-retry",
