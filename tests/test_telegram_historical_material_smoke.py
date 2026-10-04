@@ -810,7 +810,7 @@ RESEARCH: {knowledge}
         service.close()
 
 
-def test_real_telegram_series_episode_4_continuity(tmp_path, monkeypatch):
+def test_real_telegram_series_continuity(tmp_path, monkeypatch):
     """Publish the next series episode from persisted predecessor state with provenance checks."""
     if os.environ.get("RUN_TELEGRAM_E2E") != "1":
         pytest.skip("set RUN_TELEGRAM_E2E=1 for a real Telegram publication smoke")
