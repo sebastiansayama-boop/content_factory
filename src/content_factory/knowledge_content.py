@@ -6,6 +6,7 @@ from typing import Any
 
 from .knowledge import KnowledgeStore
 from .publication_text_rules import format_publication_text_rules, resolve_publication_text_rules, validate_publication_text
+from .publication_text_matrix import format_text_variation_matrix
 from .runtime import WorkItem
 from .workspace import ContentWorkspace, WorkspaceError, _json_from_text
 
@@ -570,6 +571,17 @@ A CTA is optional and must not replace the conclusion.
 
 Publication text rules:
 {text_rules_prompt}
+
+Text variation matrix:
+{format_text_variation_matrix()}
+
+Variation decision:
+- If Variation is auto, YOU choose exactly one matrix mode based on the strongest factual shape of the accepted knowledge.
+- Return the chosen mode implicitly through the writing itself; do not expose the mode label in the publication.
+- The matrix is a decision space, not a fixed template. You may combine its techniques when that produces a more natural text, but the dominant mode must be clear.
+- Across repeated publications, do not default to the same opening, sentence rhythm, progression, or ending when the evidence supports another mode.
+- Never force a mode that requires facts or details absent from the evidence.
+
 Write 4-6 ordered units. The combined unit text is the final publication text. Target the requested length for that combined text.
 Use natural prose and vary sentence openings. Avoid filler, generic motivational language, clickbait, repeated conclusions, and empty transitions.
 Do not use generic templates such as “Did you know?”, “Think again”, or “Follow for more” unless explicitly requested.
