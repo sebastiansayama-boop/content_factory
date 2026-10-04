@@ -24,7 +24,14 @@ def parse():
     with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as f: f.write('command='+command+'\n')
     return 0
 def execute():
-    command = os.environ['CONTROL_COMMAND']
+    command = os.environ.get('CONTROL_COMMAND','').strip().lower()
+    if not command:
+        title = os.environ.get('ISSUE_TITLE','')
+        raw = title.removeprefix('control:').strip() if title.startswith('control:') else (os.environ.get('ISSUE_BODY','') or '').strip()
+        command = raw.splitlines()[0].strip().lower() if raw else ''
+    if command not in COMMANDS:
+        print('Unsupported command: %r' % command, file=sys.stderr)
+        return 2
     proc = subprocess.run(COMMANDS[command], cwd=ROOT, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=12*60)
     RESULT.write_text(json.dumps({'command':command,'exit_code':proc.returncode,'output':proc.stdout[-12000:]},ensure_ascii=False,indent=2),encoding='utf-8')
     print(proc.stdout)
