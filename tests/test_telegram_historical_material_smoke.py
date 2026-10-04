@@ -673,3 +673,138 @@ RESEARCH:
         server.server_close()
         thread.join(timeout=2)
         service.close()
+
+
+def test_real_telegram_series_episode_3_continuity(tmp_path, monkeypatch):
+    """Publish episode 3 from persisted episode-2 story state with provenance checks."""
+    if os.environ.get("RUN_TELEGRAM_E2E") != "1":
+        pytest.skip("set RUN_TELEGRAM_E2E=1 for a real Telegram publication smoke")
+    for name in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "GEMINI_API_KEY"):
+        if not os.environ.get(name):
+            pytest.fail(f"{name} is required")
+    monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("FACTORY_API_TOKEN", "telegram-publication-smoke-token")
+    monkeypatch.delenv("FACTORY_TELEGRAM_FAKE", raising=False)
+
+    series_id = "telegram-series-future-001"
+    title = "Как люди прошлого представляли будущее"
+    service = FactoryService()
+    try:
+        seed = service.content_runs.create(title=title, brief=title, formats=("telegram",))
+        source = {"id":"source-greek-oracle","title":"Ancient Greek divination and oracles","url":"https://www.britannica.com/topic/oracle-religion"}
+        evidence = {"id":"evidence-greek-oracle","source_id":"source-greek-oracle","excerpt":"Ancient Greek oracles were institutions through which divine responses were sought."}
+        claim = {"id":"claim-oracle","text":"В древнегреческих оракулах обращение к божественному ответу было способом получить знание о событиях и решениях.","source_ids":["source-greek-oracle"],"evidence_ids":["evidence-greek-oracle"]}
+        seed_result = {
+            "brief": title, "content_brief":{"title":title},
+            "package":{
+                "title":"Эпизод 2",
+                "text":"Циклическое время связывало человеческую историю с повторяющимися природными и космическими ритмами.",
+                "media":[],
+                "claims":[claim],"sources":[source],"evidence":[evidence],"qc":{"status":"PASSED"},
+                "series":{
+                    "series_id":series_id,"title":title,"episode":2,
+                    "central_question":"Когда и почему будущее стало восприниматься как открытая возможность?",
+                    "previous_run_id":None,
+                    "unresolved":["Как древние практики предсказания и пророчества относились к идее будущего?"],
+                    "next_required_transition":"Разобрать пророчество и отличие предсказания от современного прогноза.",
+                    "story_state":{
+                        "central_question":"Когда и почему будущее стало восприниматься как открытая возможность?",
+                        "established":["Представления о будущем существовали задолго до современной фантастики.","Древние традиции могли связывать время с повторяющимися природными и космическими ритмами."],
+                        "unresolved":["Как древние практики предсказания и пророчества относились к идее будущего?"],
+                        "next_required_transition":"Разобрать пророчество и отличие предсказания от современного прогноза.",
+                        "used_examples":["древнегреческие представления о циклическом времени"],
+                        "claims":[claim["id"]],"evidence":[evidence["id"]]
+                    }
+                }
+            }
+        }
+        service.content_runs.start_planning(seed.run_id)
+        service.content_runs.save_plan(seed.run_id, {"kind":"seed","series_id":series_id})
+        service.content_runs.start_producing(seed.run_id)
+        service.content_runs.save_production_result(seed.run_id, seed_result)
+        service.content_runs.save_result(seed.run_id, seed_result)
+        service.content_runs.approve(seed.run_id, decision_ref="telegram-series-episode-2-seeded")
+        service.content_runs.mark_published(seed.run_id, {"status":"PUBLISHED","channel":"telegram","external_id":"seed-episode-2"})
+    finally:
+        service.close()
+
+    service = FactoryService()
+    try:
+        previous = next((x for x in service.content_runs.list(limit=50)
+                         if ((x.result or {}).get("package") or {}).get("series",{}).get("series_id")==series_id
+                         and ((x.result or {}).get("package") or {}).get("series",{}).get("episode")==2), None)
+        assert previous is not None and previous.status == "PUBLISHED"
+        prev_series = previous.result["package"]["series"]
+        prev_state = prev_series["story_state"]
+
+        research = FreeWebGeminiAdapter()
+        prompts = [
+            "ancient Greek oracle prophecy divination future prediction",
+            "Mesopotamian divination omens prophecy future",
+            "ancient Hebrew prophecy future prediction historical context"
+        ]
+        claims=[]; sources=[]; evidence=[]; seen=set()
+        for q in prompts:
+            rr=research.research(f"""Return ONLY JSON with topic, claims, sources, evidence.
+Research the relation between prophecy/divination and ideas of the future for a historical content series.
+Use bounded historical examples and authoritative sources. Do not invent facts.
+USER BRIEF: {q}
+PREVIOUS STORY STATE: {json.dumps(prev_state,ensure_ascii=False)}
+""")
+            assert 200 <= rr.status_code < 300
+            data=json.loads(research.text(rr))
+            for item in data.get("claims",[]):
+                if isinstance(item,dict) and str(item.get("text") or "").strip() and item.get("id") not in {x.get("id") for x in claims}: claims.append(item)
+            for item in data.get("sources",[]):
+                if isinstance(item,dict) and str(item.get("url") or "").strip() and item.get("url") not in {x.get("url") for x in sources}: sources.append(item)
+            for item in data.get("evidence",[]):
+                if isinstance(item,dict) and str(item.get("excerpt") or "").strip() and item.get("id") not in seen: evidence.append(item); seen.add(item.get("id"))
+        assert claims and len(sources)>=2 and len(evidence)>=2
+        source_ids={x.get("id") for x in sources}; evidence_ids={x.get("id") for x in evidence}
+        for claim in claims:
+            assert claim.get("source_ids") and claim.get("evidence_ids")
+            assert all(x in source_ids for x in claim["source_ids"])
+            assert all(x in evidence_ids for x in claim["evidence_ids"])
+
+        knowledge=json.dumps({"claims":claims[:12],"sources":sources[:12],"evidence":evidence[:24]},ensure_ascii=False)
+        gr=research.research(f"""Write episode 3 of a connected historical Telegram series in Russian. Return ONLY JSON:
+{{"title":"string","content":"string","story_state":{{"central_question":"string","established":["string"],"unresolved":["string"],"next_required_transition":"string","used_examples":["string"],"claims":["id"],"evidence":["id"]}}}}
+Answer the previous unresolved question about prophecy and the future. Distinguish prophecy/divination from modern probabilistic forecasting. Use ONLY supplied research and cite its claim/evidence IDs in story_state. Preserve central_question exactly. Extend established knowledge. End by opening the next transition: when the future became a place or society that could be imagined.
+Natural Russian, 700-1300 characters, no em dash, no filler.
+PREVIOUS: {json.dumps(prev_series,ensure_ascii=False)}
+RESEARCH: {knowledge}
+""")
+        assert 200 <= gr.status_code < 300
+        payload=json.loads(research.text(gr)); text_value=str(payload.get("content") or "").strip(); state=payload.get("story_state") or {}
+        assert 700 <= len(text_value) <= 1400
+        assert "—" not in text_value
+        low=text_value.casefold()
+        assert "пророч" in low or "предсказ" in low
+        assert "?" in text_value
+        assert state.get("central_question")==prev_state["central_question"]
+        cids={str(x) for x in state.get("claims",[])}; eids={str(x) for x in state.get("evidence",[])}
+        assert cids and eids and cids <= {str(x.get("id")) for x in claims} and eids <= {str(x.get("id")) for x in evidence}
+        assert any(k in str(state.get("next_required_transition","")).casefold() for k in ("мест", "простран", "воображ", "утоп"))
+
+        ProductHandler.service=service; ProductHandler.workspace=ContentWorkspace(service); ProductHandler.content_runs=service.content_runs
+        ProductHandler.content_run_planner=ContentRunPlanner(ProductHandler.workspace)
+        monkeypatch.setattr(ProductHandler,"_rate_limited",lambda *a,**k:False)
+        server=ThreadingHTTPServer(("127.0.0.1",0),ProductHandler); thread=threading.Thread(target=server.serve_forever,daemon=True); thread.start()
+        try:
+            run,_=_create_prepared_run(service,tmp_path,with_media=False)
+            result=dict(run.result or {}); result["brief"]=title
+            result["content_brief"]={**result["content_brief"],"title":str(payload.get("title") or "Эпизод 3")}
+            result["package"]={**result["package"],"title":str(payload.get("title") or "Эпизод 3"),"text":text_value,"media":[],"claims":claims,"sources":sources,"evidence":evidence,"qc":{"status":"PASSED"},"series":{"series_id":series_id,"title":title,"episode":3,"previous_run_id":previous.run_id,"central_question":state["central_question"],"unresolved":state["unresolved"],"next_required_transition":state["next_required_transition"],"story_state":state}}
+            service.content_runs.save_result(run.run_id,result)
+            status,approved=_request(f"http://127.0.0.1:{server.server_port}","POST",f"/api/runs/{run.run_id}/approve",{"decision_ref":"telegram-series-episode-3-approver","channel":"telegram"})
+            assert status==200 and approved["result"]["publication"]["status"]=="PREPARED"
+            pub=approved["result"]["publication"]
+            status,published=_request(f"http://127.0.0.1:{server.server_port}","POST",f"/api/runs/{run.run_id}/publish",{"publication_id":pub["publication_id"]})
+            assert status==200 and published["status"]=="PUBLISHED" and published["response"]["telegram_ok"] is True
+            final=service.content_runs.get(run.run_id); assert final.status=="PUBLISHED"
+            fs=final.result["package"]["series"]; assert fs["episode"]==3 and fs["previous_run_id"]==previous.run_id
+            print("\nGENERATED_TELEGRAM_EPISODE_3:\n"+text_value)
+        finally:
+            server.shutdown(); server.server_close(); thread.join(timeout=2)
+    finally:
+        service.close()
