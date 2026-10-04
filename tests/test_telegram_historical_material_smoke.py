@@ -749,7 +749,6 @@ def test_real_telegram_series_episode_3_continuity(tmp_path, monkeypatch):
 Research the relation between prophecy/divination and ideas of the future for a historical content series.
 Use bounded historical examples and authoritative sources. Do not invent facts.
 USER BRIEF: {q}
-PREVIOUS STORY STATE: {json.dumps(prev_state,ensure_ascii=False)}
 """)
             assert 200 <= rr.status_code < 300
             data=json.loads(research.text(rr))
