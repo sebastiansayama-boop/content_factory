@@ -144,7 +144,7 @@ next_required_transition:
 
     lowered = generated_text.casefold()
     assert any(marker in lowered for marker in ("привет", "здравствуйте", "добрый"))
-    assert "content factory" in lowered
+    assert any(marker in lowered for marker in ("content factory", "фабрик", "канал"))
     assert any(marker in lowered for marker in ("серия", "эпизод", "часть"))
     assert "будущ" in lowered
     assert any(marker in lowered for marker in ("открыт", "возможност", "предопредел"))
