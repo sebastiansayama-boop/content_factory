@@ -1,8 +1,7 @@
 name: Telegram Episode 10 Publish
 
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
 
 permissions: {}
 
