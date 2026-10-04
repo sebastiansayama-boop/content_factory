@@ -14,6 +14,7 @@ from content_factory.workspace import ContentWorkspace
 
 pytestmark = pytest.mark.external
 
+
 def test_real_telegram_historical_material_smoke(tmp_path, monkeypatch):
     if os.environ.get("RUN_TELEGRAM_E2E") != "1":
         pytest.skip("set RUN_TELEGRAM_E2E=1 for a real Telegram publication smoke")
@@ -37,33 +38,52 @@ def test_real_telegram_historical_material_smoke(tmp_path, monkeypatch):
     base_url = f"http://127.0.0.1:{server.server_port}"
 
     try:
-        run, _asset = _create_prepared_run(service, tmp_path, with_media=True)
+        run, _asset = _create_prepared_run(service, tmp_path, with_media=False)
         result = dict(run.result or {})
         result["brief"] = "Малоизвестные факты из истории человечества"
-        result["content_brief"] = {**result["content_brief"], "title": "Малоизвестные факты из истории человечества"}
+        result["content_brief"] = {
+            **result["content_brief"],
+            "title": "Малоизвестные факты из истории человечества",
+        }
         result["package"] = {
             **result["package"],
             "title": "Малоизвестные факты из истории человечества",
-            "text": "История полна фактов, которые редко попадают в учебники. Этот материал проверяет публикационный путь Content Factory на настоящей теме.",
+            "text": (
+                "История полна фактов, которые редко попадают в учебники. "
+                "Этот материал проверяет публикационный путь Content Factory на настоящей теме."
+            ),
+            "media": [],
         }
         service.content_runs.save_result(run.run_id, result)
 
-        status, approved = _request(base_url, "POST", f"/api/runs/{run.run_id}/approve", {
-            "decision_ref": "telegram-historical-material-approver",
-            "actor_id": "telegram-historical-material-actor",
-            "channel": "telegram",
-        })
+        status, approved = _request(
+            base_url,
+            "POST",
+            f"/api/runs/{run.run_id}/approve",
+            {
+                "decision_ref": "telegram-historical-material-approver",
+                "actor_id": "telegram-historical-material-actor",
+                "channel": "telegram",
+            },
+        )
         assert status == 200, approved
         publication = approved["result"]["publication"]
+        assert publication["media"] == []
 
-        status, published = _request(base_url, "POST", f"/api/runs/{run.run_id}/publish", {
-            "publication_id": publication["publication_id"],
-            "actor_id": "telegram-historical-material-actor",
-        })
+        status, published = _request(
+            base_url,
+            "POST",
+            f"/api/runs/{run.run_id}/publish",
+            {
+                "publication_id": publication["publication_id"],
+                "actor_id": "telegram-historical-material-actor",
+            },
+        )
         assert status == 200, published
         assert published["status"] == "PUBLISHED"
         assert published["channel"] == "telegram"
         assert published["response"]["telegram_ok"] is True
+        assert published["response"]["media_count"] == 0
         assert published["response"]["text"].startswith("История полна фактов")
     finally:
         server.shutdown()
