@@ -379,3 +379,236 @@ ACCEPTED KNOWLEDGE:
         server.server_close()
         thread.join(timeout=2)
         service.close()
+
+
+def test_real_telegram_series_episode_2_continuity(tmp_path, monkeypatch):
+    """Publish episode 2 from persisted episode-1 story state after a fresh runtime."""
+    if os.environ.get("RUN_TELEGRAM_E2E") != "1":
+        pytest.skip("set RUN_TELEGRAM_E2E=1 for a real Telegram publication smoke")
+    if not os.environ.get("TELEGRAM_BOT_TOKEN") or not os.environ.get("TELEGRAM_CHAT_ID"):
+        pytest.fail("Telegram credentials are required")
+    if not os.environ.get("GEMINI_API_KEY"):
+        pytest.fail("GEMINI_API_KEY is required for generated Telegram smoke")
+
+    monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("FACTORY_API_TOKEN", "telegram-publication-smoke-token")
+    monkeypatch.delenv("FACTORY_TELEGRAM_FAKE", raising=False)
+
+    series_id = "telegram-series-future-001"
+    series_title = "Как люди прошлого представляли будущее"
+
+    # Seed the state that episode 1 persisted. This is deliberately written
+    # through ContentRun persistence, then the process is restarted before
+    # episode 2 so the test cannot rely on in-memory state.
+    service = FactoryService()
+    try:
+        seed = service.content_runs.create(
+            title=series_title,
+            brief=series_title,
+            formats=("telegram",),
+        )
+        seed_result = {
+            "brief": series_title,
+            "content_brief": {"title": series_title},
+            "package": {
+                "title": "Эпизод 1",
+                "text": "Представления о будущем существовали задолго до современной фантастики.",
+                "media": [],
+                "series": {
+                    "series_id": series_id,
+                    "title": series_title,
+                    "episode": 1,
+                    "central_question": "Когда и почему будущее стало восприниматься как открытая возможность?",
+                    "unresolved": [
+                        "Почему древние общества часто представляли время циклическим?"
+                    ],
+                    "next_required_transition": (
+                        "Перейти от открывающего вопроса к древним представлениям о циклическом времени."
+                    ),
+                    "story_state": {
+                        "central_question": (
+                            "Когда и почему будущее стало восприниматься как открытая возможность?"
+                        ),
+                        "established": [
+                            "Представления о будущем существовали задолго до современной фантастики."
+                        ],
+                        "unresolved": [
+                            "Почему древние общества часто представляли время циклическим?"
+                        ],
+                        "next_required_transition": (
+                            "Перейти от открывающего вопроса к древним представлениям о циклическом времени."
+                        ),
+                        "used_examples": [],
+                        "claims": [],
+                        "evidence": [],
+                    },
+                },
+            },
+            "qc": {"status": "PASSED"},
+        }
+        service.content_runs.save_result(seed.run_id, seed_result)
+        service.content_runs.approve(seed.run_id, decision_ref="telegram-series-episode-1-seeded")
+        service.content_runs.mark_published(
+            seed.run_id,
+            {
+                "status": "PUBLISHED",
+                "channel": "telegram",
+                "external_id": "seed-episode-1",
+            },
+        )
+        assert service.content_runs.get(seed.run_id).status == "PUBLISHED"
+    finally:
+        service.close()
+
+    # Fresh runtime: the only source for the previous story state is SQLite.
+    service = FactoryService()
+    previous = None
+    for candidate in service.content_runs.list(limit=50):
+        package = (candidate.result or {}).get("package") or {}
+        series = package.get("series") or {}
+        if series.get("series_id") == series_id:
+            previous = candidate
+            break
+    assert previous is not None
+    assert previous.status == "PUBLISHED"
+    previous_series = previous.result["package"]["series"]
+    assert previous_series["episode"] == 1
+    story_state = previous_series["story_state"]
+
+    research = FreeWebGeminiAdapter()
+    research_prompt = f"""Research episode 2 of a connected historical Telegram series.
+Return ONLY JSON:
+{{"topic":"string","summary":"string","claims":[{{"id":"claim-1","text":"atomic factual claim","source_ids":["source-1"],"evidence_ids":["evidence-1"]}}],"sources":[{{"id":"source-1","title":"string","url":"https://..."}}],"evidence":[{{"id":"evidence-1","source_id":"source-1","excerpt":"short supporting passage"}}]}}
+The episode must answer the unresolved question from episode 1:
+"Почему древние общества часто представляли время циклическим?"
+Find several concrete, historically bounded examples from different ancient cultures or traditions. Explain what each example actually shows and do not imply that all ancient societies shared one model of time. Prefer primary texts or authoritative scholarly/reference sources when available. Do not invent facts.
+SERIES:
+{series_title}
+PREVIOUS STORY STATE:
+{json.dumps(story_state, ensure_ascii=False)}
+"""
+    rr = research.research(research_prompt)
+    assert 200 <= rr.status_code < 300
+    research_payload = json.loads(research.text(rr))
+    claims = [c for c in research_payload.get("claims", []) if str(c.get("text") or "").strip()]
+    sources = [s for s in research_payload.get("sources", []) if str(s.get("url") or "").strip()]
+    evidence = [e for e in research_payload.get("evidence", []) if str(e.get("excerpt") or "").strip()]
+    assert len(claims) >= 2
+    assert sources
+    assert evidence
+
+    knowledge = json.dumps(
+        {"claims": claims[:10], "sources": sources[:10], "evidence": evidence[:20]},
+        ensure_ascii=False,
+    )
+    generation_prompt = f"""Write episode 2 of a connected historical Telegram series in Russian.
+Return ONLY JSON:
+{{"title":"string","content":"string","story_state":{{"central_question":"string","established":["string"],"unresolved":["string"],"next_required_transition":"string","used_examples":["string"],"claims":["claim-id"],"evidence":["evidence-id"]}}}}
+The publication must directly answer the previous episode's unresolved question about why ancient societies often represented time cyclically.
+It must use only the supplied research. Give concrete examples, distinguish different traditions, and avoid claiming that every ancient society shared one worldview.
+It must naturally continue the series rather than restart it.
+It must end by opening the next question: how prophecy relates to the idea of the future.
+Length: 600-1000 characters. Natural contemporary Russian. No em dash. No generic filler.
+PREVIOUS EPISODE:
+{json.dumps(previous_series, ensure_ascii=False)}
+RESEARCH:
+{knowledge}
+"""
+    generated = research.research(generation_prompt)
+    assert 200 <= generated.status_code < 300
+    payload = json.loads(research.text(generated))
+    generated_text = str(payload.get("content") or "").strip()
+    new_story_state = payload.get("story_state") or {}
+
+    lowered = generated_text.casefold()
+    assert 600 <= len(generated_text) <= 1000
+    assert "—" not in generated_text
+    assert any(marker in lowered for marker in ("циклич", "цикл", "повтор"))
+    assert "?" in generated_text
+    assert any(marker in lowered for marker in ("пророч", "предсказ"))
+
+    assert new_story_state.get("central_question") == story_state["central_question"]
+    assert len(new_story_state.get("established") or []) >= 2
+    assert new_story_state.get("unresolved")
+    assert any(
+        marker in str(new_story_state.get("next_required_transition") or "").casefold()
+        for marker in ("пророч", "предсказ")
+    )
+
+    ProductHandler.service = service
+    ProductHandler.workspace = ContentWorkspace(service)
+    ProductHandler.content_runs = service.content_runs
+    ProductHandler.content_run_planner = ContentRunPlanner(ProductHandler.workspace)
+    monkeypatch.setattr(ProductHandler, "_rate_limited", lambda *args, **kwargs: False)
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), ProductHandler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    base_url = f"http://127.0.0.1:{server.server_port}"
+    try:
+        run, _asset = _create_prepared_run(service, tmp_path, with_media=False)
+        result = dict(run.result or {})
+        result["brief"] = series_title
+        result["content_brief"] = {**result["content_brief"], "title": str(payload.get("title") or series_title)}
+        result["package"] = {
+            **result["package"],
+            "title": str(payload.get("title") or "Эпизод 2"),
+            "text": generated_text,
+            "media": [],
+            "claims": claims,
+            "sources": sources,
+            "evidence": evidence,
+            "qc": {"status": "PASSED"},
+            "series": {
+                "series_id": series_id,
+                "title": series_title,
+                "episode": 2,
+                "previous_run_id": previous.run_id,
+                "central_question": new_story_state["central_question"],
+                "unresolved": new_story_state["unresolved"],
+                "next_required_transition": new_story_state["next_required_transition"],
+                "story_state": new_story_state,
+            },
+        }
+        service.content_runs.save_result(run.run_id, result)
+
+        status, approved = _request(
+            base_url,
+            "POST",
+            f"/api/runs/{run.run_id}/approve",
+            {"decision_ref": "telegram-series-episode-2-approver", "channel": "telegram"},
+        )
+        assert status == 200, approved
+        publication = approved["result"]["publication"]
+        assert publication["status"] == "PREPARED"
+        assert publication["media"] == []
+
+        status, published = _request(
+            base_url,
+            "POST",
+            f"/api/runs/{run.run_id}/publish",
+            {"publication_id": publication["publication_id"]},
+        )
+        assert status == 200, published
+        assert published["status"] == "PUBLISHED"
+        assert published["channel"] == "telegram"
+        assert published["response"]["telegram_ok"] is True
+        assert published["response"]["media_count"] == 0
+        assert published["response"]["text"].strip() == generated_text
+
+        final = service.content_runs.get(run.run_id)
+        assert final is not None
+        assert final.status == "PUBLISHED"
+        final_series = final.result["package"]["series"]
+        assert final_series["series_id"] == series_id
+        assert final_series["episode"] == 2
+        assert final_series["previous_run_id"] == previous.run_id
+        assert final.result["package"]["claims"]
+        assert final.result["package"]["sources"]
+        assert final.result["package"]["evidence"]
+        print("\nGENERATED_TELEGRAM_EPISODE_2:\n" + generated_text)
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+        service.close()
