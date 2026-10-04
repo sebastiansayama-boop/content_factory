@@ -129,6 +129,7 @@ def test_builder_regenerates_when_publication_is_too_similar(tmp_path):
         goal="compare",
         formats=["article"],
         constraints=["variation: auto"],
+        knowledge_context=store.accepted_for_run("research-diversity"),
         previous_result=previous,
     )
 
