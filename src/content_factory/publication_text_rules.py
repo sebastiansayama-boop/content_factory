@@ -51,6 +51,9 @@ _VARIATION_ALIASES = {
     "story": "story",
     "разбор": "analysis",
     "analysis": "analysis",
+    "авто": "auto",
+    "auto": "auto",
+    "модель": "auto",
 }
 
 _LENGTH_LIMITS = {
@@ -85,7 +88,7 @@ def resolve_publication_text_rules(constraints: list[str] | tuple[str, ...]) -> 
         "tone_strength",
     )
     variation = _normalize(
-        _constraint(constraints, "variation", "default"),
+        _constraint(constraints, "variation", "auto"),
         _VARIATION_ALIASES,
         "variation",
     )
@@ -105,6 +108,7 @@ def resolve_publication_text_rules(constraints: list[str] | tuple[str, ...]) -> 
         "default": "Основной вариант: прямой объясняющий текст с ясным развитием мысли.",
         "story": "Вариант-история: начинай с конкретной сцены, детали или исторического поворота и веди читателя к выводу.",
         "analysis": "Вариант-разбор: строй текст вокруг вопроса, причин, различий и вывода; меньше повествовательных украшений.",
+        "auto": "Вариация выбирается моделью по фактической форме материала из зафиксированной матрицы текстовых режимов. Не повторяй один шаблон.",
     }
     return PublicationTextRules(
         style=style,
@@ -121,6 +125,7 @@ def resolve_publication_text_rules(constraints: list[str] | tuple[str, ...]) -> 
             "Не используй длинное тире (—); перестраивай фразу через запятую, двоеточие или отдельное предложение.",
             "Не начинай текст с «Вы знали?», «Знаете ли вы?», «Did you know?» или их близких шаблонов без явного запроса пользователя.",
             "Не добавляй факты, которых нет в принятой knowledge/evidence базе.",
+            "Не считай variation шаблоном: при auto модель обязана выбрать наиболее естественный режим письма по материалу и может менять структуру, ритм, заход и финал.",
             "Не превращай вероятностные, ограниченные или контекстные утверждения в абсолютные.",
         ),
     )
