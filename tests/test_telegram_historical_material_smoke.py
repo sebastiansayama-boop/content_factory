@@ -230,14 +230,33 @@ Use several distinct historical examples from different periods or regions. Keep
 USER BRIEF:
 {topic}
 """
-    rr = research.research(research_prompt)
-    assert 200 <= rr.status_code < 300
-    rp = json.loads(research.text(rr))
-    claims = rp["claims"]
-    evidence = rp["evidence"]
+    research_prompts = [
+        research_prompt,
+        f"""Research one concrete historical example for this topic and return ONLY JSON in the same schema.
+Focus on a pre-modern or early-modern example with a specific person, text, object, place, or dated event. Keep claims atomic and source-backed. Do not invent facts.
+USER BRIEF:
+{topic}""",
+        f"""Research one different concrete historical example for this topic and return ONLY JSON in the same schema.
+Focus on a different period or region and provide a specific source-backed detail that can support a distinct editorial angle. Do not invent facts.
+USER BRIEF:
+{topic}""",
+    ]
+    claims = []
+    evidence = []
+    seen_claims = set()
+    for prompt in research_prompts:
+        rr = research.research(prompt)
+        assert 200 <= rr.status_code < 300
+        rp = json.loads(research.text(rr))
+        for claim in rp.get("claims", []):
+            key = str(claim.get("text") or "").strip().casefold()
+            if key and key not in seen_claims:
+                seen_claims.add(key)
+                claims.append(claim)
+        evidence.extend(rp.get("evidence", []))
     assert len(claims) >= 2
     assert evidence
-    knowledge = json.dumps({"claims": claims[:6], "evidence": evidence[:12]}, ensure_ascii=False)
+    knowledge = json.dumps({"claims": claims[:8], "evidence": evidence[:16]}, ensure_ascii=False)
 
     rules = resolve_publication_text_rules(["language: Русский", "style: natural", "length: short", "tone_strength: medium", "variation: auto"])
     matrix = format_text_variation_matrix()
