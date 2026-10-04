@@ -1,14 +1,15 @@
 name: Telegram Thai Spiritual World Episode 2
 
 on:
-  push:
-    branches: [main]
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: read
 
 jobs:
   publish:
+    if: github.event.issue.pull_request == null && github.event.comment.user.login == 'sebastiansayama-boop' && github.event.issue.title == 'publish: thai-spirit-episode-2' && github.event.comment.body == 'publish episode 2'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     concurrency:
@@ -16,14 +17,14 @@ jobs:
       cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
       - uses: actions/setup-python@v5
-        if: github.event.head_commit.message == 'publish: thai-spirit-episode-2'
         with:
           python-version: "3.12"
       - run: pip install -e .
-        if: github.event.head_commit.message == 'publish: thai-spirit-episode-2'
       - run: python scripts/publish_telegram_thai_spirit_episode2.py
-        if: github.event.head_commit.message == 'publish: thai-spirit-episode-2'
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
