@@ -572,7 +572,29 @@ USER CONSTRAINTS:
             {**spec_raw, "evidence_refs": _refs_or_default(spec_raw.get("evidence_refs"), "evidence_refs", brief.evidence_refs)},
             evidence_ids,
         )
-        structure = _structure_steps(spec_raw.get("structure"))
+        try:
+            structure = _structure_steps(spec_raw.get("structure"))
+        except WorkspaceError as exc:
+            if "structure" not in str(exc):
+                raise
+            spec_raw = self._generate(
+                work_item_id=f"content-spec-{run_id}-structure-retry",
+                revision_id="content-spec-v1-structure-retry",
+                objective="regenerate a content specification that satisfies the executable structure contract",
+                prompt=f"""The previous ContentSpec response was rejected because its required \"structure\" field was missing or invalid.
+
+Return ONLY valid JSON matching this exact shape:
+{{"spec_id":"spec-1","title":"string","objective":"string","audience":"string","format":"string","tone":"string","structure":["hook","context","development","conclusion"],"constraints":["constraint"],"claim_refs":["kc-*"],"evidence_refs":["ke-*"],"style_bible":{{"visual_style":"string","palette":"string","lighting":"string","subject_continuity":"string","negative_constraints":"string","voice":"string","pace":"string","music":"string"}}}}
+
+The \"structure\" field is mandatory and must be an array of at least four non-empty strings describing ordered editorial steps. Preserve the supplied provenance exactly. Do not invent claims or evidence.
+
+CONTENT BRIEF:
+{brief_json}
+
+USER CONSTRAINTS:
+{json.dumps(constraints, ensure_ascii=False)}""",
+            )
+            structure = _structure_steps(spec_raw.get("structure"))
         spec = ContentSpec(
             spec_id=str(spec_raw.get("spec_id") or "").strip(),
             title=str(spec_raw.get("title") or "").strip(),
