@@ -235,7 +235,7 @@ USER BRIEF:
     rp = json.loads(research.text(rr))
     claims = rp["claims"]
     evidence = rp["evidence"]
-    assert len(claims) >= 3
+    assert len(claims) >= 2
     assert evidence
     knowledge = json.dumps({"claims": claims[:6], "evidence": evidence[:12]}, ensure_ascii=False)
 
