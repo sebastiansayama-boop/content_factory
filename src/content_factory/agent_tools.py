@@ -106,6 +106,7 @@ def register_content_tools(
             formats=list(run.formats),
             constraints=list(run.constraints) + list(review_feedback),
             knowledge_context=knowledge,
+            previous_result=knowledge if isinstance(knowledge, dict) else None,
         )
 
     def review_content(*, run: Any, result: dict[str, Any]) -> Any:
