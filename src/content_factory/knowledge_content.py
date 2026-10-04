@@ -619,7 +619,10 @@ ACCEPTED KNOWLEDGE:
         _validate_epistemic_scope(list(script.units))
         publication_text = "\n\n".join(unit.text for unit in units if unit.text).strip()
         try:
-            validate_publication_text(publication_text, text_rules)
+            if text_rules.enforce_length:
+                validate_publication_text(publication_text, text_rules)
+            elif "—" in publication_text:
+                raise ValueError("publication text must not contain em dash")
         except ValueError as exc:
             raise WorkspaceError(str(exc)) from exc
 
