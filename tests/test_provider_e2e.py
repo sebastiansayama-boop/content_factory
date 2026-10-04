@@ -170,3 +170,72 @@ EVIDENCE: {json.dumps(evidence, ensure_ascii=False)}
     stored = json.loads(path.read_text(encoding="utf-8"))
     assert stored["qc"]["passed"] is True
     assert stored["media"][0]["source"] == "openverse"
+
+
+@pytest.mark.skipif(
+    not os.environ.get("GEMINI_API_KEY"),
+    reason="GEMINI_API_KEY is required for live publication text variation E2E",
+)
+def test_live_historical_publication_text_variations_without_images():
+    topic = "Малоизвестные факты из истории человечества"
+    research = FreeWebGeminiAdapter()
+    research_prompt = f"""You are the research stage.
+Research this topic and return ONLY JSON:
+{{"topic":"string","summary":"string","claims":[{{"id":"claim-1","text":"atomic factual claim","source_ids":["source-1"],"evidence_ids":["evidence-1"]}}],"sources":[{{"id":"source-1","title":"string","url":"https://..."}}],"evidence":[{{"id":"evidence-1","source_id":"source-1","excerpt":"short supporting passage"}}]}}
+Use several distinct historical examples from different periods or regions. Keep every claim bounded and source-backed. Do not invent facts.
+TOPIC:
+{topic}
+"""
+    result = research.research(research_prompt)
+    assert 200 <= result.status_code < 300
+    payload = parse_research_json(research.text(result))
+    claims = payload["claims"]
+    evidence = payload["evidence"]
+    assert len(claims) >= 3
+    assert evidence
+
+    knowledge = json.dumps(
+        {"claims": claims[:6], "evidence": evidence[:12]},
+        ensure_ascii=False,
+    )
+    variants = [
+        ("default", "natural", "medium"),
+        ("story", "natural", "medium"),
+        ("analysis", "explanatory", "low"),
+    ]
+    outputs = {}
+
+    for variation, style, tone in variants:
+        rules = __import__("content_factory.publication_text_rules", fromlist=["resolve_publication_text_rules", "validate_publication_text"]).resolve_publication_text_rules(
+            [f"style: {style}", "length: short", f"tone_strength: {tone}", f"variation: {variation}"]
+        )
+        prompt = f"""Write one finished Telegram publication in Russian.
+Return ONLY JSON: {{"title":"string","content":"string"}}.
+The publication must be 500-1000 characters and must be one coherent text, not a list.
+Variation: {variation}.
+Style: {style}.
+Tone strength: {tone}.
+Rules:
+- no em dash;
+- no generic openings such as "Вы знали?";
+- no invented facts;
+- preserve uncertainty and scope of the supplied evidence;
+- use only the supplied claims and evidence;
+- make this variation structurally different from the other variations.
+TOPIC:
+{topic}
+ACCEPTED KNOWLEDGE:
+{knowledge}
+"""
+        generated = research.research(prompt)
+        assert 200 <= generated.status_code < 300
+        generated_payload = json.loads(research.text(generated))
+        text = str(generated_payload["content"]).strip()
+        assert text
+        __import__("content_factory.publication_text_rules", fromlist=["validate_publication_text"]).validate_publication_text(text, rules)
+        assert "—" not in text
+        assert "Вы знали?" not in text
+        outputs[variation] = text
+
+    assert len(set(outputs.values())) == 3
+    assert all(len(text) >= 500 for text in outputs.values())
