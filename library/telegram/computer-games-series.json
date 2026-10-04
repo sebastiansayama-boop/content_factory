@@ -228,5 +228,7 @@
       "next_question": "Серия завершена.",
       "status": "PLANNED"
     }
-  ]
+  ],
+  "current_episode": 1,
+  "updated_at": "2026-10-05"
 }
