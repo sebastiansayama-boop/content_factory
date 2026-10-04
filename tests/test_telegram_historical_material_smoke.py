@@ -745,11 +745,11 @@ def test_real_telegram_series_episode_3_continuity(tmp_path, monkeypatch):
         ]
         claims=[]; sources=[]; evidence=[]; seen=set()
         for q in prompts:
-            rr=research.research(f"""Return ONLY valid JSON in exactly this shape:
-{{"topic":"string","claims":[{{"id":"claim-1","text":"atomic factual claim","source_ids":["source-1"],"evidence_ids":["evidence-1"]}}],"sources":[{{"id":"source-1","title":"string","url":"https://..."}}],"evidence":[{{"id":"evidence-1","source_id":"source-1","excerpt":"short supporting passage"}}]}}
+            rr=research.research(f"""Return ONLY JSON with topic, claims, sources, evidence.
 Research the relation between prophecy/divination and ideas of the future for a historical content series.
 Use bounded historical examples and authoritative sources. Do not invent facts.
 USER BRIEF: {q}
+PREVIOUS STORY STATE: {json.dumps(prev_state,ensure_ascii=False)}
 """)
             assert 200 <= rr.status_code < 300
             data=json.loads(research.text(rr))
