@@ -101,6 +101,7 @@ class FakeWorkspace:
         else:
             payload = {
                 "script_id": "script-1",
+                "variation_mode": "scene",
                 "title": "A verified idea",
                 "units": [
                     {"unit_id": "unit-1", "kind": "hook", "text": "Here is the question.", "visual_intent": "", "claim_refs": ["kc-1"], "evidence_refs": ["ke-1"]},
