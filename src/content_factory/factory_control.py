@@ -180,7 +180,11 @@ class FactoryControlStore:
             if existing: return dict(existing)
             self.db.execute("INSERT INTO publications (publication_id,run_id,channel,status,content_ref,external_id,external_url,response_json,artifact_ids_json,destination,provenance_json,published_at,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (publication_id,run_id,channel,"PREPARED",content_ref,None,None,_json(payload),_json(artifact_ids),destination,_json(provenance),None,now,now))
         if record_event: self.record(run_id, "publication.prepared", output_refs=(publication_id, channel))
-        return dict(self.db.execute("SELECT * FROM publications WHERE publication_id=?", (publication_id,)).fetchone())
+        publication = dict(self.db.execute("SELECT * FROM publications WHERE publication_id=?", (publication_id,)).fetchone())
+        response = json.loads(publication.get("response_json") or "{}")
+        if isinstance(response, dict):
+            publication.update({key: response[key] for key in ("text", "media", "title", "output", "destination") if key in response})
+        return publication
 
     def publish(self, publication_id: str, *, run_status: str, url: str | None = None, token: str | None = None, publisher: Any | None = None) -> dict[str, Any]:
         row = self.db.execute("SELECT * FROM publications WHERE publication_id=?", (publication_id,)).fetchone()
