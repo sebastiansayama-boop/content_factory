@@ -675,7 +675,7 @@ RESEARCH:
         service.close()
 
 
-def test_real_telegram_series_episode_3_continuity(tmp_path, monkeypatch):
+def test_real_telegram_series_episode_4_continuity(tmp_path, monkeypatch):
     """Publish episode 3 from persisted episode-2 story state with provenance checks."""
     if os.environ.get("RUN_TELEGRAM_E2E") != "1":
         pytest.skip("set RUN_TELEGRAM_E2E=1 for a real Telegram publication smoke")
@@ -705,11 +705,11 @@ def test_real_telegram_series_episode_3_continuity(tmp_path, monkeypatch):
                     "series_id":series_id,"title":title,"episode":2,
                     "central_question":"Когда и почему будущее стало восприниматься как открытая возможность?",
                     "previous_run_id":None,
-                    "unresolved":["Как древние практики предсказания и пророчества относились к идее будущего?"],
-                    "next_required_transition":"Разобрать пророчество и отличие предсказания от современного прогноза.",
+                    "unresolved":["Когда будущее стало местом или обществом, которое можно было вообразить?"],
+                    "next_required_transition":"Показать переход к воображаемым местам и обществам, где можно было представить иной порядок жизни.",
                     "story_state":{
                         "central_question":"Когда и почему будущее стало восприниматься как открытая возможность?",
-                        "established":["Представления о будущем существовали задолго до современной фантастики.","Древние традиции могли связывать время с повторяющимися природными и космическими ритмами."],
+                        "established":["Представления о будущем существовали задолго до современной фантастики.","Древние традиции могли связывать время с повторяющимися природными и космическими ритмами.","Пророчество связывало ожидание будущего с сакральным знанием и знаками."],
                         "unresolved":["Как древние практики предсказания и пророчества относились к идее будущего?"],
                         "next_required_transition":"Разобрать пророчество и отличие предсказания от современного прогноза.",
                         "used_examples":["древнегреческие представления о циклическом времени"],
@@ -796,7 +796,7 @@ RESEARCH: {knowledge}
             result["content_brief"]={**result["content_brief"],"title":str(payload.get("title") or "Эпизод 3")}
             result["package"]={**result["package"],"title":str(payload.get("title") or "Эпизод 3"),"text":text_value,"media":[],"claims":claims,"sources":sources,"evidence":evidence,"qc":{"status":"PASSED"},"series":{"series_id":series_id,"title":title,"episode":3,"previous_run_id":previous.run_id,"central_question":state["central_question"],"unresolved":state["unresolved"],"next_required_transition":state["next_required_transition"],"story_state":state}}
             service.content_runs.save_result(run.run_id,result)
-            status,approved=_request(f"http://127.0.0.1:{server.server_port}","POST",f"/api/runs/{run.run_id}/approve",{"decision_ref":"telegram-series-episode-3-approver","channel":"telegram"})
+            status,approved=_request(f"http://127.0.0.1:{server.server_port}","POST",f"/api/runs/{run.run_id}/approve",{"decision_ref":"telegram-series-episode-4-approver","channel":"telegram"})
             assert status==200 and approved["result"]["publication"]["status"]=="PREPARED"
             pub=approved["result"]["publication"]
             status,published=_request(f"http://127.0.0.1:{server.server_port}","POST",f"/api/runs/{run.run_id}/publish",{"publication_id":pub["publication_id"]})
