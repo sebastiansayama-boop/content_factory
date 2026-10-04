@@ -810,8 +810,8 @@ RESEARCH: {knowledge}
         service.close()
 
 
-def test_real_telegram_series_episode_3_continuity(tmp_path, monkeypatch):
-    """Publish episode 4 from persisted episode-2 story state with provenance checks."""
+def test_real_telegram_series_episode_4_continuity(tmp_path, monkeypatch):
+    """Publish episode 4 from persisted episode-3 story state with provenance checks."""
     if os.environ.get("RUN_TELEGRAM_E2E") != "1":
         pytest.skip("set RUN_TELEGRAM_E2E=1 for a real Telegram publication smoke")
     for name in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "GEMINI_API_KEY"):
@@ -844,9 +844,9 @@ def test_real_telegram_series_episode_3_continuity(tmp_path, monkeypatch):
                     "next_required_transition":"Показать переход к воображаемым местам и обществам, где можно было представить иной порядок жизни.",
                     "story_state":{
                         "central_question":"Когда и почему будущее стало восприниматься как открытая возможность?",
-                        "established":["Представления о будущем существовали задолго до современной фантастики.","Древние традиции могли связывать время с повторяющимися природными и космическими ритмами."],
-                        "unresolved":["Как древние практики предсказания и пророчества относились к идее будущего?"],
-                        "next_required_transition":"Разобрать пророчество и отличие предсказания от современного прогноза.",
+                        "established":["Представления о будущем существовали задолго до современной фантастики.","Древние традиции могли связывать время с повторяющимися природными и космическими ритмами.","Пророчество связывало ожидание будущего с сакральным знанием и знаками."],
+                        "unresolved":["Когда будущее стало местом или обществом, которое можно было вообразить?"],
+                        "next_required_transition":"Показать переход к воображаемым местам и обществам, где можно было представить иной порядок жизни.",
                         "used_examples":["древнегреческие оракулы и пророчества"],
                         "claims":[claim["id"]],"evidence":[evidence["id"]]
                     }
@@ -882,7 +882,7 @@ def test_real_telegram_series_episode_3_continuity(tmp_path, monkeypatch):
         for q in prompts:
             rr=research.research(f"""Return ONLY valid JSON in exactly this shape:
 {{"topic":"string","claims":[{{"id":"claim-1","text":"atomic factual claim","source_ids":["source-1"],"evidence_ids":["evidence-1"]}}],"sources":[{{"id":"source-1","title":"string","url":"https://..."}}],"evidence":[{{"id":"evidence-1","source_id":"source-1","excerpt":"short supporting passage"}}]}}
-Research the relation between utopia imagined societies and future places for a historical content series.
+Research the emergence of imagined places and societies as ways to represent alternatives to present society for a historical content series.
 Use bounded historical examples and authoritative sources. Do not invent facts.
 USER BRIEF: {q}
 """)
