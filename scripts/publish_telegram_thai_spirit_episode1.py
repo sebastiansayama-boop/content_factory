@@ -1,13 +1,20 @@
 from __future__ import annotations
 
 import os
+import subprocess
 import sys
+from pathlib import Path
 
-os.environ["TELEGRAM_EPISODE"] = "1"
-os.environ["TELEGRAM_LIBRARY_PATH"] = "library/telegram/thai-spiritual-world.json"
+ROOT = Path(__file__).resolve().parents[1]
+env = os.environ.copy()
+env["TELEGRAM_EPISODE"] = "1"
+env["TELEGRAM_LIBRARY_PATH"] = "library/telegram/thai-spiritual-world.json"
 
-from scripts.publish_telegram_library import main
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+raise SystemExit(
+    subprocess.run(
+        [sys.executable, "scripts/publish_telegram_library.py"],
+        cwd=ROOT,
+        env=env,
+        check=False,
+    ).returncode
+)
