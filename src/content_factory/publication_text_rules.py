@@ -12,6 +12,7 @@ class PublicationTextRules:
     min_chars: int
     max_chars: int
     instructions: tuple[str, ...]
+    enforce_length: bool
 
 
 _STYLE_ALIASES = {
@@ -112,6 +113,7 @@ def resolve_publication_text_rules(constraints: list[str] | tuple[str, ...]) -> 
         variation=variation,
         min_chars=_LENGTH_LIMITS[length][0],
         max_chars=_LENGTH_LIMITS[length][1],
+        enforce_length=any(str(item).strip().casefold().startswith("length:") for item in constraints),
         instructions=(
             style_rules[style],
             tone_rules[tone_strength],
