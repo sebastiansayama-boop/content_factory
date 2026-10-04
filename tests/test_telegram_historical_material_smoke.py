@@ -204,3 +204,103 @@ ACCEPTED KNOWLEDGE:
         server.server_close()
         thread.join(timeout=2)
         service.close()
+
+
+@pytest.mark.external
+def test_real_telegram_five_matrix_publications(tmp_path, monkeypatch):
+    if os.environ.get("RUN_TELEGRAM_E2E") != "1":
+        pytest.skip("set RUN_TELEGRAM_E2E=1 for a real Telegram matrix publication test")
+    if not os.environ.get("TELEGRAM_BOT_TOKEN") or not os.environ.get("TELEGRAM_CHAT_ID"):
+        pytest.fail("Telegram credentials are required")
+    if not os.environ.get("GEMINI_API_KEY"):
+        pytest.fail("GEMINI_API_KEY is required for matrix publication test")
+
+    from content_factory.publication_text_matrix import format_text_variation_matrix
+    from content_factory.publication_text_rules import resolve_publication_text_rules, validate_publication_text
+
+    monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("FACTORY_API_TOKEN", "telegram-matrix-smoke-token")
+    monkeypatch.delenv("FACTORY_TELEGRAM_FAKE", raising=False)
+
+    research = FreeWebGeminiAdapter()
+    topic = "Малоизвестные факты из истории человечества"
+    research_prompt = f"""Research the topic and return ONLY JSON:
+{{"topic":"string","summary":"string","claims":[{{"id":"claim-1","text":"atomic factual claim","source_ids":["source-1"],"evidence_ids":["evidence-1"]}}],"sources":[{{"id":"source-1","title":"string","url":"https://..."}}],"evidence":[{{"id":"evidence-1","source_id":"source-1","excerpt":"short supporting passage"}}]}}
+Use several distinct historical examples from different periods or regions. Keep every claim bounded and source-backed. Do not invent facts.
+USER BRIEF:
+{topic}
+"""
+    rr = research.research(research_prompt)
+    assert 200 <= rr.status_code < 300
+    rp = json.loads(research.text(rr))
+    claims = rp["claims"]
+    evidence = rp["evidence"]
+    assert len(claims) >= 3
+    assert evidence
+    knowledge = json.dumps({"claims": claims[:6], "evidence": evidence[:12]}, ensure_ascii=False)
+
+    rules = resolve_publication_text_rules(["language: Русский", "style: natural", "length: short", "tone_strength: medium", "variation: auto"])
+    matrix = format_text_variation_matrix()
+    generated = []
+    for index in range(5):
+        prompt = f"""Write one finished Telegram publication in Russian.
+Return ONLY JSON: {{"title":"string","content":"string"}}.
+This is publication {index + 1} of 5 for the SAME topic and SAME accepted knowledge.
+Variation is AUTO: choose exactly one dominant writing mode from the supplied matrix based on the strongest factual shape of the accepted knowledge.
+The mode label is internal and must not appear in the publication.
+Do not force a mode if the evidence does not support it. Across these five publications, do not deliberately repeat the same opening, rhythm, progression, emphasis, or ending when another supported mode is available.
+Length: 500-1000 characters. One coherent publication, not a list.
+Use only supplied claims/evidence. Preserve uncertainty and scope. No invented facts.
+Natural contemporary Russian. No em dash. No generic openings or filler.
+TEXT VARIATION MATRIX:
+{matrix}
+TOPIC:
+{topic}
+ACCEPTED KNOWLEDGE:
+{knowledge}
+"""
+        gr = research.research(prompt)
+        assert 200 <= gr.status_code < 300
+        gp = json.loads(research.text(gr))
+        text_value = str(gp["content"]).strip()
+        validate_publication_text(text_value, rules)
+        assert "—" not in text_value
+        generated.append((str(gp.get("title") or topic).strip(), text_value))
+    assert len({text_value for _, text_value in generated}) == 5
+
+    service = FactoryService()
+    ProductHandler.service = service
+    ProductHandler.workspace = ContentWorkspace(service)
+    ProductHandler.content_runs = service.content_runs
+    ProductHandler.content_run_planner = ContentRunPlanner(ProductHandler.workspace)
+    monkeypatch.setattr(ProductHandler, "_rate_limited", lambda *args, **kwargs: False)
+    server = ThreadingHTTPServer(("127.0.0.1", 0), ProductHandler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    base_url = f"http://127.0.0.1:{server.server_port}"
+    try:
+        for index, (title, text_value) in enumerate(generated, start=1):
+            run, _asset = _create_prepared_run(service, tmp_path, with_media=False)
+            result = dict(run.result or {})
+            result["brief"] = topic
+            result["content_brief"] = {**result["content_brief"], "title": title}
+            result["package"] = {**result["package"], "title": title, "text": text_value, "media": [], "claims": claims, "evidence": evidence, "qc": {"status": "PASSED"}}
+            service.content_runs.save_result(run.run_id, result)
+            status, approved = _request(base_url, "POST", f"/api/runs/{run.run_id}/approve", {"decision_ref": f"telegram-matrix-{index}-approver", "channel": "telegram"})
+            assert status == 200, approved
+            publication = approved["result"]["publication"]
+            assert publication["status"] == "PREPARED"
+            assert publication["media"] == []
+            status, published = _request(base_url, "POST", f"/api/runs/{run.run_id}/publish", {"publication_id": publication["publication_id"]})
+            assert status == 200, published
+            assert published["status"] == "PUBLISHED"
+            assert published["channel"] == "telegram"
+            assert published["response"]["telegram_ok"] is True
+            assert published["response"]["media_count"] == 0
+            assert published["response"]["text"].strip() == text_value
+            print(f"\nMATRIX_TELEGRAM_PUBLICATION_{index}:\n{title}\n{text_value}")
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+        service.close()
