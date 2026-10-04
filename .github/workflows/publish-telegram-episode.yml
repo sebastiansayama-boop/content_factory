@@ -32,10 +32,16 @@ jobs:
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           case "$COMMIT_MESSAGE" in
-            "publish: thai-spirit-episode-"*) ;;
+            "publish: thai-spirit-episode-"*)
+              export TELEGRAM_LIBRARY_PATH=library/telegram/thai-spiritual-world.json
+              episode="${COMMIT_MESSAGE#publish: thai-spirit-episode-}"
+              ;;
+            "publish: computer-games-episode-"*)
+              export TELEGRAM_LIBRARY_PATH=library/telegram/computer-games-series.json
+              episode="${COMMIT_MESSAGE#publish: computer-games-episode-}"
+              ;;
             *) echo "Ordinary commit; publication skipped."; exit 0 ;;
           esac
-          episode="${COMMIT_MESSAGE#publish: thai-spirit-episode-}"
           if ! [[ "$episode" =~ ^[0-9]+$ ]]; then
             echo "Invalid publication command: $COMMIT_MESSAGE"
             exit 1
