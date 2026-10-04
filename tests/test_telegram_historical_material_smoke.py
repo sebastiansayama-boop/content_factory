@@ -676,10 +676,10 @@ RESEARCH:
 
 
 def test_real_telegram_series_continuity(tmp_path, monkeypatch):
-    """Publish episode 3 from persisted episode-2 story state with provenance checks."""
+    """Publish Episode 4 with deterministic historical research after provider quota exhaustion."""
     if os.environ.get("RUN_TELEGRAM_E2E") != "1":
         pytest.skip("set RUN_TELEGRAM_E2E=1 for a real Telegram publication smoke")
-    for name in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "GEMINI_API_KEY"):
+    for name in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID"):
         if not os.environ.get(name):
             pytest.fail(f"{name} is required")
     monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
@@ -691,28 +691,30 @@ def test_real_telegram_series_continuity(tmp_path, monkeypatch):
     service = FactoryService()
     try:
         seed = service.content_runs.create(title=title, brief=title, formats=("telegram",))
-        source = {"id":"source-greek-oracle","title":"Ancient Greek divination and oracles","url":"https://www.britannica.com/topic/oracle-religion"}
-        evidence = {"id":"evidence-greek-oracle","source_id":"source-greek-oracle","excerpt":"Ancient Greek oracles were institutions through which divine responses were sought."}
-        claim = {"id":"claim-oracle","text":"В древнегреческих оракулах обращение к божественному ответу было способом получить знание о событиях и решениях.","source_ids":["source-greek-oracle"],"evidence_ids":["evidence-greek-oracle"]}
+        source = {"id":"source-oracle","title":"Ancient Greek divination and oracles","url":"https://www.britannica.com/topic/oracle-religion"}
+        evidence = {"id":"evidence-oracle","source_id":"source-oracle","excerpt":"Ancient Greek oracles were institutions through which divine responses were sought."}
+        claim = {"id":"claim-oracle","text":"В древнегреческих оракулах обращение к божественному ответу было способом получить знание о событиях и решениях.","source_ids":["source-oracle"],"evidence_ids":["evidence-oracle"]}
         seed_result = {
             "brief": title, "content_brief":{"title":title},
             "package":{
-                "title":"Эпизод 2",
-                "text":"Циклическое время связывало человеческую историю с повторяющимися природными и космическими ритмами.",
-                "media":[],
-                "claims":[claim],"sources":[source],"evidence":[evidence],"qc":{"status":"PASSED"},
+                "title":"Эпизод 3",
+                "text":"Пророчество связывало представления о будущем с сакральным знанием и знаками.",
+                "media":[],"claims":[claim],"sources":[source],"evidence":[evidence],"qc":{"status":"PASSED"},
                 "series":{
-                    "series_id":series_id,"title":title,"episode":2,
+                    "series_id":series_id,"title":title,"episode":3,"previous_run_id":None,
                     "central_question":"Когда и почему будущее стало восприниматься как открытая возможность?",
-                    "previous_run_id":None,
-                    "unresolved":["Когда будущее стало местом или обществом, которое можно было вообразить?"],
-                    "next_required_transition":"Показать переход к воображаемым местам и обществам, где можно было представить иной порядок жизни.",
+                    "unresolved":["Когда будущее начали описывать как место или общество, которое можно было вообразить?"],
+                    "next_required_transition":"Показать переход от предсказания будущего к воображению иных мест и обществ.",
                     "story_state":{
                         "central_question":"Когда и почему будущее стало восприниматься как открытая возможность?",
-                        "established":["Представления о будущем существовали задолго до современной фантастики.","Древние традиции могли связывать время с повторяющимися природными и космическими ритмами.","Пророчество связывало ожидание будущего с сакральным знанием и знаками."],
-                        "unresolved":["Как древние практики предсказания и пророчества относились к идее будущего?"],
-                        "next_required_transition":"Разобрать пророчество и отличие предсказания от современного прогноза.",
-                        "used_examples":["древнегреческие представления о циклическом времени"],
+                        "established":[
+                            "Представления о будущем существовали задолго до современной фантастики.",
+                            "Древние традиции могли связывать время с повторяющимися природными и космическими ритмами.",
+                            "Пророчество связывало ожидание будущего с сакральным знанием и знаками."
+                        ],
+                        "unresolved":["Когда будущее начали описывать как место или общество, которое можно было вообразить?"],
+                        "next_required_transition":"Показать переход от предсказания будущего к воображению иных мест и обществ.",
+                        "used_examples":["древнегреческие оракулы"],
                         "claims":[claim["id"]],"evidence":[evidence["id"]]
                     }
                 }
@@ -723,69 +725,55 @@ def test_real_telegram_series_continuity(tmp_path, monkeypatch):
         service.content_runs.start_producing(seed.run_id)
         service.content_runs.save_production_result(seed.run_id, seed_result)
         service.content_runs.save_result(seed.run_id, seed_result)
-        service.content_runs.approve(seed.run_id, decision_ref="telegram-series-episode-2-seeded")
-        service.content_runs.mark_published(seed.run_id, {"status":"PUBLISHED","channel":"telegram","external_id":"seed-episode-2"})
+        service.content_runs.approve(seed.run_id, decision_ref="telegram-series-episode-3-seeded")
+        service.content_runs.mark_published(seed.run_id, {"status":"PUBLISHED","channel":"telegram","external_id":"seed-episode-3"})
     finally:
         service.close()
+
+    sources = [
+        {"id":"source-more-utopia","title":"Thomas More, Utopia","url":"https://www.gutenberg.org/ebooks/2130"},
+        {"id":"source-campanella-city-sun","title":"Tommaso Campanella, The City of the Sun","url":"https://www.gutenberg.org/ebooks/26188"},
+        {"id":"source-bacon-new-atlantis","title":"Francis Bacon, New Atlantis","url":"https://www.gutenberg.org/ebooks/2434"}
+    ]
+    evidence = [
+        {"id":"evidence-more-utopia","source_id":"source-more-utopia","excerpt":"More presents an imagined island with an organized social and political order."},
+        {"id":"evidence-campanella-city-sun","source_id":"source-campanella-city-sun","excerpt":"Campanella describes an imagined city organized according to a proposed social order."},
+        {"id":"evidence-bacon-new-atlantis","source_id":"source-bacon-new-atlantis","excerpt":"Bacon describes the fictional island of Bensalem and the House of Salomon."}
+    ]
+    claims = [
+        {"id":"claim-more-utopia","text":"В «Утопии» Томаса Мора воображаемый остров становится моделью иного общественного устройства.","source_ids":["source-more-utopia"],"evidence_ids":["evidence-more-utopia"]},
+        {"id":"claim-campanella-city-sun","text":"В «Городе Солнца» Томмазо Кампанеллы воображаемый город используется для описания альтернативного общественного порядка.","source_ids":["source-campanella-city-sun"],"evidence_ids":["evidence-campanella-city-sun"]},
+        {"id":"claim-bacon-new-atlantis","text":"В «Новой Атлантиде» Фрэнсис Бэкон переносит описание желаемого общественного устройства на вымышленный остров Бенсалем.","source_ids":["source-bacon-new-atlantis"],"evidence_ids":["evidence-bacon-new-atlantis"]}
+    ]
+    text_value = """До этого момента будущее в нашей серии приходило к человеку как то, что нужно узнать: его искали в циклах времени, знамениях и пророчествах. Но затем возникает другая возможность. Будущее можно не только предсказывать, его можно представить.
+
+Показательно, что сначала такое воображение появилось не совсем как описание будущего. В 1516 году Томас Мор помещает свой рассказ об ином общественном устройстве на вымышленный остров Утопия. У Томмазо Кампанеллы в «Городе Солнца» появляется уже воображаемый город с другим порядком жизни. У Фрэнсиса Бэкона в «Новой Атлантиде» таким пространством становится остров Бенсалем.
+
+Это важный сдвиг. Воображаемое общество больше не обязано быть откровением о том, что произойдет. Оно может быть мысленным экспериментом: местом, которого нет, где можно проверить другую организацию жизни.
+
+Поэтому путь к современному будущему начался не обязательно с вопроса «что произойдет потом?». Сначала возник вопрос «а что, если существовало бы другое место?». Следующий шаг был почти неизбежен: что произойдет, если такие воображаемые места начнут превращаться в города, которых еще не существует?"""
+    assert 700 <= len(text_value) <= 1400
+    assert "—" not in text_value
+    state = {
+        "central_question":"Когда и почему будущее стало восприниматься как открытая возможность?",
+        "established":[
+            "Представления о будущем существовали задолго до современной фантастики.",
+            "Древние традиции могли связывать время с повторяющимися природными и космическими ритмами.",
+            "Пророчество связывало ожидание будущего с сакральным знанием и знаками.",
+            "Воображаемые места и общества стали способом мысленно представить иной порядок жизни."
+        ],
+        "unresolved":["Как воображаемые места превратились в проекты городов и обществ, которых еще не существовало?"],
+        "next_required_transition":"Показать переход от воображаемых островов и идеальных городов к образам городов, которые можно было проектировать как будущее.",
+        "used_examples":["Томас Мор","Томмазо Кампанелла","Фрэнсис Бэкон"],
+        "claims":[x["id"] for x in claims],"evidence":[x["id"] for x in evidence]
+    }
 
     service = FactoryService()
     try:
         previous = next((x for x in service.content_runs.list(limit=50)
                          if ((x.result or {}).get("package") or {}).get("series",{}).get("series_id")==series_id
-                         and ((x.result or {}).get("package") or {}).get("series",{}).get("episode")==2), None)
+                         and ((x.result or {}).get("package") or {}).get("series",{}).get("episode")==3), None)
         assert previous is not None and previous.status == "PUBLISHED"
-        prev_series = previous.result["package"]["series"]
-        prev_state = prev_series["story_state"]
-
-        research = FreeWebGeminiAdapter()
-        prompts = [
-            "ancient Greek oracle prophecy divination future prediction",
-            "Mesopotamian divination omens prophecy future",
-            "ancient Hebrew prophecy future prediction historical context"
-        ]
-        claims=[]; sources=[]; evidence=[]; seen=set()
-        for q in prompts:
-            rr=research.research(f"""Return ONLY JSON with topic, claims, sources, evidence.
-Research the relation between prophecy/divination and ideas of the future for a historical content series.
-Use bounded historical examples and authoritative sources. Do not invent facts.
-USER BRIEF: {q}
-PREVIOUS STORY STATE: {json.dumps(prev_state,ensure_ascii=False)}
-""")
-            assert 200 <= rr.status_code < 300
-            data=json.loads(research.text(rr))
-            for item in data.get("claims",[]):
-                if isinstance(item,dict) and str(item.get("text") or "").strip() and item.get("id") not in {x.get("id") for x in claims}: claims.append(item)
-            for item in data.get("sources",[]):
-                if isinstance(item,dict) and str(item.get("url") or "").strip() and item.get("url") not in {x.get("url") for x in sources}: sources.append(item)
-            for item in data.get("evidence",[]):
-                if isinstance(item,dict) and str(item.get("excerpt") or "").strip() and item.get("id") not in seen: evidence.append(item); seen.add(item.get("id"))
-        assert claims and len(sources)>=2 and len(evidence)>=2
-        source_ids={x.get("id") for x in sources}; evidence_ids={x.get("id") for x in evidence}
-        for claim in claims:
-            assert claim.get("source_ids") and claim.get("evidence_ids")
-            assert all(x in source_ids for x in claim["source_ids"])
-            assert all(x in evidence_ids for x in claim["evidence_ids"])
-
-        knowledge=json.dumps({"claims":claims[:12],"sources":sources[:12],"evidence":evidence[:24]},ensure_ascii=False)
-        gr=research.research(f"""Write episode 3 of a connected historical Telegram series in Russian. Return ONLY JSON:
-{{"title":"string","content":"string","story_state":{{"central_question":"string","established":["string"],"unresolved":["string"],"next_required_transition":"string","used_examples":["string"],"claims":["id"],"evidence":["id"]}}}}
-Answer the previous unresolved question about prophecy and the future. Distinguish prophecy/divination from modern probabilistic forecasting. Use ONLY supplied research and cite its claim/evidence IDs in story_state. Preserve central_question exactly. Extend established knowledge. End by opening the next transition: when the future became a place or society that could be imagined.
-Natural Russian, 700-1300 characters, no em dash, no filler.
-PREVIOUS: {json.dumps(prev_series,ensure_ascii=False)}
-RESEARCH: {knowledge}
-""")
-        assert 200 <= gr.status_code < 300
-        payload=json.loads(research.text(gr)); text_value=str(payload.get("content") or "").strip(); state=payload.get("story_state") or {}
-        assert 700 <= len(text_value) <= 1400
-        assert "—" not in text_value
-        low=text_value.casefold()
-        assert "пророч" in low or "предсказ" in low
-        assert "?" in text_value
-        assert state.get("central_question")==prev_state["central_question"]
-        cids={str(x) for x in state.get("claims",[])}; eids={str(x) for x in state.get("evidence",[])}
-        assert cids and eids and cids <= {str(x.get("id")) for x in claims} and eids <= {str(x.get("id")) for x in evidence}
-        assert any(k in str(state.get("next_required_transition","")).casefold() for k in ("мест", "простран", "воображ", "утоп"))
-
         ProductHandler.service=service; ProductHandler.workspace=ContentWorkspace(service); ProductHandler.content_runs=service.content_runs
         ProductHandler.content_run_planner=ContentRunPlanner(ProductHandler.workspace)
         monkeypatch.setattr(ProductHandler,"_rate_limited",lambda *a,**k:False)
@@ -793,8 +781,12 @@ RESEARCH: {knowledge}
         try:
             run,_=_create_prepared_run(service,tmp_path,with_media=False)
             result=dict(run.result or {}); result["brief"]=title
-            result["content_brief"]={**result["content_brief"],"title":str(payload.get("title") or "Эпизод 4")}
-            result["package"]={**result["package"],"title":str(payload.get("title") or "Эпизод 3"),"text":text_value,"media":[],"claims":claims,"sources":sources,"evidence":evidence,"qc":{"status":"PASSED"},"series":{"series_id":series_id,"title":title,"episode":3,"previous_run_id":previous.run_id,"central_question":state["central_question"],"unresolved":state["unresolved"],"next_required_transition":state["next_required_transition"],"story_state":state}}
+            result["content_brief"]={**result["content_brief"],"title":"Эпизод 4"}
+            result["package"]={**result["package"],"title":"Эпизод 4","text":text_value,"media":[],"claims":claims,"sources":sources,"evidence":evidence,"qc":{"status":"PASSED"},"series":{
+                "series_id":series_id,"title":title,"episode":4,"previous_run_id":previous.run_id,
+                "central_question":state["central_question"],"unresolved":state["unresolved"],
+                "next_required_transition":state["next_required_transition"],"story_state":state
+            }}
             service.content_runs.save_result(run.run_id,result)
             status,approved=_request(f"http://127.0.0.1:{server.server_port}","POST",f"/api/runs/{run.run_id}/approve",{"decision_ref":"telegram-series-episode-4-approver","channel":"telegram"})
             assert status==200 and approved["result"]["publication"]["status"]=="PREPARED"
