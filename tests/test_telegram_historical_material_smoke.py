@@ -676,7 +676,7 @@ RESEARCH:
 
 
 def test_real_telegram_series_continuity(tmp_path, monkeypatch):
-    """Publish Episode 4 with deterministic historical research after provider quota exhaustion."""
+    """Publish Episode 5 with deterministic historical research after provider quota exhaustion."""
     if os.environ.get("RUN_TELEGRAM_E2E") != "1":
         pytest.skip("set RUN_TELEGRAM_E2E=1 for a real Telegram publication smoke")
     for name in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID"):
@@ -691,26 +691,26 @@ def test_real_telegram_series_continuity(tmp_path, monkeypatch):
     service = FactoryService()
     try:
         seed = service.content_runs.create(title=title, brief=title, formats=("telegram",))
-        source = {"id":"source-oracle","title":"Ancient Greek divination and oracles","url":"https://www.britannica.com/topic/oracle-religion"}
-        evidence = {"id":"evidence-oracle","source_id":"source-oracle","excerpt":"Ancient Greek oracles were institutions through which divine responses were sought."}
-        claim = {"id":"claim-oracle","text":"В древнегреческих оракулах обращение к божественному ответу было способом получить знание о событиях и решениях.","source_ids":["source-oracle"],"evidence_ids":["evidence-oracle"]}
+        source = {"id":"source-utopia-seed","title":"Thomas More, Utopia","url":"https://www.gutenberg.org/ebooks/2130"}
+        evidence = {"id":"evidence-utopia-seed","source_id":"source-oracle","excerpt":"More presents an imagined island with an organized social and political order."}
+        claim = {"id":"claim-utopia-seed","text":"«Утопия» Томаса Мора представляет воображаемый остров с организованным общественным и политическим порядком.","source_ids":["source-oracle"],"evidence_ids":["evidence-oracle"]}
         seed_result = {
             "brief": title, "content_brief":{"title":title},
             "package":{
-                "title":"Эпизод 3",
-                "text":"Пророчество связывало представления о будущем с сакральным знанием и знаками.",
+                "title":"Эпизод 5",
+                "text":"Воображаемые места стали способом представить иной общественный порядок.",
                 "media":[],"claims":[claim],"sources":[source],"evidence":[evidence],"qc":{"status":"PASSED"},
                 "series":{
                     "series_id":series_id,"title":title,"episode":3,"previous_run_id":None,
-                    "central_question":"Когда и почему будущее стало восприниматься как открытая возможность?",
-                    "unresolved":["Когда будущее начали описывать как место или общество, которое можно было вообразить?"],
-                    "next_required_transition":"Показать переход от предсказания будущего к воображению иных мест и обществ.",
+                    "central_question":"Когда воображаемые общества начали превращаться в проекты будущего?",
+                    "unresolved":["Как воображаемые общества превратились в проекты городов и обществ, которых еще не существовало?"],
+                    "next_required_transition":"Показать переход от воображаемых обществ к проектированию городов, которые должны были изменить реальную жизнь.",
                     "story_state":{
                         "central_question":"Когда и почему будущее стало восприниматься как открытая возможность?",
                         "established":[
                             "Представления о будущем существовали задолго до современной фантастики.",
-                            "Древние традиции могли связывать время с повторяющимися природными и космическими ритмами.",
-                            "Пророчество связывало ожидание будущего с сакральным знанием и знаками."
+                            "Воображаемые общества стали способом мысленно представить иной порядок жизни.",
+                            "Утопические тексты позволили описывать несуществующие места как модели другого общественного устройства."
                         ],
                         "unresolved":["Когда будущее начали описывать как место или общество, которое можно было вообразить?"],
                         "next_required_transition":"Показать переход от предсказания будущего к воображению иных мест и обществ.",
@@ -731,27 +731,29 @@ def test_real_telegram_series_continuity(tmp_path, monkeypatch):
         service.close()
 
     sources = [
-        {"id":"source-more-utopia","title":"Thomas More, Utopia","url":"https://www.gutenberg.org/ebooks/2130"},
-        {"id":"source-campanella-city-sun","title":"Tommaso Campanella, The City of the Sun","url":"https://www.gutenberg.org/ebooks/26188"},
-        {"id":"source-bacon-new-atlantis","title":"Francis Bacon, New Atlantis","url":"https://www.gutenberg.org/ebooks/2434"}
+        {"id":"source-howard-garden-city","title":"Ebenezer Howard, Garden Cities of To-morrow","url":"https://archive.org/details/gardencitiestomo00howa"},
+        {"id":"source-garnier-industrial-city","title":"Tony Garnier, Une cité industrielle","url":"https://gallica.bnf.fr/ark:/12148/bpt6k5839578g"},
+        {"id":"source-lecorbusier-ville","title":"Le Corbusier, The City of To-morrow and Its Planning","url":"https://archive.org/details/cityoftomorrowit00leco"}
     ]
     evidence = [
-        {"id":"evidence-more-utopia","source_id":"source-more-utopia","excerpt":"More presents an imagined island with an organized social and political order."},
-        {"id":"evidence-campanella-city-sun","source_id":"source-campanella-city-sun","excerpt":"Campanella describes an imagined city organized according to a proposed social order."},
-        {"id":"evidence-bacon-new-atlantis","source_id":"source-bacon-new-atlantis","excerpt":"Bacon describes the fictional island of Bensalem and the House of Salomon."}
+        {"id":"evidence-howard-garden-city","source_id":"source-howard-garden-city","excerpt":"Howard proposes Garden Cities as planned settlements combining urban advantages with access to the countryside."},
+        {"id":"evidence-garnier-industrial-city","source_id":"source-garnier-industrial-city","excerpt":"Garnier presents a detailed project for an imagined industrial city organized by functions and infrastructure."},
+        {"id":"evidence-lecorbusier-ville","source_id":"source-lecorbusier-ville","excerpt":"Le Corbusier presents a planned modern city organized around a new urban order and transport."}
     ]
     claims = [
-        {"id":"claim-more-utopia","text":"В «Утопии» Томаса Мора воображаемый остров становится моделью иного общественного устройства.","source_ids":["source-more-utopia"],"evidence_ids":["evidence-more-utopia"]},
-        {"id":"claim-campanella-city-sun","text":"В «Городе Солнца» Томмазо Кампанеллы воображаемый город используется для описания альтернативного общественного порядка.","source_ids":["source-campanella-city-sun"],"evidence_ids":["evidence-campanella-city-sun"]},
-        {"id":"claim-bacon-new-atlantis","text":"В «Новой Атлантиде» Фрэнсис Бэкон переносит описание желаемого общественного устройства на вымышленный остров Бенсалем.","source_ids":["source-bacon-new-atlantis"],"evidence_ids":["evidence-bacon-new-atlantis"]}
+        {"id":"claim-howard-garden-city","text":"Эбенизер Говард предложил модель Garden City как спланированного поселения, соединяющего преимущества города и сельской местности.","source_ids":["source-howard-garden-city"],"evidence_ids":["evidence-howard-garden-city"]},
+        {"id":"claim-garnier-industrial-city","text":"Тони Гарнье создал подробный проект промышленного города, которого в таком виде еще не существовало.","source_ids":["source-garnier-industrial-city"],"evidence_ids":["evidence-garnier-industrial-city"]},
+        {"id":"claim-lecorbusier-ville","text":"Ле Корбюзье предлагал проект современного города как сознательно организованной системы пространства, транспорта и жилья.","source_ids":["source-lecorbusier-ville"],"evidence_ids":["evidence-lecorbusier-ville"]}
     ]
-    text_value = """До этого момента будущее в нашей серии приходило к человеку как то, что нужно узнать: его искали в циклах времени, знамениях и пророчествах. Но затем возникает другая возможность. Будущее можно не только предсказывать, его можно представить.
+    text_value = """После воображаемых островов и идеальных обществ возникает следующий шаг: если несуществующее место можно описать достаточно подробно, почему бы не попытаться построить его в реальности?
 
-Показательно, что сначала такое воображение появилось не совсем как описание будущего. В 1516 году Томас Мор помещает свой рассказ об ином общественном устройстве на вымышленный остров Утопия. У Томмазо Кампанеллы в «Городе Солнца» появляется уже воображаемый город с другим порядком жизни. У Фрэнсиса Бэкона в «Новой Атлантиде» таким пространством становится остров Бенсалем.
+Именно здесь будущее начинает приобретать городской масштаб. В конце XIX века Эбенизер Говард предложил идею Garden City, спланированного поселения, которое должно было соединить преимущества города и сельской местности. Это уже не просто вымышленный остров. Это модель, которую предполагалось воплотить.
 
-Это важный сдвиг. Воображаемое общество больше не обязано быть откровением о том, что произойдет. Оно может быть мысленным экспериментом: местом, которого нет, где можно проверить другую организацию жизни.
+В начале XX века подобные проекты становятся еще смелее. Тони Гарнье разработал подробный проект промышленного города с разделением функций, транспортом и инфраструктурой. Ле Корбюзье позднее предложил собственное видение современного города, где расположение жилья, дорог и рабочих зон должно было подчиняться единому плану.
 
-Поэтому путь к современному будущему начался не обязательно с вопроса «что произойдет потом?». Сначала возник вопрос «а что, если существовало бы другое место?». Следующий шаг был почти неизбежен: что произойдет, если такие воображаемые места начнут превращаться в города, которых еще не существует?"""
+Так меняется сам смысл будущего. Его начинают не только представлять, но и проектировать. Город становится чертежом того, какой может стать жизнь.
+
+И здесь возникает новая проблема: если будущее можно спроектировать на бумаге, что произойдет, когда машины и технологии позволят действительно начать его строить?"""
     assert 700 <= len(text_value) <= 1400
     assert "—" not in text_value
     state = {
@@ -760,11 +762,11 @@ def test_real_telegram_series_continuity(tmp_path, monkeypatch):
             "Представления о будущем существовали задолго до современной фантастики.",
             "Древние традиции могли связывать время с повторяющимися природными и космическими ритмами.",
             "Пророчество связывало ожидание будущего с сакральным знанием и знаками.",
-            "Воображаемые места и общества стали способом мысленно представить иной порядок жизни."
+            "Воображаемые места и общества стали способом мысленно представить иной порядок жизни.","Города начали описываться как проекты, которые можно было планировать и строить."
         ],
-        "unresolved":["Как воображаемые места превратились в проекты городов и обществ, которых еще не существовало?"],
-        "next_required_transition":"Показать переход от воображаемых островов и идеальных городов к образам городов, которые можно было проектировать как будущее.",
-        "used_examples":["Томас Мор","Томмазо Кампанелла","Фрэнсис Бэкон"],
+        "unresolved":["Что изменится, когда проектирование будущего соединится с новыми машинами и технологиями?"],
+        "next_required_transition":"Показать переход от проектирования будущих городов к роли машин и технологий в изменении повседневной жизни.",
+        "used_examples":["Эбенизер Говард","Тони Гарнье","Ле Корбюзье"],
         "claims":[x["id"] for x in claims],"evidence":[x["id"] for x in evidence]
     }
 
@@ -783,22 +785,21 @@ def test_real_telegram_series_continuity(tmp_path, monkeypatch):
             result=dict(run.result or {}); result["brief"]=title
             result["content_brief"]={**result["content_brief"],"title":"Эпизод 4"}
             result["package"]={**result["package"],"title":"Эпизод 4","text":text_value,"media":[],"claims":claims,"sources":sources,"evidence":evidence,"qc":{"status":"PASSED"},"series":{
-                "series_id":series_id,"title":title,"episode":4,"previous_run_id":previous.run_id,
+                "series_id":series_id,"title":title,"episode":5,"previous_run_id":previous.run_id,
                 "central_question":state["central_question"],"unresolved":state["unresolved"],
                 "next_required_transition":state["next_required_transition"],"story_state":state
             }}
             service.content_runs.save_result(run.run_id,result)
-            status,approved=_request(f"http://127.0.0.1:{server.server_port}","POST",f"/api/runs/{run.run_id}/approve",{"decision_ref":"telegram-series-episode-4-approver","channel":"telegram"})
+            status,approved=_request(f"http://127.0.0.1:{server.server_port}","POST",f"/api/runs/{run.run_id}/approve",{"decision_ref":"telegram-series-episode-5-approver","channel":"telegram"})
             assert status==200 and approved["result"]["publication"]["status"]=="PREPARED"
             pub=approved["result"]["publication"]
             status,published=_request(f"http://127.0.0.1:{server.server_port}","POST",f"/api/runs/{run.run_id}/publish",{"publication_id":pub["publication_id"]})
             assert status==200 and published["status"]=="PUBLISHED" and published["response"]["telegram_ok"] is True
             final=service.content_runs.get(run.run_id); assert final.status=="PUBLISHED"
-            fs=final.result["package"]["series"]; assert fs["episode"]==4 and fs["previous_run_id"]==previous.run_id
-            print("\nGENERATED_TELEGRAM_EPISODE_4:\n"+text_value)
+            fs=final.result["package"]["series"]; assert fs["episode"]==5 and fs["previous_run_id"]==previous.run_id
+            print("\nGENERATED_TELEGRAM_EPISODE_5:\n"+text_value)
         finally:
             server.shutdown(); server.server_close(); thread.join(timeout=2)
     finally:
         service.close()
-
 
