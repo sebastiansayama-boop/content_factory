@@ -1,4 +1,4 @@
-name: Telegram Episode 9 Publish
+name: Telegram Episode 10 Publish
 
 on:
   push:
@@ -7,7 +7,15 @@ on:
 permissions: {}
 
 jobs:
-  disabled:
+  publish:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Episode 9 publisher disabled; publication must be explicitly verified."
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e .
+      - run: python scripts/publish_telegram_episode10.py
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
