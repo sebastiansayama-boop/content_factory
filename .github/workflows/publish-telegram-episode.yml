@@ -31,10 +31,10 @@ jobs:
           TELEGRAM_LIBRARY_PATH: library/telegram/thai-spiritual-world.json
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
-          if [[ "$COMMIT_MESSAGE" != publish: thai-spirit-episode-* ]]; then
-            echo "Ordinary commit; publication skipped."
-            exit 0
-          fi
+          case "$COMMIT_MESSAGE" in
+            "publish: thai-spirit-episode-"*) ;;
+            *) echo "Ordinary commit; publication skipped."; exit 0 ;;
+          esac
           episode="${COMMIT_MESSAGE#publish: thai-spirit-episode-}"
           if ! [[ "$episode" =~ ^[0-9]+$ ]]; then
             echo "Invalid publication command: $COMMIT_MESSAGE"
