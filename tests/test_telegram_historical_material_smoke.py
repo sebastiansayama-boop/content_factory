@@ -12,7 +12,7 @@ from content_factory.content_run_planner import ContentRunPlanner
 from content_factory.product_http import ProductHandler
 from content_factory.service import FactoryService
 from content_factory.workspace import ContentWorkspace
-from content_factory.providers.gemini import FreeWebGeminiAdapter
+from content_factory.free_research import FreeWebGeminiAdapter
 
 pytestmark = pytest.mark.external
 
