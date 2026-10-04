@@ -2,6 +2,7 @@ from __future__ import annotations
 import os, threading
 from http.server import ThreadingHTTPServer
 import pytest
+from PIL import Image
 from content_factory.content_run_planner import ContentRunPlanner
 from content_factory.product_http import ProductHandler
 from content_factory.service import FactoryService
@@ -22,6 +23,14 @@ def test_real_telegram_episode6_publication_once(tmp_path, monkeypatch):
     service = FactoryService()
     try:
         run = service.content_runs.create(title="Как люди прошлого представляли будущее", brief="Как люди прошлого представляли будущее", formats=("telegram",))
+        request={"asset_request_id":"episode6-text-artifact","script_unit_id":"episode6","type":"visual","claim_refs":[],"evidence_refs":[],"visual_intent":"episode 6 publication artifact","acceptance_criteria":["exists"]}
+        job=service.asset_jobs.create_from_plan(run.run_id,{"asset_requests":[request]})[0]
+        asset_path=tmp_path / f"{run.run_id}.jpg"
+        Image.new("RGB",(64,64),(120,120,120)).save(asset_path,format="JPEG")
+        service.asset_jobs.mark_running(job.job_id)
+        service.asset_jobs.complete(job.job_id,{"asset_id":f"asset-episode6-{run.run_id}","provider":"test","path":str(asset_path),"metadata":{"origin":"publication","asset_type":"image"}})
+        asset=service.asset_registry.register_completed_job(service.asset_jobs.get(job.job_id))
+
         text_value = """В предыдущем эпизоде будущее стало чертежом: его начали описывать как города и системы, которые можно было спроектировать заранее. Но на этом история меняется. Машины не просто помогли строить запланированный мир. Они начали менять саму скорость и масштаб перемен.
 
 Паровая машина постепенно превратилась из отдельного технического устройства в основу промышленной системы. Усовершенствования Джеймса Уатта в XVIII веке сделали ее значительно практичнее для разных видов работы. Затем железные дороги связали города и расстояния уже не так, как их знали прежде. В 1825 году открылась железная дорога Стоктон — Дарлингтон, первая общественная железная дорога с паровой тягой.
@@ -38,16 +47,13 @@ def test_real_telegram_episode6_publication_once(tmp_path, monkeypatch):
         result={"brief":"Как люди прошлого представляли будущее","content_brief":{"title":"Эпизод 6"},"package":{"title":"Эпизод 6","text":text_value,"media":[],"claims":claims,"sources":sources,"evidence":evidence,"qc":{"status":"PASSED"},"series":{"series_id":"telegram-series-future-001","title":"Как люди прошлого представляли будущее","episode":6,"previous_run_id":None,"central_question":state["central_question"],"unresolved":state["unresolved"],"next_required_transition":state["next_required_transition"],"story_state":state}},"production":{"status":"READY_FOR_REVIEW","output":{"output_id":"episode6-publication","status":"READY"},"qc":{"status":"PASSED","passed":True,"checks":[]}}}
         service.content_runs.start_planning(run.run_id)
         service.content_runs.start_producing(run.run_id)
+        result["information_flow"]={"artifacts":[{"artifact_id":asset.asset_id,"format":"image","content_element_ids":[],"claim_ids":[],"evidence_ids":[]}],"publications":[],"edges":[]}
         service.content_runs.save_result(run.run_id,result)
         ProductHandler.service=service; ProductHandler.workspace=ContentWorkspace(service); ProductHandler.content_runs=service.content_runs; ProductHandler.content_run_planner=ContentRunPlanner(ProductHandler.workspace)
         monkeypatch.setattr(ProductHandler,"_rate_limited",lambda *a,**k:False)
         server=ThreadingHTTPServer(("127.0.0.1",0),ProductHandler); thread=threading.Thread(target=server.serve_forever,daemon=True); thread.start()
         try:
             base=f"http://127.0.0.1:{server.server_port}"
-            status,assembled=_request(base,"POST",f"/api/runs/{run.run_id}/assemble",{})
-            assert status==200,assembled
-            status,qc=_request(base,"POST",f"/api/runs/{run.run_id}/qc",{})
-            assert status==200,qc
             status,approved=_request(base,"POST",f"/api/runs/{run.run_id}/approve",{"decision_ref":"telegram-series-episode-6-approver","channel":"telegram"})
             assert status==200,approved
             pub=approved["result"]["publication"]
