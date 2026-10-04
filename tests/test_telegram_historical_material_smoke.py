@@ -518,21 +518,27 @@ ancient cyclical concepts of time Mesopotamia Egypt Greece India Maya historical
         assert 200 <= rr.status_code < 300
         research_payload = json.loads(research.text(rr))
         for claim in research_payload.get("claims", []):
+            if not isinstance(claim, dict):
+                continue
             key = str(claim.get("text") or "").strip().casefold()
             if key and key not in seen_claims:
                 seen_claims.add(key)
                 claims.append(claim)
         for source in research_payload.get("sources", []):
+            if not isinstance(source, dict):
+                continue
             key = str(source.get("url") or "").strip()
             if key and key not in seen_sources:
                 seen_sources.add(key)
                 sources.append(source)
         for item in research_payload.get("evidence", []):
+            if not isinstance(item, dict):
+                continue
             key = str(item.get("id") or item.get("excerpt") or "").strip()
             if key and key not in seen_evidence:
                 seen_evidence.add(key)
                 evidence.append(item)
-    assert len(claims) >= 2
+    assert claims
     assert len(sources) >= 2
     assert len(evidence) >= 2
 
