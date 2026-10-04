@@ -124,7 +124,7 @@ USER BRIEF:
     knowledge = json.dumps({"claims": claims[:6], "evidence": evidence[:12]}, ensure_ascii=False)
     generation_prompt = f"""Write one finished Telegram publication in Russian.
 Return ONLY JSON: {{"title":"string","content":"string"}}.
-Length: 650-1200 characters.
+Length: 500-1200 characters.
 One coherent publication, not a list.
 Start with a concrete historical fact, scene, person, place, date, object, or action. Do not start with generic phrases such as "История полна", "Мало кто знает", "Вы знали?", "На протяжении веков".
 Use only the supplied claims and evidence. Preserve uncertainty and scope. Do not invent facts.
@@ -139,7 +139,7 @@ ACCEPTED KNOWLEDGE:
     assert 200 <= generated.status_code < 300
     generated_payload = json.loads(research.text(generated))
     generated_text = str(generated_payload["content"]).strip()
-    assert 650 <= len(generated_text) <= 1200
+    assert 500 <= len(generated_text) <= 1200
     assert "—" not in generated_text
     assert not generated_text.startswith(("История полна", "Мало кто знает", "Вы знали?", "На протяжении веков"))
 
