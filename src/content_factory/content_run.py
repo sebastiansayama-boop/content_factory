@@ -10,6 +10,7 @@ from uuid import uuid4
 from typing import Any
 
 from content_factory.state_machine import InvalidStateTransition, validate_transition
+from content_factory.series_contract import validate_series_package
 
 
 STATUSES = {
@@ -385,6 +386,19 @@ class ContentRunStore:
         if current is None:
             raise ValueError("content run not found")
         validate_transition("content_run", current.status, "REVIEW")
+        package = result.get("package") if isinstance(result, dict) else None
+        if isinstance(package, dict) and isinstance(package.get("series"), dict):
+            series = package["series"]
+            previous_run_id = str(series.get("previous_run_id") or "").strip() or None
+            previous_package = None
+            if previous_run_id:
+                previous = self.get(previous_run_id)
+                if previous is None:
+                    raise ValueError("series previous_run_id references unknown content run")
+                previous_package = (previous.result or {}).get("package")
+                if not isinstance(previous_package, dict):
+                    raise ValueError("series predecessor has no persisted package")
+            validate_series_package(package, previous_package=previous_package, previous_run_id=previous_run_id)
         now = _now()
         with self._connection:
             cursor = self._connection.execute(
@@ -402,6 +416,17 @@ class ContentRunStore:
         return run
 
     def save_result_preserving_status(self, run_id: str, result: dict[str, object]) -> ContentRun:
+        package = result.get("package") if isinstance(result, dict) else None
+        if isinstance(package, dict) and isinstance(package.get("series"), dict):
+            series = package["series"]
+            previous_run_id = str(series.get("previous_run_id") or "").strip() or None
+            previous_package = None
+            if previous_run_id:
+                previous = self.get(previous_run_id)
+                if previous is None:
+                    raise ValueError("series previous_run_id references unknown content run")
+                previous_package = (previous.result or {}).get("package")
+            validate_series_package(package, previous_package=previous_package, previous_run_id=previous_run_id)
         now = _now()
         with self._connection:
             cursor = self._connection.execute(
