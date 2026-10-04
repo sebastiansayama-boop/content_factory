@@ -24,7 +24,7 @@ def test_real_telegram_historical_material_smoke(tmp_path, monkeypatch):
         pytest.fail("Telegram credentials are required")
 
     monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
-    monkeypatch.setenv("FACTORY_API_TOKEN", "telegram-" + "publication-smoke-token")
+    monkeypatch.setenv("FACTORY_API_TOKEN", "telegram-publication-smoke-token")
     monkeypatch.delenv("FACTORY_TELEGRAM_FAKE", raising=False)
 
     service = FactoryService()
