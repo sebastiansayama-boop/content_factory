@@ -701,7 +701,7 @@ def test_real_telegram_series_continuity(tmp_path, monkeypatch):
                 "text":"Воображаемые места стали способом представить иной общественный порядок.",
                 "media":[],"claims":[claim],"sources":[source],"evidence":[evidence],"qc":{"status":"PASSED"},
                 "series":{
-                    "series_id":series_id,"title":title,"episode":3,"previous_run_id":None,
+                    "series_id":series_id,"title":title,"episode":4,"previous_run_id":None,
                     "central_question":"Когда и почему будущее стало восприниматься как открытая возможность?",
                     "unresolved":["Как воображаемые общества превратились в проекты городов и обществ, которых еще не существовало?"],
                     "next_required_transition":"Показать переход от воображаемых обществ к проектированию городов, которые должны были изменить реальную жизнь.",
@@ -725,8 +725,8 @@ def test_real_telegram_series_continuity(tmp_path, monkeypatch):
         service.content_runs.start_producing(seed.run_id)
         service.content_runs.save_production_result(seed.run_id, seed_result)
         service.content_runs.save_result(seed.run_id, seed_result)
-        service.content_runs.approve(seed.run_id, decision_ref="telegram-series-episode-3-seeded")
-        service.content_runs.mark_published(seed.run_id, {"status":"PUBLISHED","channel":"telegram","external_id":"seed-episode-3"})
+        service.content_runs.approve(seed.run_id, decision_ref="telegram-series-episode-4-seeded")
+        service.content_runs.mark_published(seed.run_id, {"status":"PUBLISHED","channel":"telegram","external_id":"seed-episode-4"})
     finally:
         service.close()
 
@@ -774,7 +774,7 @@ def test_real_telegram_series_continuity(tmp_path, monkeypatch):
     try:
         previous = next((x for x in service.content_runs.list(limit=50)
                          if ((x.result or {}).get("package") or {}).get("series",{}).get("series_id")==series_id
-                         and ((x.result or {}).get("package") or {}).get("series",{}).get("episode")==3), None)
+                         and ((x.result or {}).get("package") or {}).get("series",{}).get("episode")==4), None)
         assert previous is not None and previous.status == "PUBLISHED"
         ProductHandler.service=service; ProductHandler.workspace=ContentWorkspace(service); ProductHandler.content_runs=service.content_runs
         ProductHandler.content_run_planner=ContentRunPlanner(ProductHandler.workspace)
@@ -802,4 +802,3 @@ def test_real_telegram_series_continuity(tmp_path, monkeypatch):
             server.shutdown(); server.server_close(); thread.join(timeout=2)
     finally:
         service.close()
-
