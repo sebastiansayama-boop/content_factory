@@ -133,12 +133,14 @@ class Script:
     script_id: str
     title: str
     units: tuple[ScriptUnit, ...]
+    variation_mode: str = "auto"
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "script_id": self.script_id,
             "title": self.title,
             "units": [unit.to_dict() for unit in self.units],
+            "variation_mode": self.variation_mode,
         }
 
 
@@ -559,7 +561,7 @@ USER CONSTRAINTS:
             objective="turn a content specification into a provenance-grounded script",
             prompt=f"""Create a complete, developed publication text from this ContentSpec.
 The requested output language is explicitly specified in USER CONSTRAINTS. Write the entire user-facing script, including title and every unit, in that language. If it says Russian, do not answer in English or mix languages unless a proper name or necessary technical term has no natural Russian equivalent.
-Return JSON: {{"script_id":"script-1","title":"string","units":[{{"unit_id":"unit-1","kind":"hook|beat|narration|cta","text":"complete spoken/on-screen text","visual_intent":"string","claim_refs":["kc-*"],"evidence_refs":["ke-*"]}}]}}
+Return JSON: {{"script_id":"script-1","title":"string","variation_mode":"scene|person|contrast|question|object|sequence|myth_fact|zoom_out","units":[{{"unit_id":"unit-1","kind":"hook|beat|narration|cta","text":"complete spoken/on-screen text","visual_intent":"string","claim_refs":["kc-*"],"evidence_refs":["ke-*"]}}]}}
 The text is the publication itself and must be usable without editing.
 
 Structure:
@@ -577,7 +579,7 @@ Text variation matrix:
 
 Variation decision:
 - If Variation is auto, YOU choose exactly one matrix mode based on the strongest factual shape of the accepted knowledge.
-- Return the chosen mode implicitly through the writing itself; do not expose the mode label in the publication.
+- Return the chosen mode explicitly in the JSON field variation_mode. This is internal metadata only and must never be included in user-facing publication text.
 - The matrix is a decision space, not a fixed template. You may combine its techniques when that produces a more natural text, but the dominant mode must be clear.
 - Across repeated publications, do not default to the same opening, sentence rhythm, progression, or ending when the evidence supports another mode.
 - Never force a mode that requires facts or details absent from the evidence.
@@ -621,10 +623,17 @@ ACCEPTED KNOWLEDGE:
             if not unit.unit_id or not unit.kind or not unit.text:
                 raise WorkspaceError("every script unit requires id, kind and text")
             units.append(unit)
+        variation_mode = str(script_raw.get("variation_mode") or "auto").strip().casefold()
+        valid_variation_modes = {"auto", "scene", "person", "contrast", "question", "object", "sequence", "myth_fact", "zoom_out"}
+        if variation_mode not in valid_variation_modes:
+            raise WorkspaceError("script variation_mode must be one of the eight matrix modes")
+        if text_rules.variation == "auto" and variation_mode == "auto":
+            raise WorkspaceError("model must select a concrete variation_mode when variation is auto")
         script = Script(
             script_id=str(script_raw.get("script_id") or "").strip(),
             title=str(script_raw.get("title") or spec.title).strip(),
             units=tuple(units),
+            variation_mode=variation_mode,
         )
         if not script.script_id:
             raise WorkspaceError("script requires script_id")
