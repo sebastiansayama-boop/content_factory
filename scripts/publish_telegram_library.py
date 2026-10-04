@@ -127,7 +127,7 @@ def _prepare_run(service: FactoryService, episode: dict, workdir: Path, previous
 def main() -> int:
     data = json.loads(LIBRARY_PATH.read_text(encoding="utf-8"))
     episodes = {int(item["episode"]): item for item in data["episodes"]}
-    if 6 not in episodes or 7 not in episodes or 8 not in episodes:
+    if 6 not in episodes or 7 not in episodes or 8 not in episodes or 9 not in episodes:
         raise RuntimeError("library must contain Episodes 6 and 7")
 
     for item in episodes.values():
@@ -241,6 +241,46 @@ def main() -> int:
             print(f"TELEGRAM_EPISODE_8_MESSAGE_ID={published8['external_id']}")
             print("TELEGRAM_EPISODE_8_STATUS=PUBLISHED")
             print("TELEGRAM_EPISODE_8_IDEMPOTENCY=PASS")
+            ep9 = _prepare_run(service, episodes[9], data_dir, ep8.run_id)
+            status, approved9 = _request(
+                base_url,
+                "POST",
+                f"/api/runs/{ep9.run_id}/approve",
+                {"decision_ref": "library-episode-9-approval", "channel": "telegram"},
+            )
+            if status != 200:
+                raise RuntimeError(f"Episode 9 approval failed: {approved9}")
+
+            publication9 = approved9["result"]["publication"]
+            status, published9 = _request(
+                base_url,
+                "POST",
+                f"/api/runs/{ep9.run_id}/publish",
+                {"publication_id": publication9["publication_id"], "actor_id": "library-publisher"},
+            )
+            if status != 200 or published9.get("status") != "PUBLISHED" or not published9.get("external_id"):
+                raise RuntimeError(f"Episode 9 Telegram publication failed: {published9}")
+
+            final9 = service.content_runs.get(ep9.run_id)
+            if final9 is None or final9.status != "PUBLISHED":
+                raise RuntimeError("Episode 9 ContentRun did not reach PUBLISHED")
+
+            status, replay9 = _request(
+                base_url,
+                "POST",
+                f"/api/runs/{ep9.run_id}/publish",
+                {"publication_id": publication9["publication_id"], "actor_id": "library-publisher"},
+            )
+            if status != 200 or replay9.get("idempotent") is not True:
+                raise RuntimeError(f"Episode 9 idempotency check failed: {replay9}")
+            if replay9.get("external_id") != published9.get("external_id"):
+                raise RuntimeError("Episode 9 idempotency returned a different external_id")
+
+            print(f"TELEGRAM_EPISODE_9_RUN_ID={ep9.run_id}")
+            print(f"TELEGRAM_EPISODE_9_MESSAGE_ID={published9['external_id']}")
+            print("TELEGRAM_EPISODE_9_STATUS=PUBLISHED")
+            print("TELEGRAM_EPISODE_9_IDEMPOTENCY=PASS")
+
             print(f"TELEGRAM_EPISODE_7_RUN_ID={ep7.run_id}")
             print(f"TELEGRAM_EPISODE_7_MESSAGE_ID={published['external_id']}")
             print("TELEGRAM_EPISODE_7_STATUS=PUBLISHED")
