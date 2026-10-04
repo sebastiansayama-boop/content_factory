@@ -257,7 +257,7 @@ def main() -> int:
                 f"TELEGRAM_EPISODE_{episode_number}_MESSAGE_ID={published['external_id']}"
             )
             print(f"TELEGRAM_EPISODE_{episode_number}_STATUS=PUBLISHED")
-            print(f"TELEGRAM_EPISODE_{episode_number}_IDEMPOTENCY=PASS")
+            print(f"TELEGRAM_EPISODE_{episode_number}_REPLAY_IDEMPOTENCY=PASS")
             return 0
         finally:
             server.shutdown()
