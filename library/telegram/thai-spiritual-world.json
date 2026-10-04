@@ -250,6 +250,25 @@
             "evidence-san-change"
           ]
         }
+      ],
+      "sources": [
+        {
+          "id": "source-kano-1996",
+          "title": "Hiroshi Kano, Changing Belief about the Guardian Spirits in Modern Bangkok",
+          "url": "https://www.jstage.jst.go.jp/article/sea1971/1996/25/1996_25_28/_article/-char/en"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-san-material",
+          "source_id": "source-kano-1996",
+          "excerpt": "Kano describes guardian spirits of the land and small shrines built on the land they guard."
+        },
+        {
+          "id": "evidence-san-change",
+          "source_id": "source-kano-1996",
+          "excerpt": "The study of 1112 data points in Pathumwan and Rachathewe documents changes in shrine architecture and idols over the twentieth century."
+        }
       ]
     }
   ]
