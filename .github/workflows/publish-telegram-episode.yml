@@ -9,7 +9,6 @@ permissions:
 
 jobs:
   publish:
-    if: startsWith(github.event.head_commit.message, 'publish: thai-spirit-episode-')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     concurrency:
@@ -24,6 +23,13 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -e .
+      - name: Gate publication command
+        shell: bash
+        run: |
+          if [[ "${{ github.event.head_commit.message }}" != publish: thai-spirit-episode-* ]]; then
+            echo "Not a publication command; no-op."
+            exit 0
+          fi
       - name: Resolve episode
         id: episode
         shell: bash
