@@ -2,6 +2,9 @@ name: Telegram Publication Proof
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/telegram-publication-proof.yml"
 
 permissions: {}
 
