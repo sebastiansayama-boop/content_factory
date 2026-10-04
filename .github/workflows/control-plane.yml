@@ -34,6 +34,8 @@ jobs:
         id: execute
         env:
           CONTROL_COMMAND: ${{ steps.command.outputs.command }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
           RUN_TELEGRAM_E2E: "1"
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -46,4 +48,5 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           COMMAND: ${{ steps.command.outputs.command }}
           COMMAND_STATUS: ${{ steps.execute.outcome }}
+          CONTROL_MODE: report
         run: python scripts/control_plane.py report
