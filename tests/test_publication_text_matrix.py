@@ -21,3 +21,15 @@ def test_publication_variation_defaults_to_model_selection():
 def test_explicit_variation_remains_available():
     rules = resolve_publication_text_rules(["variation: история"])
     assert rules.variation == "story"
+
+
+def test_script_serializes_concrete_variation_mode():
+    from content_factory.knowledge_content import Script, ScriptUnit
+
+    script = Script(
+        script_id="script-1",
+        title="Тест",
+        units=(ScriptUnit("unit-1", "hook", "Текст", "", ("kc-1",), ("ke-1",)),),
+        variation_mode="scene",
+    )
+    assert script.to_dict()["variation_mode"] == "scene"
