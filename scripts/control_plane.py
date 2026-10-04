@@ -14,6 +14,7 @@ COMMANDS = {
     'publication-test': ['python','-m','pytest','-q','tests/test_provider_e2e.py::test_live_historical_publication_text_variations_without_images','-m','external'],
     'editorial-test': ['python','-m','pytest','-s','-q','tests/test_editorial_method_benchmark.py','-m','external'],
     'telegram-series-episode-2': ['python','-m','pytest','-s','-q','tests/test_telegram_historical_material_smoke.py::test_real_telegram_series_episode_2_continuity','-m','external'],
+    'telegram-series-episode-3': ['python','-m','pytest','-s','-q','tests/test_telegram_historical_material_smoke.py::test_real_telegram_series_episode_3_continuity','-m','external'],
 }
 def parse():
     title = os.environ.get('ISSUE_TITLE','')
