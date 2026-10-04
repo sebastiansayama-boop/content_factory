@@ -169,7 +169,142 @@
       "central_question": "Как компьютерная игра стала коммерческим развлечением?",
       "planned_scope": "Computer Space, Nolan Bushnell, Pong, первые игровые автоматы и первые коммерческие эксперименты.",
       "next_question": null,
-      "status": "PLANNED"
+      "status": "READY_FOR_PUBLICATION",
+      "text": "Первые компьютерные игры появились в университетах и лабораториях. Но чтобы стать индустрией, игре нужно было выйти за пределы компьютера, к которому обычный человек почти не имел доступа.\n\nПервой серьёзной попыткой сделать это стал Computer Space.\n\nВ 1960-х Нолан Бушнелл познакомился со Spacewar! и увидел в ней не только эксперимент для программистов, но и потенциальное развлечение. Вместе с Тедом Дабни он попытался превратить идею в монетный игровой автомат.\n\nВ 1971 году компания Nutting Associates выпустила Computer Space. Это была одна из первых коммерческих аркадных видеоигр и первая коммерческая игра такого типа. Игрок управлял космическим кораблём и сражался с летающими тарелками. Но игра оказалась сложной для случайного посетителя: нужно было сначала понять управление и правила, а затем научиться играть. Продажи были недостаточными.\n\nБушнелл, однако, не отказался от идеи. Он понял главное: проблема была не в том, что люди не хотят играть, а в том, насколько быстро они могут понять игру.\n\nВ 1972 году Бушнелл и Тед Дабни основали Atari. Первым проектом стал Pong — игра, в которой два игрока отбивали друг другу виртуальный мяч.\n\nPong был почти противоположностью Computer Space. Не нужно было объяснять сложное управление или правила. Достаточно было увидеть экран, взять ручку управления и начать играть.\n\nПервый прототип установили в баре Andy Capp’s Tavern в Саннивейле. Через несколько дней автомат перестал работать. Причиной оказалась не поломка: монетоприёмник оказался забит четвертаками.\n\nДля Atari это стало сигналом. Люди действительно готовы были платить за то, чтобы играть.\n\nТак компьютерная игра впервые получила простую коммерческую модель: автомат стоит в месте, где бывают люди; игрок платит небольшую сумму за попытку; игра должна быть понятна за несколько секунд и заставлять попробовать ещё раз.\n\nPong не изобрёл видеоигры. Но он показал, что видеоигра может быть массовым развлечением и самостоятельным коммерческим продуктом.\n\nСледующий шаг был уже очевиден: если игра может зарабатывать деньги в баре или игровом зале, можно ли сделать так, чтобы она работала прямо дома — на обычном телевизоре?",
+      "story_state": {
+        "series_id": "telegram-series-computer-games-001",
+        "title": "История создания компьютерных игр",
+        "central_question": "Как компьютерная игра стала коммерческим развлечением?",
+        "established": [
+          "Computer Space перенёс идею Spacewar! из исследовательской среды в коммерческий аркадный автомат.",
+          "В 1971 году Nutting Associates выпустила Computer Space; игра оказалась слишком сложной для массового случайного игрока и продавалась плохо.",
+          "В 1972 году Nolan Bushnell и Ted Dabney основали Atari.",
+          "Pong стал простым и быстро понятным аркадным продуктом и доказал коммерческий потенциал видеоигр.",
+          "Первые аркадные игры создали модель: доступная игра в общественном месте + монетная оплата за сеанс."
+        ],
+        "unresolved": [],
+        "next_required_transition": "Следующий эпизод рассматривает переход от аркадных автоматов к домашним игровым системам и телевизору как игровой платформе.",
+        "used_examples": [
+          "Computer Space",
+          "Pong",
+          "Atari",
+          "Andy Capp’s Tavern"
+        ],
+        "claims": [
+          "claim-computer-space-commercial",
+          "claim-computer-space-complexity",
+          "claim-atari",
+          "claim-pong-success",
+          "claim-arcade-model"
+        ],
+        "evidence": [
+          "evidence-computer-space",
+          "evidence-pong",
+          "evidence-atari",
+          "evidence-pong-coinbox"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-computer-space-commercial",
+          "text": "В 1971 году Nutting Associates выпустила Computer Space, разработанный Nolan Bushnell, ставший первой коммерческой аркадной видеоигрой.",
+          "source_ids": [
+            "source-chm-computer-space"
+          ],
+          "evidence_ids": [
+            "evidence-computer-space"
+          ]
+        },
+        {
+          "id": "claim-computer-space-complexity",
+          "text": "Computer Space оказался сложным для случайных игроков и не показал ожидаемых продаж.",
+          "source_ids": [
+            "source-chm-computer-space",
+            "source-smithsonian"
+          ],
+          "evidence_ids": [
+            "evidence-computer-space"
+          ]
+        },
+        {
+          "id": "claim-atari",
+          "text": "Nolan Bushnell и Ted Dabney основали Atari в 1972 году.",
+          "source_ids": [
+            "source-chm-atari"
+          ],
+          "evidence_ids": [
+            "evidence-atari"
+          ]
+        },
+        {
+          "id": "claim-pong-success",
+          "text": "Pong был разработан Al Alcorn для Atari в 1972 году; его ранний прототип в Andy Capp’s Tavern быстро стал популярен.",
+          "source_ids": [
+            "source-chm-pong",
+            "source-smithsonian"
+          ],
+          "evidence_ids": [
+            "evidence-pong",
+            "evidence-pong-coinbox"
+          ]
+        },
+        {
+          "id": "claim-arcade-model",
+          "text": "Pong показал жизнеспособность монетной модели видеоигры в общественном месте и стал одним из ключевых продуктов ранней аркадной индустрии.",
+          "source_ids": [
+            "source-chm-pong",
+            "source-chm-atari"
+          ],
+          "evidence_ids": [
+            "evidence-pong-coinbox"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-chm-computer-space",
+          "title": "Computer History Museum — Computer Space",
+          "url": "https://www.computerhistory.org/revolution/computer-games/16/210/874"
+        },
+        {
+          "id": "source-smithsonian",
+          "title": "Smithsonian Institution — Video Game History",
+          "url": "https://www.si.edu/spotlight/the-father-of-the-video-game-the-ralph-baer-prototypes-and-electronic-games/video-game-history"
+        },
+        {
+          "id": "source-chm-atari",
+          "title": "Computer History Museum — Atari, Inc.",
+          "url": "https://www.computerhistory.org/brochures/a-c/atari-inc/"
+        },
+        {
+          "id": "source-chm-pong",
+          "title": "Computer History Museum — Pong",
+          "url": "https://www.computerhistory.org/revolution/computer-games/16/183"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-computer-space",
+          "source_id": "source-chm-computer-space",
+          "excerpt": "CHM identifies Computer Space as the first commercial arcade video game and notes that its complexity made it difficult for casual players; it did not sell well."
+        },
+        {
+          "id": "evidence-atari",
+          "source_id": "source-chm-atari",
+          "excerpt": "CHM records Nolan Bushnell and Ted Dabney founding Atari in 1972 and identifies Pong as its first product and an instant success."
+        },
+        {
+          "id": "evidence-pong",
+          "source_id": "source-chm-pong",
+          "excerpt": "CHM records Pong's 1972 prototype and describes its role in launching the video game craze and transforming arcades."
+        },
+        {
+          "id": "evidence-pong-coinbox",
+          "source_id": "source-smithsonian",
+          "excerpt": "Smithsonian records the first Pong machine at Andy Capp’s Tavern and the coinbox filling with quarters shortly after installation."
+        }
+      ],
+      "publication": null
     },
     {
       "episode": 3,
@@ -236,6 +371,6 @@
       "status": "PLANNED"
     }
   ],
-  "current_episode": 1,
+  "current_episode": 2,
   "updated_at": "2026-10-05"
 }
