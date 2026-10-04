@@ -1,0 +1,110 @@
+{
+  "series_id": "thai-spiritual-world-001",
+  "title": "Духовный мир Таиланда",
+  "editorial_contract": {
+    "sequence": [
+      "phi",
+      "place",
+      "shrine",
+      "offering",
+      "danger",
+      "specialists",
+      "family",
+      "nature",
+      "city",
+      "synthesis"
+    ],
+    "exclusions": [
+      "не сводить тему к «буддизм против анимизма»",
+      "не переводить phi автоматически как «призрак»",
+      "не выдавать верования за доказанные сверхъестественные факты",
+      "не использовать алкогольные подношения"
+    ],
+    "episode_1_checklist": [
+      "термин phi объяснён как широкая категория",
+      "не смешивать phi с ghost",
+      "есть конкретный региональный пример",
+      "есть claims/sources/evidence",
+      "финал открывает тему духов места"
+    ]
+  },
+  "episodes": [
+    {
+      "episode": 1,
+      "title": "Кто такие phi? Духи, которых невозможно просто назвать призраками",
+      "text": "Приветствую читателя. Это Content Factory, и сегодня начинается новая серия «Духовный мир Таиланда».\n\nПервый вопрос кажется простым: кто такие phi (ผี)? В английском их часто называют spirits или ghosts, а по-русски обычно переводят как «духи» или «призраки». Но оба перевода могут скрывать важную деталь: phi не обозначает одну конкретную категорию существ.\n\nИсследователи описывают phi как широкий и многослойный мир представлений. В северо-восточном Таиланде, например, к phi относят духов предков, природных духов и духов-хранителей деревень. При этом граница между «добрым» и «опасным» духом тоже не всегда однозначна.\n\nПоэтому начинать эту историю со слова «призрак» неправильно. Важно сначала понять, с кем, по представлениям людей, человек вообще может иметь дело.\n\nА если дух может быть связан не только с человеком, но и с самой землёй, возникает следующий вопрос: кому принадлежит место, на котором мы живём?",
+      "story_state": {
+        "central_question": "Что на самом деле означает слово phi, и почему «тайские призраки» — слишком грубый перевод?",
+        "established": [
+          "phi (ผี) используется как широкая категория духовных существ и представлений",
+          "В исследованиях северо-восточного Таиланда среди phi описываются духи предков, природные духи и духи-хранители деревень",
+          "Категории благоприятных и опасных духов не всегда имеют жёсткую границу"
+        ],
+        "unresolved": [
+          "Почему в тайских представлениях дух может быть связан не только с человеком, но и с конкретным местом?"
+        ],
+        "next_required_transition": "Перейти от общей категории phi к духам места и понятиям Jao Thii и Phra Phum.",
+        "used_examples": [
+          "phi в северо-восточном Таиланде",
+          "духи предков",
+          "природные духи",
+          "духи-хранители деревень"
+        ],
+        "claims": [
+          "claim-phi-broad",
+          "claim-phi-regional"
+        ],
+        "evidence": [
+          "evidence-phi-broad",
+          "evidence-phi-regional"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-phi-broad",
+          "text": "Phi (ผี) не является названием одной однородной категории «призраков»; исследовательская литература рассматривает phi как многослойную категорию духовных представлений.",
+          "source_ids": [
+            "source-oxford-phi"
+          ],
+          "evidence_ids": [
+            "evidence-phi-broad"
+          ]
+        },
+        {
+          "id": "claim-phi-regional",
+          "text": "В исследованиях северо-восточного Таиланда к phi относятся, в частности, духи предков, природные духи и духи-хранители деревень.",
+          "source_ids": [
+            "source-tsumura"
+          ],
+          "evidence_ids": [
+            "evidence-phi-regional"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-oxford-phi",
+          "title": "Oxford Academic, Spirits | Holy Things: The Genealogy of the Sacred in Thai Religion",
+          "url": "https://academic.oup.com/book/57518/chapter-abstract/467370539"
+        },
+        {
+          "id": "source-tsumura",
+          "title": "Fumihiko Tsumura, Between Benevolent Spirits and Evil Spirits: An Anthropological Study on Guardian Spirits in Northeastern Thailand",
+          "url": "https://www.jstage.jst.go.jp/article/sea/2011/40/2011_54/_article/-char/en"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-phi-broad",
+          "source_id": "source-oxford-phi",
+          "excerpt": "The Oxford Academic chapter describes phī as Tai spirits of ambiguous moral status and various ranks, and examines the historical tendency to reduce them to the status of ghosts."
+        },
+        {
+          "id": "evidence-phi-regional",
+          "source_id": "source-tsumura",
+          "excerpt": "The study of northeastern Thailand describes ancestral spirits, natural spirits such as water and forest spirits, and village guardian spirits among the various spirits called phi, while also examining the difficult boundary between benevolent and evil spirits."
+        }
+      ]
+    }
+  ]
+}
