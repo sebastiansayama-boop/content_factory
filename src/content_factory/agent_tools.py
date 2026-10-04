@@ -92,7 +92,7 @@ def register_content_tools(
             formats=list(run.formats) or ["article", "social_post", "visual_card"],
         )
 
-    def write_content(*, run: Any, review_feedback: list[str], knowledge: dict[str, Any] | None = None) -> Any:
+    def write_content(*, run: Any, review_feedback: list[str], knowledge: dict[str, Any] | None = None, previous_result: dict[str, Any] | None = None) -> Any:
         from .knowledge_content import KnowledgeContentBuilder
 
         return KnowledgeContentBuilder(
@@ -106,6 +106,7 @@ def register_content_tools(
             formats=list(run.formats),
             constraints=list(run.constraints) + list(review_feedback),
             knowledge_context=knowledge,
+            previous_result=previous_result,
         )
 
     def review_content(*, run: Any, result: dict[str, Any]) -> Any:

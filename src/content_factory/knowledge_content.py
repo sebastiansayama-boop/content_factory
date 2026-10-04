@@ -7,6 +7,7 @@ from typing import Any
 from .knowledge import KnowledgeStore
 from .publication_text_rules import format_publication_text_rules, resolve_publication_text_rules, validate_publication_text
 from .publication_text_matrix import format_text_variation_matrix
+from .publication_diversity import choose_diverse_claim_set, is_sufficiently_distinct, max_publication_similarity
 from .runtime import WorkItem
 from .workspace import ContentWorkspace, WorkspaceError, _json_from_text
 
@@ -355,6 +356,7 @@ class KnowledgeContentBuilder:
         formats: list[str],
         constraints: list[str],
         knowledge_context: dict[str, Any] | None = None,
+        previous_result: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         context = knowledge_context if knowledge_context is not None else self.knowledge.search(topic)
         claims = context["claims"]
@@ -368,6 +370,26 @@ class KnowledgeContentBuilder:
 
         context_json = json.dumps(context, ensure_ascii=False)
         text_rules = resolve_publication_text_rules(constraints)
+        previous_result = previous_result if isinstance(previous_result, dict) else {}
+        previous_script = previous_result.get("script") if isinstance(previous_result.get("script"), dict) else {}
+        previous_units = previous_script.get("units") if isinstance(previous_script.get("units"), list) else []
+        previous_publication = "\n\n".join(
+            str(unit.get("text") or "").strip()
+            for unit in previous_units
+            if isinstance(unit, dict) and str(unit.get("text") or "").strip()
+        ).strip()
+        previous_publication_variants = [previous_publication] + [
+            str(unit.get("text") or "").strip()
+            for unit in previous_units
+            if isinstance(unit, dict) and str(unit.get("text") or "").strip()
+        ]
+        previous_claim_refs = {
+            str(ref).strip()
+            for unit in previous_units
+            if isinstance(unit, dict)
+            for ref in (unit.get("claim_refs") or [])
+            if isinstance(ref, str) and ref.strip()
+        }
         text_rules_prompt = format_publication_text_rules(text_rules)
         editorial = self._generate(
             work_item_id=f"content-editorial-{run_id}",
@@ -381,6 +403,11 @@ No new factual claims. Requested formats: {json.dumps(formats)}.
 Audience: {audience}
 Goal: {goal}
 Constraints: {json.dumps(constraints)}
+If PREVIOUS PUBLICATION is supplied, make the three ideas materially different from it by prioritizing different supported claim subsets and angles. Do not reuse the same factual core merely by changing the opening.
+PREVIOUS PUBLICATION:
+{previous_publication or "(none)"}
+PREVIOUS CLAIM REFS:
+{json.dumps(sorted(previous_claim_refs), ensure_ascii=False)}
 ACCEPTED KNOWLEDGE:
 {context_json}""",
         )
@@ -412,7 +439,14 @@ ACCEPTED KNOWLEDGE:
         if any(not idea.idea_id or not idea.title or not idea.angle or not idea.purpose for idea in ideas):
             raise WorkspaceError("every content idea requires id, title, angle and purpose")
 
-        selected = ideas[0]
+        if previous_claim_refs:
+            selected_index = choose_diverse_claim_set(
+                [(index, set(idea.claim_refs)) for index, idea in enumerate(ideas)],
+                previous_claim_refs,
+            )
+            selected = ideas[selected_index]
+        else:
+            selected = ideas[0]
         selected_json = json.dumps(selected.to_dict(), ensure_ascii=False)
         brief_raw = self._generate(
             work_item_id=f"content-brief-{run_id}",
@@ -530,15 +564,66 @@ CONTENT BRIEF:
 USER CONSTRAINTS:
 {json.dumps(constraints, ensure_ascii=False)}""",
         )
-        spec_claims = _validate_claim_refs(
-            {**spec_raw, "claim_refs": _refs_or_default(spec_raw.get("claim_refs"), "claim_refs", brief.selected_claim_refs)},
-            claim_ids,
-        )
-        spec_evidence = _validate_evidence_refs(
-            {**spec_raw, "evidence_refs": _refs_or_default(spec_raw.get("evidence_refs"), "evidence_refs", brief.evidence_refs)},
-            evidence_ids,
-        )
-        structure = _structure_steps(spec_raw.get("structure"))
+        try:
+            spec_claims = _validate_claim_refs(
+                {**spec_raw, "claim_refs": _refs_or_default(spec_raw.get("claim_refs"), "claim_refs", brief.selected_claim_refs)},
+                claim_ids,
+            )
+            spec_evidence = _validate_evidence_refs(
+                {**spec_raw, "evidence_refs": _refs_or_default(spec_raw.get("evidence_refs"), "evidence_refs", brief.evidence_refs)},
+                evidence_ids,
+            )
+        except WorkspaceError as exc:
+            if not any(name in str(exc) for name in ("claim_refs", "evidence_refs")):
+                raise
+            spec_raw = self._generate(
+                work_item_id=f"content-spec-{run_id}-provenance-retry",
+                revision_id="content-spec-v1-provenance-retry",
+                objective="regenerate a content specification that satisfies the strict provenance contract",
+                prompt=f"""The previous ContentSpec response was rejected because claim_refs or evidence_refs did not match the required JSON array-of-strings contract.
+
+Return ONLY valid JSON matching this exact shape:
+{{"spec_id":"spec-1","title":"string","objective":"string","audience":"string","format":"string","tone":"string","structure":["hook","context","development","conclusion"],"constraints":["constraint"],"claim_refs":["kc-*"],"evidence_refs":["ke-*"],"style_bible":{{"visual_style":"string","palette":"string","lighting":"string","subject_continuity":"string","negative_constraints":"string","voice":"string","pace":"string","music":"string"}}}}
+
+claim_refs and evidence_refs MUST be JSON arrays of non-empty strings copied exactly from the supplied ContentBrief provenance. Do not serialize an array as a string. Do not invent, rename, or omit provenance. The structure field must also be an array of at least four non-empty strings.
+
+CONTENT BRIEF:
+{brief_json}
+
+USER CONSTRAINTS:
+{json.dumps(constraints, ensure_ascii=False)}""",
+            )
+            spec_claims = _validate_claim_refs(
+                {**spec_raw, "claim_refs": _refs_or_default(spec_raw.get("claim_refs"), "claim_refs", brief.selected_claim_refs)},
+                claim_ids,
+            )
+            spec_evidence = _validate_evidence_refs(
+                {**spec_raw, "evidence_refs": _refs_or_default(spec_raw.get("evidence_refs"), "evidence_refs", brief.evidence_refs)},
+                evidence_ids,
+            )
+        try:
+            structure = _structure_steps(spec_raw.get("structure"))
+        except WorkspaceError as exc:
+            if "structure" not in str(exc):
+                raise
+            spec_raw = self._generate(
+                work_item_id=f"content-spec-{run_id}-structure-retry",
+                revision_id="content-spec-v1-structure-retry",
+                objective="regenerate a content specification that satisfies the executable structure contract",
+                prompt=f"""The previous ContentSpec response was rejected because its required \"structure\" field was missing or invalid.
+
+Return ONLY valid JSON matching this exact shape:
+{{"spec_id":"spec-1","title":"string","objective":"string","audience":"string","format":"string","tone":"string","structure":["hook","context","development","conclusion"],"constraints":["constraint"],"claim_refs":["kc-*"],"evidence_refs":["ke-*"],"style_bible":{{"visual_style":"string","palette":"string","lighting":"string","subject_continuity":"string","negative_constraints":"string","voice":"string","pace":"string","music":"string"}}}}
+
+The \"structure\" field is mandatory and must be an array of at least four non-empty strings describing ordered editorial steps. Preserve the supplied provenance exactly. Do not invent claims or evidence.
+
+CONTENT BRIEF:
+{brief_json}
+
+USER CONSTRAINTS:
+{json.dumps(constraints, ensure_ascii=False)}""",
+            )
+            structure = _structure_steps(spec_raw.get("structure"))
         spec = ContentSpec(
             spec_id=str(spec_raw.get("spec_id") or "").strip(),
             title=str(spec_raw.get("title") or "").strip(),
@@ -555,14 +640,15 @@ USER CONSTRAINTS:
         if not spec.spec_id or not spec.title or not spec.objective:
             raise WorkspaceError("content spec requires id, title and objective")
 
-        script_raw = self._generate(
-            work_item_id=f"content-script-{run_id}",
-            revision_id="content-script-v1",
-            objective="turn a content specification into a provenance-grounded script",
-            prompt=f"""Create a complete, developed publication text from this ContentSpec.
+        script_prompt = f"""Create a complete, developed publication text from this ContentSpec.
 The requested output language is explicitly specified in USER CONSTRAINTS. Write the entire user-facing script, including title and every unit, in that language. If it says Russian, do not answer in English or mix languages unless a proper name or necessary technical term has no natural Russian equivalent.
 Return JSON: {{"script_id":"script-1","title":"string","variation_mode":"scene|person|contrast|question|object|sequence|myth_fact|zoom_out","units":[{{"unit_id":"unit-1","kind":"hook|beat|narration|cta","text":"complete spoken/on-screen text","visual_intent":"string","claim_refs":["kc-*"],"evidence_refs":["ke-*"]}}]}}
 The text is the publication itself and must be usable without editing.
+If PREVIOUS PUBLICATION is supplied, the new publication must change the factual emphasis and narrative movement, not only wording. Prefer different supported claim_refs when available.
+PREVIOUS PUBLICATION:
+{previous_publication or "(none)"}
+PREVIOUS CLAIM REFS:
+{json.dumps(sorted(previous_claim_refs), ensure_ascii=False)}
 
 Structure:
 1. Hook: create a concrete question, tension, image, or historical turn.
@@ -593,7 +679,13 @@ Every factual unit must retain the relevant durable claim and evidence refs from
 CONTENT SPEC:
 {json.dumps(spec.to_dict(), ensure_ascii=False)}
 ACCEPTED KNOWLEDGE:
-{context_json}"""
+{context_json}
+"""
+        script_raw = self._generate(
+            work_item_id=f"content-script-{run_id}",
+            revision_id="content-script-v1",
+            objective="turn a content specification into a provenance-grounded script",
+            prompt=script_prompt,
         )
         units_raw = script_raw.get("units")
         if not isinstance(units_raw, list) or not units_raw:
@@ -639,6 +731,58 @@ ACCEPTED KNOWLEDGE:
             raise WorkspaceError("script requires script_id")
         _validate_epistemic_scope(list(script.units))
         publication_text = "\n\n".join(unit.text for unit in units if unit.text).strip()
+        if previous_publication and not is_sufficiently_distinct(publication_text, previous_publication_variants):
+            retry_prompt = script_prompt + f"""\n\nDIVERSITY GUARD REJECTED THE CANDIDATE. Its deterministic similarity to the previous publication was {max_publication_similarity(publication_text, previous_publication_variants):.3f}, above the allowed threshold. Regenerate with a materially different factual emphasis, supported claim subset, narrative movement, opening, and ending.\nPREVIOUS PUBLICATION:\n{previous_publication}\n"""
+            script_raw = self._generate(
+                work_item_id=f"content-script-{run_id}-diversity-retry",
+                revision_id="content-script-v1-diversity-retry",
+                objective="regenerate a publication rejected by the deterministic diversity guard",
+                prompt=retry_prompt,
+            )
+            units_raw = script_raw.get("units")
+            if not isinstance(units_raw, list) or len(units_raw) < 4:
+                raise WorkspaceError("diversity retry must contain at least 4 ordered units")
+            units = []
+            for raw in units_raw:
+                if not isinstance(raw, dict):
+                    raise WorkspaceError("script unit must be an object")
+                refs = _validate_claim_refs(
+                    {**raw, "claim_refs": _refs_or_default(raw.get("claim_refs"), "claim_refs", spec.claim_refs)},
+                    set(spec.claim_refs),
+                )
+                evrefs = _validate_evidence_refs(
+                    {**raw, "evidence_refs": _refs_or_default(raw.get("evidence_refs"), "evidence_refs", spec.evidence_refs)},
+                    set(spec.evidence_refs),
+                )
+                unit = ScriptUnit(
+                    unit_id=str(raw.get("unit_id") or "").strip(),
+                    kind=str(raw.get("kind") or "").strip(),
+                    text=str(raw.get("text") or "").strip(),
+                    visual_intent=str(raw.get("visual_intent") or "").strip(),
+                    claim_refs=tuple(refs),
+                    evidence_refs=tuple(evrefs),
+                )
+                if not unit.unit_id or not unit.kind or not unit.text:
+                    raise WorkspaceError("every diversity retry script unit requires id, kind and text")
+                units.append(unit)
+            variation_mode = str(script_raw.get("variation_mode") or "auto").strip().casefold()
+            if variation_mode not in valid_variation_modes:
+                raise WorkspaceError("diversity retry returned an invalid variation_mode")
+            if text_rules.variation == "auto" and variation_mode == "auto":
+                raise WorkspaceError("model must select a concrete variation_mode when variation is auto")
+            script = Script(
+                script_id=str(script_raw.get("script_id") or "").strip(),
+                title=str(script_raw.get("title") or spec.title).strip(),
+                units=tuple(units),
+                variation_mode=variation_mode,
+            )
+            if not script.script_id:
+                raise WorkspaceError("diversity retry requires script_id")
+            _validate_epistemic_scope(list(script.units))
+            publication_text = "\n\n".join(unit.text for unit in units if unit.text).strip()
+            if not is_sufficiently_distinct(publication_text, [previous_publication]):
+                raise WorkspaceError("publication remains too similar after diversity retry")
+
         try:
             if text_rules.enforce_length:
                 validate_publication_text(publication_text, text_rules)

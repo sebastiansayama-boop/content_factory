@@ -7,6 +7,7 @@ from http.server import ThreadingHTTPServer
 
 import pytest
 
+from content_factory.publication_diversity import max_publication_similarity
 from tests.test_telegram_publication_smoke import _create_prepared_run, _request
 from content_factory.content_run_planner import ContentRunPlanner
 from content_factory.product_http import ProductHandler
@@ -106,42 +107,37 @@ def test_real_telegram_generated_historical_material_smoke(tmp_path, monkeypatch
     monkeypatch.delenv("FACTORY_TELEGRAM_FAKE", raising=False)
 
     research = FreeWebGeminiAdapter()
-    topic = "Как люди прошлого представляли будущее до появления современной научной фантастики"
-    research_prompt = f"""Research the topic and return ONLY JSON:
-{{"topic":"string","summary":"string","claims":[{{"id":"claim-1","text":"atomic factual claim","source_ids":["source-1"],"evidence_ids":["evidence-1"]}}],"sources":[{{"id":"source-1","title":"string","url":"https://..."}}],"evidence":[{{"id":"evidence-1","source_id":"source-1","excerpt":"short supporting passage"}}]}}
-Use several distinct historical examples from different periods or regions. Keep claims bounded and source-backed. Do not invent facts.
-USER BRIEF:
-{topic}
-"""
-    research_result = research.research(research_prompt)
-    assert 200 <= research_result.status_code < 300
-    research_payload = json.loads(research.text(research_result))
-    claims = research_payload["claims"]
-    evidence = research_payload["evidence"]
-    assert len(claims) >= 2
-    assert evidence
-
-    knowledge = json.dumps({"claims": claims[:6], "evidence": evidence[:12]}, ensure_ascii=False)
-    generation_prompt = f"""Write one finished Telegram publication in Russian.
+    series_title = "Как люди прошлого представляли будущее"
+    generation_prompt = f"""Write the FIRST publication of a serialized Telegram channel in Russian.
 Return ONLY JSON: {{"title":"string","content":"string"}}.
-Length: 500-1200 characters.
-One coherent publication, not a list.
-Start with a concrete historical fact, scene, person, place, date, object, or action. Do not start with generic phrases such as "История полна", "Мало кто знает", "Вы знали?", "На протяжении веков".
-Use only the supplied claims and evidence. Preserve uncertainty and scope. Do not invent facts.
-Use natural contemporary Russian, varied sentence length, concrete details, and a non-generic ending.
-Do not use the em dash character.
-USER BRIEF:
-{topic}
-ACCEPTED KNOWLEDGE:
-{knowledge}
+This is episode 1 of a 10-part series.
+The first publication must:
+- greet the reader;
+- introduce the narrator/channel as Content Factory;
+- briefly explain that this is the beginning of a connected historical series;
+- introduce the central question: when and why did people begin to see the future as an open possibility rather than something predetermined;
+- end with a clear unresolved question that naturally leads to episode 2;
+- NOT answer the historical question yet.
+Length: 350-700 characters.
+Natural contemporary Russian. Concrete and concise. No generic filler. Do not use the em dash character.
+Do not invent historical facts in this introductory episode.
+SERIES:
+{series_title}
 """
     generated = research.research(generation_prompt)
     assert 200 <= generated.status_code < 300
     generated_payload = json.loads(research.text(generated))
     generated_text = str(generated_payload["content"]).strip()
-    assert 500 <= len(generated_text) <= 1200
+    assert 350 <= len(generated_text) <= 700
     assert "—" not in generated_text
-    assert not generated_text.startswith(("История полна", "Мало кто знает", "Вы знали?", "На протяжении веков"))
+
+    lowered = generated_text.casefold()
+    assert any(marker in lowered for marker in ("привет", "здравствуйте", "добрый"))
+    assert "content factory" in lowered
+    assert any(marker in lowered for marker in ("серия", "эпизод", "часть"))
+    assert "будущ" in lowered
+    assert any(marker in lowered for marker in ("открыт", "возможност", "предопредел"))
+    assert "?" in generated_text
 
     service = FactoryService()
     ProductHandler.service = service
@@ -158,15 +154,24 @@ ACCEPTED KNOWLEDGE:
     try:
         run, _asset = _create_prepared_run(service, tmp_path, with_media=False)
         result = dict(run.result or {})
-        result["brief"] = topic
-        result["content_brief"] = {**result["content_brief"], "title": topic}
+        result["brief"] = series_title
+        result["content_brief"] = {
+            **result["content_brief"],
+            "title": series_title,
+        }
         result["package"] = {
             **result["package"],
-            "title": str(generated_payload.get("title") or topic),
+            "title": str(generated_payload.get("title") or series_title),
             "text": generated_text,
             "media": [],
-            "claims": claims,
-            "evidence": evidence,
+            "series": {
+                "series_id": "telegram-series-future-001",
+                "title": series_title,
+                "episode": 1,
+                "central_question": "Когда и почему будущее стало восприниматься как открытая возможность?",
+                "unresolved": ["Почему древние общества часто представляли время циклическим?"],
+                "next_required_transition": "Перейти от открывающего вопроса к древним представлениям о циклическом времени.",
+            },
             "qc": {"status": "PASSED"},
         }
         service.content_runs.save_result(run.run_id, result)
@@ -175,7 +180,7 @@ ACCEPTED KNOWLEDGE:
             base_url,
             "POST",
             f"/api/runs/{run.run_id}/approve",
-            {"decision_ref": "telegram-generated-historical-approver", "channel": "telegram"},
+            {"decision_ref": "telegram-series-episode-1-approver", "channel": "telegram"},
         )
         assert status == 200, approved
         publication = approved["result"]["publication"]
@@ -198,6 +203,8 @@ ACCEPTED KNOWLEDGE:
         final = service.content_runs.get(run.run_id)
         assert final is not None
         assert final.status == "PUBLISHED"
+        assert final.result["series"]["series_id"] == "telegram-series-future-001"
+        assert final.result["series"]["episode"] == 1
         print("\nGENERATED_TELEGRAM_TEXT:\n" + generated_text)
     finally:
         server.shutdown()
@@ -289,9 +296,25 @@ ACCEPTED KNOWLEDGE:
         used_modes.add(variation_mode)
         validate_publication_text(text_value, rules)
         assert "—" not in text_value
-        generated.append((str(gp.get("title") or topic).strip(), text_value))
+        generated.append((str(gp.get("title") or topic).strip(), text_value, variation_mode))
     assert len({text_value for _, text_value in generated}) == 5
     assert len(used_modes) >= 3
+
+    # Surface the failure mode we saw in real Telegram output: different
+    # variation labels are not sufficient if the factual/narrative core repeats.
+    pair_scores = []
+    for left_index in range(len(generated)):
+        for right_index in range(left_index + 1, len(generated)):
+            score = max_publication_similarity(
+                generated[left_index][1],
+                [generated[right_index][1]],
+            )
+            pair_scores.append((left_index + 1, right_index + 1, score))
+    max_pair = max(pair_scores, key=lambda item: item[2])
+    assert max_pair[2] < 0.35, (
+        "publication diversity failed: "
+        f"pair {max_pair[0]} vs {max_pair[1]} similarity={max_pair[2]:.3f}"
+    )
 
     service = FactoryService()
     ProductHandler.service = service
@@ -304,7 +327,7 @@ ACCEPTED KNOWLEDGE:
     thread.start()
     base_url = f"http://127.0.0.1:{server.server_port}"
     try:
-        for index, (title, text_value) in enumerate(generated, start=1):
+        for index, (title, text_value, variation_mode) in enumerate(generated, start=1):
             run, _asset = _create_prepared_run(service, tmp_path, with_media=False)
             result = dict(run.result or {})
             result["brief"] = topic
