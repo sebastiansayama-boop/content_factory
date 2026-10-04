@@ -17,7 +17,7 @@ from content_factory.workspace import ContentWorkspace
 
 
 ROOT = Path(__file__).resolve().parents[1]
-LIBRARY_PATH = ROOT / "library" / "telegram" / "future-series.json"
+LIBRARY_PATH = ROOT / os.environ.get("TELEGRAM_LIBRARY_PATH", "library/telegram/future-series.json")
 
 
 def _request(base_url: str, method: str, path: str, payload: dict, token: str):
