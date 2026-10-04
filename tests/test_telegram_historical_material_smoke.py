@@ -110,7 +110,7 @@ def test_real_telegram_generated_historical_material_smoke(tmp_path, monkeypatch
     research_prompt = f"""Research the topic and return ONLY JSON:
 {{"topic":"string","summary":"string","claims":[{{"id":"claim-1","text":"atomic factual claim","source_ids":["source-1"],"evidence_ids":["evidence-1"]}}],"sources":[{{"id":"source-1","title":"string","url":"https://..."}}],"evidence":[{{"id":"evidence-1","source_id":"source-1","excerpt":"short supporting passage"}}]}}
 Use several distinct historical examples from different periods or regions. Keep claims bounded and source-backed. Do not invent facts.
-TOPIC:
+USER BRIEF:
 {topic}
 """
     research_result = research.research(research_prompt)
@@ -130,7 +130,7 @@ Start with a concrete historical fact, scene, person, place, date, object, or ac
 Use only the supplied claims and evidence. Preserve uncertainty and scope. Do not invent facts.
 Use natural contemporary Russian, varied sentence length, concrete details, and a non-generic ending.
 Do not use the em dash character.
-TOPIC:
+USER BRIEF:
 {topic}
 ACCEPTED KNOWLEDGE:
 {knowledge}
