@@ -223,7 +223,7 @@ def test_real_telegram_five_matrix_publications(tmp_path, monkeypatch):
     monkeypatch.delenv("FACTORY_TELEGRAM_FAKE", raising=False)
 
     research = FreeWebGeminiAdapter()
-    topic = "Малоизвестные факты из истории человечества"
+    topic = "Как люди прошлого представляли будущее до появления современной научной фантастики"
     research_prompt = f"""Research the topic and return ONLY JSON:
 {{"topic":"string","summary":"string","claims":[{{"id":"claim-1","text":"atomic factual claim","source_ids":["source-1"],"evidence_ids":["evidence-1"]}}],"sources":[{{"id":"source-1","title":"string","url":"https://..."}}],"evidence":[{{"id":"evidence-1","source_id":"source-1","excerpt":"short supporting passage"}}]}}
 Use several distinct historical examples from different periods or regions. Keep every claim bounded and source-backed. Do not invent facts.
@@ -250,7 +250,7 @@ Return ONLY JSON: {{"title":"string","content":"string","variation_mode":"scene|
 This is publication {index + 1} of 5 for the SAME topic and SAME accepted knowledge.
 Variation is AUTO: choose exactly one dominant writing mode from the supplied matrix based on the strongest factual shape of the accepted knowledge.
 The mode label is internal and must not appear in the publication.
-Do not force a mode if the evidence does not support it. Across these five publications, do not deliberately repeat the same opening, rhythm, progression, emphasis, or ending when another supported mode is available.
+Do not force a mode if the evidence does not support it. Prefer an unused supported mode. Previously used modes: {", ".join(sorted(used_modes)) or "none"}. Choose a mode not in that set unless no unused supported mode remains.
 Length: 500-1000 characters. One coherent publication, not a list.
 Use only supplied claims/evidence. Preserve uncertainty and scope. No invented facts.
 Natural contemporary Russian. No em dash. No generic openings or filler.
