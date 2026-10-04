@@ -59,7 +59,7 @@ def is_sufficiently_distinct(
     candidate: str,
     previous: list[str] | tuple[str, ...],
     *,
-    threshold: float = 0.58,
+    threshold: float = 0.35,
 ) -> bool:
     return max_publication_similarity(candidate, previous) < threshold
 
