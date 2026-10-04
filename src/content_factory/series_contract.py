@@ -98,8 +98,6 @@ def validate_series_package(
         raise SeriesContractError("story_state evidence must reference existing evidence")
 
     if previous_package is None:
-        if episode > 1:
-            raise SeriesContractError("series episodes after 1 require previous_package")
         return
 
     previous_series = previous_package.get("series")
