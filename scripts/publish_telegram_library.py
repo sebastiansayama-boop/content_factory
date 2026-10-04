@@ -12,7 +12,27 @@ from content_factory.content_run_planner import ContentRunPlanner
 from content_factory.product_http import ProductHandler
 from content_factory.service import FactoryService
 from content_factory.workspace import ContentWorkspace
-from tests.test_telegram_publication_smoke import _request
+import urllib.request
+import urllib.error
+
+def _request(base_url: str, method: str, path: str, payload: dict, token: str = "library-publish-token"):
+    body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+    request = urllib.request.Request(
+        base_url + path,
+        data=body,
+        headers={"Content-Type": "application/json", "Authorization": f"Bearer {token}"},
+        method=method,
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=30) as response:
+            return int(response.status), json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        raw = exc.read().decode("utf-8")
+        try:
+            body = json.loads(raw)
+        except json.JSONDecodeError:
+            body = {"error": raw}
+        return int(exc.code), body
 
 
 ROOT = Path(__file__).resolve().parents[1]
