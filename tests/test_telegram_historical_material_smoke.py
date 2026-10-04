@@ -121,6 +121,8 @@ The first publication must:
 Length: 350-700 characters.
 Natural contemporary Russian. Concrete and concise. No generic filler. Do not use the em dash character.
 Do not invent historical facts in this introductory episode.
+USER BRIEF:
+{series_title}
 SERIES:
 {series_title}
 """
