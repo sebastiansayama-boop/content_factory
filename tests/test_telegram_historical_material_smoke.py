@@ -874,9 +874,7 @@ def test_real_telegram_series_episode_4_continuity(tmp_path, monkeypatch):
 
         research = FreeWebGeminiAdapter()
         prompts = [
-            "ancient Greek oracle prophecy divination future prediction",
-            "Mesopotamian divination omens prophecy future",
-            "ancient Hebrew prophecy future prediction historical context"
+            "Thomas More Utopia 1516 imagined society; Tommaso Campanella City of the Sun 1602 ideal city; Francis Bacon New Atlantis 1626 imagined society"
         ]
         claims=[]; sources=[]; evidence=[]; seen=set()
         for q in prompts:
