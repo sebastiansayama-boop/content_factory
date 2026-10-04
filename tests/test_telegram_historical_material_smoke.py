@@ -121,10 +121,19 @@ The first publication must:
 Length: 350-700 characters.
 Natural contemporary Russian. Concrete and concise. No generic filler. Do not use the em dash character.
 Do not invent historical facts in this introductory episode.
+The publication MUST explicitly say that this is a "серия" or "эпизод".
 USER BRIEF:
 {series_title}
 SERIES:
 {series_title}
+STORY STATE:
+central_question: "Когда и почему будущее стало восприниматься как открытая возможность?"
+established:
+- "Представления о будущем существовали задолго до современной фантастики."
+unresolved:
+- "Почему древние общества часто представляли время циклическим?"
+next_required_transition:
+"Перейти от открывающего вопроса к древним представлениям о циклическом времени."
 """
     generated = research.research(generation_prompt)
     assert 200 <= generated.status_code < 300
@@ -173,6 +182,19 @@ SERIES:
                 "central_question": "Когда и почему будущее стало восприниматься как открытая возможность?",
                 "unresolved": ["Почему древние общества часто представляли время циклическим?"],
                 "next_required_transition": "Перейти от открывающего вопроса к древним представлениям о циклическом времени.",
+                "story_state": {
+                    "central_question": "Когда и почему будущее стало восприниматься как открытая возможность?",
+                    "established": [
+                        "Представления о будущем существовали задолго до современной фантастики."
+                    ],
+                    "unresolved": [
+                        "Почему древние общества часто представляли время циклическим?"
+                    ],
+                    "next_required_transition": "Перейти от открывающего вопроса к древним представлениям о циклическом времени.",
+                    "used_examples": [],
+                    "claims": [],
+                    "evidence": [],
+                },
             },
             "qc": {"status": "PASSED"},
         }
@@ -207,6 +229,9 @@ SERIES:
         assert final.status == "PUBLISHED"
         assert final.result["series"]["series_id"] == "telegram-series-future-001"
         assert final.result["series"]["episode"] == 1
+        assert final.result["series"]["story_state"]["next_required_transition"] == (
+            "Перейти от открывающего вопроса к древним представлениям о циклическом времени."
+        )
         print("\nGENERATED_TELEGRAM_TEXT:\n" + generated_text)
     finally:
         server.shutdown()
