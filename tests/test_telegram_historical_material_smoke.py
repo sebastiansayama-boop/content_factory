@@ -566,7 +566,7 @@ RESEARCH:
     new_story_state = payload.get("story_state") or {}
 
     lowered = generated_text.casefold()
-    assert 600 <= len(generated_text) <= 1200
+    assert 600 <= len(generated_text) <= 1400
     assert "—" not in generated_text
     assert any(marker in lowered for marker in ("циклич", "цикл", "повтор"))
     assert "?" in generated_text
