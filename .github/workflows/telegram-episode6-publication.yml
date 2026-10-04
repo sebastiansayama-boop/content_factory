@@ -1,0 +1,28 @@
+name: Telegram Episode 6 Publication Proof
+
+on:
+  push:
+    branches:
+      - ops/telegram-episode6
+
+permissions: {}
+
+jobs:
+  telegram-episode-6:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: "${{ github.sha }}"
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e ".[dev]"
+      - name: Real Telegram Episode 6 publication proof
+        env:
+          RUN_TELEGRAM_E2E: "1"
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: pytest -s -q tests/test_telegram_episode6_smoke.py -m external -k episode_6_publication
