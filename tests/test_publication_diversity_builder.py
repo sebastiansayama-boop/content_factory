@@ -89,10 +89,10 @@ def _script(text, claim_id, evidence_id):
 def test_builder_regenerates_when_publication_is_too_similar(tmp_path):
     store = KnowledgeStore(tmp_path / "knowledge.sqlite3")
     store.capture(run_id="research-diversity", research=_knowledge())
-    rows = store._connection.execute("SELECT claim_id FROM knowledge_claims ORDER BY claim_id").fetchall()
-    links = store._connection.execute("SELECT claim_id, evidence_id FROM knowledge_claim_evidence ORDER BY claim_id, evidence_id").fetchall()
-    claim_1 = rows[0]["claim_id"]
-    claim_2 = rows[1]["claim_id"]
+    rows = store._connection.execute("SELECT claim_id, text FROM knowledge_claims").fetchall()
+    claim_1 = next(row["claim_id"] for row in rows if "calendars organized" in row["text"])
+    claim_2 = next(row["claim_id"] for row in rows if "cycles and signs" in row["text"])
+    links = store._connection.execute("SELECT claim_id, evidence_id FROM knowledge_claim_evidence").fetchall()
     evidence_1 = next(row["evidence_id"] for row in links if row["claim_id"] == claim_1)
     evidence_2 = next(row["evidence_id"] for row in links if row["claim_id"] == claim_2)
     store.promote_claim(claim_1, decision_ref="D1")
