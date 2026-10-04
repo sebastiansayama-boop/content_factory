@@ -935,7 +935,7 @@ RESEARCH: {knowledge}
             status,published=_request(f"http://127.0.0.1:{server.server_port}","POST",f"/api/runs/{run.run_id}/publish",{"publication_id":pub["publication_id"]})
             assert status==200 and published["status"]=="PUBLISHED" and published["response"]["telegram_ok"] is True
             final=service.content_runs.get(run.run_id); assert final.status=="PUBLISHED"
-            fs=final.result["package"]["series"]; assert fs["episode"]==3 and fs["previous_run_id"]==previous.run_id
+            fs=final.result["package"]["series"]; assert fs["episode"]==4 and fs["previous_run_id"]==previous.run_id
             print("\nGENERATED_TELEGRAM_EPISODE_3:\n"+text_value)
         finally:
             server.shutdown(); server.server_close(); thread.join(timeout=2)
