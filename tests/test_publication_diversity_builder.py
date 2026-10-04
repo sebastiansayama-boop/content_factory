@@ -3,7 +3,7 @@ import json
 from content_factory.artifacts import ArtifactStore
 from content_factory.knowledge import KnowledgeStore
 from content_factory.knowledge_content import KnowledgeContentBuilder
-from content_factory.runtime import Capability, ExecutionResult
+from content_factory.runtime import Capability, ExecutionResult, VerificationResult
 from content_factory.runtime_store import RuntimeStore
 from content_factory.workspace import ContentWorkspace
 
@@ -16,6 +16,13 @@ class FakeFactory:
             capability_id="fake.text.generate",
             input_contract=lambda item: None,
             executor=self._executor(outputs),
+        )
+
+    @staticmethod
+    def _verify(_, execution):
+        return VerificationResult(
+            output_revision_id=execution.output_revision_id,
+            passed=True,
         )
 
     @staticmethod
