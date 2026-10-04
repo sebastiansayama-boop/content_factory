@@ -71,12 +71,20 @@ class LocalTextAdapter:
                 evidence,
             )
             scope = str(claim_item.get("scope") or "").strip()
+            evidence_item = next(
+                (
+                    item for item in (claims_data and context.get("evidence", []) or [])
+                    if isinstance(item, dict) and str(item.get("evidence_id") or item.get("id") or "").strip() == evidence_id
+                ),
+                {},
+            )
+            evidence_excerpt = str(evidence_item.get("excerpt") or "").strip()
 
             units = [
                 {
                     "unit_id": "unit-1",
                     "kind": "hook",
-                    "text": f"What does the evidence show about this topic? {claim_text}",
+                    "text": f"Вот что показывает доступное свидетельство по этой теме: {claim_text}",
                     "visual_intent": "establish topic",
                     "claim_refs": [claim_id],
                     "evidence_refs": [evidence_id],
@@ -84,7 +92,15 @@ class LocalTextAdapter:
                 {
                     "unit_id": "unit-2",
                     "kind": "narration",
-                    "text": claim_text,
+                    "text": f"Само утверждение сформулировано так: {claim_text}",
+                    "visual_intent": "show claim",
+                    "claim_refs": [claim_id],
+                    "evidence_refs": [evidence_id],
+                },
+                {
+                    "unit_id": "unit-3",
+                    "kind": "narration",
+                    "text": f"В источнике зафиксировано следующее: {evidence_excerpt or claim_text}",
                     "visual_intent": "show evidence",
                     "claim_refs": [claim_id],
                     "evidence_refs": [evidence_id],
@@ -93,33 +109,23 @@ class LocalTextAdapter:
             if scope:
                 units.append(
                     {
-                        "unit_id": "unit-3",
+                        "unit_id": f"unit-{len(units) + 1}",
                         "kind": "narration",
-                        "text": f"This claim is scoped to {scope}.",
-                        "visual_intent": "show context",
+                        "text": f"При этом область утверждения ограничена: {scope}.",
+                        "visual_intent": "show scope",
                         "claim_refs": [claim_id],
                         "evidence_refs": [evidence_id],
                     }
                 )
-            units.extend(
-                [
-                    {
-                        "unit_id": f"unit-{len(units) + 1}",
-                        "kind": "narration",
-                        "text": "The interpretation is limited to the supplied evidence and its stated scope.",
-                        "visual_intent": "show context",
-                        "claim_refs": [claim_id],
-                        "evidence_refs": [evidence_id],
-                    },
-                    {
-                        "unit_id": f"unit-{len(units) + 2}",
-                        "kind": "cta",
-                        "text": "Follow for more evidence-grounded stories.",
-                        "visual_intent": "close",
-                        "claim_refs": [claim_id],
-                        "evidence_refs": [evidence_id],
-                    },
-                ]
+            units.append(
+                {
+                    "unit_id": f"unit-{len(units) + 1}",
+                    "kind": "narration",
+                    "text": f"Итог следует читать только в пределах приведенного свидетельства и его контекста: {claim_text}",
+                    "visual_intent": "close with grounded takeaway",
+                    "claim_refs": [claim_id],
+                    "evidence_refs": [evidence_id],
+                }
             )
             value = {"script_id": "script-local-1", "title": title, "units": units}
         elif '"style_bible":' in prompt:
