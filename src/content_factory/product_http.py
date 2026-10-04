@@ -587,6 +587,13 @@ class ProductHandler(Handler):
                 if run is None:
                     self._json(404, {"error": "content run not found"})
                     return
+                if run.status == "PUBLISHED":
+                    publications = self.service.control.list_publications(run_id)
+                    published = next((item for item in publications if item.get("status") == "PUBLISHED"), None)
+                    if published is None:
+                        raise ValueError("published run has no durable PUBLISHED publication record")
+                    self._json(200, {**published, "idempotent": True})
+                    return
                 if run.status not in {"APPROVED", "EXPORTED"}:
                     raise ValueError("only APPROVED or EXPORTED runs can be published")
                 payload = self._body()
