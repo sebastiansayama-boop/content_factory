@@ -2,7 +2,9 @@ name: Telegram Publication Proof
 
 on:
   push:
-    branches: ["experiment/publication-diversity-guard-v1"]
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
 
 permissions: {}
 
@@ -24,5 +26,5 @@ jobs:
           RUN_TELEGRAM_E2E: "1"
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: pytest -s -q tests/test_telegram_e2e.py -m external
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: pytest -s -q tests/test_telegram_historical_material_smoke.py -m external -k generated_historical_material
