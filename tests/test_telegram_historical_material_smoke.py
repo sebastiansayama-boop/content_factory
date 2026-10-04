@@ -227,9 +227,9 @@ next_required_transition:
         final = service.content_runs.get(run.run_id)
         assert final is not None
         assert final.status == "PUBLISHED"
-        assert final.result["series"]["series_id"] == "telegram-series-future-001"
-        assert final.result["series"]["episode"] == 1
-        assert final.result["series"]["story_state"]["next_required_transition"] == (
+        assert final.result["package"]["series"]["series_id"] == "telegram-series-future-001"
+        assert final.result["package"]["series"]["episode"] == 1
+        assert final.result["package"]["series"]["story_state"]["next_required_transition"] == (
             "Перейти от открывающего вопроса к древним представлениям о циклическом времени."
         )
         print("\nGENERATED_TELEGRAM_TEXT:\n" + generated_text)
