@@ -61,3 +61,4 @@ def test_real_telegram_episode6_publication_once(tmp_path, monkeypatch):
             server.shutdown(); server.server_close(); thread.join(timeout=2)
     finally:
         service.close()
+
