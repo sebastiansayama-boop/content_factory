@@ -57,27 +57,3 @@ jobs:
           cat /tmp/factory-health-body.txt
           grep -q '"status": "ok"' /tmp/factory-health-body.txt
 
-      - name: Publish Episode 6 to Telegram
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          python - <<'PY'
-          import json, os, urllib.parse, urllib.request
-          text = """В предыдущем эпизоде будущее стало чертежом: его начали описывать как города и системы, которые можно было спроектировать заранее. Но на этом история меняется. Машины не просто помогли строить запланированный мир. Они начали менять саму скорость и масштаб перемен.
-
-Паровая машина постепенно превратилась из отдельного технического устройства в основу промышленной системы. Усовершенствования Джеймса Уатта в XVIII веке сделали ее значительно практичнее для разных видов работы. Затем железные дороги связали города и расстояния уже не так, как их знали прежде. В 1825 году открылась железная дорога Стоктон — Дарлингтон, первая общественная железная дорога с паровой тягой.
-
-Это важно не только как история изобретений. Раньше воображаемый город можно было представить на бумаге, но сама жизнь менялась сравнительно медленно. Машины сделали изменение среды частью повседневности: производство, транспорт и расстояния стали зависеть от технических систем.
-
-Поэтому будущее постепенно перестает быть только проектом. Оно становится процессом, который уже идет и способен менять планы быстрее, чем человек успевает их составить.
-
-И здесь возникает следующий вопрос: когда стало понятно, что будущее нельзя надежно спроектировать заранее?"""
-          data = urllib.parse.urlencode({"chat_id": os.environ["TELEGRAM_CHAT_ID"], "text": text}).encode()
-          req = urllib.request.Request(f"https://api.telegram.org/bot{os.environ['TELEGRAM_BOT_TOKEN']}/sendMessage", data=data, method="POST")
-          with urllib.request.urlopen(req, timeout=30) as r:
-              payload=json.load(r)
-          assert payload.get("ok") is True, payload
-          print("TELEGRAM_OK=true")
-          print("TELEGRAM_MESSAGE_ID="+str(payload["result"]["message_id"]))
-          PY
