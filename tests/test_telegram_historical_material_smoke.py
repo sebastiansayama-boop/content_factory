@@ -483,6 +483,8 @@ def test_real_telegram_series_episode_2_continuity(tmp_path, monkeypatch):
     research_prompt = f"""Research episode 2 of a connected historical Telegram series.
 Return ONLY JSON:
 {{"topic":"string","summary":"string","claims":[{{"id":"claim-1","text":"atomic factual claim","source_ids":["source-1"],"evidence_ids":["evidence-1"]}}],"sources":[{{"id":"source-1","title":"string","url":"https://..."}}],"evidence":[{{"id":"evidence-1","source_id":"source-1","excerpt":"short supporting passage"}}]}}
+USER BRIEF:
+Почему древние общества часто представляли время циклическим? Найди конкретные исторические примеры для второго эпизода связанной серии.
 The episode must answer the unresolved question from episode 1:
 "Почему древние общества часто представляли время циклическим?"
 Find several concrete, historically bounded examples from different ancient cultures or traditions. Explain what each example actually shows and do not imply that all ancient societies shared one model of time. Prefer primary texts or authoritative scholarly/reference sources when available. Do not invent facts.
