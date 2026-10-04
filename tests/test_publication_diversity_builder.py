@@ -90,11 +90,11 @@ def test_builder_regenerates_when_publication_is_too_similar(tmp_path):
     store = KnowledgeStore(tmp_path / "knowledge.sqlite3")
     store.capture(run_id="research-diversity", research=_knowledge())
     rows = store._connection.execute("SELECT claim_id FROM knowledge_claims ORDER BY claim_id").fetchall()
-    evidence_rows = store._connection.execute("SELECT evidence_id FROM knowledge_evidence ORDER BY evidence_id").fetchall()
+    links = store._connection.execute("SELECT claim_id, evidence_id FROM knowledge_claim_evidence ORDER BY claim_id, evidence_id").fetchall()
     claim_1 = rows[0]["claim_id"]
     claim_2 = rows[1]["claim_id"]
-    evidence_1 = evidence_rows[0]["evidence_id"]
-    evidence_2 = evidence_rows[1]["evidence_id"]
+    evidence_1 = next(row["evidence_id"] for row in links if row["claim_id"] == claim_1)
+    evidence_2 = next(row["evidence_id"] for row in links if row["claim_id"] == claim_2)
     store.promote_claim(claim_1, decision_ref="D1")
     store.promote_claim(claim_2, decision_ref="D2")
 
