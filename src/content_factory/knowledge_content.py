@@ -579,7 +579,7 @@ Every factual unit must retain the relevant durable claim and evidence refs from
 CONTENT SPEC:
 {json.dumps(spec.to_dict(), ensure_ascii=False)}
 ACCEPTED KNOWLEDGE:
-{context_json}""
+{context_json}"""
         )
         units_raw = script_raw.get("units")
         if not isinstance(units_raw, list) or not units_raw:
@@ -652,7 +652,8 @@ ACCEPTED KNOWLEDGE:
                             "type": "voice",
                         },
                     ]
-                )        production_plan = {
+                )
+        production_plan = {
             "production_plan_id": f"production-{run_id}",
             "format": spec.format,
             "content_brief_id": brief.brief_id,
