@@ -18,7 +18,7 @@ jobs:
           python-version: "3.12"
       - run: python -m pip install --upgrade pip
       - run: pip install -e ".[dev]"
-      - name: Real Telegram publication proof
+      - name: Real Telegram Episode 5 publication
         env:
           RUN_TELEGRAM_E2E: "1"
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
