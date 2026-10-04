@@ -23,28 +23,22 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -e .
-      - name: Gate publication command
+      - name: Execute explicit publication command
         shell: bash
-        run: |
-          if [[ "${{ github.event.head_commit.message }}" != publish: thai-spirit-episode-* ]]; then
-            echo "Not a publication command; no-op."
-            exit 0
-          fi
-      - name: Resolve episode
-        id: episode
-        shell: bash
-        run: |
-          title="${{ github.event.head_commit.message }}"
-          episode="${title#publish: thai-spirit-episode-}"
-          if ! [[ "$episode" =~ ^[0-9]+$ ]]; then
-            echo "Invalid episode: $episode"
-            exit 1
-          fi
-          echo "episode=$episode" >> "$GITHUB_OUTPUT"
-      - name: Publish exactly one episode
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          TELEGRAM_EPISODE: ${{ steps.episode.outputs.episode }}
           TELEGRAM_LIBRARY_PATH: library/telegram/thai-spiritual-world.json
-        run: python scripts/publish_telegram_library.py
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          if [[ "$COMMIT_MESSAGE" != publish: thai-spirit-episode-* ]]; then
+            echo "Ordinary commit; publication skipped."
+            exit 0
+          fi
+          episode="${COMMIT_MESSAGE#publish: thai-spirit-episode-}"
+          if ! [[ "$episode" =~ ^[0-9]+$ ]]; then
+            echo "Invalid publication command: $COMMIT_MESSAGE"
+            exit 1
+          fi
+          export TELEGRAM_EPISODE="$episode"
+          python scripts/publish_telegram_library.py
