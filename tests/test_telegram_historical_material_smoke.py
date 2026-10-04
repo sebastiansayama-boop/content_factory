@@ -499,6 +499,7 @@ PREVIOUS STORY STATE:
     claims = [c for c in research_payload.get("claims", []) if str(c.get("text") or "").strip()]
     sources = [s for s in research_payload.get("sources", []) if str(s.get("url") or "").strip()]
     evidence = [e for e in research_payload.get("evidence", []) if str(e.get("excerpt") or "").strip()]
+    print("\nEPISODE_2_RESEARCH_PAYLOAD:\n" + json.dumps(research_payload, ensure_ascii=False, indent=2))
     assert len(claims) >= 2
     assert sources
     assert evidence
