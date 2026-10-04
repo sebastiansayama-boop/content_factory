@@ -675,7 +675,7 @@ RESEARCH:
         service.close()
 
 
-def test_real_telegram_series_episode_4_continuity(tmp_path, monkeypatch):
+def test_real_telegram_series_continuity(tmp_path, monkeypatch):
     """Publish episode 3 from persisted episode-2 story state with provenance checks."""
     if os.environ.get("RUN_TELEGRAM_E2E") != "1":
         pytest.skip("set RUN_TELEGRAM_E2E=1 for a real Telegram publication smoke")
@@ -793,7 +793,7 @@ RESEARCH: {knowledge}
         try:
             run,_=_create_prepared_run(service,tmp_path,with_media=False)
             result=dict(run.result or {}); result["brief"]=title
-            result["content_brief"]={**result["content_brief"],"title":str(payload.get("title") or "Эпизод 3")}
+            result["content_brief"]={**result["content_brief"],"title":str(payload.get("title") or "Эпизод 4")}
             result["package"]={**result["package"],"title":str(payload.get("title") or "Эпизод 3"),"text":text_value,"media":[],"claims":claims,"sources":sources,"evidence":evidence,"qc":{"status":"PASSED"},"series":{"series_id":series_id,"title":title,"episode":3,"previous_run_id":previous.run_id,"central_question":state["central_question"],"unresolved":state["unresolved"],"next_required_transition":state["next_required_transition"],"story_state":state}}
             service.content_runs.save_result(run.run_id,result)
             status,approved=_request(f"http://127.0.0.1:{server.server_port}","POST",f"/api/runs/{run.run_id}/approve",{"decision_ref":"telegram-series-episode-4-approver","channel":"telegram"})
@@ -802,8 +802,8 @@ RESEARCH: {knowledge}
             status,published=_request(f"http://127.0.0.1:{server.server_port}","POST",f"/api/runs/{run.run_id}/publish",{"publication_id":pub["publication_id"]})
             assert status==200 and published["status"]=="PUBLISHED" and published["response"]["telegram_ok"] is True
             final=service.content_runs.get(run.run_id); assert final.status=="PUBLISHED"
-            fs=final.result["package"]["series"]; assert fs["episode"]==3 and fs["previous_run_id"]==previous.run_id
-            print("\nGENERATED_TELEGRAM_EPISODE_3:\n"+text_value)
+            fs=final.result["package"]["series"]; assert fs["episode"]==4 and fs["previous_run_id"]==previous.run_id
+            print("\nGENERATED_TELEGRAM_EPISODE_4:\n"+text_value)
         finally:
             server.shutdown(); server.server_close(); thread.join(timeout=2)
     finally:
@@ -811,7 +811,7 @@ RESEARCH: {knowledge}
 
 
 def test_real_telegram_series_episode_4_continuity(tmp_path, monkeypatch):
-    """Publish episode 4 from persisted episode-3 story state with provenance checks."""
+    """Publish the next series episode from persisted predecessor state with provenance checks."""
     if os.environ.get("RUN_TELEGRAM_E2E") != "1":
         pytest.skip("set RUN_TELEGRAM_E2E=1 for a real Telegram publication smoke")
     for name in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "GEMINI_API_KEY"):
