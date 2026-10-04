@@ -9,6 +9,7 @@ COMMANDS = {
     'product-test': ['python','-m','pytest','-q','tests/test_product_http_routes.py'],
     'visual-test': ['python','-m','pytest','-q','tests/test_visual_relevance.py'],
     'policy-test': ['python','-m','pytest','-q','tests/test_access_policy.py'],
+    'series-contract-test': ['python','-m','pytest','-q','tests/test_series_contract.py'],
     'telegram-test': ['python','-m','pytest','-s','-q','tests/test_telegram_historical_material_smoke.py::test_real_telegram_generated_historical_material_smoke','-m','external'],
     'telegram-matrix-5': ['python','-m','pytest','-s','-q','tests/test_telegram_historical_material_smoke.py::test_real_telegram_five_matrix_publications','-m','external'],
     'publication-test': ['python','-m','pytest','-q','tests/test_provider_e2e.py::test_live_historical_publication_text_variations_without_images','-m','external'],
