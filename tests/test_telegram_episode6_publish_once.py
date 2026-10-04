@@ -44,6 +44,8 @@ def test_real_telegram_episode6_publication(tmp_path, monkeypatch):
         server=ThreadingHTTPServer(("127.0.0.1",0),ProductHandler); thread=threading.Thread(target=server.serve_forever,daemon=True); thread.start()
         try:
             base=f"http://127.0.0.1:{server.server_port}"
+            status,qc_result=_request(base,"POST",f"/api/runs/{run.run_id}/qc",{})
+            assert status==200,qc_result
             status,approved=_request(base,"POST",f"/api/runs/{run.run_id}/approve",{"decision_ref":"telegram-series-episode-6-approver","channel":"telegram"}); assert status==200,approved
             pub=approved["result"]["publication"]; status,published=_request(base,"POST",f"/api/runs/{run.run_id}/publish",{"publication_id":pub["publication_id"]}); assert status==200,published
             assert published["status"]=="PUBLISHED"; assert published["response"]["telegram_ok"] is True
