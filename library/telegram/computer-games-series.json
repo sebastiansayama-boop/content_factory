@@ -1,0 +1,232 @@
+{
+  "series_id": "telegram-series-computer-games-001",
+  "title": "История создания компьютерных игр",
+  "platform": "telegram",
+  "language": "ru",
+  "episode_count": 10,
+  "central_question": "Как компьютерные игры прошли путь от университетских экспериментов до глобальной индустрии?",
+  "continuity_rule": "Каждый эпизод отвечает на вопрос, оставшийся после предыдущего, и формирует следующий переход.",
+  "episodes": [
+    {
+      "episode": 1,
+      "title": "До индустрии: когда компьютеры впервые начали играть",
+      "central_question": "Как вообще возникла идея сделать из вычислительной машины игру?",
+      "planned_scope": "Первые игровые эксперименты: Cathode-Ray Tube Amusement Device, Nimrod, OXO, Tennis for Two и Spacewar!. Не искать одного «первого» без оговорок; показать переход от демонстрации вычислительной техники к интерактивной игре.",
+      "next_question": "Если игра уже существовала на компьютере, почему она не стала массовым развлечением?",
+      "status": "READY_FOR_PUBLICATION",
+      "text": "История компьютерных игр начинается не с приставки и даже не с аркадного автомата. Первые игры появились тогда, когда компьютеры ещё занимали комнаты и стоили слишком дорого для обычного человека.\n\nВ 1948 году был запатентован Cathode-Ray Tube Amusement Device — устройство, позволявшее управлять точкой на экране и имитировать попадание по цели. В 1951 году британская компания Ferranti создала Nimrod — специальный компьютер для игры в Nim, который одновременно демонстрировал возможности вычислительной техники.\n\nВ 1952 году Александр Дуглас создал OXO на компьютере EDSAC. Это была электронная версия крестиков-ноликов: игрок делал ход, а машина отвечала.\n\nА в 1958 году физик Уильям Хигинботам сделал Tennis for Two для посетителей Брукхейвенской национальной лаборатории. Два человека играли друг против друга с помощью контроллеров, а изображение мяча появлялось на экране осциллографа.\n\nНо настоящий поворот произошёл в MIT. В 1961–1962 годах Стив Рассел и его коллеги создали Spacewar! для компьютера PDP-1. Теперь компьютер не просто показывал результат вычисления. Он создавал интерактивный мир, в котором два человека управляли космическими кораблями и соревновались друг с другом.\n\nНи одна из этих игр не была массовым продуктом. Но они изменили саму идею компьютера: машина могла не только считать, хранить данные и выполнять программы. С ней можно было играть.\n\nИ тогда возникает следующий вопрос: если игры уже существовали, почему понадобилось ещё десятилетие, чтобы они превратились в массовое развлечение?",
+      "story_state": {
+        "series_id": "telegram-series-computer-games-001",
+        "title": "История создания компьютерных игр",
+        "central_question": "Как компьютерные игры прошли путь от университетских экспериментов до глобальной индустрии?",
+        "established": [
+          "Ранние игровые устройства и программы возникли как эксперименты и демонстрации возможностей вычислительной техники.",
+          "В 1950-е появились OXO, Nimrod и Tennis for Two.",
+          "В 1961–1962 годах Spacewar! показала, что компьютер может поддерживать интерактивную многопользовательскую игру.",
+          "Ранние игры оставались ограничены дорогими компьютерами и исследовательскими учреждениями."
+        ],
+        "unresolved": [
+          "Если игры уже существовали, почему понадобилось ещё десятилетие, чтобы они превратились в массовое развлечение?"
+        ],
+        "next_required_transition": "Показать переход от лабораторных и университетских экспериментов к коммерческим аркадным автоматам и появлению массового рынка.",
+        "used_examples": [
+          "Cathode-Ray Tube Amusement Device",
+          "Nimrod",
+          "OXO",
+          "Tennis for Two",
+          "Spacewar!"
+        ],
+        "claims": [
+          "claim-crt",
+          "claim-nimrod",
+          "claim-oxo",
+          "claim-tennis-for-two",
+          "claim-spacewar"
+        ],
+        "evidence": [
+          "evidence-crt",
+          "evidence-nimrod",
+          "evidence-oxo",
+          "evidence-tennis-for-two",
+          "evidence-spacewar"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-crt",
+          "text": "В 1948 году Томас Т. Голдсмит-младший и Эстл Р. Манн запатентовали Cathode-Ray Tube Amusement Device, один из самых ранних документированных предшественников видеоигр.",
+          "source_ids": [
+            "source-bnl"
+          ],
+          "evidence_ids": [
+            "evidence-crt"
+          ]
+        },
+        {
+          "id": "claim-nimrod",
+          "text": "В 1951 году Ferranti представила Nimrod на Festival of Britain как специализированный компьютер для игры Nim и демонстрации вычислительной мощности.",
+          "source_ids": [
+            "source-chm",
+            "source-bnl"
+          ],
+          "evidence_ids": [
+            "evidence-nimrod"
+          ]
+        },
+        {
+          "id": "claim-oxo",
+          "text": "В 1952 году Александр Дуглас создал OXO на EDSAC — одну из ранних компьютерных игр, реализующую крестики-нолики с участием человека и машины.",
+          "source_ids": [
+            "source-chm"
+          ],
+          "evidence_ids": [
+            "evidence-oxo"
+          ]
+        },
+        {
+          "id": "claim-tennis-for-two",
+          "text": "18 октября 1958 года William Higinbotham представил Tennis for Two в Brookhaven National Laboratory; игра использовала аналоговый компьютер, осциллограф и два контроллера.",
+          "source_ids": [
+            "source-bnl"
+          ],
+          "evidence_ids": [
+            "evidence-tennis-for-two"
+          ]
+        },
+        {
+          "id": "claim-spacewar",
+          "text": "Spacewar! была задумана в MIT в 1961 году и получила существенные улучшения в 1962 году на PDP-1; игра быстро распространилась среди университетского компьютерного сообщества.",
+          "source_ids": [
+            "source-chm-spacewar",
+            "source-smithsonian"
+          ],
+          "evidence_ids": [
+            "evidence-spacewar"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-bnl",
+          "title": "Brookhaven National Laboratory — The First Video Game?",
+          "url": "https://www.bnl.gov/about/history/firstvideo.php"
+        },
+        {
+          "id": "source-chm",
+          "title": "Computer History Museum — Graphics & Games Timeline",
+          "url": "https://www.computerhistory.org/timeline/graphics-games/"
+        },
+        {
+          "id": "source-chm-spacewar",
+          "title": "Computer History Museum — Spacewar!",
+          "url": "https://www.computerhistory.org/pdp-1/spacewar/"
+        },
+        {
+          "id": "source-smithsonian",
+          "title": "Smithsonian Institution — Video Game History",
+          "url": "https://www.si.edu/spotlight/the-father-of-the-video-game-the-ralph-baer-prototypes-and-electronic-games/video-game-history"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-crt",
+          "source_id": "source-bnl",
+          "excerpt": "BNL identifies the 1948 Cathode-Ray Tube Amusement Device patent as the earliest documented video-game predecessor and notes that it required target overlays."
+        },
+        {
+          "id": "evidence-nimrod",
+          "source_id": "source-bnl",
+          "excerpt": "BNL records Nimrod as a 1951 Ferranti computer built to play Nim and demonstrate processing power; CHM places Nimrod in the early games timeline."
+        },
+        {
+          "id": "evidence-oxo",
+          "source_id": "source-chm",
+          "excerpt": "CHM records Alexander Douglas's 1952 OXO on EDSAC as an early computer game of noughts and crosses."
+        },
+        {
+          "id": "evidence-tennis-for-two",
+          "source_id": "source-bnl",
+          "excerpt": "BNL records the first public presentation of Tennis for Two on October 18, 1958, using an analog computer, oscilloscope and separate controllers."
+        },
+        {
+          "id": "evidence-spacewar",
+          "source_id": "source-chm-spacewar",
+          "excerpt": "CHM states that Spacewar! was conceived in 1961 and substantially improved in spring 1962 on the PDP-1; Smithsonian describes its rapid spread through university computing communities."
+        }
+      ],
+      "publication": null
+    },
+    {
+      "episode": 2,
+      "title": "Из лаборатории в зал: как появились аркадные игры",
+      "central_question": "Как компьютерная игра стала коммерческим развлечением?",
+      "planned_scope": "Computer Space, Nolan Bushnell, Pong, первые игровые автоматы и первые коммерческие эксперименты.",
+      "next_question": "Если аркады доказали, что за игру готовы платить, как игры попали в дома?",
+      "status": "PLANNED"
+    },
+    {
+      "episode": 3,
+      "title": "Игры приходят домой",
+      "central_question": "Как телевизор превратился в игровую платформу?",
+      "planned_scope": "Ralph Baer, Magnavox Odyssey, домашние консоли, Atari и переход к картриджам.",
+      "next_question": "Почему рынок домашних игр почти рухнул в начале 1980-х?",
+      "status": "PLANNED"
+    },
+    {
+      "episode": 4,
+      "title": "Крах 1983 года",
+      "central_question": "Почему быстро растущий рынок оказался переполнен плохими играми и потерял доверие покупателей?",
+      "planned_scope": "Перепроизводство, конкуренция консолей и компьютеров, Atari, E.T., роль дистрибуции и качества.",
+      "next_question": "Кто и как заново собрал рынок после кризиса?",
+      "status": "PLANNED"
+    },
+    {
+      "episode": 5,
+      "title": "Nintendo и новая модель игры",
+      "central_question": "Как Nintendo изменила представление о домашней видеоигре?",
+      "planned_scope": "Famicom/NES, контроль качества, Super Mario Bros., дизайн уровней и превращение игры в культурный продукт.",
+      "next_question": "Почему игры начали становиться не только развлечением, но и отдельным программным жанром на компьютерах?",
+      "status": "PLANNED"
+    },
+    {
+      "episode": 6,
+      "title": "Компьютерные игры становятся отдельным миром",
+      "central_question": "Как PC-среда создала жанры, которые определили дальнейшую историю игр?",
+      "planned_scope": "Adventure, CRPG, Ultima, Sierra, id Software, shareware, Doom и роль более открытой компьютерной среды.",
+      "next_question": "Что изменилось, когда мир игры перестал ограничиваться плоским экраном и одиночным игроком?",
+      "status": "PLANNED"
+    },
+    {
+      "episode": 7,
+      "title": "3D меняет всё",
+      "central_question": "Как игры перешли от двумерных экранов к трёхмерным мирам?",
+      "planned_scope": "Wolfenstein 3D, Doom, Quake, 3D-ускорители, PlayStation и переход к новой модели визуального дизайна.",
+      "next_question": "Что произошло, когда игроки получили возможность играть друг с другом через сеть?",
+      "status": "PLANNED"
+    },
+    {
+      "episode": 8,
+      "title": "Игры выходят в сеть",
+      "central_question": "Как интернет превратил игру из продукта для одного человека в постоянно существующий мир?",
+      "planned_scope": "MUDs, LAN, Ultima Online, Counter-Strike, MMORPG и ранние модели сетевой монетизации.",
+      "next_question": "Как цифровая дистрибуция изменила способ покупки и распространения игр?",
+      "status": "PLANNED"
+    },
+    {
+      "episode": 9,
+      "title": "Steam, смартфоны и новая экономика игр",
+      "central_question": "Почему игра постепенно перестала быть вещью, которую нужно купить на диске?",
+      "planned_scope": "Steam, цифровая дистрибуция, App Store, free-to-play, мобильные игры, DLC и live-service модель.",
+      "next_question": "Во что превратилась игровая индустрия после того, как производство, распространение и обновление стали цифровыми?",
+      "status": "PLANNED"
+    },
+    {
+      "episode": 10,
+      "title": "Как игры стали индустрией",
+      "central_question": "Что на самом деле изменилось за путь от Spacewar! до современной игровой индустрии?",
+      "planned_scope": "Сведение линии: технология → интерактивность → массовый рынок → консоли → PC → 3D → сеть → цифровая экономика; отдельно показать, что игры стали самостоятельным медиумом.",
+      "next_question": "Серия завершена.",
+      "status": "PLANNED"
+    }
+  ]
+}
