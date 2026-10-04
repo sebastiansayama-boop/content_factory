@@ -156,37 +156,18 @@ ACCEPTED KNOWLEDGE:
     base_url = f"http://127.0.0.1:{server.server_port}"
 
     try:
-        run = service.content_runs.create(
-            title=topic,
-            brief=topic,
-            audience="general",
-            goal="verify generated Telegram publication",
-            formats=("social_post",),
-            constraints=("language: Русский",),
-        )
-        service.content_runs.start_planning(run.run_id)
-        result = {
-            "run_id": run.run_id,
-            "brief": topic,
-            "content_brief": {
-                "brief_id": f"brief-{run.run_id}",
-                "revision_id": f"brief-{run.run_id}-r1",
-                "title": topic,
-            },
-            "production": {
-                "status": "READY_FOR_REVIEW",
-                "output": {"output_id": f"output-{run.run_id}"},
-                "qc": {"status": "PASSED", "passed": True, "qc_id": f"qc-{run.run_id}"},
-            },
-            "package": {
-                "title": str(generated_payload.get("title") or topic),
-                "text": generated_text,
-                "media": [],
-                "claims": claims,
-                "evidence": evidence,
-                "qc": {"status": "PASSED"},
-            },
-            "information_flow": {"artifacts": [], "publications": [], "edges": []},
+        run, _asset = _create_prepared_run(service, tmp_path, with_media=False)
+        result = dict(run.result or {})
+        result["brief"] = topic
+        result["content_brief"] = {**result["content_brief"], "title": topic}
+        result["package"] = {
+            **result["package"],
+            "title": str(generated_payload.get("title") or topic),
+            "text": generated_text,
+            "media": [],
+            "claims": claims,
+            "evidence": evidence,
+            "qc": {"status": "PASSED"},
         }
         service.content_runs.save_result(run.run_id, result)
 
