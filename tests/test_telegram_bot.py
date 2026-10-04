@@ -88,7 +88,7 @@ class FakeFactory:
             }
         }
 
-    def publish(self, run_id, publication_id):
+    def publish(self, run_id, publication_id, actor_id):
         self.published.append((run_id, publication_id))
         return 200, {
             "external_url": "https://t.me/example/1",
