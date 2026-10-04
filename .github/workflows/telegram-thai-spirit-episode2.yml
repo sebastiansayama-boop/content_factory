@@ -1,0 +1,30 @@
+name: Telegram Thai Spiritual World Episode 2
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    if: github.event.issue.user.login == 'sebastiansayama-boop' && github.event.issue.title == 'publish: thai-spirit-episode-2'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: telegram-thai-spirit-episode-2
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e .
+      - run: python scripts/publish_telegram_thai_spirit_episode2.py
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
