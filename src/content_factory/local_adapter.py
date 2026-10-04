@@ -127,7 +127,7 @@ class LocalTextAdapter:
                     "evidence_refs": [evidence_id],
                 }
             )
-            value = {"script_id": "script-local-1", "title": title, "units": units}
+            value = {"script_id": "script-local-1", "title": title, "variation_mode": "scene", "units": units}
         elif '"style_bible":' in prompt:
             value = {
                 "spec_id": "spec-local-1", "title": "Evidence-grounded short", "objective": "Create a concise evidence-grounded short",
