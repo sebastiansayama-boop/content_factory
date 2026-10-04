@@ -702,7 +702,7 @@ def test_real_telegram_series_continuity(tmp_path, monkeypatch):
                 "media":[],"claims":[claim],"sources":[source],"evidence":[evidence],"qc":{"status":"PASSED"},
                 "series":{
                     "series_id":series_id,"title":title,"episode":3,"previous_run_id":None,
-                    "central_question":"Когда воображаемые общества начали превращаться в проекты будущего?",
+                    "central_question":"Когда и почему будущее стало восприниматься как открытая возможность?",
                     "unresolved":["Как воображаемые общества превратились в проекты городов и обществ, которых еще не существовало?"],
                     "next_required_transition":"Показать переход от воображаемых обществ к проектированию городов, которые должны были изменить реальную жизнь.",
                     "story_state":{
