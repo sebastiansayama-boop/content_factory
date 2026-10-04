@@ -384,7 +384,7 @@ class KnowledgeContentBuilder:
             if isinstance(unit, dict)
             for ref in (unit.get("claim_refs") or [])
             if isinstance(ref, str) and ref.strip()
-        )
+        }
         text_rules_prompt = format_publication_text_rules(text_rules)
         editorial = self._generate(
             work_item_id=f"content-editorial-{run_id}",
