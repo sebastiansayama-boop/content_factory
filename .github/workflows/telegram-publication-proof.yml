@@ -1,7 +1,8 @@
 name: Telegram Publication Proof
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [main]
 
 permissions: {}
 
@@ -24,4 +25,4 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: pytest -s -q tests/test_telegram_historical_material_smoke.py -m external -k generated_historical_material
+        run: python scripts/publish_telegram_library.py
