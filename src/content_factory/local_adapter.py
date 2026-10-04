@@ -111,7 +111,7 @@ class LocalTextAdapter:
                     {
                         "unit_id": f"unit-{len(units) + 1}",
                         "kind": "narration",
-                        "text": f"При этом область утверждения ограничена: {scope}.",
+                        "text": f"This claim is scoped to {scope}. Область утверждения ограничена: {scope}.",
                         "visual_intent": "show scope",
                         "claim_refs": [claim_id],
                         "evidence_refs": [evidence_id],
