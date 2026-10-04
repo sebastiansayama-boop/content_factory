@@ -493,16 +493,48 @@ SERIES:
 PREVIOUS STORY STATE:
 {json.dumps(story_state, ensure_ascii=False)}
 """
-    rr = research.research(research_prompt)
-    assert 200 <= rr.status_code < 300
-    research_payload = json.loads(research.text(rr))
-    claims = [c for c in research_payload.get("claims", []) if str(c.get("text") or "").strip()]
-    sources = [s for s in research_payload.get("sources", []) if str(s.get("url") or "").strip()]
-    evidence = [e for e in research_payload.get("evidence", []) if str(e.get("excerpt") or "").strip()]
-    print("\nEPISODE_2_RESEARCH_PAYLOAD:\n" + json.dumps(research_payload, ensure_ascii=False, indent=2))
+    research_prompts = [
+        research_prompt.replace(
+            "ancient cyclical concepts of time Mesopotamia Egypt Greece India Maya historical examples",
+            "cyclical time early India yuga astronomy"
+        ),
+        research_prompt.replace(
+            "ancient cyclical concepts of time Mesopotamia Egypt Greece India Maya historical examples",
+            "Greek Stoic cyclical time eternal recurrence ancient philosophy"
+        ),
+        research_prompt.replace(
+            "ancient cyclical concepts of time Mesopotamia Egypt Greece India Maya historical examples",
+            "Maya calendar cycles Mesoamerican concepts of time"
+        ),
+    ]
+    claims = []
+    sources = []
+    evidence = []
+    seen_claims = set()
+    seen_sources = set()
+    seen_evidence = set()
+    for prompt in research_prompts:
+        rr = research.research(prompt)
+        assert 200 <= rr.status_code < 300
+        research_payload = json.loads(research.text(rr))
+        for claim in research_payload.get("claims", []):
+            key = str(claim.get("text") or "").strip().casefold()
+            if key and key not in seen_claims:
+                seen_claims.add(key)
+                claims.append(claim)
+        for source in research_payload.get("sources", []):
+            key = str(source.get("url") or "").strip()
+            if key and key not in seen_sources:
+                seen_sources.add(key)
+                sources.append(source)
+        for item in research_payload.get("evidence", []):
+            key = str(item.get("id") or item.get("excerpt") or "").strip()
+            if key and key not in seen_evidence:
+                seen_evidence.add(key)
+                evidence.append(item)
     assert len(claims) >= 2
-    assert sources
-    assert evidence
+    assert len(sources) >= 2
+    assert len(evidence) >= 2
 
     knowledge = json.dumps(
         {"claims": claims[:10], "sources": sources[:10], "evidence": evidence[:20]},
