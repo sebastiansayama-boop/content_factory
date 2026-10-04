@@ -14,8 +14,8 @@ def _package(episode=1, *, series_id="series-1", established=None, unresolved=No
     }
     state = {
         "central_question": "When did the future become imaginable?",
-        "established": established or ["Earlier knowledge"],
-        "unresolved": unresolved or ["Next question"],
+        "established": established if established is not None else ["Earlier knowledge"],
+        "unresolved": unresolved if unresolved is not None else ["Next question"],
         "next_required_transition": "Move to the next historical transition.",
         "claims": ["claim-1"],
         "evidence": ["evidence-1"],
@@ -39,6 +39,10 @@ def _package(episode=1, *, series_id="series-1", established=None, unresolved=No
 
 def test_series_contract_accepts_first_episode():
     validate_series_package(_package())
+
+
+def test_series_contract_accepts_no_unresolved_questions():
+    validate_series_package(_package(unresolved=[]))
 
 
 def test_series_contract_rejects_unknown_provenance():
