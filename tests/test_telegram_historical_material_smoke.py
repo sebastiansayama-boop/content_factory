@@ -106,7 +106,7 @@ def test_real_telegram_generated_historical_material_smoke(tmp_path, monkeypatch
     monkeypatch.delenv("FACTORY_TELEGRAM_FAKE", raising=False)
 
     research = FreeWebGeminiAdapter()
-    topic = "Малоизвестные факты из истории человечества"
+    topic = "Как люди прошлого представляли будущее до появления современной научной фантастики"
     research_prompt = f"""Research the topic and return ONLY JSON:
 {{"topic":"string","summary":"string","claims":[{{"id":"claim-1","text":"atomic factual claim","source_ids":["source-1"],"evidence_ids":["evidence-1"]}}],"sources":[{{"id":"source-1","title":"string","url":"https://..."}}],"evidence":[{{"id":"evidence-1","source_id":"source-1","excerpt":"short supporting passage"}}]}}
 Use several distinct historical examples from different periods or regions. Keep claims bounded and source-backed. Do not invent facts.
@@ -215,7 +215,7 @@ def test_real_telegram_five_matrix_publications(tmp_path, monkeypatch):
     if not os.environ.get("GEMINI_API_KEY"):
         pytest.fail("GEMINI_API_KEY is required for matrix publication test")
 
-    from content_factory.publication_text_matrix import format_text_variation_matrix
+    from content_factory.publication_text_matrix import TEXT_VARIATION_MATRIX, format_text_variation_matrix
     from content_factory.publication_text_rules import resolve_publication_text_rules, validate_publication_text
 
     monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
@@ -242,9 +242,11 @@ USER BRIEF:
     rules = resolve_publication_text_rules(["language: Русский", "style: natural", "length: short", "tone_strength: medium", "variation: auto"])
     matrix = format_text_variation_matrix()
     generated = []
+    used_modes = set()
+    valid_modes = {item.id for item in TEXT_VARIATION_MATRIX}
     for index in range(5):
         prompt = f"""Write one finished Telegram publication in Russian.
-Return ONLY JSON: {{"title":"string","content":"string"}}.
+Return ONLY JSON: {{"title":"string","content":"string","variation_mode":"scene|person|contrast|question|object|sequence|myth_fact|zoom_out"}}.
 This is publication {index + 1} of 5 for the SAME topic and SAME accepted knowledge.
 Variation is AUTO: choose exactly one dominant writing mode from the supplied matrix based on the strongest factual shape of the accepted knowledge.
 The mode label is internal and must not appear in the publication.
@@ -263,10 +265,15 @@ ACCEPTED KNOWLEDGE:
         assert 200 <= gr.status_code < 300
         gp = json.loads(research.text(gr))
         text_value = str(gp["content"]).strip()
+        variation_mode = str(gp.get("variation_mode") or "").strip().casefold()
+        assert variation_mode in valid_modes
+        assert variation_mode not in used_modes, f"model repeated variation mode: {variation_mode}"
+        used_modes.add(variation_mode)
         validate_publication_text(text_value, rules)
         assert "—" not in text_value
         generated.append((str(gp.get("title") or topic).strip(), text_value))
     assert len({text_value for _, text_value in generated}) == 5
+    assert len(used_modes) == 5
 
     service = FactoryService()
     ProductHandler.service = service
