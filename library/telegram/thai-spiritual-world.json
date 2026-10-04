@@ -183,6 +183,74 @@
           "excerpt": "The 2026 study compares land-god shrines across five areas of Bangkok and examines differences in their forms, distribution, locations and components; Kano's earlier study documents changes in shrine styles and the incorporation of Buddhist and Hindu elements."
         }
       ]
+    },
+    {
+      "episode": 3,
+      "title": "Зачем Таиланд ставит маленькие дома для невидимых хозяев",
+      "text": "В прошлом эпизоде мы остановились на странной для современного города мысли: у места может быть свой духовный хозяин.\n\nТеперь можно увидеть, что из этой идеи следует буквально. Если у земли есть тот, кто её охраняет, ему нужен не только статус, но и место.\n\nТак появляются небольшие святилища, которые в Таиланде можно встретить рядом с домами, магазинами, офисами и другими объектами. В исследованиях их называют по-разному в зависимости от традиции и типа святилища. Одно из наиболее известных названий — San Phra Phum, ศาลพระภูมิ.\n\nНо здесь легко совершить ошибку: представить любой такой домик как одну и ту же вещь. Исследования различают традиции, связанные с Phra Phum и Jao Thii, а внешний вид святилищ тоже менялся.\n\nХороший пример даёт Бангкок. Исследование Хироси Кано, основанное на 1112 наблюдениях в районах Патхумван и Ратчатхеви, показало, что за вторую половину XX века формы таких святилищ заметно менялись. Деревянные конструкции уступали место бетонным, затем распространялись формы, напоминающие дворцы. Менялись и образы внутри: исследователь фиксировал появление буддийских и индуистских образов.\n\nТо есть «дом духов» — не музей древнего прошлого. Это форма, которая продолжает существовать и меняется вместе с обществом.\n\nНо одного дома недостаточно. Если люди создают для духов отдельное место, возникает следующий вопрос: что происходит внутри этих отношений и что люди оставляют там?",
+      "story_state": {
+        "central_question": "Зачем создавать материальное святилище для духа, связанного с местом?",
+        "established": [
+          "San Phra Phum — один из терминов для таких святилищ.",
+          "Традиции Phra Phum и Jao Thii не следует автоматически считать одним и тем же.",
+          "Форма святилищ в Бангкоке менялась вместе с городской культурой."
+        ],
+        "unresolved": [
+          "Какие действия и подношения поддерживают отношения между людьми и духами?"
+        ],
+        "next_required_transition": "Перейти к практике подношений: что оставляют у святилищ и какие значения этим действиям приписывают.",
+        "used_examples": [
+          "San Phra Phum",
+          "Патхумван",
+          "Ратчатхеви",
+          "изменение архитектуры святилищ"
+        ],
+        "claims": [
+          "claim-san-material",
+          "claim-san-change"
+        ],
+        "sources": [
+          {
+            "id": "source-kano-1996",
+            "title": "Hiroshi Kano, Changing Belief about the Guardian Spirits in Modern Bangkok",
+            "url": "https://www.jstage.jst.go.jp/article/sea1971/1996/25/1996_25_28/_article/-char/en"
+          }
+        ],
+        "evidence": [
+          {
+            "id": "evidence-san-material",
+            "source_id": "source-kano-1996",
+            "excerpt": "Kano describes guardian spirits of the land and small shrines built on the land they guard."
+          },
+          {
+            "id": "evidence-san-change",
+            "source_id": "source-kano-1996",
+            "excerpt": "The study of 1112 data points in Pathumwan and Rachathewe documents changes in shrine architecture and idols over the twentieth century."
+          }
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-san-material",
+          "text": "Святилища духов земли являются материальным местом, связанным с представлениями о хранителях земли.",
+          "source_ids": [
+            "source-kano-1996"
+          ],
+          "evidence_ids": [
+            "evidence-san-material"
+          ]
+        },
+        {
+          "id": "claim-san-change",
+          "text": "В Бангкоке формы святилищ и размещаемые в них образы менялись в течение второй половины XX века.",
+          "source_ids": [
+            "source-kano-1996"
+          ],
+          "evidence_ids": [
+            "evidence-san-change"
+          ]
+        }
+      ]
     }
   ]
 }
