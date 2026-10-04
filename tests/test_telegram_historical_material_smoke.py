@@ -552,6 +552,8 @@ Return ONLY JSON:
 The publication must directly answer the previous episode's unresolved question about why ancient societies often represented time cyclically.
 It must use only the supplied research. Give concrete examples, distinguish different traditions, and avoid claiming that every ancient society shared one worldview.
 It must naturally continue the series rather than restart it.
+In story_state, central_question MUST be copied exactly from the previous episode.
+In story_state, established MUST extend the previous established knowledge with the researched answer.
 It must end by opening the next question: how prophecy relates to the idea of the future.
 Length: 600-1000 characters. Natural contemporary Russian. No em dash. No generic filler.
 PREVIOUS EPISODE:
