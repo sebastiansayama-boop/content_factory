@@ -270,7 +270,7 @@ This is publication {index + 1} of 5 for the SAME topic and SAME accepted knowle
 Variation is AUTO: choose exactly one dominant writing mode from the supplied matrix based on the strongest factual shape of the accepted knowledge.
 The mode label is internal and must not appear in the publication.
 Do not force a mode if the evidence does not support it. Prefer an unused supported mode. Previously used modes: {", ".join(sorted(used_modes)) or "none"}. Choose a mode not in that set unless no unused supported mode remains.
-Length: 500-1000 characters. One coherent publication, not a list.
+Length: 550-850 characters. One coherent publication, not a list.
 Use only supplied claims/evidence. Preserve uncertainty and scope. No invented facts.
 Natural contemporary Russian. No em dash. No generic openings or filler.
 TEXT VARIATION MATRIX:
