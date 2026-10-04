@@ -321,7 +321,7 @@ ACCEPTED KNOWLEDGE:
     thread.start()
     base_url = f"http://127.0.0.1:{server.server_port}"
     try:
-        for index, (title, text_value) in enumerate(generated, start=1):
+        for index, (title, text_value, variation_mode) in enumerate(generated, start=1):
             run, _asset = _create_prepared_run(service, tmp_path, with_media=False)
             result = dict(run.result or {})
             result["brief"] = topic
