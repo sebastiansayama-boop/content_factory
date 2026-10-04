@@ -1,15 +1,15 @@
 name: Publish Telegram Episode
 
 on:
-  issues:
-    types: [opened]
+  push:
+    branches: [main]
 
 permissions:
   contents: read
 
 jobs:
   publish:
-    if: startsWith(github.event.issue.title, 'publish: thai-spirit-episode-')
+    if: startsWith(github.event.head_commit.message, 'publish: thai-spirit-episode-')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     concurrency:
@@ -28,7 +28,7 @@ jobs:
         id: episode
         shell: bash
         run: |
-          title="${{ github.event.issue.title }}"
+          title="${{ github.event.head_commit.message }}"
           episode="${title#publish: thai-spirit-episode-}"
           if ! [[ "$episode" =~ ^[0-9]+$ ]]; then
             echo "Invalid episode: $episode"
