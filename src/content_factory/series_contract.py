@@ -45,8 +45,8 @@ def validate_series_package(
 
     if not isinstance(state.get("established"), list) or not state.get("established"):
         raise SeriesContractError("story_state established must be a non-empty list")
-    if not isinstance(state.get("unresolved"), list) or not state.get("unresolved"):
-        raise SeriesContractError("story_state unresolved must be a non-empty list")
+    if not isinstance(state.get("unresolved"), list):
+        raise SeriesContractError("story_state unresolved must be a list")
     if not _nonempty(state.get("next_required_transition")):
         raise SeriesContractError("story_state next_required_transition is required")
 
