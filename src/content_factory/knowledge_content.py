@@ -5,6 +5,7 @@ from dataclasses import asdict, dataclass
 from typing import Any
 
 from .knowledge import KnowledgeStore
+from .publication_text_rules import format_publication_text_rules, resolve_publication_text_rules, validate_publication_text
 from .runtime import WorkItem
 from .workspace import ContentWorkspace, WorkspaceError, _json_from_text
 
@@ -363,6 +364,8 @@ class KnowledgeContentBuilder:
         evidence_ids = {e for item in claims for e in item["evidence_ids"]}
 
         context_json = json.dumps(context, ensure_ascii=False)
+        text_rules = resolve_publication_text_rules(constraints)
+        text_rules_prompt = format_publication_text_rules(text_rules)
         editorial = self._generate(
             work_item_id=f"content-editorial-{run_id}",
             revision_id="content-editorial-v1",
@@ -553,17 +556,30 @@ USER CONSTRAINTS:
             work_item_id=f"content-script-{run_id}",
             revision_id="content-script-v1",
             objective="turn a content specification into a provenance-grounded script",
-            prompt=f"""Create a complete, developed script from this ContentSpec.
+            prompt=f"""Create a complete, developed publication text from this ContentSpec.
 The requested output language is explicitly specified in USER CONSTRAINTS. Write the entire user-facing script, including title and every unit, in that language. If it says Russian, do not answer in English or mix languages unless a proper name or necessary technical term has no natural Russian equivalent.
-Return JSON: {{"script_id":"script-1","title":"string","units":[{{"unit_id":"unit-1","kind":"hook|beat|narration|cta","text":"complete spoken/on-screen text","visual_intent":"string","claim_refs":["kc-*"],"evidence_refs":["ke-*"]}}]}}\nFor every unit, visual_intent is NOT user-facing prose: write it as a short ENGLISH image-search query suitable for Openverse or Wikimedia (for example, "spotted hyena in African savanna", "hyena pack in grassland", "phylogenetic tree diagram"). Keep text in the requested user language, but keep visual_intent in English.
-Write 4-6 ordered units, not one compressed claim. The sequence must contain: (1) a hook that creates a question or tension, (2) context that explains what is being discussed, (3) development that explains the evidence and why it matters, and (4) a conclusion/takeaway that resolves the thread. A CTA may be added as a separate final unit when appropriate to the requested format.
-Use natural prose and vary sentence openings. Do not use generic templates such as “Did you know?”, “Think again”, or “Follow for more” unless the ContentSpec explicitly requests that style. Do not simply restate the research claim; develop the idea using the supplied evidence.
-Preserve the epistemic scope of the accepted knowledge exactly. Never turn a qualified or bounded synthesis into an absolute claim. In particular, do not write “evolution is not random”, “evolution is fundamentally not random”, “constraints determine evolution”, or equivalent universal formulations unless the supplied evidence explicitly supports that scope. When the evidence distinguishes chance, mutation, selection, convergence, constraint, ancestry, or historical contingency, preserve those distinctions in the script.
-Every factual unit must retain the relevant durable claim and evidence refs from the ContentSpec. Use the supplied accepted knowledge to write complete, usable material, not generic placeholder copy. Do not invent facts. Hooks and calls to action may be non-factual.
+Return JSON: {{"script_id":"script-1","title":"string","units":[{{"unit_id":"unit-1","kind":"hook|beat|narration|cta","text":"complete spoken/on-screen text","visual_intent":"string","claim_refs":["kc-*"],"evidence_refs":["ke-*"]}}]}}
+The text is the publication itself and must be usable without editing.
+
+Structure:
+1. Hook: create a concrete question, tension, image, or historical turn.
+2. Context: explain what is being discussed and establish the frame.
+3. Development: explain the evidence, mechanism, contrast, or sequence rather than repeating the claim.
+4. Conclusion: resolve the thread and state the useful takeaway.
+A CTA is optional and must not replace the conclusion.
+
+Publication text rules:
+{text_rules_prompt}
+Write 4-6 ordered units. The combined unit text is the final publication text. Target the requested length for that combined text.
+Use natural prose and vary sentence openings. Avoid filler, generic motivational language, clickbait, repeated conclusions, and empty transitions.
+Do not use generic templates such as “Did you know?”, “Think again”, or “Follow for more” unless explicitly requested.
+Do not use em dash (—).
+Preserve the epistemic scope of the accepted knowledge exactly. Never turn a qualified or bounded synthesis into an absolute claim. In particular, do not write “evolution is not random”, “evolution is fundamentally not random”, “constraints determine evolution”, or equivalent universal formulations unless the supplied evidence explicitly supports that scope.
+Every factual unit must retain the relevant durable claim and evidence refs from the ContentSpec. Do not invent facts. Hooks and calls to action may be non-factual.
 CONTENT SPEC:
 {json.dumps(spec.to_dict(), ensure_ascii=False)}
 ACCEPTED KNOWLEDGE:
-{context_json}""",
+{context_json}"""
         )
         units_raw = script_raw.get("units")
         if not isinstance(units_raw, list) or not units_raw:
@@ -601,7 +617,16 @@ ACCEPTED KNOWLEDGE:
         if not script.script_id:
             raise WorkspaceError("script requires script_id")
         _validate_epistemic_scope(list(script.units))
+        publication_text = "\n\n".join(unit.text for unit in units if unit.text).strip()
+        try:
+            if text_rules.enforce_length:
+                validate_publication_text(publication_text, text_rules)
+            elif "—" in publication_text:
+                raise ValueError("publication text must not contain em dash")
+        except ValueError as exc:
+            raise WorkspaceError(str(exc)) from exc
 
+        text_only = any(str(item).strip().casefold() == "text_only" for item in constraints)
         asset_requests = []
         for index, unit in enumerate(script.units, start=1):
             matching_elements = [
@@ -618,18 +643,19 @@ ACCEPTED KNOWLEDGE:
                 "visual_intent": unit.visual_intent or next((element.production_intent or element.purpose for element in matching_elements if element.production_intent or element.purpose), unit.text),
                 "acceptance_criteria": ["preserve script intent", "preserve provenance", "preserve content brief lineage"],
             }
-            asset_requests.extend(
-                [
-                    common | {
-                        "asset_request_id": f"asset-request-{run_id}-{index}-visual",
-                        "type": "visual",
-                    },
-                    common | {
-                        "asset_request_id": f"asset-request-{run_id}-{index}-voice",
-                        "type": "voice",
-                    },
-                ]
-            )
+            if not text_only:
+                asset_requests.extend(
+                    [
+                        common | {
+                            "asset_request_id": f"asset-request-{run_id}-{index}-visual",
+                            "type": "visual",
+                        },
+                        common | {
+                            "asset_request_id": f"asset-request-{run_id}-{index}-voice",
+                            "type": "voice",
+                        },
+                    ]
+                )
         production_plan = {
             "production_plan_id": f"production-{run_id}",
             "format": spec.format,
