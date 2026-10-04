@@ -693,7 +693,7 @@ def test_real_telegram_series_continuity(tmp_path, monkeypatch):
         seed = service.content_runs.create(title=title, brief=title, formats=("telegram",))
         source = {"id":"source-utopia-seed","title":"Thomas More, Utopia","url":"https://www.gutenberg.org/ebooks/2130"}
         evidence = {"id":"evidence-utopia-seed","source_id":"source-utopia-seed","excerpt":"More presents an imagined island with an organized social and political order."}
-        claim = {"id":"claim-utopia-seed","text":"«Утопия» Томаса Мора представляет воображаемый остров с организованным общественным и политическим порядком.","source_ids":["source-utopia-seed"],"evidence_ids":["evidence-oracle"]}
+        claim = {"id":"claim-utopia-seed","text":"«Утопия» Томаса Мора представляет воображаемый остров с организованным общественным и политическим порядком.","source_ids":["source-utopia-seed"],"evidence_ids":["evidence-utopia-seed"]}
         seed_result = {
             "brief": title, "content_brief":{"title":title},
             "package":{
