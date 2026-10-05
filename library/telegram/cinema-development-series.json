@@ -282,7 +282,7 @@
       "planned_scope": "Georges Méliès, A Trip to the Moon, остановочная съемка и сценические эффекты; Edwin S. Porter и The Great Train Robbery; ранний монтаж и параллельное действие.",
       "editorial_goal": "Показать переход от демонстрации к повествованию и от отдельного кадра к последовательности сцен.",
       "next_transition": "Когда кино научилось рассказывать истории, появилась потребность в постоянном месте показа и устойчивой бизнес-модели.",
-      "status": "READY_FOR_PUBLICATION",
+      "status": "PUBLISHED",
       "text": "Когда зритель привык к самому факту движущегося изображения, одного эффекта стало недостаточно. Кино начало превращать кадр в средство рассказа.\n\nЖорж Мельес пришел в кинематограф из театра и перенес на экран сценическую иллюзию. В его фильмах персонажи исчезают, предметы меняются, декорации превращаются в фантастические пространства. В «Путешествии на Луну» 1902 года эти приемы соединяются в цельное фантастическое представление. Камера теперь могла показывать не только то, что происходило перед ней, но и то, что было невозможно в реальности.\n\nОдновременно другая проблема решалась монтажом. Если соединить разные кадры в нужной последовательности, зритель начинает воспринимать между ними причинную связь.\n\nЭдвин С. Портер в «Большом ограблении поезда» 1903 года использовал несколько сцен и мест действия, чтобы построить более сложное повествование. Кино постепенно переставало быть одной сценкой перед камерой. Оно становилось последовательностью фрагментов, из которых зритель собирал событие.\n\nЭто изменение трудно переоценить. Кадр больше не был законченным сообщением. Его смысл зависел от соседнего кадра.\n\nТак появились основы кинематографического языка: выбор точки съемки, продолжительность плана, смена сцен, трюк, монтаж и управление вниманием зрителя.\n\nНо художественный язык сам по себе не создавал индустрию. Фильмы требовалось показывать регулярно и дешевле. Следующий этап начался с маленьких кинотеатров, которые сделали просмотр повседневной привычкой.",
       "story_state": {
         "series_id": "telegram-series-cinema-003",
@@ -400,12 +400,12 @@
         }
       ],
       "publication": {
-        "status": "PENDING",
-        "confirmed_by": null,
-        "confirmed_at": null,
-        "external_message_id": null,
-        "external_url": null,
-        "published_at": null
+        "status": "PUBLISHED",
+        "confirmed_by": "github-actions",
+        "confirmed_at": "2026-10-05",
+        "external_message_id": "147",
+        "external_url": "https://t.me/AtlasOpenLab/147",
+        "published_at": "2026-10-05T10:54:57Z"
       },
       "publication_attempt": 1
     },
@@ -416,20 +416,132 @@
       "planned_scope": "Nickelodeons с 1905 года, дешевые сеансы, расширение аудитории, рост длины и числа фильмов, раннее разделение производства и показа.",
       "editorial_goal": "Показать экономику доступного кинотеатра и рождение массового кинорынка.",
       "next_transition": "Массовая аудитория потребовала длиннее и сложнее фильмы; это подготовило расцвет полнометражного кино и системы звезд.",
-      "status": "PLANNED",
-      "text": null,
-      "story_state": null,
-      "claims": [],
-      "sources": [],
-      "evidence": [],
+      "status": "READY_FOR_PUBLICATION",
+      "text": "К 1905 году кино перестало быть редким аттракционом и начало превращаться в городскую привычку. Одним из ключевых форматов стали nickelodeons, небольшие кинотеатры с дешевым входом и программами, которые шли весь день.\n\nПервый такой кинотеатр появился в Питтсбурге в июне 1905 года. Название связано с ценой входа в пять центов. Модель была простой: небольшое помещение, постоянный поток посетителей, короткие фильмы и возможность быстро заменить одну программу другой.\n\nЭто изменило спрос. Производителям теперь требовалось много нового материала. Фильм переставал быть единичным трюком и становился регулярно потребляемым продуктом.\n\nLibrary of Congress отмечает, что в первые годы преобладали actualities, короткие записи событий, людей и мест. После 1902 года комедийные и драматические сюжеты стали вытеснять их по популярности. Зрителю уже было недостаточно просто увидеть движение. Он хотел сюжет.\n\nОдновременно менялась продолжительность. Короткие сценки оставались важными, но успех более сложных историй создавал спрос на программы, которые могли удерживать внимание дольше.\n\nТак возникла важная экономическая связь. Массовый зритель создавал постоянный спрос, постоянный спрос позволял расширять производство, а рост производства делал кино более профессиональным и предсказуемым бизнесом.\n\nКино теперь имело аудиторию, места показа и рынок контента.\n\nСледующий вопрос был уже не о том, можно ли собрать толпу в зале. Нужно было понять, способен ли фильм удерживать эту толпу целиком, час за часом.",
+      "story_state": {
+        "series_id": "telegram-series-cinema-003",
+        "title": "Развитие кинематографа",
+        "central_question": "Как кино прошло путь от фотографического эксперимента до цифрового медиума, который можно смотреть почти где угодно?",
+        "established": [
+          "В 1905 году nickelodeons сделали дешевый постоянный кинопросмотр доступным городской аудитории.",
+          "Питтсбургский nickelodeon стал ранним примером этого формата.",
+          "Постоянный спрос заставлял производителей регулярно выпускать новые фильмы.",
+          "Actualities постепенно уступали место комедийным и драматическим сюжетам.",
+          "Массовый рынок усиливал профессионализацию кинопроизводства."
+        ],
+        "unresolved": [
+          "Как фильм научился удерживать внимание зрителя дольше короткого аттракциона?"
+        ],
+        "next_required_transition": "Показать развитие полнометражного немого кино, визуального языка и звездной системы.",
+        "used_examples": [
+          "Pittsburgh nickelodeon",
+          "nickelodeons",
+          "actualities"
+        ],
+        "claims": [
+          "cin4-nickelodeon",
+          "cin4-all-day",
+          "cin4-scale",
+          "cin4-genres"
+        ],
+        "evidence": [
+          "ev-cin4-nickelodeon",
+          "ev-cin4-allday",
+          "ev-cin4-scale",
+          "ev-cin4-genres"
+        ]
+      },
+      "claims": [
+        {
+          "id": "cin4-nickelodeon",
+          "text": "Первый nickelodeon открылся в Питтсбурге в июне 1905 года.",
+          "source_ids": [
+            "src-loc-nickelodeon"
+          ],
+          "evidence_ids": [
+            "ev-cin4-nickelodeon"
+          ]
+        },
+        {
+          "id": "cin4-all-day",
+          "text": "Nickelodeons показывали фильмы весь день и стали важным типом постоянного места кинопоказа.",
+          "source_ids": [
+            "src-loc-nickelodeon",
+            "src-loc-varietystage"
+          ],
+          "evidence_ids": [
+            "ev-cin4-allday"
+          ]
+        },
+        {
+          "id": "cin4-scale",
+          "text": "К 1908 году в США насчитывалось примерно 8 000 nickelodeons.",
+          "source_ids": [
+            "src-loc-nickelodeon"
+          ],
+          "evidence_ids": [
+            "ev-cin4-scale"
+          ]
+        },
+        {
+          "id": "cin4-genres",
+          "text": "В ранние годы actualities занимали значительную часть кинопрограмм, но после 1902 года комедийные и драматические фильмы стали популярнее.",
+          "source_ids": [
+            "src-loc-genres"
+          ],
+          "evidence_ids": [
+            "ev-cin4-genres"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "src-loc-nickelodeon",
+          "title": "Library of Congress — History of Edison Motion Pictures: Fictional Films Dominate",
+          "url": "https://www.loc.gov/collections/edison-company-motion-pictures-and-sound-recordings/articles-and-essays/history-of-edison-motion-pictures/fictional-films-dominate/"
+        },
+        {
+          "id": "src-loc-varietystage",
+          "title": "Library of Congress — Early Cinema",
+          "url": "https://guides.loc.gov/chronicling-america-early-cinema"
+        },
+        {
+          "id": "src-loc-genres",
+          "title": "Library of Congress — Overview of the Edison Motion Pictures by Genre",
+          "url": "https://www.loc.gov/collections/edison-company-motion-pictures-and-sound-recordings/articles-and-essays/history-of-edison-motion-pictures/overview-of-the-edison-motion-pictures-by-genre/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "ev-cin4-nickelodeon",
+          "source_id": "src-loc-nickelodeon",
+          "excerpt": "Library of Congress identifies Pittsburgh's June 1905 nickelodeon as an early example and explains the nickelodeon format."
+        },
+        {
+          "id": "ev-cin4-allday",
+          "source_id": "src-loc-varietystage",
+          "excerpt": "Library of Congress describes early motion-picture exhibition in variety and vaudeville venues and the growth of regular film programs."
+        },
+        {
+          "id": "ev-cin4-scale",
+          "source_id": "src-loc-nickelodeon",
+          "excerpt": "Library of Congress reports approximately 8,000 nickelodeons operating in the United States by 1908."
+        },
+        {
+          "id": "ev-cin4-genres",
+          "source_id": "src-loc-genres",
+          "excerpt": "Library of Congress explains that actualities initially dominated, while comic and dramatic subjects gained popularity after 1902."
+        }
+      ],
       "publication": {
-        "status": "PLANNED",
+        "status": "PENDING",
         "confirmed_by": null,
         "confirmed_at": null,
         "external_message_id": null,
         "external_url": null,
         "published_at": null
-      }
+      },
+      "publication_attempt": 1
     },
     {
       "episode": 5,
