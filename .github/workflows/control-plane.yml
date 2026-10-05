@@ -24,6 +24,17 @@ jobs:
           python-version: '3.12'
       - name: Install
         run: pip install -e '.[dev]'
+      - name: Install Ollama
+        run: curl -fsSL https://ollama.com/install.sh | sh
+      - name: Start Ollama
+        run: |
+          nohup ollama serve >/tmp/ollama.log 2>&1 &
+          for i in {1..30}; do
+            curl -fsS http://127.0.0.1:11434/api/tags && break
+            sleep 2
+          done
+      - name: Pull editorial model
+        run: ollama pull llama3.2:1b
       - name: Parse command
         id: command
         env:
@@ -40,6 +51,9 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OLLAMA_MODEL: llama3.2:1b
+          OLLAMA_ENDPOINT: http://127.0.0.1:11434/api/generate
+          OLLAMA_TIMEOUT: "300"
         run: python scripts/control_plane.py execute
       - name: Publish result
         if: always()
