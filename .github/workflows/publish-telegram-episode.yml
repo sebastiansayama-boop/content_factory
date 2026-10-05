@@ -11,7 +11,8 @@ jobs:
   publish:
     if: >-
       startsWith(github.event.head_commit.message, 'publish: thai-spirit-episode-') ||
-      startsWith(github.event.head_commit.message, 'publish: computer-games-episode-')
+      startsWith(github.event.head_commit.message, 'publish: computer-games-episode-') ||
+      startsWith(github.event.head_commit.message, 'publish: cinema-episode-')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     concurrency:
@@ -42,6 +43,10 @@ jobs:
             "publish: computer-games-episode-"*)
               export TELEGRAM_LIBRARY_PATH=library/telegram/computer-games-series.json
               episode="${COMMIT_MESSAGE#publish: computer-games-episode-}"
+              ;;
+            "publish: cinema-episode-"*)
+              export TELEGRAM_LIBRARY_PATH=library/telegram/cinema-development-series.json
+              episode="${COMMIT_MESSAGE#publish: cinema-episode-}"
               ;;
             *) echo "Ordinary commit; publication skipped."; exit 0 ;;
           esac
