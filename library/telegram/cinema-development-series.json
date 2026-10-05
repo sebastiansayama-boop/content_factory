@@ -16,13 +16,135 @@
       "planned_scope": "Оптические игрушки, хронофотография Эдварда Майбриджа и Этьена-Жюля Марэ, пленка Истмана, эксперименты Эдисона и Диксона.",
       "editorial_goal": "Показать, что кино возникло на пересечении фотографии, механики, оптики и массового развлечения.",
       "next_transition": "1890-е эксперименты с Kinetograph и Kinetoscope уже создавали движущееся изображение; следующий шаг — проекция для коллективного зрителя.",
-      "status": "PLANNED",
-      "text": null,
-      "story_state": null,
-      "claims": [],
-      "sources": [],
-      "evidence": [],
-      "publication": {"status": "PLANNED", "confirmed_by": null, "confirmed_at": null, "external_message_id": null, "external_url": null, "published_at": null}
+      "status": "READY_FOR_PUBLICATION",
+      "text": "История кино начинается не с кинозала. Сначала людям нужно было научиться разбирать движение на отдельные изображения, а затем собирать их обратно в последовательность.\n\nВ 1878 году Эдвард Майбридж получил серию последовательных фотографий скачущей лошади. Для науки это был способ исследовать движение. Но сама идея была фундаментальной: быстро сменяющиеся кадры могли сохранять отдельные фазы одного процесса.\n\nВ 1880-е Этьен-Жюль Марэ развивал хронофотографию и стремился фиксировать движение как последовательность кадров. Параллельно фотография становилась удобнее для массового применения. Появлялась гибкая пленочная среда, на которой можно было записывать последовательности изображений.\n\nВ лаборатории Томаса Эдисона Уильям Кеннеди Лори Диксон работал над двумя ключевыми устройствами. Kinetograph записывал движение, а Kinetoscope позволял его просматривать через окуляр. В 1891 году Эдисон публично демонстрировал Kinetoscope, а в 1894 году открылся первый Kinetoscope parlor в Нью-Йорке.\n\nНо здесь уже видна главная проблема. Один человек смотрит в аппарат, а окружающие остаются зрителями зрителя. Технология умеет записывать движение, но еще не создала общего экрана.\n\nКино поэтому возникло не в один момент. Сошлись фотография, механика, оптика, пленка и бизнес вокруг нового вида развлечения.\n\nСледующий шаг был решающим: превратить движущееся изображение из индивидуального опыта в событие для целого зала.",
+      "story_state": {
+        "series_id": "telegram-series-cinema-003",
+        "title": "Развитие кинематографа",
+        "central_question": "Как кино прошло путь от фотографического эксперимента до цифрового медиума, который можно смотреть почти где угодно?",
+        "established": [
+          "Последовательная фотография позволила фиксировать отдельные фазы движения.",
+          "Хронофотография развивала запись движения как последовательности кадров.",
+          "Kinetograph и Kinetoscope разделили запись и индивидуальный просмотр движущегося изображения.",
+          "К 1894 году существовали коммерческие Kinetoscope parlors."
+        ],
+        "unresolved": [
+          "Как движущееся изображение превратилось из индивидуального просмотра в публичный кинопоказ?"
+        ],
+        "next_required_transition": "Показать переход от индивидуального просмотра к проекции на общий экран и публичному сеансу.",
+        "used_examples": [
+          "The Horse in Motion",
+          "Kinetograph",
+          "Kinetoscope",
+          "Kinetoscope parlor"
+        ],
+        "claims": [
+          "cin1-muybridge",
+          "cin1-marey",
+          "cin1-edison",
+          "cin1-parlor"
+        ],
+        "evidence": [
+          "ev-cin1-muybridge",
+          "ev-cin1-marey",
+          "ev-cin1-edison",
+          "ev-cin1-parlor"
+        ]
+      },
+      "claims": [
+        {
+          "id": "cin1-muybridge",
+          "text": "В 1878 году Эдвард Майбридж создал последовательности фотографий, фиксировавшие отдельные фазы движения лошади.",
+          "source_ids": [
+            "src-loc-muybridge"
+          ],
+          "evidence_ids": [
+            "ev-cin1-muybridge"
+          ]
+        },
+        {
+          "id": "cin1-marey",
+          "text": "В 1882 году Этьен-Жюль Марэ развивал хронофотографию как способ фиксировать последовательные фазы движения.",
+          "source_ids": [
+            "src-loc-earlycinema"
+          ],
+          "evidence_ids": [
+            "ev-cin1-marey"
+          ]
+        },
+        {
+          "id": "cin1-edison",
+          "text": "В лаборатории Эдисона Уильям Кеннеди Лори Диксон работал над Kinetograph для записи движения и Kinetoscope для индивидуального просмотра.",
+          "source_ids": [
+            "src-loc-edison"
+          ],
+          "evidence_ids": [
+            "ev-cin1-edison"
+          ]
+        },
+        {
+          "id": "cin1-parlor",
+          "text": "Первый Kinetoscope parlor открылся в Нью-Йорке 14 апреля 1894 года.",
+          "source_ids": [
+            "src-loc-edison-early"
+          ],
+          "evidence_ids": [
+            "ev-cin1-parlor"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "src-loc-muybridge",
+          "title": "Library of Congress — The Horse in Motion",
+          "url": "https://www.loc.gov/item/2005684184/"
+        },
+        {
+          "id": "src-loc-earlycinema",
+          "title": "Library of Congress — Early Cinema",
+          "url": "https://guides.loc.gov/chronicling-america-early-cinema"
+        },
+        {
+          "id": "src-loc-edison",
+          "title": "Library of Congress — History of Edison Motion Pictures",
+          "url": "https://www.loc.gov/collections/edison-company-motion-pictures-and-sound-recordings/articles-and-essays/history-of-edison-motion-pictures/"
+        },
+        {
+          "id": "src-loc-edison-early",
+          "title": "Library of Congress — Early Motion Picture Productions",
+          "url": "https://www.loc.gov/collections/edison-company-motion-pictures-and-sound-recordings/articles-and-essays/history-of-edison-motion-pictures/early-motion-picture-productions/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "ev-cin1-muybridge",
+          "source_id": "src-loc-muybridge",
+          "excerpt": "Library of Congress dates Muybridge's Horse in Motion series to 1878 and describes successive photographs showing phases of a horse's movement."
+        },
+        {
+          "id": "ev-cin1-marey",
+          "source_id": "src-loc-earlycinema",
+          "excerpt": "Library of Congress timeline states that E.J. Marey developed a chronophotographic camera in 1882."
+        },
+        {
+          "id": "ev-cin1-edison",
+          "source_id": "src-loc-edison",
+          "excerpt": "Library of Congress identifies the Kinetograph as a motion picture camera and the Kinetoscope as a peephole motion picture viewer developed in Edison's work."
+        },
+        {
+          "id": "ev-cin1-parlor",
+          "source_id": "src-loc-edison-early",
+          "excerpt": "Library of Congress records the opening of the first Kinetoscope parlor on April 14, 1894, in New York."
+        }
+      ],
+      "publication": {
+        "status": "PENDING",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
     },
     {
       "episode": 2,
@@ -37,7 +159,14 @@
       "claims": [],
       "sources": [],
       "evidence": [],
-      "publication": {"status": "PLANNED", "confirmed_by": null, "confirmed_at": null, "external_message_id": null, "external_url": null, "published_at": null}
+      "publication": {
+        "status": "PLANNED",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
     },
     {
       "episode": 3,
@@ -52,7 +181,14 @@
       "claims": [],
       "sources": [],
       "evidence": [],
-      "publication": {"status": "PLANNED", "confirmed_by": null, "confirmed_at": null, "external_message_id": null, "external_url": null, "published_at": null}
+      "publication": {
+        "status": "PLANNED",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
     },
     {
       "episode": 4,
@@ -67,7 +203,14 @@
       "claims": [],
       "sources": [],
       "evidence": [],
-      "publication": {"status": "PLANNED", "confirmed_by": null, "confirmed_at": null, "external_message_id": null, "external_url": null, "published_at": null}
+      "publication": {
+        "status": "PLANNED",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
     },
     {
       "episode": 5,
@@ -82,7 +225,14 @@
       "claims": [],
       "sources": [],
       "evidence": [],
-      "publication": {"status": "PLANNED", "confirmed_by": null, "confirmed_at": null, "external_message_id": null, "external_url": null, "published_at": null}
+      "publication": {
+        "status": "PLANNED",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
     },
     {
       "episode": 6,
@@ -97,7 +247,14 @@
       "claims": [],
       "sources": [],
       "evidence": [],
-      "publication": {"status": "PLANNED", "confirmed_by": null, "confirmed_at": null, "external_message_id": null, "external_url": null, "published_at": null}
+      "publication": {
+        "status": "PLANNED",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
     },
     {
       "episode": 7,
@@ -112,7 +269,14 @@
       "claims": [],
       "sources": [],
       "evidence": [],
-      "publication": {"status": "PLANNED", "confirmed_by": null, "confirmed_at": null, "external_message_id": null, "external_url": null, "published_at": null}
+      "publication": {
+        "status": "PLANNED",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
     },
     {
       "episode": 8,
@@ -127,7 +291,14 @@
       "claims": [],
       "sources": [],
       "evidence": [],
-      "publication": {"status": "PLANNED", "confirmed_by": null, "confirmed_at": null, "external_message_id": null, "external_url": null, "published_at": null}
+      "publication": {
+        "status": "PLANNED",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
     },
     {
       "episode": 9,
@@ -142,7 +313,13 @@
       "claims": [],
       "sources": [],
       "evidence": [],
-      "publication": {"status": "PLANNED", "confirmed_by": null, "external_message_id": null, "external_url": null, "published_at": null}
+      "publication": {
+        "status": "PLANNED",
+        "confirmed_by": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
     },
     {
       "episode": 10,
@@ -157,7 +334,13 @@
       "claims": [],
       "sources": [],
       "evidence": [],
-      "publication": {"status": "PLANNED", "confirmed_by": null, "external_message_id": null, "external_url": null, "published_at": null}
+      "publication": {
+        "status": "PLANNED",
+        "confirmed_by": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
     }
   ],
   "updated_at": "2026-10-05"
