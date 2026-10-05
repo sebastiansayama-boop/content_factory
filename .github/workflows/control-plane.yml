@@ -34,7 +34,7 @@ jobs:
             sleep 2
           done
       - name: Pull editorial model
-        run: ollama pull llama3.2:1b
+        run: ollama pull qwen2.5:1.5b
       - name: Parse command
         id: command
         env:
@@ -51,7 +51,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          OLLAMA_MODEL: llama3.2:1b
+          OLLAMA_MODEL: qwen2.5:1.5b
           OLLAMA_ENDPOINT: http://127.0.0.1:11434/api/generate
           OLLAMA_TIMEOUT: "300"
         run: python scripts/control_plane.py execute
