@@ -17,6 +17,7 @@ COMMANDS = {
     'telegram-series-episode-2': ['python','-m','pytest','-s','-q','tests/test_telegram_historical_material_smoke.py::test_real_telegram_series_episode_2_continuity','-m','external'],
     'telegram-series-episode-4': ['python','-m','pytest','-s','-q','tests/test_telegram_historical_material_smoke.py::test_real_telegram_series_continuity','-m','external'],
     'telegram-series-episode-4-retry': ['python','-m','pytest','-s','-q','tests/test_telegram_historical_material_smoke.py::test_real_telegram_series_episode_4_continuity','-m','external'],
+    'telegram-greek-pantheon-episode-1': ['python','-m','pytest','-s','-q','tests/test_telegram_greek_pantheon_editorial_smoke.py::test_real_telegram_greek_pantheon_editorial_smoke','-m','external'],
 }
 def parse():
     title = os.environ.get('ISSUE_TITLE','')
@@ -33,7 +34,7 @@ def execute():
     command = os.environ.get('CONTROL_COMMAND','').strip().lower()
     # External commands have side effects (notably Telegram publication).
     # Re-running the same GitHub Actions attempt must never publish again.
-    external_commands = {'telegram-test', 'telegram-matrix-5', 'publication-test', 'editorial-test', 'telegram-series-episode-2', 'telegram-series-episode-4'}
+    external_commands = {'telegram-test', 'telegram-matrix-5', 'publication-test', 'editorial-test', 'telegram-series-episode-2', 'telegram-series-episode-4', 'telegram-greek-pantheon-episode-1'}
 
     if not command:
         title = os.environ.get('ISSUE_TITLE','')
