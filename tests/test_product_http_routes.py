@@ -520,6 +520,8 @@ def _server(tmp_path, monkeypatch):
     monkeypatch.setenv("FACTORY_API_TOKEN", "e2e-token")
     monkeypatch.setenv("FACTORY_TELEGRAM_FAKE", "1")
     monkeypatch.setattr(ProductHandler, "_rate_limited", lambda *args, **kwargs: False)
+    ProductHandler._authorized_requests.clear()
+    ProductHandler._auth_failures.clear()
     monkeypatch.setenv("TELEGRAM_CHAT_ID", "fake-chat")
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
