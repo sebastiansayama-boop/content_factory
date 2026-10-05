@@ -929,7 +929,7 @@
       "planned_scope": "Italian Neorealism: Rome, Open City и Bicycle Thieves; работа на улицах и непрофессиональные актеры; переход к авторскому кино и French New Wave.",
       "editorial_goal": "Показать расхождение с конвейерным студийным фильмом и усиление режиссерского голоса.",
       "next_transition": "Но кино одновременно боролось за зрителя с телевидением и поэтому стало шире, громче и технологичнее.",
-      "status": "READY_FOR_PUBLICATION",
+      "status": "PUBLISHED",
       "text": "После Второй мировой войны кино столкнулось сразу с несколькими изменениями. У зрителей менялась повседневная жизнь, а режиссеры во многих странах искали новый способ говорить о реальности.\n\nВ Италии возник неореализм. «Рим, открытый город» Роберто Росселлини 1945 года и «Похитители велосипедов» Витторио Де Сики 1948 года показывали послевоенную жизнь не как декорацию для героического сюжета, а как среду, в которой люди действительно жили.\n\nДля этого использовали улицы, реальные городские пространства и, в ряде случаев, непрофессиональных актеров. BFI характеризует «Похитителей велосипедов» как ключевую работу итальянского неореализма.\n\nМенялось и представление о самом режиссере. Фильм все чаще воспринимался не только как продукт студии, но и как произведение с узнаваемым авторским почерком.\n\nВ 1950-е этот импульс продолжился в других странах. Во Франции молодые режиссеры, которых позже объединят под названием French New Wave, сознательно нарушали часть привычных производственных и повествовательных правил. Одновременно они относились к истории кино как к материалу, с которым можно спорить и экспериментировать.\n\nЭти движения не отменили массовое кино. Они расширили представление о том, каким вообще может быть фильм.\n\nНо индустрия решала другой, вполне практический вопрос. Телевизор становился привычным домашним экраном. Чтобы вернуть зрителя в кинотеатр, нужно было дать ему то, чего дома пока не было: масштаб, зрелище и техническое впечатление.",
       "story_state": {
         "series_id": "telegram-series-cinema-003",
@@ -1052,12 +1052,12 @@
         }
       ],
       "publication": {
-        "status": "PENDING",
-        "confirmed_by": null,
-        "confirmed_at": null,
-        "external_message_id": null,
-        "external_url": null,
-        "published_at": null
+        "status": "PUBLISHED",
+        "confirmed_by": "github-actions",
+        "confirmed_at": "2026-10-05",
+        "external_message_id": "152",
+        "external_url": "https://t.me/AtlasOpenLab/152",
+        "published_at": "2026-10-05T11:04:07Z"
       },
       "publication_attempt": 1
     },
@@ -1068,19 +1068,132 @@
       "planned_scope": "CinemaScope, VistaVision, 70mm, эпическое зрелище 1950-х; затем Jaws и Star Wars как модель современного блокбастера; развитие визуальных эффектов.",
       "editorial_goal": "Связать технологический ответ на ТВ с новой экономикой крупного фильма и культурой франшиз.",
       "next_transition": "К 1990-м компьютерная графика перестала быть только эффектом и стала частью самого производства изображения.",
-      "status": "PLANNED",
-      "text": null,
-      "story_state": null,
-      "claims": [],
-      "sources": [],
-      "evidence": [],
+      "status": "READY_FOR_PUBLICATION",
+      "text": "Телевидение изменило не только привычки зрителей. Оно заставило киноиндустрию заново объяснить, зачем нужен большой экран.\n\nВ 1950-е появились сразу несколько широкоформатных систем. CinemaScope был коммерчески представлен в 1953 году. VistaVision использовал 35-миллиметровую пленку в горизонтальной ориентации, чтобы получить более широкое изображение. Параллельно развивались Cinerama и 70-миллиметровые процессы.\n\nСмысл был понятен: если дома у зрителя появился маленький экран, кинотеатр должен предлагать опыт, который трудно заменить.\n\nШирокий экран стал частью новой культуры зрелища. Крупные постановки, мюзиклы и эпические фильмы все чаще строились вокруг масштаба изображения.\n\nПозже эту логику усилил блокбастер. «Челюсти» 1975 года и «Звездные войны» 1977 года стали важными примерами кино, которое сочетало сильную массовую привлекательность с крупным прокатным запуском, узнаваемым визуальным миром и мощным маркетингом. Library of Congress отмечает, что успех «Звездных войн» повлиял на экономическую модель студий и вывел спецэффекты и звук на новый уровень внимания.\n\nОсобенно важным стало то, что спецэффект перестал быть незаметной техникой внутри фильма. Он сам становился причиной, по которой зритель хотел увидеть фильм на большом экране.\n\nСледующий перелом был еще глубже. Компьютер начал менять не только эффект, но и само изображение.",
+      "story_state": {
+        "series_id": "telegram-series-cinema-003",
+        "title": "Развитие кинематографа",
+        "central_question": "Как кино прошло путь от фотографического эксперимента до цифрового медиума, который можно смотреть почти где угодно?",
+        "established": [
+          "Телевидение заставило киноиндустрию усиливать различие между домашним экраном и кинотеатром.",
+          "CinemaScope, VistaVision и другие форматы расширили изображение и сделали масштаб частью кинотеатрального опыта.",
+          "Jaws и Star Wars стали важными примерами современной блокбастерной модели.",
+          "Спецэффекты и звук стали самостоятельной частью зрелищной привлекательности."
+        ],
+        "unresolved": [
+          "Что произойдет, когда компьютер начнет создавать и обрабатывать само изображение, а фильм перестанет зависеть от фотопленки?"
+        ],
+        "next_required_transition": "Показать переход к цифровому производству, компьютерной анимации и потоковой доставке.",
+        "used_examples": [
+          "CinemaScope",
+          "VistaVision",
+          "Jaws",
+          "Star Wars"
+        ],
+        "claims": [
+          "cin9-cinemascope",
+          "cin9-vistavision",
+          "cin9-tv",
+          "cin9-starwars"
+        ],
+        "evidence": [
+          "ev-cin9-cinemascope",
+          "ev-cin9-vistavision",
+          "ev-cin9-tv",
+          "ev-cin9-starwars"
+        ]
+      },
+      "claims": [
+        {
+          "id": "cin9-cinemascope",
+          "text": "CinemaScope был коммерчески представлен в 1953 году.",
+          "source_ids": [
+            "src-loc-formats"
+          ],
+          "evidence_ids": [
+            "ev-cin9-cinemascope"
+          ]
+        },
+        {
+          "id": "cin9-vistavision",
+          "text": "VistaVision использовал горизонтальную ориентацию 35-миллиметровой пленки для получения широкого изображения.",
+          "source_ids": [
+            "src-loc-vistavision"
+          ],
+          "evidence_ids": [
+            "ev-cin9-vistavision"
+          ]
+        },
+        {
+          "id": "cin9-tv",
+          "text": "Широкоформатные системы стали частью ответа киноиндустрии на конкуренцию телевидения и стремления сохранить привлекательность кинотеатрального просмотра.",
+          "source_ids": [
+            "src-loc-vistavision",
+            "src-loc-formats"
+          ],
+          "evidence_ids": [
+            "ev-cin9-tv"
+          ]
+        },
+        {
+          "id": "cin9-starwars",
+          "text": "Успех Star Wars 1977 года повлиял на экономическую модель студий и усилил значение спецэффектов и звука в массовом кино.",
+          "source_ids": [
+            "src-loc-starwars"
+          ],
+          "evidence_ids": [
+            "ev-cin9-starwars"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "src-loc-formats",
+          "title": "Library of Congress — All About Film Formats",
+          "url": "https://blogs.loc.gov/now-see-hear/2023/10/for-your-consideration-all-about-film-formats/"
+        },
+        {
+          "id": "src-loc-vistavision",
+          "title": "Library of Congress — VistaVision",
+          "url": "https://blogs.loc.gov/now-see-hear/2026/06/one-format-after-another-vistavision-in-the-librarys-collection/"
+        },
+        {
+          "id": "src-loc-starwars",
+          "title": "Library of Congress — Star Wars",
+          "url": "https://blogs.loc.gov/now-see-hear/2023/05/a-big-day-around-here/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "ev-cin9-cinemascope",
+          "source_id": "src-loc-formats",
+          "excerpt": "Library of Congress dates the commercial introduction of CinemaScope to 1953."
+        },
+        {
+          "id": "ev-cin9-vistavision",
+          "source_id": "src-loc-vistavision",
+          "excerpt": "Library of Congress describes VistaVision's horizontal use of 35mm film and its wide-screen presentation."
+        },
+        {
+          "id": "ev-cin9-tv",
+          "source_id": "src-loc-formats",
+          "excerpt": "Library of Congress's history of film formats discusses widescreen systems in the context of changing exhibition and competition from television."
+        },
+        {
+          "id": "ev-cin9-starwars",
+          "source_id": "src-loc-starwars",
+          "excerpt": "Library of Congress discusses the importance of Star Wars to studio economics, visual effects and sound."
+        }
+      ],
       "publication": {
-        "status": "PLANNED",
+        "status": "PENDING",
         "confirmed_by": null,
+        "confirmed_at": null,
         "external_message_id": null,
         "external_url": null,
         "published_at": null
-      }
+      },
+      "publication_attempt": 1
     },
     {
       "episode": 10,
