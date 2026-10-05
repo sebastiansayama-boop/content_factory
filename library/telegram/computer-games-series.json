@@ -638,7 +638,165 @@
       "central_question": "Как Nintendo изменила представление о домашней видеоигре?",
       "planned_scope": "Famicom/NES, контроль качества, Super Mario Bros., дизайн уровней и превращение игры в культурный продукт.",
       "next_question": "Почему игры начали становиться не только развлечением, но и отдельным программным жанром на компьютерах?",
-      "status": "PLANNED"
+      "status": "PUBLISH_REQUESTED",
+      "text": "После краха 1983 года американский рынок домашних видеоигр оказался в глубоком кризисе. Магазины не хотели снова заполнять полки консолями, а покупатели уже не доверяли обещаниям производителей.\n\nВ Японии ситуация была другой. Nintendo продолжала развивать Famicom — консоль, которую выпустила в 1983 году. Но компания понимала, что одной хорошей приставки недостаточно. После американского кризиса доверие к самому рынку видеоигр нужно было восстановить.\n\nКогда Nintendo готовила выход Famicom в США, она постаралась сделать систему непохожей на прежние игровые приставки. Так появилась новая версия — Nintendo Entertainment System, или NES. Её оформили скорее как домашнюю электронику, а не как обычную игровую консоль.\n\nНо важнее был другой принцип: Nintendo решила контролировать качество игр, выходящих для системы.\n\nПроизводители не могли просто выпустить картридж для NES. Nintendo создала лицензионную систему, а в американской версии консоли использовала специальный механизм, который ограничивал работу с нелицензионными картриджами. Это позволяло компании проверять игры до выхода и одновременно контролировать производство картриджей.\n\nРешение было прямым ответом на урок предыдущего кризиса: если на одной платформе появляется слишком много плохих игр, страдает не только отдельная игра — страдает доверие ко всей платформе.\n\nНо одной защиты от плохих игр было мало.\n\nNintendo нужен был продукт, который покажет, что домашняя игра может быть сложнее и интереснее старых аркадных автоматов.\n\nВ 1985 году таким продуктом стала Super Mario Bros.\n\nМарио уже был известен игрокам по Donkey Kong и другим играм Nintendo. Но Super Mario Bros. была создана именно как большая домашняя игра. Игрок проходил последовательность уровней, учился новым механикам, находил секреты и постепенно становился лучше.\n\nЭто меняло само представление о том, какой может быть консольная игра.\n\nРаньше автомат должен был заинтересовать человека на несколько минут и заставить бросить ещё одну монету. Домашняя игра могла строить опыт на часах прохождения. Она могла запоминаться, удивлять скрытыми маршрутами и постепенно обучать игрока.\n\nИ Nintendo продавала уже не только саму консоль.\n\nПоявилась связка: игровая система, контролируемые игры, узнаваемые персонажи и собственные серии, к которым игрок хотел возвращаться.\n\nВ 1985 году NES вышла в Северной Америке. Рынок, который после кризиса считался почти разрушенным, начал восстанавливаться.\n\nNintendo не изобрела домашние видеоигры. И она не была единственной компанией, которая работала над их развитием.\n\nНо после кризиса Nintendo изменила правила игры: важными стали не только железо и продажи консоли, но и контроль качества, дизайн игр и доверие к самой платформе.\n\nСледующий вопрос возник уже на другом фронте: если консоли превращались в специализированные игровые машины, что происходило с компьютерами?",
+      "story_state": {
+        "series_id": "telegram-series-computer-games-001",
+        "title": "История создания компьютерных игр",
+        "central_question": "Как Nintendo изменила представление о домашней видеоигре?",
+        "established": [
+          "Ранние игры прошли путь от лабораторных экспериментов к аркадной модели.",
+          "Pong показал коммерческий потенциал массовых аркад.",
+          "Magnavox Odyssey и последующие консоли перенесли игры в дом.",
+          "Atari VCS превратила консоль в платформу со сменными картриджами.",
+          "Перепроизводство игр, слабый контроль качества и конкуренция домашних компьютеров contributed to the 1983 crash.",
+          "Nintendo использовала Famicom как основу для новой модели домашней игровой системы.",
+          "NES и лицензионная модель позволили Nintendo контролировать качество программного обеспечения для платформы."
+        ],
+        "unresolved": [
+          "Почему игры на домашних компьютерах стали развиваться независимо от консольной модели?"
+        ],
+        "next_required_transition": "Показать, как Apple II, Commodore 64 и IBM PC превратили компьютер из универсального устройства в самостоятельную игровую платформу.",
+        "used_examples": [
+          "Famicom",
+          "Nintendo Entertainment System",
+          "Super Mario Bros.",
+          "Nintendo licensing system"
+        ],
+        "claims": [
+          "claim-famicom",
+          "claim-nes-america",
+          "claim-quality-control",
+          "claim-super-mario",
+          "claim-platform-model"
+        ],
+        "evidence": [
+          "evidence-famicom",
+          "evidence-nes-america",
+          "evidence-quality-control",
+          "evidence-super-mario",
+          "evidence-platform-model"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-famicom",
+          "text": "Nintendo выпустила Family Computer (Famicom) в Японии в 1983 году как домашнюю консоль со сменными картриджами.",
+          "source_ids": [
+            "source-nintendo-history",
+            "source-chm-nes"
+          ],
+          "evidence_ids": [
+            "evidence-famicom"
+          ]
+        },
+        {
+          "id": "claim-nes-america",
+          "text": "В 1985 году Nintendo выпустила в Северной Америке Nintendo Entertainment System, адаптировав Famicom для американского рынка.",
+          "source_ids": [
+            "source-nintendo-history",
+            "source-chm-nes"
+          ],
+          "evidence_ids": [
+            "evidence-nes-america"
+          ]
+        },
+        {
+          "id": "claim-quality-control",
+          "text": "Nintendo разработала лицензионную систему и технические ограничения для нелицензионных картриджей, чтобы контролировать качество программного обеспечения и ограничивать пиратство.",
+          "source_ids": [
+            "source-smithsonian-nes",
+            "source-nintendo-license"
+          ],
+          "evidence_ids": [
+            "evidence-quality-control"
+          ]
+        },
+        {
+          "id": "claim-super-mario",
+          "text": "Super Mario Bros. вышла для Famicom и NES в 1985 году и стала одним из ключевых программных продуктов, помогших NES привлечь массовую аудиторию.",
+          "source_ids": [
+            "source-nintendo-history",
+            "source-nintendo-mario",
+            "source-chm-nes"
+          ],
+          "evidence_ids": [
+            "evidence-super-mario"
+          ]
+        },
+        {
+          "id": "claim-platform-model",
+          "text": "Nintendo связала консоль, контролируемое программное обеспечение и собственные игровые серии в единую платформенную модель, помогшую восстановить доверие к домашним видеоиграм.",
+          "source_ids": [
+            "source-smithsonian-nes",
+            "source-nintendo-quality"
+          ],
+          "evidence_ids": [
+            "evidence-platform-model"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-nintendo-history",
+          "title": "Nintendo — Famicom History",
+          "url": "https://www.nintendo.com/jp/famicom/history/index.html"
+        },
+        {
+          "id": "source-nintendo-mario",
+          "title": "Nintendo Iwata Asks — Super Mario Bros. 25th Anniversary",
+          "url": "https://www.nintendo.com/en-gb/Iwata-Asks/Super-Mario-Bros-25th-Anniversary/Vol-2-NES-Mario/5-A-Game-You-Can-Play-Years-Later/5-A-Game-You-Can-Play-Years-Later-216192.html"
+        },
+        {
+          "id": "source-nintendo-quality",
+          "title": "Nintendo Iwata Asks — The Troubled Early Days of Famicom",
+          "url": "https://www.nintendo.com/en-gb/Iwata-Asks/Super-Mario-Bros-25th-Anniversary/Vol-2-NES-Mario/3-The-Troubled-Early-Days-of-Famicom/3-The-Troubled-Early-Days-of-Famicom-216092.html"
+        },
+        {
+          "id": "source-nintendo-license",
+          "title": "Nintendo Support — Licensed and Unlicensed Products",
+          "url": "https://en-americas-support.nintendo.com/app/answers/detail/a_id/5066/~/licensed-and-unlicensed-nintendo-products"
+        },
+        {
+          "id": "source-smithsonian-nes",
+          "title": "Smithsonian National Museum of American History — Nintendo Entertainment System",
+          "url": "https://americanhistory.si.edu/collections/nmah_1436726"
+        },
+        {
+          "id": "source-chm-nes",
+          "title": "Computer History Museum — Nintendo Entertainment System",
+          "url": "https://www.computerhistory.org/revolution/computer-games/16/194/807"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-famicom",
+          "source_id": "source-nintendo-history",
+          "excerpt": "Nintendo records the Family Computer as released in Japan on July 15, 1983, with interchangeable cartridges as a central feature."
+        },
+        {
+          "id": "evidence-nes-america",
+          "source_id": "source-chm-nes",
+          "excerpt": "Computer History Museum records Famicom's 1983 Japanese release and the 1985 US release under the Nintendo Entertainment System name."
+        },
+        {
+          "id": "evidence-quality-control",
+          "source_id": "source-smithsonian-nes",
+          "excerpt": "Smithsonian describes the NES lockout chip and approval requirement for cartridges as measures Nintendo used to achieve quality control and suppress piracy."
+        },
+        {
+          "id": "evidence-super-mario",
+          "source_id": "source-nintendo-mario",
+          "excerpt": "Nintendo's retrospective describes Super Mario Bros. as a home-focused game released in 1985 and links its success to Nintendo's renewed appeal."
+        },
+        {
+          "id": "evidence-platform-model",
+          "source_id": "source-nintendo-quality",
+          "excerpt": "Nintendo's own account explains that uncontrolled third-party cartridges created quality problems after the Famicom launch and led Nintendo to establish a licensing system under which Nintendo manufactured cartridges and guaranteed their quality."
+        }
+      ],
+      "publication": null,
+      "publication_attempt": 1
     },
     {
       "episode": 6,
@@ -681,6 +839,6 @@
       "status": "PLANNED"
     }
   ],
-  "current_episode": 4,
+  "current_episode": 5,
   "updated_at": "2026-10-05"
 }
