@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from .asset_registry import AssetRegistry
+from .claim_strength_qc import assess_claims
 
 
 class AssemblyError(ValueError):
@@ -254,6 +255,30 @@ class QualityGate:
                 claim_evidence_ok,
                 "every lineage claim has resolvable evidence",
                 [ref for claim_id, claim in flow_claims.items() for ref in (claim_id, *(claim.get("evidence_ids") or []))],
+            )
+
+            claim_assessments = assess_claims(
+                list(flow_claims.values()),
+                evidence_items=list(flow_evidence.values()),
+                source_items=[
+                    item for item in (flow or {}).get("sources", [])
+                    if isinstance(item, dict)
+                ],
+            )
+            blocked_claims = [
+                item for item in claim_assessments
+                if item.verdict != "PASS"
+            ]
+            check(
+                "claim_evidence_strength",
+                not blocked_claims,
+                "claim strength does not exceed evidence strength"
+                if not blocked_claims
+                else "claims require editorial repair: " + ", ".join(
+                    f"{item.claim_id}:{item.verdict}:{item.repair_action}"
+                    for item in blocked_claims
+                ),
+                [item.claim_id for item in claim_assessments if item.claim_id],
             )
 
             script_claim_refs = {
