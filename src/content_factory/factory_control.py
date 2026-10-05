@@ -94,6 +94,23 @@ class FactoryControlStore:
                 created_at TEXT NOT NULL
             );
 
+            CREATE TABLE IF NOT EXISTS experience_records (
+                example_id TEXT PRIMARY KEY,
+                run_id TEXT NOT NULL,
+                prompt_json TEXT NOT NULL,
+                context_json TEXT NOT NULL,
+                generated_json TEXT NOT NULL,
+                decision TEXT NOT NULL,
+                final_json TEXT,
+                edits_json TEXT NOT NULL,
+                reason TEXT NOT NULL,
+                qc_json TEXT NOT NULL,
+                provenance_json TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_experience_records_run
+                ON experience_records(run_id, created_at);
+            
             CREATE TABLE IF NOT EXISTS learning_candidates (
                 learning_id TEXT PRIMARY KEY,
                 run_id TEXT NOT NULL,
@@ -164,6 +181,85 @@ class FactoryControlStore:
                 evidence=json.loads(row["evidence_json"]),
                 created_at=row["created_at"],
             )
+            for row in rows
+        ]
+
+    def record_experience(
+        self,
+        *,
+        run_id: str,
+        prompt: dict[str, Any] | str,
+        context: dict[str, Any] | None = None,
+        generated: dict[str, Any] | str,
+        decision: str,
+        final: dict[str, Any] | str | None = None,
+        edits: list[dict[str, Any]] | None = None,
+        reason: str = "",
+        qc: dict[str, Any] | None = None,
+        provenance: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        decision = decision.strip().upper()
+        if decision not in {"ACCEPT", "EDIT", "REGENERATE", "REJECT"}:
+            raise ValueError("experience decision must be ACCEPT, EDIT, REGENERATE, or REJECT")
+        if not run_id.strip():
+            raise ValueError("run_id is required")
+        example_id = f"ex-{uuid4()}"
+        now = _now()
+        record = {
+            "example_id": example_id,
+            "run_id": run_id,
+            "prompt": prompt,
+            "context": context or {},
+            "generated": generated,
+            "decision": decision,
+            "final": final,
+            "edits": edits or [],
+            "reason": reason.strip(),
+            "qc": qc or {},
+            "provenance": provenance or {"run_id": run_id},
+            "created_at": now,
+        }
+        with self.db:
+            self.db.execute(
+                """INSERT INTO experience_records
+                (example_id, run_id, prompt_json, context_json, generated_json, decision,
+                 final_json, edits_json, reason, qc_json, provenance_json, created_at)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (
+                    example_id, run_id, _json(prompt), _json(record["context"]),
+                    _json(generated), decision,
+                    _json(final) if final is not None else None,
+                    _json(record["edits"]), record["reason"], _json(record["qc"]),
+                    _json(record["provenance"]), now,
+                ),
+            )
+        return record
+
+    def list_experiences(self, run_id: str | None = None) -> list[dict[str, Any]]:
+        if run_id:
+            rows = self.db.execute(
+                "SELECT * FROM experience_records WHERE run_id=? ORDER BY created_at, rowid",
+                (run_id,),
+            ).fetchall()
+        else:
+            rows = self.db.execute(
+                "SELECT * FROM experience_records ORDER BY created_at, rowid"
+            ).fetchall()
+        return [
+            {
+                "example_id": row["example_id"],
+                "run_id": row["run_id"],
+                "prompt": json.loads(row["prompt_json"]),
+                "context": json.loads(row["context_json"]),
+                "generated": json.loads(row["generated_json"]),
+                "decision": row["decision"],
+                "final": json.loads(row["final_json"]) if row["final_json"] else None,
+                "edits": json.loads(row["edits_json"]),
+                "reason": row["reason"],
+                "qc": json.loads(row["qc_json"]),
+                "provenance": json.loads(row["provenance_json"]),
+                "created_at": row["created_at"],
+            }
             for row in rows
         ]
 
