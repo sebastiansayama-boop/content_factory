@@ -1160,7 +1160,143 @@
       "central_question": "Как интернет превратил игру из продукта для одного человека в постоянно существующий мир?",
       "planned_scope": "MUDs, LAN, Ultima Online, Counter-Strike, MMORPG и ранние модели сетевой монетизации.",
       "next_question": "Как цифровая дистрибуция изменила способ покупки и распространения игр?",
-      "status": "PLANNED"
+      "status": "PUBLISH_REQUESTED",
+      "text": "До этого игра была программой, которую человек запускал на своём компьютере.\n\nТеперь возникла возможность сделать другое: соединить несколько компьютеров и поместить игроков в одну игру.\n\nПервые эксперименты появились задолго до массового интернета.\n\nВ 1978 году в Университете Эссекса Ричард Бартл и Рой Трабшоу создали MUD1 — текстовую многопользовательскую игру. Несколько человек могли находиться в одном виртуальном пространстве одновременно, исследовать его, общаться и взаимодействовать друг с другом.\n\nЭто было важное изменение.\n\nВ одиночной игре мир существует только во время сеанса одного игрока. В многопользовательской игре часть происходящего зависит уже от других людей.\n\nВ 1980-х такие MUD становились популярнее среди студентов. Одни приходили ради приключений, другие — ради общения. Игра постепенно начинала выполнять сразу две функции: быть развлечением и местом встречи. \n\nНо сеть не обязательно должна была быть далёкой.\n\nВ компьютерных клубах и локальных сетях несколько машин можно было соединить напрямую. Игроки сидели в одной комнате, но каждый управлял своим персонажем и видел тот же матч с собственной точки зрения.\n\nВ 1990-х локальные сети стали особенно важны для шутеров.\n\nDoom позволял играть по сети, а затем Quake сделал сетевой матч ещё быстрее и сложнее. Теперь победа зависела не только от того, насколько хорошо человек освоил игру, но и от того, как он играет против реального соперника.\n\nСледующий шаг оказался гораздо больше.\n\nВ 1997 году Origin выпустила Ultima Online — графическую онлайн-игру, в которой тысячи игроков могли существовать в одном постоянно работающем мире. EA позднее называла её первой широко успешной графической MMORPG; игра стала первой MMORPG, достигшей 100 000 подписчиков.\n\nЗдесь изменилось уже не только количество игроков.\n\nМир продолжал существовать без конкретного игрока. Можно было построить дом, накопить имущество, вступить в конфликт с другим человеком, торговать, создавать предметы или просто проводить время с друзьями. Другие игроки становились частью самой структуры игры.\n\nИменно поэтому онлайн-игра могла удерживать человека гораздо дольше обычной одиночной игры.\n\nНо возникла новая проблема: чем больше людей находится в одном мире, тем важнее становится поведение самих игроков.\n\nРазработчик уже не контролирует каждый сценарий.\n\nИгроки начинают создавать свои правила, команды, стратегии и сообщества.\n\nЭто хорошо видно на Counter-Strike.\n\nВ 1999 году Counter-Strike появился как мод для Half-Life. Его создали не как отдельную большую коммерческую игру, а как пользовательское изменение уже существовавшей игры. Постепенно мод превратился в самостоятельный феномен и сформировал сообщество игроков.\n\nИ здесь произошёл ещё один сдвиг.\n\nРаньше разработчик продавал игроку готовое содержание.\n\nТеперь разработчик создавал систему, внутри которой сами игроки производили значительную часть опыта: соревновались, создавали команды, строили сообщества, придумывали тактики и продолжали возвращаться.\n\nСеть изменила экономику внимания.\n\nИгра больше не обязательно заканчивалась после прохождения последнего уровня. Она могла существовать постоянно, пока существовали серверы и сообщество.\n\nСледующий перелом был уже экономическим.\n\nКогда игры стали постоянно подключёнными, возник вопрос: зачем каждый раз продавать отдельную коробку, если игру можно распространять и обновлять прямо через сеть?",
+      "story_state": {
+        "series_id": "telegram-series-computer-games-001",
+        "title": "История создания компьютерных игр",
+        "central_question": "Как интернет превратил игру из продукта для одного человека в постоянно существующий мир?",
+        "established": [
+          "Ранние игры прошли путь от лабораторных экспериментов к аркадной модели.",
+          "Pong показал коммерческий потенциал массовых аркад.",
+          "Домашние консоли превратили телевизор в игровую платформу.",
+          "Atari VCS закрепила модель платформы со сменными картриджами.",
+          "Кризис 1983 года изменил отношение рынка к качеству и контролю программного обеспечения.",
+          "Nintendo восстановила консольный рынок через контроль качества и сильные игровые серии.",
+          "PC-среда сформировала собственные жанры, модели распространения и культуру модификаций.",
+          "3D сделало игровое пространство более сложным и подготовило игры к масштабному сетевому взаимодействию.",
+          "MUD1 показал, что несколько игроков могут одновременно существовать в одном виртуальном пространстве.",
+          "Ultima Online показала коммерческий потенциал постоянно существующего графического многопользовательского мира.",
+          "Counter-Strike показал, как пользовательская модификация может превратиться в самостоятельное соревновательное сообщество."
+        ],
+        "unresolved": [
+          "Как цифровая дистрибуция изменила способ покупки и распространения игр?"
+        ],
+        "next_required_transition": "Показать переход от физических носителей к цифровой дистрибуции, Steam, App Store и моделям free-to-play и live service.",
+        "used_examples": [
+          "MUD1",
+          "Doom",
+          "Quake",
+          "Ultima Online",
+          "Counter-Strike"
+        ],
+        "claims": [
+          "claim-mud1",
+          "claim-ultima-online",
+          "claim-lan-multiplayer",
+          "claim-counter-strike"
+        ],
+        "evidence": [
+          "evidence-mud1",
+          "evidence-ultima-online",
+          "evidence-lan-multiplayer",
+          "evidence-counter-strike"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-mud1",
+          "text": "В 1978 году Ричард Бартл и Рой Трабшоу создали MUD1 в Университете Эссекса; игра позволяла нескольким людям одновременно находиться в одном текстовом виртуальном пространстве.",
+          "source_ids": [
+            "source-chm-mud"
+          ],
+          "evidence_ids": [
+            "evidence-mud1"
+          ]
+        },
+        {
+          "id": "claim-ultima-online",
+          "text": "Ultima Online вышла в сентябре 1997 года и стала одной из первых коммерчески успешных графических MMORPG; EA указывает, что она первой в жанре достигла 100 000 подписчиков.",
+          "source_ids": [
+            "source-ea-uo"
+          ],
+          "evidence_ids": [
+            "evidence-ultima-online"
+          ]
+        },
+        {
+          "id": "claim-lan-multiplayer",
+          "text": "Локальные сети сделали сетевую игру доступной в компьютерных клубах и других локальных конфигурациях, а Doom и Quake развивали многопользовательские матчи на PC.",
+          "source_ids": [
+            "source-chm-doom",
+            "source-chm-networking"
+          ],
+          "evidence_ids": [
+            "evidence-lan-multiplayer"
+          ]
+        },
+        {
+          "id": "claim-counter-strike",
+          "text": "В 1999 году Counter-Strike появился как мод для Half-Life и постепенно сформировал самостоятельное игровое сообщество вокруг соревновательного шутера.",
+          "source_ids": [
+            "source-counter-strike"
+          ],
+          "evidence_ids": [
+            "evidence-counter-strike"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-chm-mud",
+          "title": "Computer History Museum — Networking & The Web / MUDs",
+          "url": "https://www.computerhistory.org/timeline/1979/"
+        },
+        {
+          "id": "source-ea-uo",
+          "title": "Electronic Arts — Ultima Online history",
+          "url": "https://ir.ea.com/press-releases/press-release-details/2006/The-Fantasty-Lives-on-as-EA-ships-the-Ultima-OnlineTM-9th-Anniversary-Collection/default.aspx"
+        },
+        {
+          "id": "source-chm-doom",
+          "title": "Computer History Museum — 1993: Doom",
+          "url": "https://www.computerhistory.org/timeline/1993/"
+        },
+        {
+          "id": "source-chm-networking",
+          "title": "Computer History Museum — Networking & The Web",
+          "url": "https://www.computerhistory.org/timeline/networking-the-web/"
+        },
+        {
+          "id": "source-counter-strike",
+          "title": "Counter-Strike — Official History",
+          "url": "https://blog.counter-strike.net/history/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-mud1",
+          "source_id": "source-chm-mud",
+          "excerpt": "Computer History Museum dates MUD1 to 1978 and describes it as a multi-user online game written by Richard Bartle and Roy Trubshaw at the University of Essex; MUDs became popular for adventure gaming and socializing."
+        },
+        {
+          "id": "evidence-ultima-online",
+          "source_id": "source-ea-uo",
+          "excerpt": "EA states that Ultima Online launched in September 1997 and was the first MMORPG to reach a 100,000-subscriber base; it describes the game as a widely successful graphical online role-playing game."
+        },
+        {
+          "id": "evidence-lan-multiplayer",
+          "source_id": "source-chm-doom",
+          "excerpt": "Computer History Museum describes Doom as an influential networked-era PC game with broad distribution and modding; the broader networking history documents the growth of connected personal-computer communities."
+        },
+        {
+          "id": "evidence-counter-strike",
+          "source_id": "source-counter-strike",
+          "excerpt": "The official Counter-Strike history states that in 1999 Counter-Strike was released as a Half-Life mod and developed a dedicated community as it evolved."
+        }
+      ],
+      "publication": null,
+      "publication_attempt": 1
     },
     {
       "episode": 9,
@@ -1179,6 +1315,6 @@
       "status": "PLANNED"
     }
   ],
-  "current_episode": 7,
+  "current_episode": 8,
   "updated_at": "2026-10-05"
 }
