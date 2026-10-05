@@ -6,6 +6,7 @@ from typing import Any
 
 from .asset_registry import AssetRegistry
 from .claim_strength_qc import assess_claims
+from .scope_expansion_qc import assess_scopes
 
 
 class AssemblyError(ValueError):
@@ -281,6 +282,26 @@ class QualityGate:
                 [item.claim_id for item in claim_assessments if item.claim_id],
             )
 
+            scope_assessments = assess_scopes(
+                list(flow_claims.values()),
+                evidence_items=list(flow_evidence.values()),
+            )
+            blocked_scope = [
+                item for item in scope_assessments
+                if item.verdict != "PASS"
+            ]
+            check(
+                "claim_scope_expansion",
+                not blocked_scope,
+                "claim scope does not expand beyond evidence scope"
+                if not blocked_scope
+                else "claims require scope repair: " + ", ".join(
+                    f"{item.claim_id}:{item.verdict}:{item.repair_action}"
+                    for item in blocked_scope
+                ),
+                [item.claim_id for item in scope_assessments if item.claim_id],
+            )
+
             script_claim_refs = {
                 ref
                 for unit in units or []
@@ -388,6 +409,10 @@ class QualityGate:
             "claim_strength_assessments": [
                 item.to_dict()
                 for item in claim_assessments
+            ],
+            "scope_assessments": [
+                item.to_dict()
+                for item in scope_assessments
             ],
             "lineage": {
                 "information_flow_present": flow is not None,
