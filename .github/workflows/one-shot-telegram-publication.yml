@@ -9,7 +9,6 @@ permissions:
 
 jobs:
   publish:
-    if: startsWith(github.event.head_commit.message, 'execute: telegram-free-topic')
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
