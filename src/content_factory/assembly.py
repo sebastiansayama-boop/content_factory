@@ -245,6 +245,9 @@ class QualityGate:
         flow_elements = (flow or {}).get("content_elements", [])
         flow_artifacts = (flow or {}).get("artifacts", [])
 
+        claim_assessments = []
+        scope_assessments = []
+
         if flow is not None:
             claim_evidence_ok = bool(flow_claims) and bool(flow_evidence) and all(
                 isinstance(claim.get("evidence_ids"), list | tuple) and bool(claim.get("evidence_ids"))
@@ -258,7 +261,6 @@ class QualityGate:
                 [ref for claim_id, claim in flow_claims.items() for ref in (claim_id, *(claim.get("evidence_ids") or []))],
             )
 
-            claim_assessments = []
             claim_assessments = assess_claims(
                 list(flow_claims.values()),
                 evidence_items=list(flow_evidence.values()),
