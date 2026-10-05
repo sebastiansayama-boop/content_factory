@@ -83,6 +83,8 @@ Claims must be atomic, source-backed and scoped. Focus only on the basic map of 
 Zeus, Hera, Poseidon, Hades, and the distinction between the Olympian gods and Hades.
 Use reputable public sources and do not invent facts.
 The material must support a 900-1800 character Russian publication.
+USER BRIEF:
+Пантеон богов в Древней Греции, эпизод 1: карта основных богов и устройство пантеона.
 """
     response = research.research(prompt)
     assert 200 <= response.status_code < 300
