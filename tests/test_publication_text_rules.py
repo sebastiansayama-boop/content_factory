@@ -23,6 +23,9 @@ def test_publication_rules_normalize_style_length_tone_and_variation():
     prompt = format_publication_text_rules(rules)
     assert "Variation: story" in prompt
     assert "не используй длинное тире" in prompt.lower()
+    assert "пиши как редактор" in prompt.lower()
+    assert "шаблонную связку" in prompt.lower()
+    assert "сохраняй единый авторский голос серии" in prompt.lower()
 
 
 def test_publication_rules_reject_unsupported_values():
