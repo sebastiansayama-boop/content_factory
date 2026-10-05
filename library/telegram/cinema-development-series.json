@@ -806,7 +806,7 @@
       "planned_scope": "Ранние цветные процессы, Technicolor, three-strip process 1932, The Wizard of Oz и Gone with the Wind.",
       "editorial_goal": "Показать, что цвет сначала был технологическим ограничением, затем инструментом стиля и маркетинга.",
       "next_transition": "Телевидение после Второй мировой войны стало новым конкурентом кино; индустрии пришлось придумать новый масштаб экрана.",
-      "status": "READY_FOR_PUBLICATION",
+      "status": "PUBLISHED",
       "text": "Цвет в кино появился задолго до того, как стал привычным стандартом. Проблема заключалась не в самой идее, а в производстве.\n\nРанние фильмы можно было тонировать и раскрашивать, но это не давало того же результата, что полноценная цветная съемка. Требовались сложные процессы, точный контроль материалов и большие расходы.\n\nTechnicolor прошел несколько этапов развития. В 1922 году компания уже демонстрировала более убедительный цветной кинематограф. В 1932 году появился трехцветный процесс, который стал важным техническим прорывом. Первым фильмом с этим процессом стала мультфильм Disney «Flowers and Trees».\n\nВ конце 1930-х цвет начал работать не только как техническая возможность, но и как художественный инструмент. «Волшебник страны Оз» и «Унесенные ветром» стали знаковыми примерами того, как цвет можно использовать для создания мира, настроения и визуального контраста.\n\nЭто был важный сдвиг. Технология перестала быть просто способом воспроизвести реальность. Она стала частью режиссуры.\n\nЦвет также имел коммерческое значение. Если зритель платит за зрелище, более выразительное изображение помогает отличить кино от повседневной жизни.\n\nНо вскоре у кино появился конкурент, который не требовал похода в зал. После Второй мировой войны телевидение стало входить в дома. Индустрия ответила не отказом от большого экрана, а попыткой сделать его еще более большим и впечатляющим.\n\nТак началась следующая гонка форматов.",
       "story_state": {
         "series_id": "telegram-series-cinema-003",
@@ -913,12 +913,12 @@
         }
       ],
       "publication": {
-        "status": "PENDING",
-        "confirmed_by": null,
-        "confirmed_at": null,
-        "external_message_id": null,
-        "external_url": null,
-        "published_at": null
+        "status": "PUBLISHED",
+        "confirmed_by": "github-actions",
+        "confirmed_at": "2026-10-05",
+        "external_message_id": "151",
+        "external_url": "https://t.me/AtlasOpenLab/151",
+        "published_at": "2026-10-05T11:02:08Z"
       },
       "publication_attempt": 1
     },
@@ -929,20 +929,137 @@
       "planned_scope": "Italian Neorealism: Rome, Open City и Bicycle Thieves; работа на улицах и непрофессиональные актеры; переход к авторскому кино и French New Wave.",
       "editorial_goal": "Показать расхождение с конвейерным студийным фильмом и усиление режиссерского голоса.",
       "next_transition": "Но кино одновременно боролось за зрителя с телевидением и поэтому стало шире, громче и технологичнее.",
-      "status": "PLANNED",
-      "text": null,
-      "story_state": null,
-      "claims": [],
-      "sources": [],
-      "evidence": [],
+      "status": "READY_FOR_PUBLICATION",
+      "text": "После Второй мировой войны кино столкнулось сразу с несколькими изменениями. У зрителей менялась повседневная жизнь, а режиссеры во многих странах искали новый способ говорить о реальности.\n\nВ Италии возник неореализм. «Рим, открытый город» Роберто Росселлини 1945 года и «Похитители велосипедов» Витторио Де Сики 1948 года показывали послевоенную жизнь не как декорацию для героического сюжета, а как среду, в которой люди действительно жили.\n\nДля этого использовали улицы, реальные городские пространства и, в ряде случаев, непрофессиональных актеров. BFI характеризует «Похитителей велосипедов» как ключевую работу итальянского неореализма.\n\nМенялось и представление о самом режиссере. Фильм все чаще воспринимался не только как продукт студии, но и как произведение с узнаваемым авторским почерком.\n\nВ 1950-е этот импульс продолжился в других странах. Во Франции молодые режиссеры, которых позже объединят под названием French New Wave, сознательно нарушали часть привычных производственных и повествовательных правил. Одновременно они относились к истории кино как к материалу, с которым можно спорить и экспериментировать.\n\nЭти движения не отменили массовое кино. Они расширили представление о том, каким вообще может быть фильм.\n\nНо индустрия решала другой, вполне практический вопрос. Телевизор становился привычным домашним экраном. Чтобы вернуть зрителя в кинотеатр, нужно было дать ему то, чего дома пока не было: масштаб, зрелище и техническое впечатление.",
+      "story_state": {
+        "series_id": "telegram-series-cinema-003",
+        "title": "Развитие кинематографа",
+        "central_question": "Как кино прошло путь от фотографического эксперимента до цифрового медиума, который можно смотреть почти где угодно?",
+        "established": [
+          "Итальянский неореализм после войны обратился к повседневной реальности и реальным городским пространствам.",
+          "Rome, Open City и Bicycle Thieves стали ключевыми работами этого направления.",
+          "В ряде фильмов использовались непрофессиональные актеры.",
+          "French New Wave усилила представление о режиссере как об авторе с узнаваемым стилем."
+        ],
+        "unresolved": [
+          "Как конкуренция телевидения изменила масштаб и экономику кинотеатрального фильма?"
+        ],
+        "next_required_transition": "Показать широкоформатные системы 1950-х и формирование современной культуры блокбастеров.",
+        "used_examples": [
+          "Rome, Open City",
+          "Bicycle Thieves",
+          "French New Wave",
+          "The 400 Blows"
+        ],
+        "claims": [
+          "cin8-neorealism",
+          "cin8-bicycle",
+          "cin8-method",
+          "cin8-newwave"
+        ],
+        "evidence": [
+          "ev-cin8-neorealism",
+          "ev-cin8-bicycle",
+          "ev-cin8-method",
+          "ev-cin8-newwave"
+        ]
+      },
+      "claims": [
+        {
+          "id": "cin8-neorealism",
+          "text": "Рим, открытый город Роберто Росселлини 1945 года стал ключевой работой итальянского неореализма.",
+          "source_ids": [
+            "src-bfi-rome"
+          ],
+          "evidence_ids": [
+            "ev-cin8-neorealism"
+          ]
+        },
+        {
+          "id": "cin8-bicycle",
+          "text": "«Похитители велосипедов» Витторио Де Сики 1948 года стали одной из важнейших работ итальянского неореализма.",
+          "source_ids": [
+            "src-bfi-bicycle"
+          ],
+          "evidence_ids": [
+            "ev-cin8-bicycle"
+          ]
+        },
+        {
+          "id": "cin8-method",
+          "text": "Итальянский неореализм часто использовал реальные городские пространства и в ряде случаев непрофессиональных актеров.",
+          "source_ids": [
+            "src-bfi-bicycle"
+          ],
+          "evidence_ids": [
+            "ev-cin8-method"
+          ]
+        },
+        {
+          "id": "cin8-newwave",
+          "text": "«400 ударов» Франсуа Трюффо 1959 года относится к ключевым фильмам French New Wave.",
+          "source_ids": [
+            "src-bfi-newwave",
+            "src-bfi-400"
+          ],
+          "evidence_ids": [
+            "ev-cin8-newwave"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "src-bfi-rome",
+          "title": "BFI — Rome, Open City",
+          "url": "https://www.bfi.org.uk/features/rome-open-city-roberto-rosselinis-great-leap-realism-screen"
+        },
+        {
+          "id": "src-bfi-bicycle",
+          "title": "BFI — Bicycle Thieves",
+          "url": "https://www.bfi.org.uk/film/594f7408-2fdd-55a0-a347-79370e42e0ed/bicycle-thieves"
+        },
+        {
+          "id": "src-bfi-newwave",
+          "title": "BFI — 10 Great French New Wave Films",
+          "url": "https://www.bfi.org.uk/lists/10-great-french-new-wave-films"
+        },
+        {
+          "id": "src-bfi-400",
+          "title": "BFI — The 400 Blows",
+          "url": "https://www.bfi.org.uk/features/400-blows-francois-truffaut-locations"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "ev-cin8-neorealism",
+          "source_id": "src-bfi-rome",
+          "excerpt": "BFI describes Rome, Open City as a landmark of Italian neorealism and discusses its postwar setting and realist approach."
+        },
+        {
+          "id": "ev-cin8-bicycle",
+          "source_id": "src-bfi-bicycle",
+          "excerpt": "BFI identifies Bicycle Thieves as a key Italian neorealist film from 1948."
+        },
+        {
+          "id": "ev-cin8-method",
+          "source_id": "src-bfi-bicycle",
+          "excerpt": "BFI discusses the use of real locations and nonprofessional actors in Bicycle Thieves and the wider neorealist practice."
+        },
+        {
+          "id": "ev-cin8-newwave",
+          "source_id": "src-bfi-newwave",
+          "excerpt": "BFI lists The 400 Blows among significant French New Wave films; its feature on the film dates it to 1959."
+        }
+      ],
       "publication": {
-        "status": "PLANNED",
+        "status": "PENDING",
         "confirmed_by": null,
         "confirmed_at": null,
         "external_message_id": null,
         "external_url": null,
         "published_at": null
-      }
+      },
+      "publication_attempt": 1
     },
     {
       "episode": 9,
