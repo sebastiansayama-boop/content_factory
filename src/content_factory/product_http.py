@@ -576,8 +576,15 @@ class ProductHandler(Handler):
                     platform = str(payload.get("platform") or platform_from_constraints(run.constraints)).strip().lower()
                     current = build_content_package(run_id=run_id, result=run.result or {}, platform=platform)
                 generated_package = dict(current)
-                updated_result, package = apply_package_edit(result=run.result or {}, package=current, patch=payload)
+                edit_result = dict(run.result or {})
+                if not isinstance(edit_result.get("package_generated"), dict):
+                    edit_result["package_generated"] = generated_package
+                updated_result, package = apply_package_edit(result=edit_result, package=current, patch=payload)
                 updated = self.content_runs.save_result_preserving_status(run_id, updated_result)
+                edits = []
+                for key, value in payload.items():
+                    if key in {"title", "text", "media"}:
+                        edits.append({"field": key, "before": generated_package.get(key), "after": value})
                 self.service.control.record_experience(
                     run_id=run_id,
                     prompt={"brief": run.brief, "title": run.title},
@@ -585,7 +592,7 @@ class ProductHandler(Handler):
                     generated=generated_package,
                     decision="EDIT",
                     final=package,
-                    edits=[{"patch": {key: value for key, value in payload.items() if key in {"title", "text", "media"}}}],
+                    edits=edits,
                     reason=str(payload.get("reason") or "user_edit"),
                     qc=((run.result or {}).get("production") or {}).get("qc") if isinstance((run.result or {}).get("production"), dict) else {},
                     provenance={"run_id": run_id, "source": "human", "revision_id": package.get("revision", {}).get("revision_id")},
@@ -1047,11 +1054,14 @@ class ProductHandler(Handler):
                 approved_result["approval"] = {**(approved_result.get("approval") if isinstance(approved_result.get("approval"), dict) else {}), "status": "APPROVED", "decision_ref": decision_ref, "actor_id": actor_id, "approved_version": artifact_version}
                 updated = self.content_runs.save_result_preserving_status(run_id, approved_result)
                 approved_package = (updated.result or {}).get("package")
+                generated_package = (updated.result or {}).get("package_generated")
+                if not isinstance(generated_package, dict):
+                    generated_package = approved_package if isinstance(approved_package, dict) else (run.result or {})
                 self.service.control.record_experience(
                     run_id=run_id,
                     prompt={"brief": run.brief, "title": run.title},
                     context={"status": run.status, "platform": approved_package.get("platform") if isinstance(approved_package, dict) else None},
-                    generated=approved_package if isinstance(approved_package, dict) else (run.result or {}),
+                    generated=generated_package,
                     decision="ACCEPT",
                     final=approved_package if isinstance(approved_package, dict) else (run.result or {}),
                     qc=qc,
