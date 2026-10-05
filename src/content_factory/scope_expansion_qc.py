@@ -101,11 +101,25 @@ def assess_scope_expansion(claim,*,evidence_items):
     cid=str(claim.get("id") or claim.get("claim_id") or "").strip(); text=str(claim.get("text") or "").strip()
     cs=from_item(claim,"text"); items=[x for x in evidence_items if isinstance(x,dict)]
     ss=[from_item(x,"excerpt") for x in items if isinstance(x.get("scope_spec"),dict)]
-    es=union(ss) if ss else extract(" ".join(str(x.get("excerpt") or "") for x in items),"evidence_surface_fallback")
-    ex,index=compare(cs,es)
-    if not ex: verdict,repair,reason="PASS","NONE","claim scope does not expand beyond resolvable evidence scope"
-    elif any(x["axis"] in {"population","coverage","quantifier"} and x["delta"]>=3 for x in ex) or index>=3: verdict,repair,reason="FAIL","WEAKEN_SCOPE",f"scope expansion index {index} is blocking"
-    else: verdict,repair,reason="REVIEW",("NARROW_PERIOD" if any(x["axis"]=="time" for x in ex) else "WEAKEN_SCOPE"),f"scope expansion index {index} requires review"
+    if ss:
+        es=union(ss)
+        ex,index=compare(cs,es)
+        if not ex:
+            verdict,repair,reason="PASS","NONE","claim scope does not expand beyond structured evidence scope"
+        elif any(x["axis"] in {"population","coverage","quantifier"} and x["delta"]>=3 for x in ex) or index>=3:
+            verdict,repair,reason="FAIL","WEAKEN_SCOPE",f"scope expansion index {index} is blocking"
+        else:
+            verdict,repair,reason="REVIEW",("NARROW_PERIOD" if any(x["axis"]=="time" for x in ex) else "WEAKEN_SCOPE"),f"scope expansion index {index} requires review"
+    else:
+        # Free-form evidence excerpts do not reliably encode population scope.
+        # Never infer a narrower evidence scope merely from an entity mention.
+        es=extract("","evidence_scope_unknown")
+        ex=[]; index=0
+        if cs.coverage >= COVERAGE["broad_population"]:
+            verdict,repair,reason="REVIEW","WEAKEN_SCOPE","evidence scope is unknown for a broad claim; structured scope is required"
+        else:
+            verdict,repair,reason="PASS","NONE","evidence scope is not structured; no unsupported expansion inferred"
+
     return ScopeExpansion(cid,text,cs,es,tuple(ex),index,verdict,repair,reason)
 
 def assess_scopes(claims,*,evidence_items):
