@@ -1068,7 +1068,7 @@
       "planned_scope": "CinemaScope, VistaVision, 70mm, эпическое зрелище 1950-х; затем Jaws и Star Wars как модель современного блокбастера; развитие визуальных эффектов.",
       "editorial_goal": "Связать технологический ответ на ТВ с новой экономикой крупного фильма и культурой франшиз.",
       "next_transition": "К 1990-м компьютерная графика перестала быть только эффектом и стала частью самого производства изображения.",
-      "status": "READY_FOR_PUBLICATION",
+      "status": "PUBLISHED",
       "text": "Телевидение изменило не только привычки зрителей. Оно заставило киноиндустрию заново объяснить, зачем нужен большой экран.\n\nВ 1950-е появились сразу несколько широкоформатных систем. CinemaScope был коммерчески представлен в 1953 году. VistaVision использовал 35-миллиметровую пленку в горизонтальной ориентации, чтобы получить более широкое изображение. Параллельно развивались Cinerama и 70-миллиметровые процессы.\n\nСмысл был понятен: если дома у зрителя появился маленький экран, кинотеатр должен предлагать опыт, который трудно заменить.\n\nШирокий экран стал частью новой культуры зрелища. Крупные постановки, мюзиклы и эпические фильмы все чаще строились вокруг масштаба изображения.\n\nПозже эту логику усилил блокбастер. «Челюсти» 1975 года и «Звездные войны» 1977 года стали важными примерами кино, которое сочетало сильную массовую привлекательность с крупным прокатным запуском, узнаваемым визуальным миром и мощным маркетингом. Library of Congress отмечает, что успех «Звездных войн» повлиял на экономическую модель студий и вывел спецэффекты и звук на новый уровень внимания.\n\nОсобенно важным стало то, что спецэффект перестал быть незаметной техникой внутри фильма. Он сам становился причиной, по которой зритель хотел увидеть фильм на большом экране.\n\nСледующий перелом был еще глубже. Компьютер начал менять не только эффект, но и само изображение.",
       "story_state": {
         "series_id": "telegram-series-cinema-003",
@@ -1186,12 +1186,12 @@
         }
       ],
       "publication": {
-        "status": "PENDING",
-        "confirmed_by": null,
-        "confirmed_at": null,
-        "external_message_id": null,
-        "external_url": null,
-        "published_at": null
+        "status": "PUBLISHED",
+        "confirmed_by": "github-actions",
+        "confirmed_at": "2026-10-05",
+        "external_message_id": "153",
+        "external_url": "https://t.me/AtlasOpenLab/153",
+        "published_at": "2026-10-05T11:05:32Z"
       },
       "publication_attempt": 1
     },
@@ -1202,19 +1202,134 @@
       "planned_scope": "Компьютерная графика, Toy Story 1995 как первый полнометражный компьютерно-анимационный фильм, цифровое производство и распространение, Netflix streaming с 2007.",
       "editorial_goal": "Завершить сезон переходом от химического изображения и кинозала к цифровому производству, онлайн-доставке и выбору зрителя.",
       "next_transition": "Финальная точка не закрывает историю: меняется уже не только технология фильма, но и сам способ его создания и просмотра.",
-      "status": "PLANNED",
-      "text": null,
-      "story_state": null,
-      "claims": [],
-      "sources": [],
-      "evidence": [],
+      "status": "READY_FOR_PUBLICATION",
+      "text": "К концу XX века компьютер перестал быть только инструментом для отдельных спецэффектов. Он начал становиться частью самого производства изображения.\n\nПерсональные компьютеры, цифровой монтаж и компьютерная графика постепенно изменили рабочий процесс. Визуальный материал теперь можно было обрабатывать без прямого воздействия на исходную пленку, а часть изображений вообще создавать внутри компьютера.\n\nВ 1995 году Pixar выпустила «Toy Story», первый полнометражный фильм, полностью созданный с помощью компьютерной анимации. Это был важный сигнал: компьютерная графика уже могла не просто дополнять традиционную съемку, а становиться основным способом построения фильма.\n\nПри этом цифровая революция происходила одновременно на нескольких уровнях. Камера становилась цифровой. Монтаж переходил на нелинейные системы. Компьютерные эффекты становились все сложнее. А затем начал меняться сам способ доставки фильма.\n\n16 января 2007 года Netflix объявила о функции, которая позволяла подписчикам смотреть фильмы и сериалы мгновенно на компьютере. Позже потоковое видео стало самостоятельной моделью распространения.\n\nВ результате исчезла прежняя жесткая цепочка: съемка на пленку, печать копий, доставка в кинотеатры, коллективный просмотр по расписанию. Цифровой фильм можно было создавать, копировать, изменять и доставлять по сети.\n\nНа этом история сезона не заканчивается. За полтора века кино прошло путь от эксперимента с последовательностью фотографий до медиума, где изображение, звук, монтаж и распространение существуют внутри цифровой среды.\n\nИзменился не только экран. Изменилось само определение того, где начинается фильм и где заканчивается кинотеатр.",
+      "story_state": {
+        "series_id": "telegram-series-cinema-003",
+        "title": "Развитие кинематографа",
+        "central_question": "Как кино прошло путь от фотографического эксперимента до цифрового медиума, который можно смотреть почти где угодно?",
+        "established": [
+          "Компьютерная графика стала частью самого производства экранного изображения.",
+          "Toy Story 1995 года стал первым полнометражным фильмом, полностью созданным с помощью компьютерной анимации.",
+          "Цифровые камеры и нелинейный монтаж изменили производственный процесс.",
+          "В 2007 году Netflix начал предлагать мгновенный просмотр через интернет.",
+          "Распространение фильма перестало быть привязано только к физической копии и кинотеатральному сеансу."
+        ],
+        "unresolved": [],
+        "next_required_transition": "Сезон завершен; дальнейшее развитие определяется уже не одним технологическим рубежом, а сочетанием цифрового производства, сетевой дистрибуции и новых способов потребления.",
+        "used_examples": [
+          "Toy Story",
+          "digital cinema",
+          "Netflix streaming"
+        ],
+        "claims": [
+          "cin10-toystory",
+          "cin10-digitalworkflow",
+          "cin10-netflix",
+          "cin10-streaming"
+        ],
+        "evidence": [
+          "ev-cin10-toystory",
+          "ev-cin10-digitalworkflow",
+          "ev-cin10-netflix",
+          "ev-cin10-streaming"
+        ]
+      },
+      "claims": [
+        {
+          "id": "cin10-toystory",
+          "text": "Toy Story, выпущенный в 1995 году, стал первым полнометражным фильмом, полностью созданным с помощью компьютерной анимации.",
+          "source_ids": [
+            "src-pixar-story"
+          ],
+          "evidence_ids": [
+            "ev-cin10-toystory"
+          ]
+        },
+        {
+          "id": "cin10-digitalworkflow",
+          "text": "Развитие компьютерной графики и цифровых инструментов изменило способы создания и обработки экранного изображения.",
+          "source_ids": [
+            "src-pixar-renderman"
+          ],
+          "evidence_ids": [
+            "ev-cin10-digitalworkflow"
+          ]
+        },
+        {
+          "id": "cin10-netflix",
+          "text": "16 января 2007 года Netflix объявила функцию, позволявшую подписчикам мгновенно смотреть фильмы и сериалы на компьютере.",
+          "source_ids": [
+            "src-netflix-2007"
+          ],
+          "evidence_ids": [
+            "ev-cin10-netflix"
+          ]
+        },
+        {
+          "id": "cin10-streaming",
+          "text": "В 2007 году Netflix начала переход от модели DVD-почты к потоковой доставке контента.",
+          "source_ids": [
+            "src-netflix-history"
+          ],
+          "evidence_ids": [
+            "ev-cin10-streaming"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "src-pixar-story",
+          "title": "Pixar — Our Story",
+          "url": "https://www.pixar.com/our-story"
+        },
+        {
+          "id": "src-pixar-renderman",
+          "title": "Pixar RenderMan — The Evolution of RenderMan",
+          "url": "https://renderman.pixar.com/the-evolution-of-renderman"
+        },
+        {
+          "id": "src-netflix-2007",
+          "title": "Netflix — 2007 Instant Viewing Announcement",
+          "url": "https://about.netflix.com/en/news/netflix-offers-subscribers-the-option-of-instantly-watching-movies-on-their"
+        },
+        {
+          "id": "src-netflix-history",
+          "title": "Netflix — Company History",
+          "url": "https://about.netflix.com/en/news/made-in-asia-watched-by-the-world"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "ev-cin10-toystory",
+          "source_id": "src-pixar-story",
+          "excerpt": "Pixar's history identifies Toy Story, released in 1995, as the first feature-length computer-animated film."
+        },
+        {
+          "id": "ev-cin10-digitalworkflow",
+          "source_id": "src-pixar-renderman",
+          "excerpt": "Pixar's RenderMan history traces the evolution of computer graphics rendering as a production technology for motion pictures."
+        },
+        {
+          "id": "ev-cin10-netflix",
+          "source_id": "src-netflix-2007",
+          "excerpt": "Netflix's January 16, 2007 announcement introduced an option for subscribers to instantly watch movies and television episodes on computers."
+        },
+        {
+          "id": "ev-cin10-streaming",
+          "source_id": "src-netflix-history",
+          "excerpt": "Netflix's company history records the expansion of streaming as a new distribution model beginning in 2007."
+        }
+      ],
       "publication": {
-        "status": "PLANNED",
+        "status": "PENDING",
         "confirmed_by": null,
+        "confirmed_at": null,
         "external_message_id": null,
         "external_url": null,
         "published_at": null
-      }
+      },
+      "publication_attempt": 1
     }
   ],
   "updated_at": "2026-10-05"
