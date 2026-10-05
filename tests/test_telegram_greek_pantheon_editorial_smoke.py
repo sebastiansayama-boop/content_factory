@@ -26,26 +26,26 @@ pytestmark = pytest.mark.external
 def _knowledge_from_research(payload: dict) -> dict:
     claims = []
     for raw in payload.get("claims", []):
-        claim_id = str(raw.get("id") or "").strip()
+        claim_id = str(raw.get("id") or raw.get("claim_id") or "").strip()
         if not claim_id:
             continue
         evidence_ids = [
             f"ke-greek-{str(item).removeprefix('evidence-')}"
-            for item in raw.get("evidence_ids", [])
+            for item in (raw.get("evidence_ids") or raw.get("evidence_refs") or [])
             if isinstance(item, str)
         ]
         claims.append({
             "claim_id": f"kc-greek-{claim_id.removeprefix('claim-')}",
             "text": str(raw.get("text") or "").strip(),
             "evidence_ids": evidence_ids,
-            "source_ids": [str(item) for item in raw.get("source_ids", []) if isinstance(item, str)],
+            "source_ids": [str(item) for item in (raw.get("source_ids") or raw.get("source_refs") or []) if isinstance(item, str)],
             "scope": str(raw.get("scope") or "").strip(),
         })
 
     evidence = []
     for raw in payload.get("evidence", []):
-        evidence_id = str(raw.get("id") or "").strip()
-        source_id = str(raw.get("source_id") or "").strip()
+        evidence_id = str(raw.get("id") or raw.get("evidence_id") or "").strip()
+        source_id = str(raw.get("source_id") or raw.get("source_ref") or "").strip()
         if not evidence_id or not source_id:
             continue
         evidence.append({
