@@ -84,7 +84,7 @@ Zeus, Hera, Poseidon, Hades, and the distinction between the Olympian gods and H
 Use reputable public sources and do not invent facts.
 The material must support a 900-1800 character Russian publication.
 USER BRIEF:
-Пантеон богов в Древней Греции, эпизод 1: карта основных богов и устройство пантеона.
+Ancient Greek pantheon: Zeus, Hera, Poseidon, Hades, and the basic structure of the Greek gods.
 """
     response = research.research(prompt)
     assert 200 <= response.status_code < 300
