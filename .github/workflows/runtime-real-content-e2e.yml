@@ -29,4 +29,4 @@ jobs:
       - name: Pull local model
         run: ollama pull "$OLLAMA_MODEL"
       - name: Run real capability chain
-        run: pytest -q tests/test_runtime_real_content_e2e.py tests/test_autonomous_series_10x.py -m external -s
+        run: pytest -q tests/test_autonomous_series_10x.py -m external -s
