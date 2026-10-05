@@ -13,6 +13,7 @@ from .openai_adapter import OpenAIResponsesAdapter
 from .ollama_adapter import OllamaAdapter
 from .local_adapter import LocalTextAdapter
 from .providers import LLMProvider
+from .refinement import BreadthDepthRefiner
 
 
 @dataclass(frozen=True)
@@ -111,6 +112,8 @@ class ContentFactoryVerticalSlice:
             else:
                 raise ValueError("FACTORY_PROVIDER must be 'gemini', 'openai', or 'local'")
         self.knowledge_store = knowledge_store
+        self.refinement_breadth = max(1, int(os.environ.get("FACTORY_REFINEMENT_BREADTH", "2")))
+        self.refinement_depth = max(1, int(os.environ.get("FACTORY_REFINEMENT_DEPTH", "1")))
         self.trace_event = trace_event
         if llm_provider is not None:
             self.llm_provider = llm_provider
@@ -220,31 +223,42 @@ USER BRIEF:
             if fmt == "visual_card":
                 package["package"].append(build_visual_card(title=topic, subtitle=summary[:140], asset_id=f"{_slug(topic)}-visual-card-v1"))
                 continue
-            production_prompt = f"""Create one {fmt} for this researched topic.
-Return ONLY JSON: {{"content":"complete usable content","title":"string","claim_refs":["claim-id"],"source_refs":["source-id"]}}
-Do not add factual claims absent from the research.
-Topic: {topic}
-Summary: {summary}
-Claims:
-{claim_lines}
-Sources:
-{source_lines}
-"""
+            refiner = BreadthDepthRefiner(
+                generate=lambda prompt: self.llm_provider.response_text(
+                    self.llm_provider.generate(prompt)
+                ),
+                breadth=self.refinement_breadth,
+                depth=self.refinement_depth,
+            )
             if self.trace_event is not None:
-                self.trace_event(stage="PRODUCTION", task=f"produce_{fmt}", tool=type(self.llm_provider).__name__, action="provider_call", result={"status": "started", "format": fmt})
-            try:
-                generated = self.llm_provider.generate(production_prompt)
-            except Exception as exc:
-                if self.trace_event is not None:
-                    self.trace_event(stage="PRODUCTION", task=f"produce_{fmt}", tool=type(self.llm_provider).__name__, action="provider_call", result={"status": "failed", "format": fmt, "error_type": type(exc).__name__}, decision="FAILED")
-                raise
-            if self.trace_event is not None:
-                self.trace_event(stage="PRODUCTION", task=f"produce_{fmt}", tool=type(self.llm_provider).__name__, action="provider_call", result={"status": "completed", "format": fmt, "http_status": generated.status_code}, decision="ACCEPT" if 200 <= generated.status_code < 300 else "FAIL")
-            if generated.status_code < 200 or generated.status_code >= 300:
-                raise ValueError(f"production provider returned HTTP {generated.status_code}")
-            asset = parse_research_json(self.llm_provider.response_text(generated))
+                self.trace_event(
+                    stage="PRODUCTION",
+                    task=f"refine_{fmt}",
+                    tool=type(self.llm_provider).__name__,
+                    action="breadth_depth_refinement",
+                    result={
+                        "status": "started",
+                        "format": fmt,
+                        "breadth": self.refinement_breadth,
+                        "depth": self.refinement_depth,
+                    },
+                )
+            refined = refiner.run(
+                fmt=fmt,
+                topic=topic,
+                summary=summary,
+                claims=claim_lines,
+                sources=source_lines,
+            )
+            asset = dict(refined.content)
             asset["id"] = f"{_slug(topic)}-{fmt}-v1"
             asset["format"] = fmt
+            asset["refinement"] = {
+                "breadth": refined.breadth,
+                "depth": refined.depth,
+                "candidate_count": len(refined.candidates),
+                "refinement_count": len(refined.refinements),
+            }
             package["package"].append(asset)
         all_claim_ids = [c["id"] for c in claims if isinstance(c, dict)]
         all_source_ids = sorted({sid for c in claims if isinstance(c, dict) for sid in c.get("source_ids", [])})
