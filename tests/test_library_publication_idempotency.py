@@ -13,7 +13,7 @@ from tests.test_telegram_publication_smoke import _create_prepared_run, _request
 
 def test_publish_existing_library_run_is_idempotent(tmp_path, monkeypatch):
     monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
-    monkeypatch.setenv("FACTORY_API_TOKEN", "library-publish-test-token")
+    monkeypatch.setenv("FACTORY_API_TOKEN", "telegram-publication-smoke-token")
     monkeypatch.setenv("FACTORY_TELEGRAM_FAKE", "1")
     monkeypatch.setenv("TELEGRAM_CHAT_ID", "fake-chat")
 
