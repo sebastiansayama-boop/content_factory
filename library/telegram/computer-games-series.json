@@ -489,7 +489,141 @@
       "central_question": "Почему быстро растущий рынок оказался переполнен плохими играми и потерял доверие покупателей?",
       "planned_scope": "Перепроизводство, конкуренция консолей и компьютеров, Atari, E.T., роль дистрибуции и качества.",
       "next_question": "Кто и как заново собрал рынок после кризиса?",
-      "status": "PLANNED"
+      "status": "PUBLISH_REQUESTED",
+      "text": "К началу 1980-х домашние видеоигры перестали быть экспериментом. Консоли продавались миллионами, а новые игры появлялись всё быстрее.\n\nНо успех создал новую проблему: рынок начал производить больше игр, чем покупатели успевали выбирать.\n\nУ Atari VCS были конкуренты — Mattel Intellivision и ColecoVision. Одновременно появилось множество независимых разработчиков, которые выпускали игры для той же консоли. Предложение росло, а качество сильно различалось.\n\nПокупателю становилось всё труднее понять, за что стоит платить. На полках были десятки похожих игр, а сама идея видеоигры ещё не имела устойчивых стандартов качества.\n\nПараллельно консоли начали конкурировать не только друг с другом.\n\nДомашние компьютеры вроде Apple II, TRS-80 и Commodore 64 становились доступнее и могли использоваться не только для игр. Для части покупателей компьютер выглядел более универсальной покупкой.\n\nНа этом фоне Atari сделала ставку на большую лицензионную игру.\n\nВ 1982 году компания выпустила E.T. the Extra-Terrestrial по мотивам фильма Стивена Спилберга. Чтобы успеть к рождественскому сезону, разработчику Говарду Скотту Уоршоу дали всего несколько недель на создание игры. Smithsonian указывает, что стандартный срок разработки тогда составлял примерно шесть-девять месяцев, а на E.T. ушло около пяти с половиной недель.\n\nИгра продалась более чем миллионом копий, но этого оказалось недостаточно, чтобы окупить дорогую лицензию и огромные ожидания. Часть товара вернулась от продавцов, а непроданные картриджи стали одним из символов избытка предложения.\n\nВ 1983 году кризис стал уже общерыночным. Продажи домашних игровых систем и картриджей резко упали. Некоторые производители прекратили выпуск игровых систем, а Atari оказалась в тяжёлом положении.\n\nПозже именно E.T. стали часто называть причиной краха. Но это слишком простое объяснение.\n\nE.T. был не причиной кризиса в одиночку, а его символом. Рынок одновременно столкнулся с перепроизводством игр, слабым контролем качества, конкуренцией между большим числом консолей и растущей привлекательностью домашних компьютеров.\n\nСамое важное изменилось не в технологии.\n\nПокупатели перестали доверять рынку как раньше. Если коробка с игрой могла оказаться плохой, а новая консоль — ненужной через год, сам факт наличия видеоигры на полке уже не гарантировал продажи.\n\nРынок должен был заново ответить на простой вопрос: почему покупатель должен снова доверять видеоиграм?\n\nОтвет пришёл из Японии.",
+      "story_state": {
+        "series_id": "telegram-series-computer-games-001",
+        "title": "История создания компьютерных игр",
+        "central_question": "Почему быстро растущий рынок оказался переполнен плохими играми и потерял доверие покупателей?",
+        "established": [
+          "Ранние игры прошли путь от лабораторных экспериментов к аркадной модели.",
+          "Pong показал коммерческий потенциал массовых аркад.",
+          "Magnavox Odyssey и последующие консоли перенесли игры в дом.",
+          "Atari VCS превратила консоль в платформу со сменными картриджами.",
+          "К началу 1980-х рынок домашних игр быстро рос, одновременно увеличивая число консолей и игр.",
+          "В 1982–1985 годах рынок пережил тяжёлый кризис, связанный с перепроизводством, качеством продукции и конкуренцией домашних компьютеров."
+        ],
+        "unresolved": [
+          "Кто и как заново собрал рынок после кризиса?"
+        ],
+        "next_required_transition": "Показать, как Nintendo изменила отношение к домашним видеоиграм, введя жёсткий контроль качества и новую модель выхода на американский рынок.",
+        "used_examples": [
+          "Atari VCS",
+          "Intellivision",
+          "ColecoVision",
+          "Apple II",
+          "Commodore 64",
+          "E.T. the Extra-Terrestrial"
+        ],
+        "claims": [
+          "claim-market-oversupply",
+          "claim-home-computer-competition",
+          "claim-et-development",
+          "claim-et-sales",
+          "claim-crash-multifactor"
+        ],
+        "evidence": [
+          "evidence-market-oversupply",
+          "evidence-home-computer-competition",
+          "evidence-et-development",
+          "evidence-et-sales",
+          "evidence-crash-multifactor"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-market-oversupply",
+          "text": "К началу 1980-х рынок домашних видеоигр был переполнен консолями и играми; слишком большое предложение и большое число низкокачественных игр стали одной из причин кризиса.",
+          "source_ids": [
+            "source-smithsonian-history"
+          ],
+          "evidence_ids": [
+            "evidence-market-oversupply"
+          ]
+        },
+        {
+          "id": "claim-home-computer-competition",
+          "text": "Домашние компьютеры, включая Apple II, TRS-80 и Commodore 64, конкурировали с игровыми консолями, поскольку могли использоваться не только для игр.",
+          "source_ids": [
+            "source-smithsonian-history"
+          ],
+          "evidence_ids": [
+            "evidence-home-computer-competition"
+          ]
+        },
+        {
+          "id": "claim-et-development",
+          "text": "На создание E.T. the Extra-Terrestrial в 1982 году Говарду Скотту Уоршоу дали около пяти с половиной недель вместо обычных шести-девяти месяцев.",
+          "source_ids": [
+            "source-smithsonian-et"
+          ],
+          "evidence_ids": [
+            "evidence-et-development"
+          ]
+        },
+        {
+          "id": "claim-et-sales",
+          "text": "E.T. продалась более чем миллионным тиражом, но не достигла необходимого объёма продаж и стала одним из факторов кризиса; значительное количество картриджей осталось непроданным и возвращалось продавцами.",
+          "source_ids": [
+            "source-smithsonian-et"
+          ],
+          "evidence_ids": [
+            "evidence-et-sales"
+          ]
+        },
+        {
+          "id": "claim-crash-multifactor",
+          "text": "Крах 1983 года был многофакторным: помимо E.T. на рынок давили перепроизводство, низкое качество части игр, большое число конкурирующих систем и конкуренция домашних компьютеров.",
+          "source_ids": [
+            "source-smithsonian-history",
+            "source-smithsonian-et"
+          ],
+          "evidence_ids": [
+            "evidence-crash-multifactor"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-smithsonian-history",
+          "title": "Smithsonian Institution — Video Game History",
+          "url": "https://www.si.edu/spotlight/the-father-of-the-video-game-the-ralph-baer-prototypes-and-electronic-games/video-game-history"
+        },
+        {
+          "id": "source-smithsonian-et",
+          "title": "Smithsonian National Museum of American History — E.T. the Extra-Terrestrial",
+          "url": "https://americanhistory.si.edu/explore/stories/landfill-smithsonian-collections-et-extra-terrestrial-atari-2600-game"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-market-oversupply",
+          "source_id": "source-smithsonian-history",
+          "excerpt": "Smithsonian describes a market in which too many games, including many of inferior quality, and too many competing consoles contributed to the serious early-1980s crash."
+        },
+        {
+          "id": "evidence-home-computer-competition",
+          "source_id": "source-smithsonian-history",
+          "excerpt": "Smithsonian notes that Apple II, TRS-80 and Commodore 64 offered broader functionality and competed with dedicated home video game systems."
+        },
+        {
+          "id": "evidence-et-development",
+          "source_id": "source-smithsonian-et",
+          "excerpt": "Smithsonian reports that Howard Scott Warshaw had about five and a half weeks to develop E.T., compared with a normal six-to-nine-month development period."
+        },
+        {
+          "id": "evidence-et-sales",
+          "source_id": "source-smithsonian-et",
+          "excerpt": "Smithsonian reports that more than one million E.T. customers bought the game, but Atari fell well short of the four million cartridges needed to break even; returns and unsold inventory followed."
+        },
+        {
+          "id": "evidence-crash-multifactor",
+          "source_id": "source-smithsonian-history",
+          "excerpt": "Smithsonian identifies oversupply of games and consoles, inferior game quality and competition from versatile home computers as contributing factors to the crash; E.T. is described as one contributing factor rather than the sole cause."
+        }
+      ],
+      "publication": null,
+      "publication_attempt": 1
     },
     {
       "episode": 5,
@@ -540,6 +674,6 @@
       "status": "PLANNED"
     }
   ],
-  "current_episode": 3,
+  "current_episode": 4,
   "updated_at": "2026-10-05"
 }
