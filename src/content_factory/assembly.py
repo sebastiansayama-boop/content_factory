@@ -258,6 +258,7 @@ class QualityGate:
                 [ref for claim_id, claim in flow_claims.items() for ref in (claim_id, *(claim.get("evidence_ids") or []))],
             )
 
+            claim_assessments = []
             claim_assessments = assess_claims(
                 list(flow_claims.values()),
                 evidence_items=list(flow_evidence.values()),
