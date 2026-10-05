@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 10
     concurrency:
       group: telegram-publication
-      cancel-in-progress: false
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
         with:
