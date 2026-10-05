@@ -1311,7 +1311,7 @@
       "central_question": "Почему игра постепенно перестала быть вещью, которую нужно купить на диске?",
       "planned_scope": "Steam, цифровая дистрибуция, App Store, free-to-play, мобильные игры, DLC и live-service модель.",
       "next_question": "Во что превратилась игровая индустрия после того, как производство, распространение и обновление стали цифровыми?",
-      "status": "PUBLISH_REQUESTED",
+      "status": "PUBLISHED",
       "text": "К концу 1990-х купить компьютерную игру всё ещё означало купить коробку.\n\nНужно было найти её в магазине, заплатить, принести домой и установить с диска.\n\nИнтернет начал менять эту модель.\n\nВ 2003 году Valve создала Steam. Первоначально он был нужен не столько для продажи игр, сколько для доставки обновлений: компания искала способ быстро и автоматически синхронизировать программное обеспечение у игроков. Но постепенно Steam превратился в полноценный магазин, где игру можно было купить и скачать без физического носителя. Valve прямо называет Steam альтернативой традиционной розничной дистрибуции.\n\nЭто изменило саму коробку.\n\nОна больше не была обязательной частью игры. Игра становилась цифровым файлом, привязанным к аккаунту, а не к одному физическому диску.\n\nСледующий шаг произошёл уже на мобильных устройствах.\n\nВ 2008 году Apple запустила App Store. Пользователь получил возможность находить, покупать и устанавливать приложения прямо на iPhone и iPod touch. Уже за первые выходные через магазин было загружено более 10 миллионов приложений.\n\nДля игр это было особенно важно.\n\nТеперь игровая площадка находилась не только дома перед телевизором или компьютером. Она была в кармане.\n\nНо цифровая дистрибуция изменила не только способ покупки.\n\nОна изменила саму экономику игры.\n\nРаньше разработчик должен был продать игру один раз. После покупки игрок получал готовый продукт, а большая часть отношений между ними на этом заканчивалась.\n\nТеперь игру можно было постоянно обновлять.\n\nМожно было выпускать дополнительный контент, исправлять ошибки, добавлять новые карты и режимы. Valve, например, ещё в 2009 году использовала Steam для доставки загружаемого контента и автоматических обновлений.\n\nПоявилась и другая модель — free-to-play.\n\nИгрок мог скачать игру бесплатно, а разработчик зарабатывать на внутриигровых покупках.\n\nTeam Fortress 2 хорошо показывает этот переход. В 2011 году Valve перевела игру на модель Free To Play после четырёх лет и более двухсот обновлений. Покупки внутри игры давали доступ к дополнительным предметам и функциям, а сама игра оставалась доступной бесплатно.\n\nЭто была уже другая логика.\n\nЦена входа стремилась к нулю, зато ценность можно было создавать и продавать постоянно.\n\nА для некоторых игр сам выпуск перестал быть финальной точкой.\n\nПоявилась модель live service: игра запускается как основа, а затем годами получает новые функции, контент и события.\n\nВ такой системе разработчик больше не думает только о дне релиза. Он думает о том, вернётся ли игрок завтра, через месяц и через год.\n\nВ 2013 году EA, например, прямо описывала FIFA World как free-to-play live service, который должен постоянно меняться через регулярные обновления и живой контент.\n\nТак цифровая дистрибуция изменила почти каждое звено цепочки.\n\nИгра перестала зависеть от физического магазина.\n\nОбновление перестало требовать новой версии диска.\n\nДополнительный контент перестал ждать следующего большого релиза.\n\nМобильные устройства превратились в самостоятельную игровую платформу.\n\nА модель free-to-play и live service сделала игру не единичной покупкой, а постоянно действующей услугой.\n\nВидеоигра прошла огромный путь: от программы в лаборатории до автомата, от автомата до домашней консоли, от консоли до PC и сети.\n\nТеперь оставался последний вопрос.\n\nЧто объединяет все эти переходы — и почему именно они превратили игру в самостоятельную индустрию?",
       "story_state": {
         "series_id": "telegram-series-computer-games-001",
@@ -1466,7 +1466,14 @@
           "excerpt": "EA described FIFA World in 2014 as a free-to-play live service platform that could add features and modes through regular updates and dynamic live content."
         }
       ],
-      "publication": null,
+      "publication": {
+        "status": "PUBLISHED",
+        "confirmed_by": "github-actions",
+        "confirmed_at": "2026-10-05",
+        "external_message_id": "143",
+        "external_url": null,
+        "published_at": "2026-10-05T02:16:11Z"
+      },
       "publication_attempt": 3
     },
     {
@@ -1475,9 +1482,242 @@
       "central_question": "Что на самом деле изменилось за путь от Spacewar! до современной игровой индустрии?",
       "planned_scope": "Сведение линии: технология → интерактивность → массовый рынок → консоли → PC → 3D → сеть → цифровая экономика; отдельно показать, что игры стали самостоятельным медиумом.",
       "next_question": "Серия завершена.",
-      "status": "PLANNED"
+      "status": "PUBLISH_REQUESTED",
+      "text": "В начале этой серии компьютерная игра была экспериментом.\n\nДля неё требовались редкая вычислительная машина, доступ к лаборатории и человек, который понимал, как заставить компьютер реагировать на действия игрока.\n\nSpacewar! показала, что машина может быть не только вычислителем, но и интерактивной системой.\n\nНо сама по себе хорошая игра ещё не создаёт индустрию.\n\nДля этого игра должна была стать доступной.\n\nПервым большим переходом стал рынок аркад. Computer Space вынес игру из лаборатории, а Pong показал простую модель: человек видит автомат, понимает правила за несколько секунд и платит за попытку.\n\nСледующий переход произошёл дома.\n\nMagnavox Odyssey, Atari VCS и другие системы превратили телевизор в игровую платформу. Игра стала товаром, который можно купить для собственного дома, а картридж позволил одной системе принимать множество разных игр.\n\nПотом рынок столкнулся с кризисом.\n\nПосле обвала 1983 года стало очевидно, что одной технологии недостаточно. Нужны качество, контроль платформы, доверие покупателей и сильные игры. Nintendo помогла восстановить консольный рынок именно вокруг этой логики.\n\nПараллельно рос PC.\n\nЗдесь игра существовала уже не как картридж для одной приставки, а как программное обеспечение. Zork, Ultima, King's Quest, Doom и другие проекты развивали собственные жанры, способы распространения и культуру модификаций.\n\nА затем изменилось само игровое пространство.\n\n3D сделало мир сложнее, а сети связали игроков друг с другом. MUD1, Doom, Quake, Ultima Online и Counter-Strike показывали разные этапы одного процесса: игра переставала быть только программой на одном компьютере и становилась средой взаимодействия людей.\n\nПоследний большой переход изменила уже не графика.\n\nИзменилась дистрибуция.\n\nSteam, App Store и цифровые обновления сделали игру файлом и услугой, которую можно распространять и менять после релиза. Free-to-play и live service добавили экономику постоянных отношений между разработчиком и игроком.\n\nЕсли посмотреть на всю историю целиком, получается одна линия.\n\nСначала нужно было сделать компьютер интерактивным.\n\nПотом — сделать игру коммерческой.\n\nПотом — перенести её домой.\n\nПотом — создать устойчивые платформы и собственные программные рынки.\n\nПотом — связать игроков сетью.\n\nИ наконец — превратить распространение и обновление игры в цифровой процесс.\n\nИменно поэтому индустрию создала не одна технология.\n\nЕё создала последовательность снятых ограничений.\n\nОграничение доступа сменилось массовым рынком.\n\nФизический носитель — программной платформой.\n\nОдиночная игра — сетевым взаимодействием.\n\nРазовая покупка — цифровой дистрибуцией и постоянной экономикой.\n\nВ этот момент игра перестала быть просто программой.\n\nОна стала самостоятельным медиумом — со своей технологией, рынком, языком, жанрами, аудиторией и культурой.\n\nОт Spacewar! до современных игр прошло всего несколько десятилетий.\n\nНо за это время изменилось главное: компьютер из машины, на которой можно было сыграть, превратился в основу целой индустрии, построенной вокруг самого акта игры.",
+      "story_state": {
+        "series_id": "telegram-series-computer-games-001",
+        "title": "История создания компьютерных игр",
+        "central_question": "Что на самом деле изменилось за путь от Spacewar! до современной игровой индустрии?",
+        "established": [
+          "Компьютерные игры возникли как эксперименты, демонстрирующие возможности интерактивного вычисления.",
+          "Аркадная модель вывела игру в массовое коммерческое пространство.",
+          "Домашние консоли превратили игру в массовый потребительский продукт и сформировали платформенную модель.",
+          "Кризис 1983 года показал значение качества, доверия и контроля платформы.",
+          "PC сформировал самостоятельный программный рынок, жанры и культуру модификаций.",
+          "3D и сетевые технологии расширили игровое пространство и сделали взаимодействие игроков частью продукта.",
+          "Цифровая дистрибуция, мобильные платформы, free-to-play и live service изменили распространение и экономику игр.",
+          "В результате игра сформировалась как самостоятельный медиум, а не просто как прикладная программа."
+        ],
+        "unresolved": [],
+        "next_required_transition": "Серия завершена.",
+        "used_examples": [
+          "Spacewar!",
+          "Computer Space",
+          "Pong",
+          "Magnavox Odyssey",
+          "Atari VCS",
+          "Nintendo",
+          "Zork",
+          "Ultima",
+          "King's Quest",
+          "Doom",
+          "3D",
+          "MUD1",
+          "Quake",
+          "Ultima Online",
+          "Counter-Strike",
+          "Steam",
+          "App Store",
+          "free-to-play",
+          "live service"
+        ],
+        "claims": [
+          "claim-industry-interactivity",
+          "claim-industry-market",
+          "claim-industry-platform",
+          "claim-industry-pc",
+          "claim-industry-network",
+          "claim-industry-digital",
+          "claim-industry-medium"
+        ],
+        "evidence": [
+          "evidence-industry-interactivity",
+          "evidence-industry-market",
+          "evidence-industry-platform",
+          "evidence-industry-pc",
+          "evidence-industry-network",
+          "evidence-industry-digital",
+          "evidence-industry-medium"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-industry-interactivity",
+          "text": "Ранние игры, включая Spacewar!, показали новый тип взаимодействия человека с вычислительной машиной.",
+          "source_ids": [
+            "source-chm-spacewar",
+            "source-smithsonian-history"
+          ],
+          "evidence_ids": [
+            "evidence-industry-interactivity"
+          ]
+        },
+        {
+          "id": "claim-industry-market",
+          "text": "Аркадные автоматы и ранние домашние системы вывели видеоигры из исследовательской среды в коммерческий и массовый потребительский рынок.",
+          "source_ids": [
+            "source-chm-graphics-games",
+            "source-smithsonian-history"
+          ],
+          "evidence_ids": [
+            "evidence-industry-market"
+          ]
+        },
+        {
+          "id": "claim-industry-platform",
+          "text": "Консольный рынок сформировал платформенную модель, в которой качество программного обеспечения, совместимость и контроль экосистемы стали частью коммерческой модели.",
+          "source_ids": [
+            "source-smithsonian-history",
+            "source-chm-graphics-games"
+          ],
+          "evidence_ids": [
+            "evidence-industry-platform"
+          ]
+        },
+        {
+          "id": "claim-industry-pc",
+          "text": "PC-среда сформировала самостоятельные игровые жанры, способы распространения и культуру модификаций.",
+          "source_ids": [
+            "source-chm-graphics-games",
+            "source-chm-doom"
+          ],
+          "evidence_ids": [
+            "evidence-industry-pc"
+          ]
+        },
+        {
+          "id": "claim-industry-network",
+          "text": "Сетевые игры постепенно превратили игру из одиночной программы в среду взаимодействия игроков.",
+          "source_ids": [
+            "source-chm-networking",
+            "source-chm-mud"
+          ],
+          "evidence_ids": [
+            "evidence-industry-network"
+          ]
+        },
+        {
+          "id": "claim-industry-digital",
+          "text": "Цифровая дистрибуция и модели free-to-play/live service изменили способы распространения, обновления и монетизации игр.",
+          "source_ids": [
+            "source-valve-steam",
+            "source-valve-handbook",
+            "source-tf2-f2p",
+            "source-ea-fifa-world"
+          ],
+          "evidence_ids": [
+            "evidence-industry-digital"
+          ]
+        },
+        {
+          "id": "claim-industry-medium",
+          "text": "К концу описываемого периода видеоигра сформировалась как самостоятельный медиум со своими формальными и культурными особенностями.",
+          "source_ids": [
+            "source-smithsonian-medium"
+          ],
+          "evidence_ids": [
+            "evidence-industry-medium"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-chm-graphics-games",
+          "title": "Computer History Museum — Graphics & Games Timeline",
+          "url": "https://www.computerhistory.org/timeline/graphics-games/"
+        },
+        {
+          "id": "source-smithsonian-history",
+          "title": "Smithsonian Institution — Video Game History",
+          "url": "https://www.si.edu/spotlight/the-father-of-the-video-game-the-ralph-baer-prototypes-and-electronic-games/video-game-history"
+        },
+        {
+          "id": "source-chm-spacewar",
+          "title": "Computer History Museum — Spacewar!",
+          "url": "https://www.computerhistory.org/pdp-1/spacewar/"
+        },
+        {
+          "id": "source-chm-doom",
+          "title": "Computer History Museum — 1993: Doom",
+          "url": "https://www.computerhistory.org/timeline/1993/"
+        },
+        {
+          "id": "source-chm-networking",
+          "title": "Computer History Museum — Networking & The Web",
+          "url": "https://www.computerhistory.org/timeline/networking-the-web/"
+        },
+        {
+          "id": "source-chm-mud",
+          "title": "Computer History Museum — Networking & The Web / MUDs",
+          "url": "https://www.computerhistory.org/timeline/1979/"
+        },
+        {
+          "id": "source-valve-steam",
+          "title": "Valve — About Steam",
+          "url": "https://www.valvesoftware.com/en/about"
+        },
+        {
+          "id": "source-valve-handbook",
+          "title": "Valve Handbook — Steam timeline",
+          "url": "https://www.valvesoftware.com/company/Valve_Handbook_LowRes.pdf"
+        },
+        {
+          "id": "source-tf2-f2p",
+          "title": "Valve — Team Fortress 2 is now Free to Play",
+          "url": "https://www.teamfortress.com/post.php?id=5721"
+        },
+        {
+          "id": "source-ea-fifa-world",
+          "title": "EA — FIFA World as a free-to-play live service",
+          "url": "https://news.ea.com/press-releases/press-releases-details/2014/EA-SPORTS-FIFA-World-to-Launch-a-New-Game-Engine-Later-This-Year/default.aspx"
+        },
+        {
+          "id": "source-smithsonian-medium",
+          "title": "Smithsonian Libraries — The medium of the video game",
+          "url": "https://www.si.edu/object/siris_sil_1107049"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-industry-interactivity",
+          "source_id": "source-chm-spacewar",
+          "excerpt": "Computer History Museum describes Spacewar! as an early example of interactive computing that demonstrated the graphical and interactive capabilities of the PDP-1; Smithsonian likewise describes early games as ways to explore and demonstrate computer capabilities."
+        },
+        {
+          "id": "evidence-industry-market",
+          "source_id": "source-chm-graphics-games",
+          "excerpt": "Computer History Museum traces the move from early computer games to Computer Space and Pong, while Smithsonian records the 1972 Magnavox Odyssey as the first commercial home video game system."
+        },
+        {
+          "id": "evidence-industry-platform",
+          "source_id": "source-smithsonian-history",
+          "excerpt": "Smithsonian's history documents the Brown Box and Magnavox Odyssey and the later development of home video game systems, showing the transition from laboratory prototypes to consumer platforms."
+        },
+        {
+          "id": "evidence-industry-pc",
+          "source_id": "source-chm-graphics-games",
+          "excerpt": "Computer History Museum documents the growth of PC games and identifies Doom as a major 1993 release whose distribution and modding culture expanded the role of PC games."
+        },
+        {
+          "id": "evidence-industry-network",
+          "source_id": "source-chm-networking",
+          "excerpt": "Computer History Museum's networking history describes the growth of connected computing environments, while its MUD timeline records early multi-user online games and social interaction."
+        },
+        {
+          "id": "evidence-industry-digital",
+          "source_id": "source-valve-steam",
+          "excerpt": "Valve describes Steam as a digital distribution platform created in 2003, while its official materials and company announcements document automatic updates, downloadable content, free-to-play and live-service examples."
+        },
+        {
+          "id": "evidence-industry-medium",
+          "source_id": "source-smithsonian-medium",
+          "excerpt": "Smithsonian's publication The Medium of the Video Game treats the video game as a medium in its own right, examining its formal properties, genres and cultural role."
+        }
+      ],
+      "publication": null,
+      "publication_attempt": 1
     }
   ],
-  "current_episode": 9,
+  "current_episode": 10,
   "updated_at": "2026-10-05"
 }
