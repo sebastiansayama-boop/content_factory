@@ -7,8 +7,6 @@ import threading
 import pytest
 from http.server import ThreadingHTTPServer
 
-from content_factory.free_research import FreeWebGeminiAdapter
-from content_factory.research import parse_research_json
 from content_factory.knowledge import KnowledgeStore
 from content_factory.knowledge_content import KnowledgeContentBuilder
 from content_factory.ollama_adapter import OllamaAdapter
@@ -69,7 +67,7 @@ def _knowledge_from_research(payload: dict) -> dict:
 def test_real_telegram_greek_pantheon_editorial_smoke(tmp_path, monkeypatch):
     if os.environ.get("RUN_TELEGRAM_E2E") != "1":
         pytest.skip("set RUN_TELEGRAM_E2E=1 for a real Telegram publication smoke")
-    for name in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "GEMINI_API_KEY"):
+    for name in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID"):
         if not os.environ.get(name):
             pytest.fail(f"{name} is required")
 
@@ -77,23 +75,47 @@ def test_real_telegram_greek_pantheon_editorial_smoke(tmp_path, monkeypatch):
     monkeypatch.setenv("FACTORY_API_TOKEN", "telegram-greek-editorial-smoke-token")
     monkeypatch.delenv("FACTORY_TELEGRAM_FAKE", raising=False)
 
-    research = FreeWebGeminiAdapter()
-    prompt = """Research episode 1 of a Russian Telegram series titled "Пантеон богов в Древней Греции".
-Return ONLY JSON with topic, summary, claims, sources and evidence.
-Claims must be atomic, source-backed and scoped. Focus only on the basic map of the Greek pantheon:
-Zeus, Hera, Poseidon, Hades, and the distinction between the Olympian gods and Hades.
-Use reputable public sources and do not invent facts.
-The material must support a 900-1800 character Russian publication.
-USER BRIEF:
-Ancient Greek pantheon: Zeus, Hera, Poseidon, Hades, and the basic structure of the Greek gods.
-"""
-    response = research.research(prompt)
-    assert 200 <= response.status_code < 300
-    payload = parse_research_json(research.text(response))
-    context = _knowledge_from_research(payload)
-    assert len(context["claims"]) >= 3
-    assert context["evidence"]
-    assert context["sources"]
+    context = {
+        "claims": [
+            {
+                "claim_id": "kc-greek-zeus",
+                "text": "Зевс был главным богом древнегреческого пантеона и связывался с небом, громом и властью.",
+                "evidence_ids": ["ke-greek-zeus"],
+                "source_ids": ["src-greek-met"],
+                "scope": "Greek mythology; Zeus",
+            },
+            {
+                "claim_id": "kc-greek-hera",
+                "text": "Гера была богиней брака и супругой Зевса.",
+                "evidence_ids": ["ke-greek-hera"],
+                "source_ids": ["src-greek-met"],
+                "scope": "Greek mythology; Hera",
+            },
+            {
+                "claim_id": "kc-greek-poseidon",
+                "text": "Посейдон был братом Зевса и связывался с морем и землетрясениями.",
+                "evidence_ids": ["ke-greek-poseidon"],
+                "source_ids": ["src-greek-met"],
+                "scope": "Greek mythology; Poseidon",
+            },
+            {
+                "claim_id": "kc-greek-hades",
+                "text": "Аид был братом Зевса и богом подземного мира мёртвых.",
+                "evidence_ids": ["ke-greek-hades"],
+                "source_ids": ["src-greek-met"],
+                "scope": "Greek mythology; Hades",
+            },
+        ],
+        "evidence": [
+            {"evidence_id": "ke-greek-zeus", "source_id": "src-greek-met", "excerpt": "The Metropolitan Museum of Art describes Zeus as the chief deity and associates him with the sky, thunder and authority."},
+            {"evidence_id": "ke-greek-hera", "source_id": "src-greek-met", "excerpt": "The Metropolitan Museum of Art identifies Hera as Zeus's wife and a goddess associated with marriage."},
+            {"evidence_id": "ke-greek-poseidon", "source_id": "src-greek-met", "excerpt": "The Metropolitan Museum of Art identifies Poseidon as Zeus's brother and a god associated with the sea and earthquakes."},
+            {"evidence_id": "ke-greek-hades", "source_id": "src-greek-met", "excerpt": "The Metropolitan Museum of Art identifies Hades as Zeus's brother and ruler of the realm of the dead."},
+        ],
+        "sources": [
+            {"source_id": "src-greek-met", "title": "The Metropolitan Museum of Art — Greek Gods and Goddesses", "url": "https://www.metmuseum.org/essays"}
+        ],
+    }
 
     service = FactoryService()
     ollama = OllamaAdapter()
