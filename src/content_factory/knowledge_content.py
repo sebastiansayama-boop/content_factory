@@ -671,6 +671,18 @@ Variation decision:
 - Never force a mode that requires facts or details absent from the evidence.
 
 Write 4-6 ordered units. The combined unit text is the final publication text. Target the requested length for that combined text.
+
+Human editorial quality:
+- Write as a knowledgeable human editor telling a reader what is interesting about the material, not as a model summarizing a knowledge base.
+- Give the text a clear authorial point of view without inventing facts or overstating evidence.
+- Prefer concrete people, actions, places, objects, dates, and observable consequences over abstract summaries.
+- Let the rhythm vary naturally: sentence length, syntax, paragraph openings, and where emphasis falls should not follow a fixed alternation pattern.
+- Do not make every paragraph perform the same rhetorical job. Some paragraphs may establish context, some may linger on a detail, and some may move the story forward without an explicit takeaway.
+- Do not explain the significance of every fact. If the next sentence already demonstrates why something matters, remove the generic significance statement.
+- Avoid repeated scaffolding such as “это было важно”, “это стало переломным моментом”, “следующий этап”, “таким образом” and equivalent phrases unless they are genuinely needed.
+- Do not manufacture conversational fillers, slang, mistakes, digressions, or fake personal anecdotes to imitate a human.
+- Keep a consistent editorial voice across a series while allowing each publication to have its own natural entry point, tempo, emphasis, and ending.
+
 Use natural prose and vary sentence openings. Avoid filler, generic motivational language, clickbait, repeated conclusions, and empty transitions.
 Do not use generic templates such as “Did you know?”, “Think again”, or “Follow for more” unless explicitly requested.
 Do not use em dash (—).
