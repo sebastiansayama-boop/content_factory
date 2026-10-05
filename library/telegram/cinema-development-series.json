@@ -154,7 +154,7 @@
       "planned_scope": "Братья Люмьер и Cinématographe, публичный показ 28 декабря 1895 года, ранние фильмы как аттракцион; параллельно американские проекторы.",
       "editorial_goal": "Связать техническую проекцию с новой социальной формой: зал, билет, общий экран, массовый зритель.",
       "next_transition": "После рождения сеанса кино оставалось коротким аттракционом; следующий шаг — научиться рассказывать историю монтажом и трюками.",
-      "status": "READY_FOR_PUBLICATION",
+      "status": "PUBLISHED",
       "text": "В конце XIX века движущиеся изображения уже существовали. Но кино стало новым массовым явлением только тогда, когда несколько людей смогли одновременно смотреть на один экран.\n\n28 декабря 1895 года братья Огюст и Луи Люмьер устроили в Париже публичный платный показ с помощью Cinématographe. Аппарат был одновременно камерой, копировальным устройством и проектором. Это было важнее отдельного технического компонента: один прибор связывал производство изображения и его показ перед аудиторией.\n\nПервые фильмы Люмьеров часто были очень короткими. Рабочие выходят из фабрики, поезд приближается к камере, люди идут по улице. Сегодня такие сюжеты могут показаться простыми. Для зрителя конца XIX века сама возможность увидеть движение, зафиксированное на пленке и увеличенное на большом экране, была событием.\n\nПочти сразу стало ясно, что публика платит не только за историю. Она платит за сам опыт просмотра. Кино стало частью театров, ярмарок, музыкальных залов и других мест массового развлечения.\n\nВ США параллельно развивались собственные системы проекции. В 1896 году Edison Manufacturing Company вывела на публику Vitascope. Проекционные аппараты начали конкурировать, а фильмы стали самостоятельным товаром, который можно было показывать разным аудиториям.\n\nТак появился главный принцип кино как индустрии: фильм создается один раз, а увидеть его могут многие.\n\nНо пока кино в основном демонстрировало движение. Следующая перемена была художественной. Режиссеры начали не просто снимать события, а придумывать их.",
       "story_state": {
         "series_id": "telegram-series-cinema-003",
@@ -266,12 +266,12 @@
         }
       ],
       "publication": {
-        "status": "PENDING",
-        "confirmed_by": null,
-        "confirmed_at": null,
-        "external_message_id": null,
-        "external_url": null,
-        "published_at": null
+        "status": "PUBLISHED",
+        "confirmed_by": "github-actions",
+        "confirmed_at": "2026-10-05",
+        "external_message_id": "146",
+        "external_url": "https://t.me/AtlasOpenLab/146",
+        "published_at": "2026-10-05T10:51:43Z"
       },
       "publication_attempt": 1
     },
@@ -282,20 +282,132 @@
       "planned_scope": "Georges Méliès, A Trip to the Moon, остановочная съемка и сценические эффекты; Edwin S. Porter и The Great Train Robbery; ранний монтаж и параллельное действие.",
       "editorial_goal": "Показать переход от демонстрации к повествованию и от отдельного кадра к последовательности сцен.",
       "next_transition": "Когда кино научилось рассказывать истории, появилась потребность в постоянном месте показа и устойчивой бизнес-модели.",
-      "status": "PLANNED",
-      "text": null,
-      "story_state": null,
-      "claims": [],
-      "sources": [],
-      "evidence": [],
+      "status": "READY_FOR_PUBLICATION",
+      "text": "Когда зритель привык к самому факту движущегося изображения, одного эффекта стало недостаточно. Кино начало превращать кадр в средство рассказа.\n\nЖорж Мельес пришел в кинематограф из театра и перенес на экран сценическую иллюзию. В его фильмах персонажи исчезают, предметы меняются, декорации превращаются в фантастические пространства. В «Путешествии на Луну» 1902 года эти приемы соединяются в цельное фантастическое представление. Камера теперь могла показывать не только то, что происходило перед ней, но и то, что было невозможно в реальности.\n\nОдновременно другая проблема решалась монтажом. Если соединить разные кадры в нужной последовательности, зритель начинает воспринимать между ними причинную связь.\n\nЭдвин С. Портер в «Большом ограблении поезда» 1903 года использовал несколько сцен и мест действия, чтобы построить более сложное повествование. Кино постепенно переставало быть одной сценкой перед камерой. Оно становилось последовательностью фрагментов, из которых зритель собирал событие.\n\nЭто изменение трудно переоценить. Кадр больше не был законченным сообщением. Его смысл зависел от соседнего кадра.\n\nТак появились основы кинематографического языка: выбор точки съемки, продолжительность плана, смена сцен, трюк, монтаж и управление вниманием зрителя.\n\nНо художественный язык сам по себе не создавал индустрию. Фильмы требовалось показывать регулярно и дешевле. Следующий этап начался с маленьких кинотеатров, которые сделали просмотр повседневной привычкой.",
+      "story_state": {
+        "series_id": "telegram-series-cinema-003",
+        "title": "Развитие кинематографа",
+        "central_question": "Как кино прошло путь от фотографического эксперимента до цифрового медиума, который можно смотреть почти где угодно?",
+        "established": [
+          "Мельес использовал трюковые эффекты и сценическую иллюзию для создания вымышленных событий.",
+          "«Путешествие на Луну» 1902 года показало потенциал фантастического экранного представления.",
+          "«Большое ограбление поезда» 1903 года использовало несколько сцен для более сложного повествования.",
+          "Монтаж стал способом связывать отдельные кадры в единое событие."
+        ],
+        "unresolved": [
+          "Как кино стало регулярным массовым продуктом с постоянной аудиторией и местами показа?"
+        ],
+        "next_required_transition": "Показать роль nickelodeons и дешевых постоянных сеансов в превращении кино в массовую привычку.",
+        "used_examples": [
+          "Georges Méliès",
+          "A Trip to the Moon",
+          "Edwin S. Porter",
+          "The Great Train Robbery"
+        ],
+        "claims": [
+          "cin3-melies",
+          "cin3-moon",
+          "cin3-porter",
+          "cin3-montage"
+        ],
+        "evidence": [
+          "ev-cin3-melies",
+          "ev-cin3-moon",
+          "ev-cin3-porter",
+          "ev-cin3-montage"
+        ]
+      },
+      "claims": [
+        {
+          "id": "cin3-melies",
+          "text": "Жорж Мельес применял в раннем кино трюковые приемы, включая исчезновения и другие эффекты, связанные со сценической иллюзией.",
+          "source_ids": [
+            "src-bfi-melies"
+          ],
+          "evidence_ids": [
+            "ev-cin3-melies"
+          ]
+        },
+        {
+          "id": "cin3-moon",
+          "text": "«Путешествие на Луну» вышло в 1902 году и стало одним из ключевых ранних фильмов, соединявших научную фантастику и кинотрюки.",
+          "source_ids": [
+            "src-bfi-melies"
+          ],
+          "evidence_ids": [
+            "ev-cin3-moon"
+          ]
+        },
+        {
+          "id": "cin3-porter",
+          "text": "«Большое ограбление поезда» Эдвина С. Портера было выпущено в 1903 году.",
+          "source_ids": [
+            "src-bfi-porter"
+          ],
+          "evidence_ids": [
+            "ev-cin3-porter"
+          ]
+        },
+        {
+          "id": "cin3-montage",
+          "text": "Соединение разных кадров стало основой более сложного повествования, в котором смысл сцены зависел от ее связи с другими сценами.",
+          "source_ids": [
+            "src-loc-earlyproductions",
+            "src-bfi-porter"
+          ],
+          "evidence_ids": [
+            "ev-cin3-montage"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "src-bfi-melies",
+          "title": "BFI — A Trip to the Moon and Georges Méliès",
+          "url": "https://www.bfi.org.uk/resources-events-teachers/resources-teachers/sci-fi-classroom/film-1-sci-fi-silents-1901-1906"
+        },
+        {
+          "id": "src-bfi-porter",
+          "title": "BFI — The Great Train Robbery",
+          "url": "https://www.bfi.org.uk/film/60b799a6-aef2-522e-9006-1e2183b945cf/the-great-train-robbery"
+        },
+        {
+          "id": "src-loc-earlyproductions",
+          "title": "Library of Congress — Early Motion Picture Productions",
+          "url": "https://www.loc.gov/collections/edison-company-motion-pictures-and-sound-recordings/articles-and-essays/history-of-edison-motion-pictures/early-motion-picture-productions/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "ev-cin3-melies",
+          "source_id": "src-bfi-melies",
+          "excerpt": "BFI describes Méliès's use of trick effects and stage-derived illusion techniques in early films."
+        },
+        {
+          "id": "ev-cin3-moon",
+          "source_id": "src-bfi-melies",
+          "excerpt": "BFI identifies A Trip to the Moon as a 1902 Méliès film and a landmark early science-fiction silent."
+        },
+        {
+          "id": "ev-cin3-porter",
+          "source_id": "src-bfi-porter",
+          "excerpt": "BFI identifies The Great Train Robbery as an Edwin S. Porter film from 1903."
+        },
+        {
+          "id": "ev-cin3-montage",
+          "source_id": "src-loc-earlyproductions",
+          "excerpt": "Library of Congress traces early fictional filmmaking and the development of more complex scene construction; BFI documents Porter's multi-scene narrative film."
+        }
+      ],
       "publication": {
-        "status": "PLANNED",
+        "status": "PENDING",
         "confirmed_by": null,
         "confirmed_at": null,
         "external_message_id": null,
         "external_url": null,
         "published_at": null
-      }
+      },
+      "publication_attempt": 1
     },
     {
       "episode": 4,
