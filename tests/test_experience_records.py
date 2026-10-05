@@ -23,7 +23,10 @@ def test_experience_records_capture_all_user_decisions(tmp_path):
 
     records = store.list_experiences("run-1")
     assert [record["decision"] for record in records] == decisions
+    assert records[0]["generated"]["text"] == "candidate-accept"
+    assert records[0]["final"]["text"] == "final"
     assert records[1]["edits"][0]["before"] == "old"
+    assert records[1]["edits"][0]["after"] == "final"
     assert records[1]["final"]["text"] == "final"
     assert records[0]["provenance"]["source"] == "human"
     store.close()
