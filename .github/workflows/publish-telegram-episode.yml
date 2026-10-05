@@ -9,6 +9,9 @@ permissions:
 
 jobs:
   publish:
+    if: >-
+      startsWith(github.event.head_commit.message, 'publish: thai-spirit-episode-') ||
+      startsWith(github.event.head_commit.message, 'publish: computer-games-episode-')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     concurrency:
@@ -17,7 +20,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.sha }}
           persist-credentials: false
       - uses: actions/setup-python@v5
         with:
