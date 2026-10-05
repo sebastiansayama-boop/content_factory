@@ -6,7 +6,7 @@ def ev(evidence_id="e1", excerpt="Некоторые игры на PC распр
     return {"id":evidence_id,"source_id":"s1","excerpt":excerpt}
 
 def test_subset_to_industry_is_blocked():
-    a=assess_scope_expansion({"id":"c1","text":"Игровая индустрия перешла к цифровой дистрибуции.","evidence_ids":["e1"]},evidence_items=[ev()])
+    a=assess_scope_expansion({"id":"c1","text":"Игровая индустрия перешла к цифровой дистрибуции.","evidence_ids":["e1"]},evidence_items=[{**ev(),"scope_spec":{"population":"game","coverage":"subset","quantifier":"some","segment":["pc"]}}])
     assert a.verdict=="FAIL"
     assert a.repair_action=="WEAKEN_SCOPE"
     assert any(x["axis"] in {"population","coverage","quantifier"} for x in a.expansions)
