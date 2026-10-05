@@ -16,7 +16,7 @@
       "planned_scope": "Оптические игрушки, хронофотография Эдварда Майбриджа и Этьена-Жюля Марэ, пленка Истмана, эксперименты Эдисона и Диксона.",
       "editorial_goal": "Показать, что кино возникло на пересечении фотографии, механики, оптики и массового развлечения.",
       "next_transition": "1890-е эксперименты с Kinetograph и Kinetoscope уже создавали движущееся изображение; следующий шаг — проекция для коллективного зрителя.",
-      "status": "READY_FOR_PUBLICATION",
+      "status": "PUBLISHED",
       "text": "История кино начинается не с кинозала. Сначала людям нужно было научиться разбирать движение на отдельные изображения, а затем собирать их обратно в последовательность.\n\nВ 1878 году Эдвард Майбридж получил серию последовательных фотографий скачущей лошади. Для науки это был способ исследовать движение. Но сама идея была фундаментальной: быстро сменяющиеся кадры могли сохранять отдельные фазы одного процесса.\n\nВ 1880-е Этьен-Жюль Марэ развивал хронофотографию и стремился фиксировать движение как последовательность кадров. Параллельно фотография становилась удобнее для массового применения. Появлялась гибкая пленочная среда, на которой можно было записывать последовательности изображений.\n\nВ лаборатории Томаса Эдисона Уильям Кеннеди Лори Диксон работал над двумя ключевыми устройствами. Kinetograph записывал движение, а Kinetoscope позволял его просматривать через окуляр. В 1891 году Эдисон публично демонстрировал Kinetoscope, а в 1894 году открылся первый Kinetoscope parlor в Нью-Йорке.\n\nНо здесь уже видна главная проблема. Один человек смотрит в аппарат, а окружающие остаются зрителями зрителя. Технология умеет записывать движение, но еще не создала общего экрана.\n\nКино поэтому возникло не в один момент. Сошлись фотография, механика, оптика, пленка и бизнес вокруг нового вида развлечения.\n\nСледующий шаг был решающим: превратить движущееся изображение из индивидуального опыта в событие для целого зала.",
       "story_state": {
         "series_id": "telegram-series-cinema-003",
@@ -138,12 +138,12 @@
         }
       ],
       "publication": {
-        "status": "PENDING",
-        "confirmed_by": null,
-        "confirmed_at": null,
-        "external_message_id": null,
-        "external_url": null,
-        "published_at": null
+        "status": "PUBLISHED",
+        "confirmed_by": "github-actions",
+        "confirmed_at": "2026-10-05",
+        "external_message_id": "145",
+        "external_url": "https://t.me/AtlasOpenLab/145",
+        "published_at": "2026-10-05T10:49:03Z"
       },
       "publication_attempt": 1
     },
@@ -154,20 +154,126 @@
       "planned_scope": "Братья Люмьер и Cinématographe, публичный показ 28 декабря 1895 года, ранние фильмы как аттракцион; параллельно американские проекторы.",
       "editorial_goal": "Связать техническую проекцию с новой социальной формой: зал, билет, общий экран, массовый зритель.",
       "next_transition": "После рождения сеанса кино оставалось коротким аттракционом; следующий шаг — научиться рассказывать историю монтажом и трюками.",
-      "status": "PLANNED",
-      "text": null,
-      "story_state": null,
-      "claims": [],
-      "sources": [],
-      "evidence": [],
+      "status": "READY_FOR_PUBLICATION",
+      "text": "В конце XIX века движущиеся изображения уже существовали. Но кино стало новым массовым явлением только тогда, когда несколько людей смогли одновременно смотреть на один экран.\n\n28 декабря 1895 года братья Огюст и Луи Люмьер устроили в Париже публичный платный показ с помощью Cinématographe. Аппарат был одновременно камерой, копировальным устройством и проектором. Это было важнее отдельного технического компонента: один прибор связывал производство изображения и его показ перед аудиторией.\n\nПервые фильмы Люмьеров часто были очень короткими. Рабочие выходят из фабрики, поезд приближается к камере, люди идут по улице. Сегодня такие сюжеты могут показаться простыми. Для зрителя конца XIX века сама возможность увидеть движение, зафиксированное на пленке и увеличенное на большом экране, была событием.\n\nПочти сразу стало ясно, что публика платит не только за историю. Она платит за сам опыт просмотра. Кино стало частью театров, ярмарок, музыкальных залов и других мест массового развлечения.\n\nВ США параллельно развивались собственные системы проекции. В 1896 году Edison Manufacturing Company вывела на публику Vitascope. Проекционные аппараты начали конкурировать, а фильмы стали самостоятельным товаром, который можно было показывать разным аудиториям.\n\nТак появился главный принцип кино как индустрии: фильм создается один раз, а увидеть его могут многие.\n\nНо пока кино в основном демонстрировало движение. Следующая перемена была художественной. Режиссеры начали не просто снимать события, а придумывать их.",
+      "story_state": {
+        "series_id": "telegram-series-cinema-003",
+        "title": "Развитие кинематографа",
+        "central_question": "Как кино прошло путь от фотографического эксперимента до цифрового медиума, который можно смотреть почти где угодно?",
+        "established": [
+          "В 1895 году Cinématographe Люмьеров связал съемку и проекцию.",
+          "Публичный показ вывел движущееся изображение на общий экран перед аудиторией.",
+          "В 1896 году Vitascope стал еще одной коммерческой системой проекции.",
+          "Кино стало самостоятельным товаром, который можно было показывать разным аудиториям."
+        ],
+        "unresolved": [
+          "Как кино превратилось из показа движения в искусство повествования?"
+        ],
+        "next_required_transition": "Показать появление трюкового кино и раннего монтажа как способов создавать вымышленные события и связывать несколько сцен.",
+        "used_examples": [
+          "Cinématographe",
+          "Lumière brothers",
+          "Vitascope",
+          "Koster and Bial's Music Hall"
+        ],
+        "claims": [
+          "cin2-lumiere",
+          "cin2-projector",
+          "cin2-vitascope",
+          "cin2-exhibition"
+        ],
+        "evidence": [
+          "ev-cin2-lumiere",
+          "ev-cin2-projector",
+          "ev-cin2-vitascope",
+          "ev-cin2-exhibition"
+        ]
+      },
+      "claims": [
+        {
+          "id": "cin2-lumiere",
+          "text": "28 декабря 1895 года братья Люмьер провели в Париже публичный платный показ с помощью Cinématographe.",
+          "source_ids": [
+            "src-loc-earlycinema"
+          ],
+          "evidence_ids": [
+            "ev-cin2-lumiere"
+          ]
+        },
+        {
+          "id": "cin2-projector",
+          "text": "Cinématographe Люмьеров был аппаратом, совмещавшим съемку и проекцию движущегося изображения.",
+          "source_ids": [
+            "src-loc-earlycinema"
+          ],
+          "evidence_ids": [
+            "ev-cin2-projector"
+          ]
+        },
+        {
+          "id": "cin2-vitascope",
+          "text": "23 апреля 1896 года Vitascope был публично показан в Koster and Bial's Music Hall в Нью-Йорке.",
+          "source_ids": [
+            "src-loc-vitascope"
+          ],
+          "evidence_ids": [
+            "ev-cin2-vitascope"
+          ]
+        },
+        {
+          "id": "cin2-exhibition",
+          "text": "После появления проекторов фильмы начали становиться отдельным продуктом показа перед массовой аудиторией, включая театры и варьете.",
+          "source_ids": [
+            "src-loc-vitascope"
+          ],
+          "evidence_ids": [
+            "ev-cin2-exhibition"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "src-loc-earlycinema",
+          "title": "Library of Congress — Early Cinema",
+          "url": "https://guides.loc.gov/chronicling-america-early-cinema"
+        },
+        {
+          "id": "src-loc-vitascope",
+          "title": "Library of Congress — Shift to Projectors and the Vitascope",
+          "url": "https://www.loc.gov/collections/edison-company-motion-pictures-and-sound-recordings/articles-and-essays/history-of-edison-motion-pictures/shift-to-projectors-and-the-vitoscope/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "ev-cin2-lumiere",
+          "source_id": "src-loc-earlycinema",
+          "excerpt": "Library of Congress gives December 28, 1895 as the Lumière brothers' first public exhibition with the Cinématographe."
+        },
+        {
+          "id": "ev-cin2-projector",
+          "source_id": "src-loc-earlycinema",
+          "excerpt": "Library of Congress identifies the Cinématographe as the first camera to project to a large screen."
+        },
+        {
+          "id": "ev-cin2-vitascope",
+          "source_id": "src-loc-vitascope",
+          "excerpt": "Library of Congress records the Vitascope's first theatrical exhibition on April 23, 1896, at Koster and Bial's Music Hall."
+        },
+        {
+          "id": "ev-cin2-exhibition",
+          "source_id": "src-loc-vitascope",
+          "excerpt": "Library of Congress describes Vitascope and competing projection systems becoming attractions in variety and vaudeville theaters."
+        }
+      ],
       "publication": {
-        "status": "PLANNED",
+        "status": "PENDING",
         "confirmed_by": null,
         "confirmed_at": null,
         "external_message_id": null,
         "external_url": null,
         "published_at": null
-      }
+      },
+      "publication_attempt": 1
     },
     {
       "episode": 3,
