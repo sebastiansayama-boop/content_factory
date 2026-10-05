@@ -33,10 +33,10 @@ class ScopeExpansion:
     reason: str
     def to_dict(self): return asdict(self)
 
-COVERAGE = {"named_entity":0, "subset":1, "segment":2, "broad_population":3, "whole_domain":4}
+COVERAGE = {"named_entity":0, "subset":1, "segment":2, "defined_segment":2, "broad_population":3, "whole_domain":4}
 POP = {"named_entity":0, "game":1, "game_segment":2, "game_population":3, "game_industry":4, "entertainment_industry":5, "domain":6}
 POP_PATTERNS = (
-    (r"\b(?:игров(?:ая|ой|ую)\s+индустри|индустрию)\b","game_industry",4),
+    (r"\b(?:игров(?:ая|ой|ую)\s+индустр(?:ия|ии|ию|ией)|индустрию)\b","game_industry",4),
     (r"\b(?:рынок|рынка|рынке)\s+(?:компьютерных|видеоигр|игр)\b","game_population",3),
     (r"\b(?:все|всех|вся|всей)\s+(?:игры|игр)\b","game_population",3),
     (r"\b(?:игр|игры|игра|видеоигр|компьютерн(?:ые|ых))\b","game",1),
