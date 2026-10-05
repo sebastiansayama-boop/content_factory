@@ -980,7 +980,172 @@
       "central_question": "Как игры перешли от двумерных экранов к трёхмерным мирам?",
       "planned_scope": "Wolfenstein 3D, Doom, Quake, 3D-ускорители, PlayStation и переход к новой модели визуального дизайна.",
       "next_question": "Что произошло, когда игроки получили возможность играть друг с другом через сеть?",
-      "status": "PLANNED"
+      "status": "PUBLISH_REQUESTED",
+      "text": "После того как компьютер стал самостоятельной игровой платформой, его следующая граница оказалась не в жанрах и не в распространении.\n\nОна была в самом пространстве игры.\n\nБольшую часть ранних игр мир оставался плоским. Даже когда игрок видел перспективу от первого лица, разработчики часто создавали её с помощью ограничений и хитростей, а не полноценного трёхмерного пространства.\n\nВ 1992 году id Software выпустила Wolfenstein 3D.\n\nИгра не была первой попыткой показать мир от первого лица. Но она стала одним из главных проектов, которые сделали такой формат массовым. Игрок двигался по коридорам, видел пространство глазами персонажа и постоянно ощущал направление и расстояние иначе, чем в классических двумерных играх.\n\nГод спустя вышел Doom.\n\nDoom использовал похожую перспективу, но сделал мир значительно более насыщенным: появилось больше высоты, света, врагов, эффектов и вариантов движения. Игра распространялась через shareware и быстро разошлась по компьютерным сетям, а игроки начали создавать собственные уровни и модификации.\n\nНо даже Doom ещё не был полноценным трёхмерным миром.\n\nНастоящий переход произошёл в 1996 году с Quake.\n\nВместо набора двумерных спрайтов и ограниченной геометрии движок Quake использовал полностью трёхмерную среду. Стены, поверхности, объекты и персонажи стали частью пространства, в котором можно было свободно перемещаться по вертикали и глубине.\n\nЭто изменило не только картинку.\n\nЕсли мир действительно состоит из трёхмерного пространства, разработчик получает другой набор возможностей: лестницы и мосты, комнаты друг над другом, динамические источники света, более сложные траектории движения и физику объектов.\n\nОдновременно росли возможности самого компьютера.\n\nВ середине 1990-х спрос на более сложную графику вызвал быстрый рост специализированных 3D-ускорителей. Видеокарта постепенно превращалась из устройства для вывода изображения в отдельный вычислительный ресурс для игрового мира.\n\nИ здесь возникла важная конкуренция.\n\nPC получал новые технологии постепенно и от разных производителей. Разработчик мог рассчитывать на новые видеокарты, процессоры и API, а игрок — обновлять отдельные компоненты своего компьютера.\n\nКонсоли пошли другим путём.\n\nВ 1994 году Sony выпустила PlayStation в Японии. В отличие от многих предыдущих домашних систем, новая консоль сразу сделала трёхмерную графику одной из своих главных особенностей. Ridge Racer и Tekken показали, что 3D, которое раньше ассоциировалось с аркадными автоматами и мощными компьютерами, теперь можно перенести домой.\n\nПоявилось новое поколение игр.\n\nМир перестал быть просто изображением на экране. Он стал пространством, через которое игрок перемещался.\n\nЭто изменило и дизайн.\n\nВ двумерной игре разработчик мог мыслить уровнями как последовательностью экранов, комнат или платформ.\n\nВ трёхмерной игре пришлось думать уже о камере, навигации, высоте, расстоянии, освещении и геометрии пространства. Сам способ проектирования игры стал другим.\n\n3D не заменило 2D.\n\nНо оно стало новым стандартом для огромной части индустрии.\n\nТеперь у игры появилась ещё одна возможность: пространство можно было соединить с сетью.\n\nКогда компьютеры уже умели строить полноценные виртуальные миры, следующий вопрос стал гораздо интереснее: что произойдёт, если в одном таком мире одновременно окажутся несколько игроков?",
+      "story_state": {
+        "series_id": "telegram-series-computer-games-001",
+        "title": "История создания компьютерных игр",
+        "central_question": "Как игры перешли от двумерных экранов к трёхмерным мирам?",
+        "established": [
+          "Ранние игры прошли путь от лабораторных экспериментов к аркадной модели.",
+          "Pong показал коммерческий потенциал массовых аркад.",
+          "Домашние консоли превратили телевизор в игровую платформу.",
+          "Atari VCS закрепила модель платформы со сменными картриджами.",
+          "Кризис 1983 года изменил отношение рынка к качеству и контролю программного обеспечения.",
+          "Nintendo восстановила консольный рынок через контроль качества и сильные игровые серии.",
+          "PC-среда сформировала собственные жанры, модели распространения и культуру модификаций.",
+          "Wolfenstein 3D и Doom сделали перспективу от первого лица массовым направлением на PC.",
+          "Quake в 1996 году показал полноценную трёхмерную игровую среду, а специализированные 3D-ускорители расширили графические возможности PC.",
+          "PlayStation, выпущенная в 1994 году, сделала 3D-графику одной из центральных особенностей домашнего консольного рынка."
+        ],
+        "unresolved": [
+          "Что изменилось, когда игроки получили возможность играть друг с другом через сеть?"
+        ],
+        "next_required_transition": "Показать переход от локального и экспериментального сетевого взаимодействия к массовому онлайн-мультиплееру и постоянным игровым мирам.",
+        "used_examples": [
+          "Wolfenstein 3D",
+          "Doom",
+          "Quake",
+          "3D accelerators",
+          "PlayStation",
+          "Ridge Racer",
+          "Tekken"
+        ],
+        "claims": [
+          "claim-wolfenstein",
+          "claim-doom",
+          "claim-quake",
+          "claim-3d-accelerators",
+          "claim-playstation-3d"
+        ],
+        "evidence": [
+          "evidence-wolfenstein",
+          "evidence-doom",
+          "evidence-quake",
+          "evidence-3d-accelerators",
+          "evidence-playstation-3d"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-wolfenstein",
+          "text": "Wolfenstein 3D, выпущенная в 1992 году, стала одним из ключевых ранних шутеров от первого лица и помогла сделать этот формат массовым.",
+          "source_ids": [
+            "source-chm-wolfenstein"
+          ],
+          "evidence_ids": [
+            "evidence-wolfenstein"
+          ]
+        },
+        {
+          "id": "claim-doom",
+          "text": "Doom, выпущенный в 1993 году, получил широкое распространение через USENET и стал важным примером раннего сетевого распространения и пользовательских модификаций.",
+          "source_ids": [
+            "source-chm-doom"
+          ],
+          "evidence_ids": [
+            "evidence-doom"
+          ]
+        },
+        {
+          "id": "claim-quake",
+          "text": "Quake, выпущенный id Software в 1996 году, использовал полноценную трёхмерную геометрию в реальном времени и стал важной вехой в развитии 3D-игр.",
+          "source_ids": [
+            "source-quake-repo",
+            "source-steam-quake"
+          ],
+          "evidence_ids": [
+            "evidence-quake"
+          ]
+        },
+        {
+          "id": "claim-3d-accelerators",
+          "text": "В середине 1990-х спрос на более сложную игровую графику стимулировал развитие специализированных 3D-графических ускорителей для персональных компьютеров.",
+          "source_ids": [
+            "source-chm-1996"
+          ],
+          "evidence_ids": [
+            "evidence-3d-accelerators"
+          ]
+        },
+        {
+          "id": "claim-playstation-3d",
+          "text": "Оригинальная PlayStation вышла в Японии в декабре 1994 года и сделала реальное 3D-рендеринг одной из центральных возможностей нового поколения домашних видеоигр.",
+          "source_ids": [
+            "source-playstation-history",
+            "source-sony-history"
+          ],
+          "evidence_ids": [
+            "evidence-playstation-3d"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-chm-wolfenstein",
+          "title": "Computer History Museum — Wolfenstein 3D",
+          "url": "https://www.computerhistory.org/revolution/computer-games/16/187/776"
+        },
+        {
+          "id": "source-chm-doom",
+          "title": "Computer History Museum — Graphics & Games Timeline",
+          "url": "https://www.computerhistory.org/timeline/graphics-games/"
+        },
+        {
+          "id": "source-quake-repo",
+          "title": "id Software — Quake source repository",
+          "url": "https://github.com/id-Software/Quake"
+        },
+        {
+          "id": "source-steam-quake",
+          "title": "Steam — Quake",
+          "url": "https://store.steampowered.com/app/2310/Quake/"
+        },
+        {
+          "id": "source-chm-1996",
+          "title": "Computer History Museum — 1996 Timeline",
+          "url": "https://www.computerhistory.org/timeline/1996/"
+        },
+        {
+          "id": "source-playstation-history",
+          "title": "PlayStation — 1994 History",
+          "url": "https://www.playstation.com/en-us/playstation-history/1994-ps-one/"
+        },
+        {
+          "id": "source-sony-history",
+          "title": "Sony Interactive Entertainment — Company History",
+          "url": "https://sonyinteractive.com/en/our-company/company-history/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-wolfenstein",
+          "source_id": "source-chm-wolfenstein",
+          "excerpt": "Computer History Museum dates Wolfenstein 3D to 1992 and describes it as an innovative first-person shooter often credited with popularizing the genre."
+        },
+        {
+          "id": "evidence-doom",
+          "source_id": "source-chm-doom",
+          "excerpt": "Computer History Museum dates Doom to 1993, notes its initial USENET distribution and identifies its influence on first-person shooters and player modding."
+        },
+        {
+          "id": "evidence-quake",
+          "source_id": "source-quake-repo",
+          "excerpt": "The official id Software Quake repository contains the source code for the 1996 game and its engine; contemporary historical references describe the engine as using real-time 3D rendering."
+        },
+        {
+          "id": "evidence-3d-accelerators",
+          "source_id": "source-chm-1996",
+          "excerpt": "Computer History Museum notes that demand for high-quality video cards grew throughout the 1990s as games required more complex audio-visual capabilities, with 3dfx selling Voodoo graphics chips in 1996."
+        },
+        {
+          "id": "evidence-playstation-3d",
+          "source_id": "source-playstation-history",
+          "excerpt": "PlayStation's official history dates the Japanese launch to December 3, 1994 and describes its move from traditional 2D experiences toward real-time rendering of complex 3D worlds."
+        }
+      ],
+      "publication": null,
+      "publication_attempt": 1
     },
     {
       "episode": 8,
@@ -1007,6 +1172,6 @@
       "status": "PLANNED"
     }
   ],
-  "current_episode": 6,
+  "current_episode": 7,
   "updated_at": "2026-10-05"
 }
