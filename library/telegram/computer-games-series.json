@@ -320,7 +320,161 @@
       "central_question": "Как телевизор превратился в игровую платформу?",
       "planned_scope": "Ralph Baer, Magnavox Odyssey, домашние консоли, Atari и переход к картриджам.",
       "next_question": "Почему рынок домашних игр почти рухнул в начале 1980-х?",
-      "status": "PLANNED"
+      "status": "PUBLISH_REQUESTED",
+      "text": "После аркадных автоматов у видеоигр появилась новая задача: попасть в дом.\n\nИдея пришла к инженеру Ральфу Бэеру ещё в 1960-х. Он заметил, что телевизор уже стоит во многих домах, и решил проверить, можно ли превратить его из устройства для просмотра в игровую систему.\n\nВ 1967 году Бэер и его коллеги начали создавать прототипы. Один из них получил название Brown Box. Он позволял двум людям управлять объектами на экране телевизора и использовать сменные программные карты для разных игр.\n\nВ 1972 году Magnavox выпустила на основе Brown Box систему Magnavox Odyssey. Это был важный момент: игра больше не требовала игрового зала. Достаточно было иметь телевизор, подключить консоль и взять контроллеры. citeturn859968search4turn859968search10\n\nНо Odyssey выглядела совсем не так, как современные консоли. Она не использовала микропроцессор или программное обеспечение в привычном смысле и могла показывать лишь простые фигуры. Чтобы превратить их в теннисный корт, хоккейную площадку или другие игровые поля, на экран телевизора накладывали прозрачные цветные плёнки. В комплекте были даже карты, фишки, деньги и другие обычные игровые принадлежности. citeturn859968search0turn859968search9\n\nТехнически это был прорыв, но коммерчески Odyssey не стала хитом. За несколько лет Magnavox продала около 350 000 систем. Одной из проблем было маркетинговое представление продукта: часть покупателей считала, что Odyssey работает только с телевизорами Magnavox. citeturn859968search0\n\nЗатем произошло то, что показала предыдущая серия: Pong оказался гораздо понятнее массовому игроку.\n\nВ 1975 году Atari выпустила домашнюю версию Pong. Компания продавала её через Sears, а успех оказался настолько большим, что другие производители быстро начали создавать собственные домашние системы. По данным Smithsonian, Atari продала 150 000 таких устройств только за 1975 год. citeturn859968search4\n\nТеперь возникла новая проблема. Если консоль умеет только ту игру, которая уже находится внутри неё, покупателю приходится приобретать новую консоль ради каждой новой игры.\n\nРешение появилось в следующем шаге развития рынка: вместо одной встроенной игры сделать консоль, в которую можно вставлять разные программы.\n\nВ 1977 году Atari выпустила Video Computer System — позднее Atari 2600. Это была одна из первых успешных консолей со сменными картриджами: сама консоль становилась платформой, а новые игры можно было покупать отдельно. citeturn287106search0turn287106search8\n\nЭто изменило экономику домашних игр. Теперь продавалась не просто коробка с электроникой. Появилась платформа, к которой можно было постоянно покупать новые игры.\n\nНо именно эта модель через несколько лет приведёт рынок к другой проблеме: игр станет слишком много.\n\nИ тогда домашняя игровая индустрия впервые столкнётся с кризисом, который едва не остановит её развитие.",
+      "story_state": {
+        "series_id": "telegram-series-computer-games-001",
+        "title": "История создания компьютерных игр",
+        "central_question": "Как телевизор превратился в игровую платформу?",
+        "established": [
+          "Ранние игры существовали в исследовательской среде и на аркадных автоматах.",
+          "Computer Space и Pong показали коммерческий потенциал аркадной модели.",
+          "Ральф Бэер и его коллеги создали Brown Box как прототип домашней игровой системы.",
+          "В 1972 году Magnavox выпустила Magnavox Odyssey, перенесшую видеоигры в домашний телевизор.",
+          "Домашний Pong показал коммерческий потенциал массовых консольных игр.",
+          "Atari VCS 1977 года закрепила модель консоли со сменными картриджами."
+        ],
+        "unresolved": [
+          "Почему рынок домашних игр почти рухнул в начале 1980-х?"
+        ],
+        "next_required_transition": "Разобрать перенасыщение рынка, избыток консолей и игр и причины кризиса домашних видеоигр 1983 года.",
+        "used_examples": [
+          "Brown Box",
+          "Magnavox Odyssey",
+          "Home Pong",
+          "Atari VCS",
+          "Atari 2600"
+        ],
+        "claims": [
+          "claim-brown-box",
+          "claim-odyssey",
+          "claim-odyssey-commercial",
+          "claim-home-pong",
+          "claim-vcs-cartridges"
+        ],
+        "evidence": [
+          "evidence-brown-box",
+          "evidence-odyssey",
+          "evidence-odyssey-sales",
+          "evidence-home-pong",
+          "evidence-vcs-cartridges"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-brown-box",
+          "text": "В 1967–1968 годах Ральф Бэер и его коллеги создали прототип Brown Box — домашнюю многопользовательскую игровую систему, подключавшуюся к телевизору.",
+          "source_ids": [
+            "source-smithsonian-baer"
+          ],
+          "evidence_ids": [
+            "evidence-brown-box"
+          ]
+        },
+        {
+          "id": "claim-odyssey",
+          "text": "В 1972 году Magnavox выпустила Magnavox Odyssey на основе прототипа Brown Box, сделав систему домашней видеоигры для телевизора.",
+          "source_ids": [
+            "source-smithsonian-odyssey",
+            "source-chm-odyssey"
+          ],
+          "evidence_ids": [
+            "evidence-odyssey"
+          ]
+        },
+        {
+          "id": "claim-odyssey-commercial",
+          "text": "Magnavox Odyssey не стала крупным коммерческим хитом: Smithsonian указывает примерно 350 000 проданных систем и отмечает проблемы с маркетингом.",
+          "source_ids": [
+            "source-smithsonian-odyssey"
+          ],
+          "evidence_ids": [
+            "evidence-odyssey-sales"
+          ]
+        },
+        {
+          "id": "claim-home-pong",
+          "text": "В 1975 году Atari выпустила домашнюю версию Pong; компания продала 150 000 систем в течение этого года.",
+          "source_ids": [
+            "source-smithsonian-history"
+          ],
+          "evidence_ids": [
+            "evidence-home-pong"
+          ]
+        },
+        {
+          "id": "claim-vcs-cartridges",
+          "text": "Atari VCS, выпущенная в 1977 году, стала одной из первых успешных консолей со сменными картриджами, позволявшими покупать игры отдельно от самой системы.",
+          "source_ids": [
+            "source-chm-1977",
+            "source-chm-games"
+          ],
+          "evidence_ids": [
+            "evidence-vcs-cartridges"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-smithsonian-baer",
+          "title": "Smithsonian Institution — Video Game History",
+          "url": "https://www.si.edu/spotlight/the-father-of-the-video-game-the-ralph-baer-prototypes-and-electronic-games/video-game-history"
+        },
+        {
+          "id": "source-smithsonian-odyssey",
+          "title": "Smithsonian Institution — Magnavox Odyssey Video Game Unit, 1972",
+          "url": "https://www.si.edu/object/magnavox-odyssey-video-game-unit-1972:nmah_1302004"
+        },
+        {
+          "id": "source-chm-odyssey",
+          "title": "Computer History Museum — Odyssey video game system",
+          "url": "https://www.computerhistory.org/revolution/computer-games/16/190/782"
+        },
+        {
+          "id": "source-smithsonian-history",
+          "title": "Smithsonian Institution — Video Game History",
+          "url": "https://www.si.edu/spotlight/the-father-of-the-video-game-the-ralph-baer-prototypes-and-electronic-games/video-game-history"
+        },
+        {
+          "id": "source-chm-1977",
+          "title": "Computer History Museum — 1977 Timeline",
+          "url": "https://www.computerhistory.org/timeline/1977/"
+        },
+        {
+          "id": "source-chm-games",
+          "title": "Computer History Museum — Game On",
+          "url": "https://computerhistory.org/blog/game-on/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-brown-box",
+          "source_id": "source-smithsonian-baer",
+          "excerpt": "Smithsonian records the Brown Box as the prototype of the first multiplayer, multiprogram home video game system, developed by Baer and colleagues and later licensed to Magnavox."
+        },
+        {
+          "id": "evidence-odyssey",
+          "source_id": "source-chm-odyssey",
+          "excerpt": "Computer History Museum records Odyssey as a 1972 home game console and notes its simple graphics and screen overlays."
+        },
+        {
+          "id": "evidence-odyssey-sales",
+          "source_id": "source-smithsonian-odyssey",
+          "excerpt": "Smithsonian states that approximately 350,000 Magnavox Odyssey units were sold and identifies poor marketing as a contributing factor to its limited commercial success."
+        },
+        {
+          "id": "evidence-home-pong",
+          "source_id": "source-smithsonian-history",
+          "excerpt": "Smithsonian states that Atari partnered with Sears for a home version of Pong in 1975 and sold 150,000 units that year."
+        },
+        {
+          "id": "evidence-vcs-cartridges",
+          "source_id": "source-chm-1977",
+          "excerpt": "Computer History Museum records the 1977 Atari VCS and identifies interchangeable cartridges as a major factor in its popularity."
+        }
+      ],
+      "publication": null,
+      "publication_attempt": 1
     },
     {
       "episode": 4,
@@ -379,6 +533,6 @@
       "status": "PLANNED"
     }
   ],
-  "current_episode": 2,
+  "current_episode": 3,
   "updated_at": "2026-10-05"
 }
