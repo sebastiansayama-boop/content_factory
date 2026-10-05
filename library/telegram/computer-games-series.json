@@ -1311,7 +1311,163 @@
       "central_question": "Почему игра постепенно перестала быть вещью, которую нужно купить на диске?",
       "planned_scope": "Steam, цифровая дистрибуция, App Store, free-to-play, мобильные игры, DLC и live-service модель.",
       "next_question": "Во что превратилась игровая индустрия после того, как производство, распространение и обновление стали цифровыми?",
-      "status": "PLANNED"
+      "status": "PUBLISH_REQUESTED",
+      "text": "К концу 1990-х купить компьютерную игру всё ещё означало купить коробку.\n\nНужно было найти её в магазине, заплатить, принести домой и установить с диска.\n\nИнтернет начал менять эту модель.\n\nВ 2003 году Valve создала Steam. Первоначально он был нужен не столько для продажи игр, сколько для доставки обновлений: компания искала способ быстро и автоматически синхронизировать программное обеспечение у игроков. Но постепенно Steam превратился в полноценный магазин, где игру можно было купить и скачать без физического носителя. Valve прямо называет Steam альтернативой традиционной розничной дистрибуции. citeturn879990search0turn654416search36\n\nЭто изменило саму коробку.\n\nОна больше не была обязательной частью игры. Игра становилась цифровым файлом, привязанным к аккаунту, а не к одному физическому диску.\n\nСледующий шаг произошёл уже на мобильных устройствах.\n\nВ 2008 году Apple запустила App Store. Пользователь получил возможность находить, покупать и устанавливать приложения прямо на iPhone и iPod touch. Уже за первые выходные через магазин было загружено более 10 миллионов приложений. citeturn777436search0turn777436search1\n\nДля игр это было особенно важно.\n\nТеперь игровая площадка находилась не только дома перед телевизором или компьютером. Она была в кармане.\n\nНо цифровая дистрибуция изменила не только способ покупки.\n\nОна изменила саму экономику игры.\n\nРаньше разработчик должен был продать игру один раз. После покупки игрок получал готовый продукт, а большая часть отношений между ними на этом заканчивалась.\n\nТеперь игру можно было постоянно обновлять.\n\nМожно было выпускать дополнительный контент, исправлять ошибки, добавлять новые карты и режимы. Valve, например, ещё в 2009 году использовала Steam для доставки загружаемого контента и автоматических обновлений. citeturn879990search24\n\nПоявилась и другая модель — free-to-play.\n\nИгрок мог скачать игру бесплатно, а разработчик зарабатывать на внутриигровых покупках.\n\nTeam Fortress 2 хорошо показывает этот переход. В 2011 году Valve перевела игру на модель Free To Play после четырёх лет и более двухсот обновлений. Покупки внутри игры давали доступ к дополнительным предметам и функциям, а сама игра оставалась доступной бесплатно. citeturn909431search0turn909431search7\n\nЭто была уже другая логика.\n\nЦена входа стремилась к нулю, зато ценность можно было создавать и продавать постоянно.\n\nА для некоторых игр сам выпуск перестал быть финальной точкой.\n\nПоявилась модель live service: игра запускается как основа, а затем годами получает новые функции, контент и события.\n\nВ такой системе разработчик больше не думает только о дне релиза. Он думает о том, вернётся ли игрок завтра, через месяц и через год.\n\nВ 2013 году EA, например, прямо описывала FIFA World как free-to-play live service, который должен постоянно меняться через регулярные обновления и живой контент. citeturn909431search2\n\nТак цифровая дистрибуция изменила почти каждое звено цепочки.\n\nИгра перестала зависеть от физического магазина.\n\nОбновление перестало требовать новой версии диска.\n\nДополнительный контент перестал ждать следующего большого релиза.\n\nМобильные устройства превратились в самостоятельную игровую платформу.\n\nА модель free-to-play и live service сделала игру не единичной покупкой, а постоянно действующей услугой.\n\nВидеоигра прошла огромный путь: от программы в лаборатории до автомата, от автомата до домашней консоли, от консоли до PC и сети.\n\nТеперь оставался последний вопрос.\n\nЧто объединяет все эти переходы — и почему именно они превратили игру в самостоятельную индустрию?",
+      "story_state": {
+        "series_id": "telegram-series-computer-games-001",
+        "title": "История создания компьютерных игр",
+        "central_question": "Почему игра постепенно перестала быть вещью, которую нужно купить на диске?",
+        "established": [
+          "Ранние игры прошли путь от лабораторных экспериментов к аркадной модели.",
+          "Pong показал коммерческий потенциал массовых аркад.",
+          "Домашние консоли превратили телевизор в игровую платформу.",
+          "Atari VCS закрепила модель платформы со сменными картриджами.",
+          "Кризис 1983 года изменил отношение рынка к качеству и контролю программного обеспечения.",
+          "Nintendo восстановила консольный рынок через контроль качества и сильные игровые серии.",
+          "PC-среда сформировала собственные жанры, модели распространения и культуру модификаций.",
+          "3D сделало игровое пространство более сложным и подготовило игры к сетевому взаимодействию.",
+          "Сеть превратила игру из одиночного продукта в постоянно взаимодействующую систему.",
+          "Steam сделал цифровую дистрибуцию важной альтернативой физической рознице.",
+          "App Store перенёс цифровое распространение игр на мобильные устройства.",
+          "Free-to-play и live service превратили часть игр из разовой покупки в постоянно обновляемые продукты."
+        ],
+        "unresolved": [
+          "Во что превратилась игровая индустрия после того, как производство, распространение и обновление стали цифровыми?"
+        ],
+        "next_required_transition": "Свести технологические, рыночные и культурные переходы серии и показать, как они сформировали современную игровую индустрию.",
+        "used_examples": [
+          "Steam",
+          "App Store",
+          "Team Fortress 2",
+          "FIFA World",
+          "DLC",
+          "free-to-play",
+          "live service"
+        ],
+        "claims": [
+          "claim-steam",
+          "claim-app-store",
+          "claim-dlc",
+          "claim-free-to-play",
+          "claim-live-service"
+        ],
+        "evidence": [
+          "evidence-steam",
+          "evidence-app-store",
+          "evidence-dlc",
+          "evidence-free-to-play",
+          "evidence-live-service"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-steam",
+          "text": "Valve создала Steam в 2003 году как цифровой канал доставки контента и обновлений; затем он превратился в платформу покупки и загрузки игр от разных разработчиков.",
+          "source_ids": [
+            "source-valve-steam",
+            "source-valve-handbook"
+          ],
+          "evidence_ids": [
+            "evidence-steam"
+          ]
+        },
+        {
+          "id": "claim-app-store",
+          "text": "Apple запустила App Store в 2008 году как цифровой магазин мобильных приложений; уже в первые дни пользователи скачали миллионы приложений, включая игры.",
+          "source_ids": [
+            "source-apple-app-store"
+          ],
+          "evidence_ids": [
+            "evidence-app-store"
+          ]
+        },
+        {
+          "id": "claim-dlc",
+          "text": "Цифровая дистрибуция сделала практичными автоматические обновления и загрузку дополнительного контента без выпуска нового физического носителя.",
+          "source_ids": [
+            "source-valve-handbook"
+          ],
+          "evidence_ids": [
+            "evidence-dlc"
+          ]
+        },
+        {
+          "id": "claim-free-to-play",
+          "text": "В 2011 году Valve перевела Team Fortress 2 на модель Free To Play после нескольких лет регулярных обновлений; игра стала доступна бесплатно, а внутриигровые покупки получили коммерческую роль.",
+          "source_ids": [
+            "source-tf2-f2p"
+          ],
+          "evidence_ids": [
+            "evidence-free-to-play"
+          ]
+        },
+        {
+          "id": "claim-live-service",
+          "text": "К началу 2010-х live service оформился как модель, в которой игру поддерживают регулярными обновлениями, новым контентом и событиями; EA прямо описывала FIFA World как free-to-play live service.",
+          "source_ids": [
+            "source-ea-fifa-world"
+          ],
+          "evidence_ids": [
+            "evidence-live-service"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-valve-steam",
+          "title": "Valve — About Steam",
+          "url": "https://www.valvesoftware.com/en/about"
+        },
+        {
+          "id": "source-valve-handbook",
+          "title": "Valve Handbook — Steam timeline",
+          "url": "https://www.valvesoftware.com/company/Valve_Handbook_LowRes.pdf"
+        },
+        {
+          "id": "source-apple-app-store",
+          "title": "Apple — App Store turns 10 / launch history",
+          "url": "https://www.apple.com/th/newsroom/2018/07/app-store-turns-10/"
+        },
+        {
+          "id": "source-tf2-f2p",
+          "title": "Valve — Team Fortress 2 is now Free to Play",
+          "url": "https://www.teamfortress.com/post.php?id=5721"
+        },
+        {
+          "id": "source-ea-fifa-world",
+          "title": "EA — FIFA World as a free-to-play live service",
+          "url": "https://news.ea.com/press-releases/press-releases-details/2014/EA-SPORTS-FIFA-World-to-Launch-a-New-Game-Engine-Later-This-Year/default.aspx"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-steam",
+          "source_id": "source-valve-steam",
+          "excerpt": "Valve states that Steam was created in 2003 as a digital content distribution channel; its official history describes its later expansion into a platform for purchasing and downloading games."
+        },
+        {
+          "id": "evidence-app-store",
+          "source_id": "source-apple-app-store",
+          "excerpt": "Apple states that the App Store launched in 2008 and became a distribution platform that lets developers reach users directly; Apple's launch reporting recorded more than 10 million downloads in the first weekend."
+        },
+        {
+          "id": "evidence-dlc",
+          "source_id": "source-valve-handbook",
+          "excerpt": "Valve's handbook timeline documents Steam's role in downloadable content and automatic online updates, including Steam Cloud and downloadable content releases in the late 2000s."
+        },
+        {
+          "id": "evidence-free-to-play",
+          "source_id": "source-tf2-f2p",
+          "excerpt": "Valve announced on June 23, 2011 that Team Fortress 2 was becoming Free To Play after four years and more than 200 updates, with an in-game store for items and a complete game available without payment."
+        },
+        {
+          "id": "evidence-live-service",
+          "source_id": "source-ea-fifa-world",
+          "excerpt": "EA described FIFA World in 2014 as a free-to-play live service platform that could add features and modes through regular updates and dynamic live content."
+        }
+      ],
+      "publication": null,
+      "publication_attempt": 1
     },
     {
       "episode": 10,
@@ -1322,6 +1478,6 @@
       "status": "PLANNED"
     }
   ],
-  "current_episode": 8,
+  "current_episode": 9,
   "updated_at": "2026-10-05"
 }
