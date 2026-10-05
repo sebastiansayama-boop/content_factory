@@ -264,7 +264,7 @@ class QualityGate:
                     item for item in (flow or {}).get("sources", [])
                     if isinstance(item, dict)
                 ],
-            )
+            ) if (flow or {}).get("sources") else []
             blocked_claims = [
                 item for item in claim_assessments
                 if item.verdict != "PASS"
@@ -385,6 +385,10 @@ class QualityGate:
             "passed": passed,
             "checks": checks,
             "output_id": output.get("output_id"),
+            "claim_strength_assessments": [
+                item.to_dict()
+                for item in claim_assessments
+            ],
             "lineage": {
                 "information_flow_present": flow is not None,
                 "claim_ids": sorted(flow_claims),
