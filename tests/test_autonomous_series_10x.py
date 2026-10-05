@@ -47,7 +47,7 @@ def _knowledge():
     }
 
 
-def test_autonomous_series_accumulates_previous_results(tmp_path, monkeypatch):
+@pytest.mark.external\ndef test_autonomous_series_accumulates_previous_results(tmp_path, monkeypatch):
     monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path / "service-data"))
     service = FactoryService()
     try:
