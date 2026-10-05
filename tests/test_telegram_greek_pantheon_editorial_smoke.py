@@ -8,6 +8,7 @@ import pytest
 from http.server import ThreadingHTTPServer
 
 from content_factory.free_research import FreeWebGeminiAdapter
+from content_factory.research import parse_research_json
 from content_factory.knowledge import KnowledgeStore
 from content_factory.knowledge_content import KnowledgeContentBuilder
 from content_factory.ollama_adapter import OllamaAdapter
@@ -88,7 +89,7 @@ Ancient Greek pantheon: Zeus, Hera, Poseidon, Hades, and the basic structure of 
 """
     response = research.research(prompt)
     assert 200 <= response.status_code < 300
-    payload = json.loads(research.text(response))
+    payload = parse_research_json(research.text(response))
     context = _knowledge_from_research(payload)
     assert len(context["claims"]) >= 3
     assert context["evidence"]
