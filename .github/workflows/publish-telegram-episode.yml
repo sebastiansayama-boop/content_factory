@@ -12,7 +12,8 @@ jobs:
     if: >-
       startsWith(github.event.head_commit.message, 'publish: thai-spirit-episode-') ||
       startsWith(github.event.head_commit.message, 'publish: computer-games-episode-') ||
-      startsWith(github.event.head_commit.message, 'publish: cinema-episode-')
+      startsWith(github.event.head_commit.message, 'publish: cinema-episode-') ||
+      startsWith(github.event.head_commit.message, 'publish: greek-pantheon-episode-')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     concurrency:
