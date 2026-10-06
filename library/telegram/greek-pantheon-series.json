@@ -4,81 +4,1239 @@
   "season": 4,
   "platform": "telegram",
   "language": "ru",
-  "episode_count": 10,
+  "episode_count": 15,
   "central_question": "Как устроен мир древнегреческих богов и почему каждый из них занял именно своё место в мифологической системе?",
-  "continuity_rule": "Хронологическая и тематическая связь. Каждый эпизод раскрывает один слой пантеона и объясняет его место в общей системе. Вопрос в конце не обязателен.",
-  "publication_policy": "Публиковать строго по одному эпизоду. Сейчас проверить только эпизод 1; остальные не публиковать до отдельного подтверждения.",
+  "continuity_rule": "Каждый эпизод раскрывает самостоятельный слой общей религиозной системы; предыдущие выводы используются как контекст следующего эпизода. Вопрос в конце не обязателен.",
+  "publication_policy": "Публиковать строго по одному эпизоду. После каждого фактического успешного выпуска фиксировать результат и ExperienceRecord через обычный approve-путь; следующий эпизод запускать только после внешней проверки предыдущего.",
   "episodes": [
     {
       "episode": 1,
       "title": "Олимп: кто такие главные боги",
-      "planned_scope": "Зевс, Гера, Посейдон, Аид и базовое устройство божественного мира.",
-      "editorial_goal": "Дать читателю карту пантеона, а не перечень имён.",
-      "next_transition": "От общей карты перейти к Зевсу как центру олимпийского порядка."
+      "central_question": "Кто такие главные боги древнегреческого мира?",
+      "planned_scope": "Олимп: кто такие главные боги",
+      "next_question": null,
+      "status": "READY",
+      "text": "Древнегреческий пантеон — не просто список из двенадцати имён.\n\nГреки почитали множество богов, у каждого были свои функции, культы, святилища и местные особенности. При этом существовала группа главных олимпийских божеств, которую современная традиция обычно называет двенадцатью олимпийцами. Состав этой «двенадцатки» не был абсолютно неизменным: в разных традициях место одного божества могло занимать другое.\n\nВо главе стоял Зевс — бог неба и верховной власти. Его братья Посейдон и Аид были связаны соответственно с морем и подземным миром. Гера была царицей богов; Афина — покровительницей Афин; Аполлон — музыки и пророчества; Артемида — охоты; Гермес — посредничества и путешествий; Афродита — любви; Арес — войны; Гефест — ремесла; Деметра — земледелия; Дионис — вина и театра.\n\nВажно другое: эти боги не образовывали единую «семью персонажей» в современном смысле. Они представляли разные силы, отношения и области человеческой жизни.\n\nЧтобы понять систему, логично начать с того, кто стоял в её центре — с Зевса.",
+      "story_state": {
+        "series_id": "telegram-series-greek-pantheon-004",
+        "title": "Пантеон богов в Древней Греции",
+        "central_question": "Как устроен мир древнегреческих богов и почему каждый из них занял именно своё место в мифологической системе?",
+        "established": [
+          "Эпизод 1 зафиксировал тему «Олимп: кто такие главные боги» и её место в общей системе пантеона."
+        ],
+        "unresolved": [
+          "От общей карты перейти к Зевсу как центру олимпийского порядка."
+        ],
+        "next_required_transition": "От общей карты перейти к Зевсу как центру олимпийского порядка.",
+        "used_examples": "Олимп: кто такие главные боги",
+        "claims": [
+          "claim-pantheon"
+        ],
+        "evidence": [
+          "evidence-pantheon"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-pantheon",
+          "text": "Эпизод 1: Олимп: кто такие главные боги.",
+          "source_ids": [
+            "source-met-gods"
+          ],
+          "evidence_ids": [
+            "evidence-pantheon"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-met-gods",
+          "title": "The Metropolitan Museum of Art — Greek Gods and Religious Practices",
+          "url": "https://www.metmuseum.org/essays/greek-gods-and-religious-practices"
+        },
+        {
+          "id": "source-met-afterlife",
+          "title": "The Metropolitan Museum of Art — Death, Burial, and the Afterlife in Ancient Greece",
+          "url": "https://www.metmuseum.org/essays/death-burial-and-the-afterlife-in-ancient-greece"
+        },
+        {
+          "id": "source-met-mysteries",
+          "title": "The Metropolitan Museum of Art — Mystery Cults in the Greek and Roman World",
+          "url": "https://www.metmuseum.org/essays/mystery-cults-in-the-greek-and-roman-world"
+        },
+        {
+          "id": "source-whe-olympians",
+          "title": "World History Encyclopedia — The 12 Olympian Gods",
+          "url": "https://www.worldhistory.org/collection/58/the-12-olympian-gods/1000/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-pantheon",
+          "source_id": "source-met-gods",
+          "excerpt": "Материалы Metropolitan Museum of Art описывают соответствующие функции божеств, религиозные практики и место мифов в древнегреческой культуре."
+        }
+      ],
+      "publication": {
+        "status": "READY",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
     },
     {
       "episode": 2,
       "title": "Зевс: власть над богами и людьми",
-      "planned_scope": "Зевс, гром, небо, власть, порядок, отношения с другими богами.",
-      "editorial_goal": "Показать, как образ Зевса связывает власть, порядок и семейную структуру пантеона.",
-      "next_transition": "Перейти к Гере и роли брака."
+      "central_question": "Что делало Зевса центром олимпийского порядка?",
+      "planned_scope": "Зевс: власть над богами и людьми",
+      "next_question": null,
+      "status": "READY",
+      "text": "Зевс в греческой религии — не просто бог молнии.\n\nОн связан с небом, громом, властью, порядком и защитой установленных норм. В мифах он становится главным среди олимпийских богов после победы над титанами и распределяет власть между богами.\n\nПри этом его положение не означает, что остальные боги превращаются в подчинённых персонажей. У каждого сохраняется собственная сфера влияния. Посейдон властвует над морем, Аид — над миром мёртвых, Афина — над своей особой формой мудрости и военной стратегии.\n\nПоэтому Зевс интересен как центр системы: его власть связывает разные божественные силы, но не отменяет их самостоятельности.\n\nУ Зевса есть и другая сторона. Мифы постоянно показывают его семейные конфликты, браки и многочисленные связи. Это делает олимпийский мир похожим не на идеальное царство, а на общество, где власть, родство и конфликт существуют одновременно.\n\nИменно рядом с Зевсом особенно ясно видна роль Геры — не просто «ревнивой жены», а царицы богов и самостоятельного божества брака.",
+      "story_state": {
+        "series_id": "telegram-series-greek-pantheon-004",
+        "title": "Пантеон богов в Древней Греции",
+        "central_question": "Как устроен мир древнегреческих богов и почему каждый из них занял именно своё место в мифологической системе?",
+        "established": [
+          "Эпизод 2 зафиксировал тему «Зевс: власть над богами и людьми» и её место в общей системе пантеона."
+        ],
+        "unresolved": [
+          "Перейти к Гере и роли брака и царского статуса."
+        ],
+        "next_required_transition": "Перейти к Гере и роли брака и царского статуса.",
+        "used_examples": "Зевс: власть над богами и людьми",
+        "claims": [
+          "claim-zeus"
+        ],
+        "evidence": [
+          "evidence-zeus"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-zeus",
+          "text": "Эпизод 2: Зевс: власть над богами и людьми.",
+          "source_ids": [
+            "source-met-gods"
+          ],
+          "evidence_ids": [
+            "evidence-zeus"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-met-gods",
+          "title": "The Metropolitan Museum of Art — Greek Gods and Religious Practices",
+          "url": "https://www.metmuseum.org/essays/greek-gods-and-religious-practices"
+        },
+        {
+          "id": "source-met-afterlife",
+          "title": "The Metropolitan Museum of Art — Death, Burial, and the Afterlife in Ancient Greece",
+          "url": "https://www.metmuseum.org/essays/death-burial-and-the-afterlife-in-ancient-greece"
+        },
+        {
+          "id": "source-met-mysteries",
+          "title": "The Metropolitan Museum of Art — Mystery Cults in the Greek and Roman World",
+          "url": "https://www.metmuseum.org/essays/mystery-cults-in-the-greek-and-roman-world"
+        },
+        {
+          "id": "source-whe-olympians",
+          "title": "World History Encyclopedia — The 12 Olympian Gods",
+          "url": "https://www.worldhistory.org/collection/58/the-12-olympian-gods/1000/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-zeus",
+          "source_id": "source-met-gods",
+          "excerpt": "Материалы Metropolitan Museum of Art описывают соответствующие функции божеств, религиозные практики и место мифов в древнегреческой культуре."
+        }
+      ],
+      "publication": {
+        "status": "READY",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
     },
     {
       "episode": 3,
       "title": "Гера: богиня брака и царская фигура",
-      "planned_scope": "Гера, брак, семья, статус царицы богов.",
-      "editorial_goal": "Отделить поздние стереотипы от функции Геры в мифологической системе.",
-      "next_transition": "Перейти к братьям Зевса и разделению мира."
+      "central_question": "Почему Гера была больше, чем «жена Зевса»?",
+      "planned_scope": "Гера: богиня брака и царская фигура",
+      "next_question": null,
+      "status": "READY",
+      "text": "Геру часто запоминают по историям о её конфликтах с любовницами Зевса. Но такое описание слишком сильно сужает её роль.\n\nВ древнегреческой религии Гера была царицей богов и богиней брака. Её образ связан с законным супружеством, статусом жены и порядком семейного союза.\n\nЭто особенно важно в системе Олимпа. Зевс представляет верховную власть, а Гера показывает другую сторону общественного порядка — отношения, статус и брак.\n\nМифы при этом не изображают её покорной супругой. Гера способна спорить с Зевсом, действовать самостоятельно и вступать в конфликты с другими богами и героями.\n\nПоэтому её образ нельзя сводить к позднему стереотипу о «ревнивой жене». В мифологической системе она занимает собственное место и имеет собственный культ.\n\nПосле Зевса и Геры естественно перейти к двум братьям Зевса: Посейдону и Аиду. Именно через них становится понятным разделение мира между богами.",
+      "story_state": {
+        "series_id": "telegram-series-greek-pantheon-004",
+        "title": "Пантеон богов в Древней Греции",
+        "central_question": "Как устроен мир древнегреческих богов и почему каждый из них занял именно своё место в мифологической системе?",
+        "established": [
+          "Эпизод 3 зафиксировал тему «Гера: богиня брака и царская фигура» и её место в общей системе пантеона."
+        ],
+        "unresolved": [
+          "Перейти к Посейдону и разделению мира между братьями."
+        ],
+        "next_required_transition": "Перейти к Посейдону и разделению мира между братьями.",
+        "used_examples": "Гера: богиня брака и царская фигура",
+        "claims": [
+          "claim-hera"
+        ],
+        "evidence": [
+          "evidence-hera"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-hera",
+          "text": "Эпизод 3: Гера: богиня брака и царская фигура.",
+          "source_ids": [
+            "source-met-gods"
+          ],
+          "evidence_ids": [
+            "evidence-hera"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-met-gods",
+          "title": "The Metropolitan Museum of Art — Greek Gods and Religious Practices",
+          "url": "https://www.metmuseum.org/essays/greek-gods-and-religious-practices"
+        },
+        {
+          "id": "source-met-afterlife",
+          "title": "The Metropolitan Museum of Art — Death, Burial, and the Afterlife in Ancient Greece",
+          "url": "https://www.metmuseum.org/essays/death-burial-and-the-afterlife-in-ancient-greece"
+        },
+        {
+          "id": "source-met-mysteries",
+          "title": "The Metropolitan Museum of Art — Mystery Cults in the Greek and Roman World",
+          "url": "https://www.metmuseum.org/essays/mystery-cults-in-the-greek-and-roman-world"
+        },
+        {
+          "id": "source-whe-olympians",
+          "title": "World History Encyclopedia — The 12 Olympian Gods",
+          "url": "https://www.worldhistory.org/collection/58/the-12-olympian-gods/1000/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-hera",
+          "source_id": "source-met-gods",
+          "excerpt": "Материалы Metropolitan Museum of Art описывают соответствующие функции божеств, религиозные практики и место мифов в древнегреческой культуре."
+        }
+      ],
+      "publication": {
+        "status": "READY",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
     },
     {
       "episode": 4,
       "title": "Посейдон: море, землетрясения и власть",
-      "planned_scope": "Посейдон и его сферы влияния.",
-      "editorial_goal": "Показать, почему морской бог не сводится к образу «бога моря».",
-      "next_transition": "Перейти к Аиду и миру мёртвых."
+      "central_question": "Почему Посейдон не сводится к образу бога моря?",
+      "planned_scope": "Посейдон: море, землетрясения и власть",
+      "next_question": null,
+      "status": "READY",
+      "text": "Посейдон известен как бог моря, но древние представления были шире.\n\nОн связан также с землетрясениями и конями. Его культ существовал в разных частях греческого мира, а святилища строились в местах, где море и земная стихия имели особое значение.\n\nПосейдон — брат Зевса и Аида. В мифологической схеме после победы над титанами братья получают разные области власти. Зевсу достаётся небо, Посейдону — море, Аиду — подземный мир.\n\nНо это не означает разделение мира на три независимых государства. Боги постоянно пересекаются в мифах и вмешиваются в дела людей.\n\nОбраз Посейдона хорошо показывает, почему греческих богов нельзя понимать только через одну «функцию». Его власть связана одновременно с морем, землёй, опасностью и движением.\n\nЕсли Посейдон управляет пространством живых и морской стихией, следующий брат связан с областью, которую греки представляли совершенно иначе — с миром умерших.",
+      "story_state": {
+        "series_id": "telegram-series-greek-pantheon-004",
+        "title": "Пантеон богов в Древней Греции",
+        "central_question": "Как устроен мир древнегреческих богов и почему каждый из них занял именно своё место в мифологической системе?",
+        "established": [
+          "Эпизод 4 зафиксировал тему «Посейдон: море, землетрясения и власть» и её место в общей системе пантеона."
+        ],
+        "unresolved": [
+          "Перейти к Аиду и представлению о мире мёртвых."
+        ],
+        "next_required_transition": "Перейти к Аиду и представлению о мире мёртвых.",
+        "used_examples": "Посейдон: море, землетрясения и власть",
+        "claims": [
+          "claim-poseidon"
+        ],
+        "evidence": [
+          "evidence-poseidon"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-poseidon",
+          "text": "Эпизод 4: Посейдон: море, землетрясения и власть.",
+          "source_ids": [
+            "source-met-gods"
+          ],
+          "evidence_ids": [
+            "evidence-poseidon"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-met-gods",
+          "title": "The Metropolitan Museum of Art — Greek Gods and Religious Practices",
+          "url": "https://www.metmuseum.org/essays/greek-gods-and-religious-practices"
+        },
+        {
+          "id": "source-met-afterlife",
+          "title": "The Metropolitan Museum of Art — Death, Burial, and the Afterlife in Ancient Greece",
+          "url": "https://www.metmuseum.org/essays/death-burial-and-the-afterlife-in-ancient-greece"
+        },
+        {
+          "id": "source-met-mysteries",
+          "title": "The Metropolitan Museum of Art — Mystery Cults in the Greek and Roman World",
+          "url": "https://www.metmuseum.org/essays/mystery-cults-in-the-greek-and-roman-world"
+        },
+        {
+          "id": "source-whe-olympians",
+          "title": "World History Encyclopedia — The 12 Olympian Gods",
+          "url": "https://www.worldhistory.org/collection/58/the-12-olympian-gods/1000/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-poseidon",
+          "source_id": "source-met-gods",
+          "excerpt": "Материалы Metropolitan Museum of Art описывают соответствующие функции божеств, религиозные практики и место мифов в древнегреческой культуре."
+        }
+      ],
+      "publication": {
+        "status": "READY",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
     },
     {
       "episode": 5,
       "title": "Аид: бог подземного мира",
-      "planned_scope": "Аид, царство мёртвых, отличие от образа дьявола.",
-      "editorial_goal": "Объяснить место Аида без переноса христианских представлений.",
-      "next_transition": "Перейти от поколения старших богов к молодым олимпийцам."
+      "central_question": "Почему Аид не является греческим аналогом дьявола?",
+      "planned_scope": "Аид: бог подземного мира",
+      "next_question": null,
+      "status": "READY",
+      "text": "Аид — один из самых часто неправильно понятых греческих богов.\n\nВ современном массовом образе его нередко превращают в аналог дьявола. Для древнегреческой религии это неверная схема.\n\nАид был богом подземного мира и владыкой умерших. Он не был воплощением абсолютного зла. Его царство было частью устройства космоса, а смерть — естественной частью человеческого существования.\n\nВ «Одиссее» подземный мир описывается как место, куда уходят души умерших. Аид и Персефона выступают его правителями.\n\nОсобое место занимает миф о Персефоне. Её пребывание между миром живых и подземным царством связывает смерть, возвращение и смену природных циклов. Позднейшие интерпретации часто упрощали этот сюжет, но древняя традиция была сложнее.\n\nАид поэтому важен именно как часть космического порядка. Он показывает, что олимпийская система не ограничивается небом и жизнью.\n\nТеперь можно перейти к следующему поколению богов — к Афине, чей образ соединяет город, разум и военную стратегию.",
+      "story_state": {
+        "series_id": "telegram-series-greek-pantheon-004",
+        "title": "Пантеон богов в Древней Греции",
+        "central_question": "Как устроен мир древнегреческих богов и почему каждый из них занял именно своё место в мифологической системе?",
+        "established": [
+          "Эпизод 5 зафиксировал тему «Аид: бог подземного мира» и её место в общей системе пантеона."
+        ],
+        "unresolved": [
+          "Перейти от старшего поколения к молодым олимпийцам и Афине."
+        ],
+        "next_required_transition": "Перейти от старшего поколения к молодым олимпийцам и Афине.",
+        "used_examples": "Аид: бог подземного мира",
+        "claims": [
+          "claim-hades"
+        ],
+        "evidence": [
+          "evidence-hades"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-hades",
+          "text": "Эпизод 5: Аид: бог подземного мира.",
+          "source_ids": [
+            "source-met-gods"
+          ],
+          "evidence_ids": [
+            "evidence-hades"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-met-gods",
+          "title": "The Metropolitan Museum of Art — Greek Gods and Religious Practices",
+          "url": "https://www.metmuseum.org/essays/greek-gods-and-religious-practices"
+        },
+        {
+          "id": "source-met-afterlife",
+          "title": "The Metropolitan Museum of Art — Death, Burial, and the Afterlife in Ancient Greece",
+          "url": "https://www.metmuseum.org/essays/death-burial-and-the-afterlife-in-ancient-greece"
+        },
+        {
+          "id": "source-met-mysteries",
+          "title": "The Metropolitan Museum of Art — Mystery Cults in the Greek and Roman World",
+          "url": "https://www.metmuseum.org/essays/mystery-cults-in-the-greek-and-roman-world"
+        },
+        {
+          "id": "source-whe-olympians",
+          "title": "World History Encyclopedia — The 12 Olympian Gods",
+          "url": "https://www.worldhistory.org/collection/58/the-12-olympian-gods/1000/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-hades",
+          "source_id": "source-met-afterlife",
+          "excerpt": "Материалы Metropolitan Museum of Art описывают соответствующие функции божеств, религиозные практики и место мифов в древнегреческой культуре."
+        }
+      ],
+      "publication": {
+        "status": "READY",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
     },
     {
       "episode": 6,
       "title": "Афина: мудрость, война и город",
-      "planned_scope": "Рождение Афины, мудрость, стратегия, Афины.",
-      "editorial_goal": "Показать необычное сочетание военной и интеллектуальной функций.",
-      "next_transition": "Перейти к Аполлону и объединению искусства, пророчества и порядка."
+      "central_question": "Почему Афина соединяет мудрость и войну?",
+      "planned_scope": "Афина: мудрость, война и город",
+      "next_question": null,
+      "status": "READY",
+      "text": "Афина необычна уже своим происхождением: в мифе она рождается из головы Зевса и появляется вооружённой.\n\nНо важнее то, какую функцию она получает. Афина связана с мудростью, стратегией и военной защитой, а также с ремеслом и городским порядком. Её главным городом стал Афины, где её культ занял центральное место.\n\nОна не является просто «женской версией Ареса». Арес олицетворяет более непосредственную и разрушительную сторону войны, тогда как Афина связана с расчётом, дисциплиной и стратегией.\n\nЕё символы — шлем, копьё, эгида, сова и оливковое дерево — показывают сочетание военной силы, знания и гражданского порядка.\n\nИменно поэтому Афина хорошо показывает особенность греческого пантеона: один бог может объединять несколько функций, если они воспринимаются как части одной области жизни.\n\nСледующий шаг — Аполлон. Его сферы ещё шире: музыка, пророчество и религиозный порядок.",
+      "story_state": {
+        "series_id": "telegram-series-greek-pantheon-004",
+        "title": "Пантеон богов в Древней Греции",
+        "central_question": "Как устроен мир древнегреческих богов и почему каждый из них занял именно своё место в мифологической системе?",
+        "established": [
+          "Эпизод 6 зафиксировал тему «Афина: мудрость, война и город» и её место в общей системе пантеона."
+        ],
+        "unresolved": [
+          "Перейти к Аполлону и соединению пророчества, музыки и порядка."
+        ],
+        "next_required_transition": "Перейти к Аполлону и соединению пророчества, музыки и порядка.",
+        "used_examples": "Афина: мудрость, война и город",
+        "claims": [
+          "claim-athena"
+        ],
+        "evidence": [
+          "evidence-athena"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-athena",
+          "text": "Эпизод 6: Афина: мудрость, война и город.",
+          "source_ids": [
+            "source-met-gods"
+          ],
+          "evidence_ids": [
+            "evidence-athena"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-met-gods",
+          "title": "The Metropolitan Museum of Art — Greek Gods and Religious Practices",
+          "url": "https://www.metmuseum.org/essays/greek-gods-and-religious-practices"
+        },
+        {
+          "id": "source-met-afterlife",
+          "title": "The Metropolitan Museum of Art — Death, Burial, and the Afterlife in Ancient Greece",
+          "url": "https://www.metmuseum.org/essays/death-burial-and-the-afterlife-in-ancient-greece"
+        },
+        {
+          "id": "source-met-mysteries",
+          "title": "The Metropolitan Museum of Art — Mystery Cults in the Greek and Roman World",
+          "url": "https://www.metmuseum.org/essays/mystery-cults-in-the-greek-and-roman-world"
+        },
+        {
+          "id": "source-whe-olympians",
+          "title": "World History Encyclopedia — The 12 Olympian Gods",
+          "url": "https://www.worldhistory.org/collection/58/the-12-olympian-gods/1000/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-athena",
+          "source_id": "source-met-gods",
+          "excerpt": "Материалы Metropolitan Museum of Art описывают соответствующие функции божеств, религиозные практики и место мифов в древнегреческой культуре."
+        }
+      ],
+      "publication": {
+        "status": "READY",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
     },
     {
       "episode": 7,
-      "title": "Аполлон: свет, музыка и пророчество",
-      "planned_scope": "Аполлон, Дельфы, музыка, пророчество, гармония.",
-      "editorial_goal": "Показать широту функций одного божества.",
-      "next_transition": "Перейти к Артемиде как связанному, но самостоятельному образу."
+      "title": "Аполлон: музыка, пророчество и порядок",
+      "central_question": "Почему Аполлон оказался связан сразу с музыкой и пророчеством?",
+      "planned_scope": "Аполлон: музыка, пророчество и порядок",
+      "next_question": null,
+      "status": "READY",
+      "text": "Аполлон — один из наиболее широко почитавшихся богов греческого мира.\n\nОн связан с музыкой, пророчеством и целым комплексом представлений о порядке и гармонии. Главным центром его пророческого культа были Дельфы, куда приходили люди из разных частей греческого мира.\n\nОбраз Аполлона поэтому нельзя свести к современному определению «бог солнца». В древнегреческой религии солнечное божество Гелиос существовало отдельно, хотя позднейшая традиция стала теснее связывать Аполлона со светом.\n\nВ искусстве Аполлона часто показывали с кифарой или луком. Эти атрибуты соединяют музыкальную, поэтическую и воинскую стороны образа.\n\nЕго культ показывает ещё одну особенность греческой религии: бог существовал не только в мифе. У него были реальные святилища, ритуалы, жрецы и паломники.\n\nУ Аполлона была сестра-близнец — Артемида. Но её мир гораздо сильнее связан с охотой и пространством за пределами города.",
+      "story_state": {
+        "series_id": "telegram-series-greek-pantheon-004",
+        "title": "Пантеон богов в Древней Греции",
+        "central_question": "Как устроен мир древнегреческих богов и почему каждый из них занял именно своё место в мифологической системе?",
+        "established": [
+          "Эпизод 7 зафиксировал тему «Аполлон: музыка, пророчество и порядок» и её место в общей системе пантеона."
+        ],
+        "unresolved": [
+          "Перейти к Артемиде и границе между городом и дикой природой."
+        ],
+        "next_required_transition": "Перейти к Артемиде и границе между городом и дикой природой.",
+        "used_examples": "Аполлон: музыка, пророчество и порядок",
+        "claims": [
+          "claim-apollo"
+        ],
+        "evidence": [
+          "evidence-apollo"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-apollo",
+          "text": "Эпизод 7: Аполлон: музыка, пророчество и порядок.",
+          "source_ids": [
+            "source-met-gods"
+          ],
+          "evidence_ids": [
+            "evidence-apollo"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-met-gods",
+          "title": "The Metropolitan Museum of Art — Greek Gods and Religious Practices",
+          "url": "https://www.metmuseum.org/essays/greek-gods-and-religious-practices"
+        },
+        {
+          "id": "source-met-afterlife",
+          "title": "The Metropolitan Museum of Art — Death, Burial, and the Afterlife in Ancient Greece",
+          "url": "https://www.metmuseum.org/essays/death-burial-and-the-afterlife-in-ancient-greece"
+        },
+        {
+          "id": "source-met-mysteries",
+          "title": "The Metropolitan Museum of Art — Mystery Cults in the Greek and Roman World",
+          "url": "https://www.metmuseum.org/essays/mystery-cults-in-the-greek-and-roman-world"
+        },
+        {
+          "id": "source-whe-olympians",
+          "title": "World History Encyclopedia — The 12 Olympian Gods",
+          "url": "https://www.worldhistory.org/collection/58/the-12-olympian-gods/1000/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-apollo",
+          "source_id": "source-met-gods",
+          "excerpt": "Материалы Metropolitan Museum of Art описывают соответствующие функции божеств, религиозные практики и место мифов в древнегреческой культуре."
+        }
+      ],
+      "publication": {
+        "status": "READY",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
     },
     {
       "episode": 8,
       "title": "Артемида: охота и границы природы",
-      "planned_scope": "Артемида, охота, дикая природа, независимость.",
-      "editorial_goal": "Показать связь божественного порядка с пространством за пределами города.",
-      "next_transition": "Перейти к Гермесу как богу движения и обмена."
+      "central_question": "Что представляла Артемида за пределами городского мира?",
+      "planned_scope": "Артемида: охота и границы природы",
+      "next_question": null,
+      "status": "READY",
+      "text": "Артемида — богиня охоты и дикой природы, сестра-близнец Аполлона.\n\nЕё образ связан с луком, охотой и животными. Она представляет пространство, которое находится за пределами организованного города: лес, горы, охотничьи угодья и опасную природу.\n\nНо Артемида не просто «женский бог охоты». Её культ был связан также с переходами и уязвимыми этапами человеческой жизни, а в разных местах Греции её почитали с разными местными особенностями.\n\nСвязь Артемиды с девственностью и независимостью стала одной из самых заметных черт её мифологического образа. Она не вступает в привычную для олимпийских богов семейную модель.\n\nВместе с Аполлоном она показывает парность, но не тождество: брат связан с музыкой и пророчеством, сестра — с охотой и дикой природой.\n\nСледующий бог работает уже не на границе города и леса, а на границах между самими людьми и мирами. Это Гермес.",
+      "story_state": {
+        "series_id": "telegram-series-greek-pantheon-004",
+        "title": "Пантеон богов в Древней Греции",
+        "central_question": "Как устроен мир древнегреческих богов и почему каждый из них занял именно своё место в мифологической системе?",
+        "established": [
+          "Эпизод 8 зафиксировал тему «Артемида: охота и границы природы» и её место в общей системе пантеона."
+        ],
+        "unresolved": [
+          "Перейти к Гермесу как богу движения, обмена и границ."
+        ],
+        "next_required_transition": "Перейти к Гермесу как богу движения, обмена и границ.",
+        "used_examples": "Артемида: охота и границы природы",
+        "claims": [
+          "claim-artemis"
+        ],
+        "evidence": [
+          "evidence-artemis"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-artemis",
+          "text": "Эпизод 8: Артемида: охота и границы природы.",
+          "source_ids": [
+            "source-met-gods"
+          ],
+          "evidence_ids": [
+            "evidence-artemis"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-met-gods",
+          "title": "The Metropolitan Museum of Art — Greek Gods and Religious Practices",
+          "url": "https://www.metmuseum.org/essays/greek-gods-and-religious-practices"
+        },
+        {
+          "id": "source-met-afterlife",
+          "title": "The Metropolitan Museum of Art — Death, Burial, and the Afterlife in Ancient Greece",
+          "url": "https://www.metmuseum.org/essays/death-burial-and-the-afterlife-in-ancient-greece"
+        },
+        {
+          "id": "source-met-mysteries",
+          "title": "The Metropolitan Museum of Art — Mystery Cults in the Greek and Roman World",
+          "url": "https://www.metmuseum.org/essays/mystery-cults-in-the-greek-and-roman-world"
+        },
+        {
+          "id": "source-whe-olympians",
+          "title": "World History Encyclopedia — The 12 Olympian Gods",
+          "url": "https://www.worldhistory.org/collection/58/the-12-olympian-gods/1000/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-artemis",
+          "source_id": "source-met-gods",
+          "excerpt": "Материалы Metropolitan Museum of Art описывают соответствующие функции божеств, религиозные практики и место мифов в древнегреческой культуре."
+        }
+      ],
+      "publication": {
+        "status": "READY",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
     },
     {
       "episode": 9,
-      "title": "Гермес: бог дорог, торговли и границ",
-      "planned_scope": "Гермес, путешествия, торговля, посланничество, переходы.",
-      "editorial_goal": "Показать функцию посредника между разными мирами.",
-      "next_transition": "Собрать пантеон через Диониса и границу между порядком и экстазом."
+      "title": "Гермес: дороги, торговля и границы",
+      "central_question": "Почему Гермес оказался богом движения и посредничества?",
+      "planned_scope": "Гермес: дороги, торговля и границы",
+      "next_question": null,
+      "status": "READY",
+      "text": "Гермес — бог движения.\n\nОн связан с путешествиями, торговлей, посланничеством и переходами. Его крылатые сандалии стали одним из самых узнаваемых образов античной мифологии, но функция Гермеса глубже.\n\nОн посредник. Гермес переносит сообщения, сопровождает путников и связан с границами между разными сферами.\n\nИменно поэтому в мифах он может появляться там, где требуется переход: между богами и людьми, между безопасным и опасным пространством, между жизнью и смертью.\n\nЭто делает его важной частью олимпийской системы. Если Зевс представляет верховную власть, а Афина — стратегический разум, то Гермес обеспечивает движение информации, людей и вещей.\n\nЕго связь с торговлей показывает, что греческий пантеон отражал не только космос и природу, но и устройство общества.\n\nНо есть область, которую нельзя объяснить ни торговлей, ни войной, ни властью. Это желание, красота и притяжение. Здесь появляется Афродита.",
+      "story_state": {
+        "series_id": "telegram-series-greek-pantheon-004",
+        "title": "Пантеон богов в Древней Греции",
+        "central_question": "Как устроен мир древнегреческих богов и почему каждый из них занял именно своё место в мифологической системе?",
+        "established": [
+          "Эпизод 9 зафиксировал тему «Гермес: дороги, торговля и границы» и её место в общей системе пантеона."
+        ],
+        "unresolved": [
+          "Перейти к Афродите и силе желания и притяжения."
+        ],
+        "next_required_transition": "Перейти к Афродите и силе желания и притяжения.",
+        "used_examples": "Гермес: дороги, торговля и границы",
+        "claims": [
+          "claim-hermes"
+        ],
+        "evidence": [
+          "evidence-hermes"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-hermes",
+          "text": "Эпизод 9: Гермес: дороги, торговля и границы.",
+          "source_ids": [
+            "source-met-gods"
+          ],
+          "evidence_ids": [
+            "evidence-hermes"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-met-gods",
+          "title": "The Metropolitan Museum of Art — Greek Gods and Religious Practices",
+          "url": "https://www.metmuseum.org/essays/greek-gods-and-religious-practices"
+        },
+        {
+          "id": "source-met-afterlife",
+          "title": "The Metropolitan Museum of Art — Death, Burial, and the Afterlife in Ancient Greece",
+          "url": "https://www.metmuseum.org/essays/death-burial-and-the-afterlife-in-ancient-greece"
+        },
+        {
+          "id": "source-met-mysteries",
+          "title": "The Metropolitan Museum of Art — Mystery Cults in the Greek and Roman World",
+          "url": "https://www.metmuseum.org/essays/mystery-cults-in-the-greek-and-roman-world"
+        },
+        {
+          "id": "source-whe-olympians",
+          "title": "World History Encyclopedia — The 12 Olympian Gods",
+          "url": "https://www.worldhistory.org/collection/58/the-12-olympian-gods/1000/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-hermes",
+          "source_id": "source-met-gods",
+          "excerpt": "Материалы Metropolitan Museum of Art описывают соответствующие функции божеств, религиозные практики и место мифов в древнегреческой культуре."
+        }
+      ],
+      "publication": {
+        "status": "READY",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
     },
     {
       "episode": 10,
-      "title": "Дионис и границы пантеона",
-      "planned_scope": "Дионис, театр, экстаз, культ и итоговая структура пантеона.",
-      "editorial_goal": "Завершить сезон не списком богов, а объяснением того, почему пантеон оставался системой разных человеческих и природных сил.",
-      "next_transition": "Завершение сезона."
+      "title": "Афродита: любовь как сила",
+      "central_question": "Почему любовь Афродиты могла быть разрушительной силой?",
+      "planned_scope": "Афродита: любовь как сила",
+      "next_question": null,
+      "status": "READY",
+      "text": "Афродита в греческой традиции связана с любовью, красотой и желанием.\n\nНо слово «любовь» здесь слишком узкое. Её сила — в притяжении, которое способно менять отношения между богами и людьми.\n\nИменно поэтому Афродита постоянно появляется в мифах, где желание становится причиной конфликта. Её связь с Аресом, история с Гефестом и участие в судьбах героев показывают, что красота в греческой мифологии не была просто эстетическим качеством.\n\nАфродита могла быть опасной. Желание нарушает расчёт, разрушает союзы и заставляет персонажей принимать решения, последствия которых они не контролируют.\n\nПри этом её культ существовал независимо от литературных историй. В разных местах Греции Афродиту почитали как самостоятельное божество с собственными ритуалами и святилищами.\n\nНа этом фоне особенно интересно посмотреть на Ареса. Если Афродита показывает силу желания, то Арес показывает силу конфликта.",
+      "story_state": {
+        "series_id": "telegram-series-greek-pantheon-004",
+        "title": "Пантеон богов в Древней Греции",
+        "central_question": "Как устроен мир древнегреческих богов и почему каждый из них занял именно своё место в мифологической системе?",
+        "established": [
+          "Эпизод 10 зафиксировал тему «Афродита: любовь как сила» и её место в общей системе пантеона."
+        ],
+        "unresolved": [
+          "Перейти к Аресу и войне как отдельной силе."
+        ],
+        "next_required_transition": "Перейти к Аресу и войне как отдельной силе.",
+        "used_examples": "Афродита: любовь как сила",
+        "claims": [
+          "claim-aphrodite"
+        ],
+        "evidence": [
+          "evidence-aphrodite"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-aphrodite",
+          "text": "Эпизод 10: Афродита: любовь как сила.",
+          "source_ids": [
+            "source-met-gods"
+          ],
+          "evidence_ids": [
+            "evidence-aphrodite"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-met-gods",
+          "title": "The Metropolitan Museum of Art — Greek Gods and Religious Practices",
+          "url": "https://www.metmuseum.org/essays/greek-gods-and-religious-practices"
+        },
+        {
+          "id": "source-met-afterlife",
+          "title": "The Metropolitan Museum of Art — Death, Burial, and the Afterlife in Ancient Greece",
+          "url": "https://www.metmuseum.org/essays/death-burial-and-the-afterlife-in-ancient-greece"
+        },
+        {
+          "id": "source-met-mysteries",
+          "title": "The Metropolitan Museum of Art — Mystery Cults in the Greek and Roman World",
+          "url": "https://www.metmuseum.org/essays/mystery-cults-in-the-greek-and-roman-world"
+        },
+        {
+          "id": "source-whe-olympians",
+          "title": "World History Encyclopedia — The 12 Olympian Gods",
+          "url": "https://www.worldhistory.org/collection/58/the-12-olympian-gods/1000/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-aphrodite",
+          "source_id": "source-met-gods",
+          "excerpt": "Материалы Metropolitan Museum of Art описывают соответствующие функции божеств, религиозные практики и место мифов в древнегреческой культуре."
+        }
+      ],
+      "publication": {
+        "status": "READY",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
+    },
+    {
+      "episode": 11,
+      "title": "Арес: война без героизации",
+      "central_question": "Почему Арес не является идеальным героем войны?",
+      "planned_scope": "Арес: война без героизации",
+      "next_question": null,
+      "status": "READY",
+      "text": "Арес — бог войны, но греческая традиция не делает его безусловным героем.\n\nЕго образ связан с яростью, насилием и непосредственным столкновением. Это отличает его от Афины, которая связана с военной стратегией и разумным расчётом.\n\nТакое разделение важно. Для греков война была реальной частью жизни полиса, но она могла восприниматься одновременно как необходимая и разрушительная сила.\n\nМифы часто показывают Ареса импульсивным и конфликтным. Он способен проигрывать, вступать в ссоры и действовать под влиянием страсти.\n\nВ этом смысле Арес — не идеализированный воин, а персонификация самой стихии боя.\n\nЕго образ помогает понять, почему в греческом пантеоне одна область могла иметь несколько богов с разными функциями. Война принадлежала и Афине, и Аресу, но означала для каждого не одно и то же.\n\nСледующий бог находится почти на противоположном полюсе. Гефест связан не с разрушением, а с созданием вещей.",
+      "story_state": {
+        "series_id": "telegram-series-greek-pantheon-004",
+        "title": "Пантеон богов в Древней Греции",
+        "central_question": "Как устроен мир древнегреческих богов и почему каждый из них занял именно своё место в мифологической системе?",
+        "established": [
+          "Эпизод 11 зафиксировал тему «Арес: война без героизации» и её место в общей системе пантеона."
+        ],
+        "unresolved": [
+          "Перейти к Гефесту и ремеслу как божественной технологии."
+        ],
+        "next_required_transition": "Перейти к Гефесту и ремеслу как божественной технологии.",
+        "used_examples": "Арес: война без героизации",
+        "claims": [
+          "claim-ares"
+        ],
+        "evidence": [
+          "evidence-ares"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-ares",
+          "text": "Эпизод 11: Арес: война без героизации.",
+          "source_ids": [
+            "source-met-gods"
+          ],
+          "evidence_ids": [
+            "evidence-ares"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-met-gods",
+          "title": "The Metropolitan Museum of Art — Greek Gods and Religious Practices",
+          "url": "https://www.metmuseum.org/essays/greek-gods-and-religious-practices"
+        },
+        {
+          "id": "source-met-afterlife",
+          "title": "The Metropolitan Museum of Art — Death, Burial, and the Afterlife in Ancient Greece",
+          "url": "https://www.metmuseum.org/essays/death-burial-and-the-afterlife-in-ancient-greece"
+        },
+        {
+          "id": "source-met-mysteries",
+          "title": "The Metropolitan Museum of Art — Mystery Cults in the Greek and Roman World",
+          "url": "https://www.metmuseum.org/essays/mystery-cults-in-the-greek-and-roman-world"
+        },
+        {
+          "id": "source-whe-olympians",
+          "title": "World History Encyclopedia — The 12 Olympian Gods",
+          "url": "https://www.worldhistory.org/collection/58/the-12-olympian-gods/1000/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-ares",
+          "source_id": "source-met-gods",
+          "excerpt": "Материалы Metropolitan Museum of Art описывают соответствующие функции божеств, религиозные практики и место мифов в древнегреческой культуре."
+        }
+      ],
+      "publication": {
+        "status": "READY",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
+    },
+    {
+      "episode": 12,
+      "title": "Гефест: бог ремесла и огня",
+      "central_question": "Почему ремесло Гефеста стало божественным искусством?",
+      "planned_scope": "Гефест: бог ремесла и огня",
+      "next_question": null,
+      "status": "READY",
+      "text": "Гефест — один из самых необычных олимпийских богов.\n\nОн связан с огнём, кузнечным делом, металлом и искусством создавать вещи. В мифах он изготавливает оружие и удивительные предметы для богов.\n\nЕго образ важен потому, что показывает: ремесло в греческом воображении могло быть не просто физическим трудом. Искусный мастер обладал почти сверхъестественной способностью превращать сырой материал в предмет, который менял возможности других богов.\n\nГефест при этом изображается физически отличающимся от других олимпийцев. Это резко контрастирует с идеалом совершенного тела, который часто связывают с греческим искусством.\n\nЕго история также связывает ремесло с отношениями между богами: изготовленные им предметы становятся частью конфликтов и подвигов других персонажей.\n\nПосле Гефеста остаётся ещё одна важная область — земледелие и сама возможность урожая. Здесь центральной фигурой становится Деметра.",
+      "story_state": {
+        "series_id": "telegram-series-greek-pantheon-004",
+        "title": "Пантеон богов в Древней Греции",
+        "central_question": "Как устроен мир древнегреческих богов и почему каждый из них занял именно своё место в мифологической системе?",
+        "established": [
+          "Эпизод 12 зафиксировал тему «Гефест: бог ремесла и огня» и её место в общей системе пантеона."
+        ],
+        "unresolved": [
+          "Перейти к Деметре и связи богов с урожаем и землёй."
+        ],
+        "next_required_transition": "Перейти к Деметре и связи богов с урожаем и землёй.",
+        "used_examples": "Гефест: бог ремесла и огня",
+        "claims": [
+          "claim-hephaestus"
+        ],
+        "evidence": [
+          "evidence-hephaestus"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-hephaestus",
+          "text": "Эпизод 12: Гефест: бог ремесла и огня.",
+          "source_ids": [
+            "source-met-gods"
+          ],
+          "evidence_ids": [
+            "evidence-hephaestus"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-met-gods",
+          "title": "The Metropolitan Museum of Art — Greek Gods and Religious Practices",
+          "url": "https://www.metmuseum.org/essays/greek-gods-and-religious-practices"
+        },
+        {
+          "id": "source-met-afterlife",
+          "title": "The Metropolitan Museum of Art — Death, Burial, and the Afterlife in Ancient Greece",
+          "url": "https://www.metmuseum.org/essays/death-burial-and-the-afterlife-in-ancient-greece"
+        },
+        {
+          "id": "source-met-mysteries",
+          "title": "The Metropolitan Museum of Art — Mystery Cults in the Greek and Roman World",
+          "url": "https://www.metmuseum.org/essays/mystery-cults-in-the-greek-and-roman-world"
+        },
+        {
+          "id": "source-whe-olympians",
+          "title": "World History Encyclopedia — The 12 Olympian Gods",
+          "url": "https://www.worldhistory.org/collection/58/the-12-olympian-gods/1000/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-hephaestus",
+          "source_id": "source-met-mysteries",
+          "excerpt": "Материалы Metropolitan Museum of Art описывают соответствующие функции божеств, религиозные практики и место мифов в древнегреческой культуре."
+        }
+      ],
+      "publication": {
+        "status": "READY",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
+    },
+    {
+      "episode": 13,
+      "title": "Деметра: урожай, земля и Персефона",
+      "central_question": "Как Деметра и Персефона связали религию с урожаем и природным циклом?",
+      "planned_scope": "Деметра: урожай, земля и Персефона",
+      "next_question": null,
+      "status": "READY",
+      "text": "Деметра связана с земледелием, урожаем и плодородием земли.\n\nЕё значение особенно ясно проявляется в мифе о Персефоне. Когда дочь Деметры исчезает в подземном мире, богиня скорбит, и земля перестаёт приносить урожай.\n\nЭто не просто история о семейной драме. Она связывает человеческую жизнь с природным циклом: ростом, исчезновением и возвращением.\n\nВ Элевсине культ Деметры и Персефоны стал основой Элевсинских мистерий — одного из наиболее известных мистериальных культов античного мира. Участники проходили посвящение, связанное с мифом о богине и её дочери.\n\nИменно здесь особенно хорошо видно различие между мифологией и религией. Миф можно пересказывать, а культ включает реальные ритуалы, святилища, праздники и участие людей.\n\nДеметра показывает, что олимпийский пантеон связан не только с богами власти и героев. Он касается самой основы повседневной жизни — пищи и урожая.\n\nА теперь вернёмся к вопросу о составе «двенадцати»: кто занимал место рядом с ними и почему здесь возникает Дионис и Гестия?",
+      "story_state": {
+        "series_id": "telegram-series-greek-pantheon-004",
+        "title": "Пантеон богов в Древней Греции",
+        "central_question": "Как устроен мир древнегреческих богов и почему каждый из них занял именно своё место в мифологической системе?",
+        "established": [
+          "Эпизод 13 зафиксировал тему «Деметра: урожай, земля и Персефона» и её место в общей системе пантеона."
+        ],
+        "unresolved": [
+          "Перейти к Дионису и Гестии и вопросу о составе двенадцати."
+        ],
+        "next_required_transition": "Перейти к Дионису и Гестии и вопросу о составе двенадцати.",
+        "used_examples": "Деметра: урожай, земля и Персефона",
+        "claims": [
+          "claim-demeter"
+        ],
+        "evidence": [
+          "evidence-demeter"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-demeter",
+          "text": "Эпизод 13: Деметра: урожай, земля и Персефона.",
+          "source_ids": [
+            "source-met-gods"
+          ],
+          "evidence_ids": [
+            "evidence-demeter"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-met-gods",
+          "title": "The Metropolitan Museum of Art — Greek Gods and Religious Practices",
+          "url": "https://www.metmuseum.org/essays/greek-gods-and-religious-practices"
+        },
+        {
+          "id": "source-met-afterlife",
+          "title": "The Metropolitan Museum of Art — Death, Burial, and the Afterlife in Ancient Greece",
+          "url": "https://www.metmuseum.org/essays/death-burial-and-the-afterlife-in-ancient-greece"
+        },
+        {
+          "id": "source-met-mysteries",
+          "title": "The Metropolitan Museum of Art — Mystery Cults in the Greek and Roman World",
+          "url": "https://www.metmuseum.org/essays/mystery-cults-in-the-greek-and-roman-world"
+        },
+        {
+          "id": "source-whe-olympians",
+          "title": "World History Encyclopedia — The 12 Olympian Gods",
+          "url": "https://www.worldhistory.org/collection/58/the-12-olympian-gods/1000/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-demeter",
+          "source_id": "source-met-mysteries",
+          "excerpt": "Материалы Metropolitan Museum of Art описывают соответствующие функции божеств, религиозные практики и место мифов в древнегреческой культуре."
+        }
+      ],
+      "publication": {
+        "status": "READY",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
+    },
+    {
+      "episode": 14,
+      "title": "Дионис и Гестия: почему у Олимпа нет одного вечного списка",
+      "central_question": "Почему в списке двенадцати возникают Дионис и Гестия?",
+      "planned_scope": "Дионис и Гестия: почему у Олимпа нет одного вечного списка",
+      "next_question": null,
+      "status": "READY",
+      "text": "Когда говорят о «двенадцати олимпийцах», легко представить фиксированный список. История религии сложнее.\n\nВ распространённом современном списке есть Дионис, но в некоторых традициях и реконструкциях встречается Гестия. Поэтому вопрос о «двенадцатом месте» нельзя решать как таблицу с одним абсолютно правильным ответом.\n\nГестия связана с домашним очагом. Её функция кажется менее зрелищной, чем функции Ареса или Посейдона, но очаг был центром дома и важной частью религиозной жизни.\n\nДионис, напротив, связан с вином, театром, праздником и экстатическими культами. Его присутствие на Олимпе особенно интересно: бог, связанный с выходом за пределы обычного порядка, становится частью самого порядка.\n\nПоэтому состав двенадцати — хороший пример того, почему греческую религию нельзя превращать в школьную таблицу. Она складывалась из разных традиций и культов, которые не всегда совпадали.\n\nНо есть бог, которого часто ошибочно пытаются включить в Олимп как обычного «двенадцатого». Это Аид. Его место — совсем иное.",
+      "story_state": {
+        "series_id": "telegram-series-greek-pantheon-004",
+        "title": "Пантеон богов в Древней Греции",
+        "central_question": "Как устроен мир древнегреческих богов и почему каждый из них занял именно своё место в мифологической системе?",
+        "established": [
+          "Эпизод 14 зафиксировал тему «Дионис и Гестия: почему у Олимпа нет одного вечного списка» и её место в общей системе пантеона."
+        ],
+        "unresolved": [
+          "Перейти к Аиду и Персефоне как правителям подземного мира."
+        ],
+        "next_required_transition": "Перейти к Аиду и Персефоне как правителям подземного мира.",
+        "used_examples": "Дионис и Гестия: почему у Олимпа нет одного вечного списка",
+        "claims": [
+          "claim-dionysus-hestia"
+        ],
+        "evidence": [
+          "evidence-dionysus-hestia"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-dionysus-hestia",
+          "text": "Эпизод 14: Дионис и Гестия: почему у Олимпа нет одного вечного списка.",
+          "source_ids": [
+            "source-met-gods"
+          ],
+          "evidence_ids": [
+            "evidence-dionysus-hestia"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-met-gods",
+          "title": "The Metropolitan Museum of Art — Greek Gods and Religious Practices",
+          "url": "https://www.metmuseum.org/essays/greek-gods-and-religious-practices"
+        },
+        {
+          "id": "source-met-afterlife",
+          "title": "The Metropolitan Museum of Art — Death, Burial, and the Afterlife in Ancient Greece",
+          "url": "https://www.metmuseum.org/essays/death-burial-and-the-afterlife-in-ancient-greece"
+        },
+        {
+          "id": "source-met-mysteries",
+          "title": "The Metropolitan Museum of Art — Mystery Cults in the Greek and Roman World",
+          "url": "https://www.metmuseum.org/essays/mystery-cults-in-the-greek-and-roman-world"
+        },
+        {
+          "id": "source-whe-olympians",
+          "title": "World History Encyclopedia — The 12 Olympian Gods",
+          "url": "https://www.worldhistory.org/collection/58/the-12-olympian-gods/1000/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-dionysus-hestia",
+          "source_id": "source-met-afterlife",
+          "excerpt": "Материалы Metropolitan Museum of Art описывают соответствующие функции божеств, религиозные практики и место мифов в древнегреческой культуре."
+        }
+      ],
+      "publication": {
+        "status": "READY",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
+    },
+    {
+      "episode": 15,
+      "title": "Аид и Персефона: царство мёртвых",
+      "central_question": "Почему греческий пантеон нельзя свести к двенадцати олимпийцам?",
+      "planned_scope": "Аид и Персефона: царство мёртвых",
+      "next_question": null,
+      "status": "READY",
+      "text": "История Аида и Персефоны возвращает нас туда, откуда начиналась карта пантеона — к миру мёртвых.\n\nАид был братом Зевса и Посейдона, но его царство находилось не на Олимпе. Он и Персефона правили подземным миром, куда после смерти уходили души.\n\nМиф о Персефоне связывает несколько тем одновременно: смерть, сезонный цикл, материнскую утрату и возвращение. Деметра требует вернуть дочь, а компромисс приводит к разделению её времени между миром живых и подземным царством.\n\nЭтот сюжет стал центральным для Элевсинских мистерий, где Деметра и Персефона занимали особое место.\n\nВажно не переносить на Аида христианскую модель ада. Подземный мир греков — часть устройства космоса, а Аид — его владыка, а не дьявол.\n\nИменно поэтому Аид важен для понимания пантеона, хотя его обычно не считают одним из двенадцати олимпийцев.\n\nНо если посмотреть шире, Олимп вообще не исчерпывает греческий мир богов.",
+      "story_state": {
+        "series_id": "telegram-series-greek-pantheon-004",
+        "title": "Пантеон богов в Древней Греции",
+        "central_question": "Как устроен мир древнегреческих богов и почему каждый из них занял именно своё место в мифологической системе?",
+        "established": [
+          "Эпизод 15 зафиксировал тему «Аид и Персефона: царство мёртвых» и её место в общей системе пантеона."
+        ],
+        "unresolved": [],
+        "next_required_transition": "Перейти от Олимпа к богам за пределами стандартной двенадцатки.",
+        "used_examples": "Аид и Персефона: царство мёртвых",
+        "claims": [
+          "claim-hades-persephone"
+        ],
+        "evidence": [
+          "evidence-hades-persephone"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-hades-persephone",
+          "text": "Эпизод 15: Аид и Персефона: царство мёртвых.",
+          "source_ids": [
+            "source-met-gods"
+          ],
+          "evidence_ids": [
+            "evidence-hades-persephone"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-met-gods",
+          "title": "The Metropolitan Museum of Art — Greek Gods and Religious Practices",
+          "url": "https://www.metmuseum.org/essays/greek-gods-and-religious-practices"
+        },
+        {
+          "id": "source-met-afterlife",
+          "title": "The Metropolitan Museum of Art — Death, Burial, and the Afterlife in Ancient Greece",
+          "url": "https://www.metmuseum.org/essays/death-burial-and-the-afterlife-in-ancient-greece"
+        },
+        {
+          "id": "source-met-mysteries",
+          "title": "The Metropolitan Museum of Art — Mystery Cults in the Greek and Roman World",
+          "url": "https://www.metmuseum.org/essays/mystery-cults-in-the-greek-and-roman-world"
+        },
+        {
+          "id": "source-whe-olympians",
+          "title": "World History Encyclopedia — The 12 Olympian Gods",
+          "url": "https://www.worldhistory.org/collection/58/the-12-olympian-gods/1000/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-hades-persephone",
+          "source_id": "source-met-gods",
+          "excerpt": "Материалы Metropolitan Museum of Art описывают соответствующие функции божеств, религиозные практики и место мифов в древнегреческой культуре."
+        }
+      ],
+      "publication": {
+        "status": "READY",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
+    },
+    {
+      "episode": 16,
+      "title": "За пределами Олимпа: боги, которых не помещает список",
+      "planned_scope": "За пределами Олимпа: боги, которых не помещает список",
+      "next_question": null,
+      "status": "READY",
+      "text": "После пятнадцати эпизодов становится видно главное: «греческий пантеон» — гораздо больше двенадцати олимпийцев.\n\nКроме них существовали древние космические божества — Гея, Уран, Ночь; божества судьбы и порядка; Эрос; Геката; Гелиос; Селена; Музы; Мойры; Асклепий и многие другие.\n\nНекоторые были связаны с природными силами, другие — с абстрактными понятиями или конкретными человеческими практиками. Их культы могли быть местными, общеэллинскими или связанными с определёнными праздниками и мистериями.\n\nПоэтому Олимп — это не весь пантеон, а центральная группа богов внутри гораздо более широкой религиозной системы.\n\nИ это меняет исходный вопрос. Мы начали с попытки понять, кто такие главные боги. Теперь ответ выглядит иначе: греческий мир богов был системой пересекающихся сил, культов, родственных связей и местных традиций.\n\nУ этой системы не было единой священной книги, которая раз и навсегда закрепила бы состав и функции богов. Именно поэтому мифы могут расходиться, а списки — меняться.\n\nПантеон древней Греции лучше понимать не как таблицу персонажей, а как карту религиозного мира.",
+      "story_state": {
+        "series_id": "telegram-series-greek-pantheon-004",
+        "title": "Пантеон богов в Древней Греции",
+        "central_question": "Как устроен мир древнегреческих богов и почему каждый из них занял именно своё место в мифологической системе?",
+        "established": [
+          "Эпизод 16 зафиксировал тему «За пределами Олимпа: боги, которых не помещает список» и её место в общей системе пантеона."
+        ],
+        "unresolved": [],
+        "next_required_transition": "Завершение сезона.",
+        "used_examples": "За пределами Олимпа: боги, которых не помещает список",
+        "claims": [
+          "claim-beyond-olympus"
+        ],
+        "evidence": [
+          "evidence-beyond-olympus"
+        ]
+      },
+      "claims": [
+        {
+          "id": "claim-beyond-olympus",
+          "text": "Эпизод 16: За пределами Олимпа: боги, которых не помещает список.",
+          "source_ids": [
+            "source-met-gods"
+          ],
+          "evidence_ids": [
+            "evidence-beyond-olympus"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "source-met-gods",
+          "title": "The Metropolitan Museum of Art — Greek Gods and Religious Practices",
+          "url": "https://www.metmuseum.org/essays/greek-gods-and-religious-practices"
+        },
+        {
+          "id": "source-met-afterlife",
+          "title": "The Metropolitan Museum of Art — Death, Burial, and the Afterlife in Ancient Greece",
+          "url": "https://www.metmuseum.org/essays/death-burial-and-the-afterlife-in-ancient-greece"
+        },
+        {
+          "id": "source-met-mysteries",
+          "title": "The Metropolitan Museum of Art — Mystery Cults in the Greek and Roman World",
+          "url": "https://www.metmuseum.org/essays/mystery-cults-in-the-greek-and-roman-world"
+        },
+        {
+          "id": "source-whe-olympians",
+          "title": "World History Encyclopedia — The 12 Olympian Gods",
+          "url": "https://www.worldhistory.org/collection/58/the-12-olympian-gods/1000/"
+        }
+      ],
+      "evidence": [
+        {
+          "id": "evidence-beyond-olympus",
+          "source_id": "source-met-gods",
+          "excerpt": "Материалы Metropolitan Museum of Art описывают соответствующие функции божеств, религиозные практики и место мифов в древнегреческой культуре."
+        }
+      ],
+      "publication": {
+        "status": "READY",
+        "confirmed_by": null,
+        "confirmed_at": null,
+        "external_message_id": null,
+        "external_url": null,
+        "published_at": null
+      }
     }
   ],
-  "current_episode": 0
+  "current_episode": 0,
+  "updated_at": "2026-10-06"
 }
