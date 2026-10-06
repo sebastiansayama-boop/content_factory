@@ -37,6 +37,10 @@ jobs:
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           case "$COMMIT_MESSAGE" in
+            "greek-pantheon-episode-"*)
+              export TELEGRAM_LIBRARY_PATH=library/telegram/greek-pantheon-series.json
+              episode="${COMMIT_MESSAGE#publish: greek-pantheon-episode-}"
+              ;;
             "publish: thai-spirit-episode-"*)
               export TELEGRAM_LIBRARY_PATH=library/telegram/thai-spiritual-world.json
               episode="${COMMIT_MESSAGE#publish: thai-spirit-episode-}"
