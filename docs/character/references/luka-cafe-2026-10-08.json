@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "reference_id": "luka-ref-2026-10-08-cafe-01",
+  "character_slug": "luka",
+  "subject": "synthetic adult male",
+  "created_at": "2026-10-08",
+  "status": "candidate_pending_human_identity_qc",
+  "approval": null,
+  "origin": {
+    "type": "chatgpt_image_generation",
+    "generation_id": "135a2465-cca9-464b-b82d-28498ec11b78",
+    "prompt_saved": false,
+    "source_is_synthetic": true
+  },
+  "original": {
+    "filename": "luka-cafe-2026-10-08-original.png",
+    "width": 1122,
+    "height": 1402,
+    "mime_type": "image/png",
+    "sha256": "b7476ff7300a83dc1897fdac11c38c36fb249251b0fb84e10c9bcf6a1d7bd9e5",
+    "library_path": "/Luka/identity/luka-cafe-2026-10-08-original.png",
+    "library_file_id": "libfile_3630a4297fc08191abdd8cd1d73d9b89",
+    "note": "Original bytes archived in persistent ChatGPT Library, not included as a full-resolution binary in this GitHub change."
+  },
+  "preview": {
+    "path": "docs/character/references/luka-cafe-2026-10-08-face-preview.jpg",
+    "git_blob_sha": "d29e4c553a72d9c65c401fa52221c9b3503136cc",
+    "crop_note": "Small derived face crop from original image; for visual orientation only",
+    "verified_pixel_hash": false
+  },
+  "description_path": "docs/character/luka_appearance.md",
+  "policy": {
+    "do_not_auto_promote": true,
+    "do_not_reuse_as_proof_of_multi_image_consistency": true,
+    "do_not_generate_new_canonical_face_without_approval": true
+  },
+  "review_checks": [
+    "Confirm generated face matches the intended original Luka references",
+    "Approve or reject this reference explicitly",
+    "Verify at least two additional independent poses/scenes without identity drift"
+  ]
+}

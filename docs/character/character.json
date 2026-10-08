@@ -8,12 +8,26 @@
     "based_on_specific_real_person": false,
     "gender_presentation": "male",
     "adult": true,
-    "age_range": null,
-    "face_description": null,
-    "hair": null,
+    "age_range": "примерно 25–35 лет по внешнему виду (оценка, не биографический факт)",
+    "face_description": "Молодой взрослый мужчина; лицо овально-угловатое, скулы умеренно выражены, прямая линия носа, лёгкая асимметрия расслабленной полуулыбки; тёмные густые брови; глаза светлого серо-зелёного/орехового оттенка при освещении кафе; естественная текстура кожи, слабые веснушки на носу и щеках; короткая тёмная щетина и усы.",
+    "hair": "Густые тёмно-каштановые волосы средней длины, естественно волнистые/кудрявые, объёмная небрежная укладка, несколько локонов на лбу.",
     "body_type": null,
-    "distinctive_features": [],
-    "approved_references": []
+    "distinctive_features": [
+      "Густые волнистые тёмно-каштановые волосы с прядями, опускающимися на лоб",
+      "Широкие выраженные тёмные брови",
+      "Серо-зелёные/ореховые глаза (точный оттенок зависит от света)",
+      "Лёгкие веснушки, неровности естественной кожи",
+      "Тёмная короткая щетина с усами",
+      "Узнаваемая расслабленная асимметричная полуулыбка"
+    ],
+    "approved_references": [],
+    "reference_candidates": [
+      {
+        "reference_id": "luka-ref-2026-10-08-cafe-01",
+        "manifest_path": "docs/character/references/luka-cafe-2026-10-08.json",
+        "status": "candidate_pending_human_identity_qc"
+      }
+    ]
   },
   "personality": {
     "traits": [],
@@ -34,7 +48,27 @@
   "visual_identity": {
     "naturalism": "natural_photographic_anti_gloss",
     "identity_consistency_required": true,
-    "requirements_document": "docs/character/visual_identity.md"
+    "requirements_document": "docs/character/visual_identity.md",
+    "appearance_specification": "docs/character/luka_appearance.md",
+    "reference_manifest": "docs/character/references/luka-cafe-2026-10-08.json",
+    "current_reference_status": "candidate_pending_human_identity_qc",
+    "locked_traits": [
+      "hair",
+      "eyebrows",
+      "face_shape",
+      "eyes_approximate_tone",
+      "facial_hair",
+      "skin_natural_texture"
+    ],
+    "variable_traits": [
+      "clothing",
+      "pose",
+      "setting",
+      "camera_angle",
+      "lighting",
+      "expression",
+      "grooming_details"
+    ]
   },
   "production": {
     "workflow": [
@@ -57,5 +91,7 @@
     "audience",
     "approved_identity_reference",
     "provider_after_real_test"
-  ]
+  ],
+  "display_name": "Лука",
+  "slug": "luka"
 }
