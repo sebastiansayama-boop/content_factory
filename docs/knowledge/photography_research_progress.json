@@ -8,12 +8,12 @@
   },
   "verified_progress": {
     "metadata_reviewed_file_pages": 32,
-    "visual_deep_reviews": 3,
+    "visual_deep_reviews": 4,
     "independent_authors_or_profiles_verified": 0,
     "capture_categories_verified": 0,
     "generated_separate_luca_photo_tests": 0,
     "thumbnail_visual_reviews": 8,
-    "verified_original_image_authors": 3
+    "verified_original_image_authors": 4
   },
   "milestones": {
     "source_audit_every": 25,
@@ -21,8 +21,8 @@
     "checkpoint_every": 25
   },
   "state": "in_progress_manual_session",
-  "last_checkpoint": "2026-10-08 / audit 007",
-  "next_action": "Inspect direct front-camera original photographs; compare to three inspected mirror originals. Deduplicate unique source records before increasing 500-photo count.",
+  "last_checkpoint": "2026-10-08 / audit 008",
+  "next_action": "Expand to non-mirror everyday scenes, direct group selfies and friend-shot photos; examine full originals and avoid overrepresenting mirror photos.",
   "definitions": {
     "metadata_reviewed_file_pages": "File pages whose metadata/descriptions were recorded; NOT a visual review.",
     "visual_deep_reviews": "Actual pixels inspected with structured visible observations.",
