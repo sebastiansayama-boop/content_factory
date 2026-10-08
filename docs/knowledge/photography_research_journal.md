@@ -117,3 +117,26 @@ Independent source cross-check:
 **New conclusion:** do not use 'messy framing', 'uneven gaze', or 'ordinary props' as a binary amateur-vs-commercial authenticity test. Both types can contain these. Stronger evidence comes from provenance, creator account, EXIF, and documented shooting context.
 **Counters:** 10 prior original-level reviews; 8 new web previews (not added to 500 verified originals). 31 metadata-only candidates remain queued.
 **Next question:** compare actual creator-owned casual snapshots against marketed stock using author evidence, then test whether differences survive matching subject, setting, and camera.
+
+## Checkpoint 011 — sequential research, source control and falsification (2026-10-08)
+### Cycle A: 12 photographic source records
+Verified author, source, license and camera data for 12 Wikimedia Commons file pages; machine-readable audit: `photography_research_source_audit_2026_10_08.json`. Examples: Carlos Ebert/Sony NEX-5 at a café (Flickr), John Hill/Sanyo Hong Kong café, Mahjuja Islam/OPPO A17 coffee scene, Mona Hassan Abo-Abda/Nikon D750 Egyptian tea gathering. This was source inspection, **not** new pixel-level visual inspection.
+
+### Cycle B: temporal duplicate hypothesis
+Mahjuja Islam's `Friends + coffee = happiness` (2024-09-03 16:43:23) and `Coffee time with friends` (2024-09-03 16:43:04) are 19 seconds apart, same creator and same 3072x4080 resolution. Hypothesis: correlated shots from one session; do not claim duplicate without image comparison. Counts by source photo and by independent capture session must remain separate.
+
+### Cycle C: title/author sampling confound
+`Friends Restaurant.jpg` is a restaurant name; `Friends & Neighbours Cafe` is a business name; `Coffee and friends` metadata indicates cups of coffee. Word "friends" in a title is not evidence of people in the frame. A source file can be self-uploaded yet staged. Sony NEX-5 EXIF focal length 0 mm and f/1 are unreliable for physical lens inference; missing lens metadata is a plausible explanation.
+
+### Cycle D: targeted challenge source check
+Opened Commons records for Egyptian folklore photos: `Friends and tea`, `Group family photo`, `Family members`, `Mother and daughter in the farm`. They share photographer Mona Hassan Abo-Abda and several share Nikon D750. Their diversity of subjects does **not** imply diversity of creators; cap creator/session contributions when measuring photographic conventions. One file explicitly records 1/20 s, f/6.3, ISO1800, 32mm, illustrating that low-light gathering photos can use high ISO and slow exposure.
+
+### Cycle E: hypothesis refinement
+Provenance plus metadata can validate authorship, capture conditions and correlations, but cannot establish visible framing/pose/lighting without actual image inspection. Do not silently relabel these metadata audits as visual reviews. An authenticity classifier based solely on uneven framing, mixed gaze or everyday props is unsound because staged commercial photos can reproduce these cues.
+
+### State after checkpoint
+Original-level visually reviewed photographs: **10/500 (unchanged)**.
+Metadata-only candidate queue: **31**.
+New source audits in this checkpoint: **12**.
+Remaining: 490 original-level reviews. Do not confuse source records, web previews, and original reviews.
+Next unresolved test: directly inspect and compare the two 19-second-apart OPPO A17 photos, then evaluate whether they depict the same scene and count independent capture sessions correctly.
