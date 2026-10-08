@@ -16,7 +16,8 @@
     "verified_original_image_authors": 10,
     "deduplicated_originals_in_manifest": 10,
     "categorized_originals": 10,
-    "uncategorized_originals": 0
+    "uncategorized_originals": 0,
+    "metadata_only_candidates_pending_visual_review": 31
   },
   "milestones": {
     "source_audit_every": 25,
@@ -24,8 +25,8 @@
     "checkpoint_every": 25
   },
   "state": "in_progress_manual_session",
-  "last_checkpoint": "2026-10-08 / categorized baseline",
-  "next_action": "Continue actual original-image reviews by underrepresented categories. Expand manifest with source, creator, license, pixel-level notes, then update category counts. Do not count category search results as examined photos.",
+  "last_checkpoint": "2026-10-08 / checkpoint 008",
+  "next_action": "Resolve original image delivery for visual inspection; do not count metadata-only candidates toward 500. Then annotate diverse everyday scenes by visible geometry.",
   "definitions": {
     "metadata_reviewed_file_pages": "File pages whose metadata/descriptions were recorded; NOT a visual review.",
     "visual_deep_reviews": "Actual pixels inspected with structured visible observations.",
