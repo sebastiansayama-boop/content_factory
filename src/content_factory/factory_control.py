@@ -271,11 +271,12 @@ class FactoryControlStore:
         topic: str,
         platform: str | None = None,
         limit: int = 3,
+        character_id: str | None = None,
     ) -> list[dict[str, Any]]:
         """Return a small deterministic set of relevant prior content experiences."""
         topic_norm = " ".join(str(topic or "").casefold().split())
         platform_norm = str(platform or "").strip().casefold()
-        if not topic_norm or limit <= 0:
+        if (not topic_norm and not character_id) or limit <= 0:
             return []
         rows = self.db.execute(
             "SELECT * FROM experience_records ORDER BY created_at DESC, rowid DESC"
@@ -287,7 +288,11 @@ class FactoryControlStore:
             prompt_text = " ".join(
                 str(prompt.get(key) or "") for key in ("brief", "title")
             ).casefold()
-            if topic_norm not in prompt_text:
+            if character_id and context.get("character_id") != character_id:
+                continue
+            if not character_id and context.get("character_id"):
+                continue
+            if not character_id and topic_norm not in prompt_text:
                 continue
             if platform_norm and str(context.get("platform") or "").strip().casefold() != platform_norm:
                 continue
@@ -335,6 +340,8 @@ class FactoryControlStore:
             raise InvalidStateTransition(
                 f"publication cannot be published from status {row['status']}"
             )
+        if row["channel"].casefold() in {"instagram", "threads"} and publisher is None:
+            raise ValueError("direct publication adapter is not configured; export for manual publication")
         require_publication_parent(run_status, row["status"], "PUBLISHING")
         now = _now()
         with self.db:
@@ -355,7 +362,9 @@ class FactoryControlStore:
                 if not isinstance(result, dict):
                     raise ValueError("publisher must return an object")
                 response = result.get("response") if isinstance(result.get("response"), dict) else result
-                external_id = str(result.get("external_id") or publication_id)
+                external_id = str(result.get("external_id") or "").strip()
+                if not external_id:
+                    raise ValueError("publisher returned no external_id; delivery is unconfirmed")
                 external_url = result.get("external_url")
                 published_at = str(result.get("published_at") or "").strip() or _now()
             elif url:

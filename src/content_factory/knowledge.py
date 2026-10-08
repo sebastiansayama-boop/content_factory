@@ -485,6 +485,8 @@ class KnowledgeStore:
         minimum_score = 1 if len(terms) == 1 else 2
         scored_claims: list[tuple[int, sqlite3.Row]] = []
         for row in claim_rows:
+            if row["scope"] == "declared fictional character only":
+                continue
             score = len(terms & _tokens(row["text"]))
             if score >= minimum_score:
                 scored_claims.append((score, row))

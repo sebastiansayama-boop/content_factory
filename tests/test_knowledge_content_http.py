@@ -37,9 +37,10 @@ def test_build_endpoint_persists_knowledge_content_graph(tmp_path, monkeypatch):
 
     class FakeService:
         knowledge = FakeKnowledge()
+        control = None
 
     class Builder:
-        def __init__(self, workspace, knowledge):
+        def __init__(self, workspace, knowledge, experience=None):
             assert knowledge is not None
 
         def build(self, **kwargs):

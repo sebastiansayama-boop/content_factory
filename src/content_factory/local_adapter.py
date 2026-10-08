@@ -20,7 +20,15 @@ class LocalTextAdapter:
         if not prompt.strip():
             raise ValueError("prompt must not be empty")
         claim, evidence = self._refs(prompt)
-        if '"ideas":' in prompt:
+        if '"deliverables":' in prompt and "Requested formats:" in prompt:
+            formats = json.loads(prompt.split("Requested formats:", 1)[1].splitlines()[0].strip())
+            value = {"objective": "Local development production plan",
+                     "research_questions": ["Which supplied context is explicitly approved?"],
+                     "source_requirements": ["creator-supplied context and verified originals"],
+                     "deliverables": [{"format": fmt, "purpose": "exercise the requested delivery format"} for fmt in formats],
+                     "editorial_constraints": ["preserve supplied context and unresolved decisions"],
+                     "quality_checks": ["verify media, caption and explicit approval"]}
+        elif '"ideas":' in prompt:
             value = {
                 "ideas": [
                     {"idea_id": "idea-local-1", "title": "Evidence-grounded story", "angle": "Explain the supplied evidence clearly", "audience": "general audience", "purpose": "inform", "formats": ["short_video"], "claim_refs": [claim], "evidence_refs": [evidence]},
@@ -128,6 +136,18 @@ class LocalTextAdapter:
                 }
             )
             value = {"script_id": "script-local-1", "title": title, "variation_mode": "scene", "units": units}
+            if "CHARACTER CONTEXT:" in prompt:
+                paragraphs = [
+                    "Повседневный кадр без особого повода. Мягкий свет, простая одежда и спокойная обстановка: внимание остаётся на человеке в кадре, а не на эффектной декорации.",
+                    "Здесь нет идеальной позы или глянцевого образа. Естественная текстура кожи, свободная посадка одежды и небольшая асимметрия делают фотографию менее постановочной.",
+                    "Этот герой виртуальный. Фотография показывает вымышленную сцену, а не документирует чью-то реальную жизнь, поездку или встречу. За образом не скрывается биография конкретного человека.",
+                    "Можно менять место, одежду и настроение кадра, сохраняя узнаваемое лицо. Какая сцена вам ближе: тихое кафе, прогулка по городу или уютный вечер с книгой?",
+                ]
+                value = {"script_id": "script-local-character", "title": "Повседневный кадр", "variation_mode": "scene",
+                         "units": [{"unit_id": f"unit-{i}", "kind": "hook" if i == 1 else "narration", "text": text,
+                                    "visual_intent": "natural everyday photograph of the supplied adult virtual character, fully clothed, preserve reference identity",
+                                    "claim_refs": [claim_id], "evidence_refs": [evidence_id]}
+                                   for i, text in enumerate(paragraphs, 1)]}
         elif '"style_bible":' in prompt:
             value = {
                 "spec_id": "spec-local-1", "title": "Evidence-grounded short", "objective": "Create a concise evidence-grounded short",

@@ -153,3 +153,19 @@ The roadmap is directional, not proof. Completion status is supported by executa
 ## Map invariant
 
 The map must be updated after a material direction changes status, checkpoint, proven state, unresolved state, dependency or return point. A parked direction remains visible; a completed direction remains reconstructable; a superseded direction is not silently deleted.
+
+## Shared character production (2026-10-08)
+
+- Goal: use persistent characters in the existing factory without a separate app.
+- Status: BLOCKED on actual Luka original/identity proof; local implementation
+  and HTTP/browser workflow validated with explicit fixtures.
+- Checkpoint: `10_records/2026-10-08-shared-character-production-cycle.md`.
+- Proven: verified image import, caption/edit/QC/approval, Instagram ZIP export,
+  restart, character/platform experience retrieval, linked library compatibility.
+- Unproven: Luka identity in full-resolution production; live creative provider;
+  external Telegram/Instagram delivery in this task.
+- Dependencies: preserved original, owner visual review; credentials only for
+  a separately authorized external operation.
+- Next step: transfer an original through the shared workspace importer, then
+  finish a real Luka photo and explicit human review. Do not regenerate his face.
+- Return point: `docs/character/production_cycle.md`.

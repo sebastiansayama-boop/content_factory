@@ -87,7 +87,13 @@ def build_content_package(*, run_id: str, result: dict[str, Any], platform: str)
             "revision_id": str(result.get("package_revision_id") or "r1"),
             "edited": bool(result.get("package_edited")),
         },
+        **({"character": deepcopy(result["character"])} if result.get("character") else {}),
     }
+
+
+def review_digest(package: dict[str, Any]) -> str:
+    from .character import digest
+    return digest({key: package.get(key) for key in ("title", "text", "media", "platform", "revision", "character")})
 
 
 def apply_package_edit(

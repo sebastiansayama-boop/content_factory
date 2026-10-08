@@ -21,7 +21,8 @@ from .runtime import FactoryRuntime, WorkItem
 from .workspace import ContentWorkspace
 from .vertical_slice import ContentFactoryVerticalSlice
 from .distribution import TelegramDistributionAdapter, FakeTelegramDistributionAdapter
-from .content_package import apply_package_edit, build_content_package, platform_from_constraints
+from .content_package import apply_package_edit, build_content_package, platform_from_constraints, review_digest
+from .character import character_constraints, digest, validate_character_release, image_info
 from .integrations import IntegrationError
 from .telegram_bot import FactoryHttpClient, TelegramApi, TelegramFactoryBot
 
@@ -36,9 +37,15 @@ class ProductHandler(Handler):
     def _authorize_release_action(self, run, action: Action, actor_id: str) -> str:
         actor_id = str(actor_id or "").strip()
         result = run.result or {}
+        if run.character:
+            if (result.get("character") or {}).get("revision_id") != run.character["revision_id"]:
+                raise ValueError("production has lost the run's character revision")
+            validate_character_release(result)
         production = result.get("production") if isinstance(result.get("production"), dict) else {}
         output = production.get("output") if isinstance(production.get("output"), dict) else {}
         artifact_version = str(output.get("output_id") or result.get("content_brief_revision_id") or run.run_id)
+        if run.character:
+            artifact_version += ":" + digest(result.get("package") or {})
         approval = result.get("approval") if isinstance(result.get("approval"), dict) else {}
         approved_version = str(approval.get("approved_version") or "").strip() or None
         approval_status = str(approval.get("status") or "").strip() or None
@@ -61,13 +68,15 @@ class ProductHandler(Handler):
     def _protect_product_api(self) -> bool:
         now = time.monotonic()
         client_ip = self.client_address[0]
-        if self._auth_failure_limited(client_ip, now):
-            self._json(429, {"error": "too many authentication failures"}, retry_after=60)
-            return False
         if not self._authorized():
+            if self._auth_failure_limited(client_ip, now):
+                self._json(429, {"error": "too many authentication failures"}, retry_after=60)
+                return False
             self._json(401, {"error": "missing or invalid API token"})
             return False
-        if self._rate_limited(self._authorized_requests, 10, now, 60.0):
+        # A reviewed image workflow includes uploads, asset reads and several
+        # separate gates; the runtime /run limit remains independently bounded.
+        if self._rate_limited(self._authorized_requests, 60, now, 60.0):
             self._json(429, {"error": "product rate limit exceeded"}, retry_after=60)
             return False
         return True
@@ -130,6 +139,18 @@ class ProductHandler(Handler):
         self._json(200, {"ok": True})
 
     def do_GET(self) -> None:
+        if self.path == "/api/characters" or self.path.startswith("/api/characters/"):
+            if not self._protect_product_api():
+                return
+            try:
+                if self.path == "/api/characters":
+                    self._json(200, {"characters": self.service.characters.profiles()})
+                else:
+                    snapshot = self.service.characters.snapshot(self.path.removeprefix("/api/characters/").strip("/"))
+                    self._json(200, {**snapshot, "inventory": self.service.characters.inventory(snapshot)})
+            except ValueError as exc:
+                self._json(400, {"error": str(exc)})
+            return
         if self.path in {"/", "/index.html"}:
             raw = (Path(__file__).parent / "static" / "index.html").read_bytes()
             self.send_response(200)
@@ -228,7 +249,13 @@ class ProductHandler(Handler):
                 if package is None:
                     platform = platform_from_constraints(run.constraints)
                     package = build_content_package(run_id=run_id, result=result, platform=platform)
-                self._json(200, {"run_id": run_id, "package": package})
+                context = {}
+                if run.character:
+                    context = {"character_revision_id": run.character["revision_id"], "package_digest": review_digest(package),
+                               "asset_hashes": {asset.asset_id: image_info(Path(asset.uri))["sha256"]
+                                                for asset in self.service.asset_registry.list_for_run(run_id) if asset.asset_type == "visual"},
+                               "references": self.service.characters.inventory(run.character)}
+                self._json(200, {"run_id": run_id, "package": package, "character_review_context": context})
                 return
 
             run_id = raw_run_path
@@ -318,6 +345,69 @@ class ProductHandler(Handler):
         super().do_GET()
 
     def do_POST(self) -> None:
+        if self.path == "/api/imports":
+            if not self._protect_product_api():
+                return
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+                if not 0 < length <= 50 * 1024 * 1024:
+                    raise ValueError("image upload must be between 1 byte and 50 MiB")
+                raw = self.rfile.read(length)
+                if len(raw) != length:
+                    raise ValueError("incomplete image upload")
+                import hashlib
+                root = self.service.characters.data_root / "imports"
+                root.mkdir(parents=True, exist_ok=True)
+                path = root / (hashlib.sha256(raw).hexdigest() + ".image")
+                path.write_bytes(raw)
+                try:
+                    info = image_info(path)
+                except (ValueError, OSError):
+                    path.unlink(missing_ok=True)
+                    raise ValueError("upload is not a supported valid image")
+                self._json(201, {"path": str(path), **info})
+            except (ValueError, OSError) as exc:
+                self._json(400, {"error": str(exc)})
+            return
+        if self.path.startswith("/api/characters/") and self.path.endswith("/references/import"):
+            if not self._protect_product_api():
+                return
+            try:
+                payload = self._body()
+                character_id = self.path.removeprefix("/api/characters/").removesuffix("/references/import").strip("/")
+                imported = self.service.characters.import_reference(character_id, str(payload.get("reference_id") or ""), str(payload.get("path") or ""))
+                self.service.control.record("character:" + character_id, "reference.imported", evidence={"sha256": imported["original"]["sha256"], "reference_id": imported["reference_id"]})
+                self._json(201, imported)
+            except (ValueError, OSError) as exc:
+                self._json(400, {"error": str(exc)})
+            return
+        if self.path.startswith("/api/runs/") and self.path.endswith("/assets/import"):
+            if not self._protect_product_api():
+                return
+            try:
+                run_id = self.path.removeprefix("/api/runs/").removesuffix("/assets/import").strip("/")
+                run = self.content_runs.get(run_id)
+                if run is None or run.status != "PRODUCING":
+                    raise ValueError("image imports require a PRODUCING run")
+                payload = self._body()
+                job = self.service.asset_jobs.get(str(payload.get("job_id") or ""))
+                if job is None or job.run_id != run_id:
+                    raise ValueError("asset job does not belong to run")
+                source = self.service.characters.staging_path(str(payload.get("path") or ""))
+                provenance = payload.get("provenance")
+                if not isinstance(provenance, dict):
+                    raise ValueError("image import requires provenance object")
+                if run.character:
+                    reference = next((r for r in self.service.characters.inventory(run.character)
+                                      if r["reference_id"] == provenance.get("reference_id") and r["verified"]), None)
+                    if reference is None:
+                        raise ValueError("import a checksum-verified original character reference first")
+                imported = self.service.asset_executor.import_image(job.job_id, source, provenance=provenance)
+                self.service.control.record(run_id, "asset.imported", output_refs=(imported.job_id,), evidence=imported.result.get("metadata", {}))
+                self._json(201, imported.to_dict())
+            except (ValueError, OSError) as exc:
+                self._json(400, {"error": str(exc)})
+            return
         if self.path == "/telegram/webhook":
             self._handle_telegram_webhook()
             return
@@ -362,6 +452,8 @@ class ProductHandler(Handler):
                 if source_run is None:
                     self._json(404, {"error": "content run not found"})
                     return
+                if source_run.character:
+                    raise ValueError("character revisions require /regenerate followed by a new image and identity review")
                 payload = self._body()
                 changed = payload.get("changed_claim_ids", [])
                 if not isinstance(changed, list) or not all(isinstance(v, str) for v in changed):
@@ -568,7 +660,7 @@ class ProductHandler(Handler):
                 if run is None:
                     self._json(404, {"error": "content run not found"})
                     return
-                if run.status != "REVIEW":
+                if run.status != "REVIEW" and not (run.character and run.status == "PRODUCING" and (run.result or {}).get("package")):
                     raise ValueError("only REVIEW runs can edit the content package")
                 payload = self._body()
                 current = (run.result or {}).get("package")
@@ -588,7 +680,8 @@ class ProductHandler(Handler):
                 self.service.control.record_experience(
                     run_id=run_id,
                     prompt={"brief": run.brief, "title": run.title},
-                    context={"status": run.status, "platform": package.get("platform")},
+                    context={"status": run.status, "platform": package.get("platform"),
+                             "character_id": run.character["character_id"] if run.character else None},
                     generated=generated_package,
                     decision="EDIT",
                     final=package,
@@ -619,12 +712,16 @@ class ProductHandler(Handler):
                 payload = self._body()
                 actor_id = str(payload.get("actor_id") or "").strip()
                 requested_publication_id = str(payload.get("publication_id") or "").strip()
+                requested_channel = str(payload.get("channel") or "").strip().lower()
                 publications = self.service.control.list_publications(run_id)
                 if requested_publication_id:
                     prepared = next((item for item in publications if item["publication_id"] == requested_publication_id), None)
                 else:
-                    prepared = next((item for item in publications if item["status"] == "PREPARED"), None)
+                    prepared = next((item for item in publications if item["status"] == "PREPARED"
+                                     and (not requested_channel or item["channel"].lower() == requested_channel)), None)
                 if prepared is None:
+                    if requested_publication_id:
+                        raise ValueError("publication_id does not belong to this run")
                     channel = str(payload.get("channel") or "local").strip()
                     if not channel:
                         raise ValueError("channel is required")
@@ -639,7 +736,10 @@ class ProductHandler(Handler):
                         run_id,
                         channel,
                         content_ref,
-                        {"run_id": run_id, "content_ref": content_ref, "artifact_ids": artifact_ids},
+                        {"run_id": run_id, "content_ref": content_ref, "artifact_ids": artifact_ids,
+                         "text": str((result.get("package") or {}).get("text") or ""),
+                         "media": list((result.get("package") or {}).get("media") or []),
+                         "output": production.get("output"), "provenance": {"actor_id": actor_id, "run_id": run_id}},
                     )
                 run = self.content_runs.get(run_id)
                 assert run is not None
@@ -697,6 +797,9 @@ class ProductHandler(Handler):
                 metrics = payload.get("metrics")
                 if not publication_id or not isinstance(metrics, dict):
                     raise ValueError("publication_id and metrics object are required")
+                if not any(p["publication_id"] == publication_id and p["status"] == "PUBLISHED"
+                           for p in self.service.control.list_publications(run_id)):
+                    raise ValueError("observations require a published record belonging to this run")
                 result = self.service.control.observe(publication_id, metrics, str(payload.get("source") or "api"))
                 self._json(201, result)
                 return
@@ -710,6 +813,9 @@ class ProductHandler(Handler):
                 observations = payload.get("observation_ids", [])
                 if not isinstance(observations, list) or not all(isinstance(v, str) for v in observations):
                     raise ValueError("observation_ids must be an array of strings")
+                known = {item["observation_id"] for item in self.service.control.observations(run_id)}
+                if not observations or not set(observations).issubset(known):
+                    raise ValueError("learning must reference observations belonging to this run")
                 result = self.service.control.create_learning(
                     run_id, observations, str(payload.get("hypothesis", "")),
                     payload.get("proposed_changes") if isinstance(payload.get("proposed_changes"), dict) else {},
@@ -737,6 +843,7 @@ class ProductHandler(Handler):
                     goal=source_run.goal,
                     formats=source_run.formats,
                     constraints=constraints,
+                    character=source_run.character,
                 )
                 self.content_runs.start_planning(new_run.run_id)
                 self.service.control.record(
@@ -751,7 +858,9 @@ class ProductHandler(Handler):
                 self.service.control.record_experience(
                     run_id=source_run_id,
                     prompt={"brief": source_run.brief, "title": source_run.title},
-                    context={"constraints": list(source_run.constraints), "source_run_id": source_run_id},
+                    context={"constraints": list(source_run.constraints), "source_run_id": source_run_id,
+                             "character_id": source_run.character["character_id"] if source_run.character else None,
+                             "platform": platform_from_constraints(source_run.constraints)},
                     generated=source_result,
                     decision="REGENERATE",
                     reason=instruction,
@@ -773,18 +882,32 @@ class ProductHandler(Handler):
                 if run is None:
                     self._json(404, {"error": "content run not found"})
                     return
+                if run.character and (run.status in {"REVIEW", "APPROVED", "EXPORTED", "PUBLISHED"}
+                                      or (run.result or {}).get("production", {}).get("output")):
+                    qc = (run.result or {}).get("production", {}).get("qc", {})
+                    self._json(200, {"run": run.to_dict(), "qc": qc,
+                                     "events": [e.to_dict() for e in self.service.control.timeline(run_id)],
+                                     "idempotent": True})
+                    return
                 try:
                     if run.status in {"DRAFT", "RESEARCH_READY", "FAILED"}:
                         self.content_runs.start_planning(run_id)
                         run = self.content_runs.get(run_id)
                     self.service.control.record(run_id, "factory.started", status="RUNNING", actor="api")
                     self._record_trace(run_id, stage="RESEARCH", task="load_knowledge_context", tool="KnowledgeStore", action="search", result={"status": "completed"}, decision="CONTEXT_LOADED")
-                    prior = self.service.knowledge.search(run.brief)
+                    if run.character:
+                        self.service.characters.capture_context(run.character, run_id, self.service.knowledge)
+                    prior = self.service.knowledge.accepted_for_run(run_id) if run.character else self.service.knowledge.search(run.brief)
                     if not prior["claims"]:
                         prior = self.service.knowledge.accepted_for_run(run_id)
                     if not prior["claims"]:
                         if run.status in {"DRAFT", "FAILED", "PLANNING"}:
                             self.content_runs.start_execution(run_id)
+                        if run.character:
+                            ready = self.content_runs.save_research_result(run_id, {"character": run.character})
+                            self._json(409, {"error": "fictional character context review required", "run": ready.to_dict(),
+                                             "candidates": self.service.knowledge.candidates_for_run(run_id)})
+                            return
                         research_result = ContentFactoryVerticalSlice(
                             knowledge_store=self.service.knowledge,
                             trace_event=lambda **event: self._record_trace(run_id, **event),
@@ -809,46 +932,60 @@ class ProductHandler(Handler):
                             "next": "promote accepted claims, then call /api/runs/{run_id}/factory again",
                         })
                         return
-                    self._record_trace(run_id, stage="EDITORIAL", task="build_content_brief", tool="KnowledgeContentBuilder", action="build", result={"status": "started"})
-                    try:
-                        result = KnowledgeContentBuilder(self.workspace, self.service.knowledge, self.service.control).build(
-                            run_id=run_id, topic=run.brief, audience=run.audience,
-                            goal=run.goal, formats=list(run.formats), constraints=list(run.constraints),
+                    if run.status != "PRODUCING":
+                        if run.character and run.plan is None:
+                            plan = self.content_run_planner.plan(
+                                run_id=run_id, title=run.title, brief=run.brief, audience=run.audience, goal=run.goal,
+                                formats=list(run.formats), constraints=list(run.constraints) + character_constraints(run.character))
+                            run = self.content_runs.save_plan(run_id, plan)
+                        self._record_trace(run_id, stage="EDITORIAL", task="build_content_brief", tool="KnowledgeContentBuilder", action="build", result={"status": "started"})
+                        try:
+                            result = KnowledgeContentBuilder(self.workspace, self.service.knowledge, self.service.control).build(
+                                run_id=run_id, topic=run.brief, audience=run.audience,
+                                goal=run.goal, formats=list(run.formats), constraints=list(run.constraints) + (character_constraints(run.character) if run.character else []),
+                                knowledge_context=prior if run.character else None, character=run.character,
+                            )
+                        except Exception as exc:
+                            self._record_trace(run_id, stage="EDITORIAL", task="build_content_brief", tool="KnowledgeContentBuilder", action="build", result={"status": "failed", "error_type": type(exc).__name__}, decision="FAILED")
+                            raise
+                        self._record_trace(run_id, stage="EDITORIAL", task="build_content_brief", tool="KnowledgeContentBuilder", action="build", result={"status": "completed"}, decision="ACCEPT")
+                        brief_revision = self.content_runs.save_content_brief(run_id, result["content_brief"])
+                        result["content_brief"] = {
+                            **result["content_brief"],
+                            "revision_id": brief_revision.revision_id,
+                        }
+                        run = self.content_runs.save_result(
+                            run_id,
+                            {
+                                **(run.result or {}),
+                                "run_id": run_id,
+                                "brief": run.brief,
+                                **result,
+                            },
                         )
-                    except Exception as exc:
-                        self._record_trace(run_id, stage="EDITORIAL", task="build_content_brief", tool="KnowledgeContentBuilder", action="build", result={"status": "failed", "error_type": type(exc).__name__}, decision="FAILED")
-                        raise
-                    self._record_trace(run_id, stage="EDITORIAL", task="build_content_brief", tool="KnowledgeContentBuilder", action="build", result={"status": "completed"}, decision="ACCEPT")
-                    brief_revision = self.content_runs.save_content_brief(run_id, result["content_brief"])
-                    result["content_brief"] = {
-                        **result["content_brief"],
-                        "revision_id": brief_revision.revision_id,
-                    }
-                    run = self.content_runs.save_result(
-                        run_id,
-                        {
+                        self.service.control.record(
+                            run_id,
+                            "editorial.built",
+                            output_refs=(f"content_brief:{brief_revision.revision_id}", "content_spec", "script", "production_plan"),
+                        )
+                        self.content_runs.start_producing(run_id)
+                        persisted_brief = self.content_runs.get_content_brief(run_id)
+                        if persisted_brief is None:
+                            raise ValueError("persisted content brief not found before production")
+                        result["content_brief"] = persisted_brief.payload | {"revision_id": persisted_brief.revision_id}
+                        jobs = self.service.asset_jobs.create_from_plan(run_id, result["production_plan"])
+                        run = self.content_runs.save_production_result(run_id, {
                             **(run.result or {}),
-                            "run_id": run_id,
-                            "brief": run.brief,
-                            **result,
-                        },
-                    )
-                    self.service.control.record(
-                        run_id,
-                        "editorial.built",
-                        output_refs=(f"content_brief:{brief_revision.revision_id}", "content_spec", "script", "production_plan"),
-                    )
-                    self.content_runs.start_producing(run_id)
-                    persisted_brief = self.content_runs.get_content_brief(run_id)
-                    if persisted_brief is None:
-                        raise ValueError("persisted content brief not found before production")
-                    result["content_brief"] = persisted_brief.payload | {"revision_id": persisted_brief.revision_id}
-                    jobs = self.service.asset_jobs.create_from_plan(run_id, result["production_plan"])
-                    run = self.content_runs.save_production_result(run_id, {
-                        **(run.result or {}),
-                        "production": {"status": "QUEUED", "job_ids": [j.job_id for j in jobs]},
-                    })
-                    self.service.control.record(run_id, "production.queued", output_refs=tuple(j.job_id for j in jobs))
+                            "production": {"status": "QUEUED", "job_ids": [j.job_id for j in jobs]},
+                        })
+                        self.service.control.record(run_id, "production.queued", output_refs=tuple(j.job_id for j in jobs))
+                    jobs = self.service.asset_jobs.list_for_run(run_id)
+                    if run.character and any(j.status != "COMPLETED" for j in jobs):
+                        self._json(409, {"error": "character production image import required", "run": run.to_dict(),
+                                         "jobs": [j.to_dict() for j in jobs],
+                                         "reference_inventory": self.service.characters.inventory(run.character),
+                                         "next": "import verified original reference and production image, then resume /factory"})
+                        return
                     self._record_trace(run_id, stage="PRODUCTION", task="execute_asset_jobs", tool="AssetExecutor", action="execute_run", result={"status": "started", "job_count": len(jobs)})
                     jobs = self.service.asset_executor.execute_run(run_id)
                     self._record_trace(run_id, stage="PRODUCTION", task="execute_asset_jobs", tool="AssetExecutor", action="execute_run", result={"status": "completed", "job_count": len(jobs)}, decision="ACCEPT")
@@ -876,7 +1013,7 @@ class ProductHandler(Handler):
                         }
                         for asset in assets
                     ]
-                    durable_context = self.service.knowledge.search(run.brief)
+                    durable_context = self.service.knowledge.accepted_for_run(run_id) if run.character else self.service.knowledge.search(run.brief)
                     if not durable_context["claims"]:
                         durable_context = self.service.knowledge.accepted_for_run(run_id)
                     canonical_research = {
@@ -1005,13 +1142,15 @@ class ProductHandler(Handler):
                     return
                 self.content_runs.start_planning(run_id)
                 try:
-                    result = KnowledgeContentBuilder(self.workspace, self.service.knowledge).build(
+                    result = KnowledgeContentBuilder(self.workspace, self.service.knowledge, self.service.control).build(
                         run_id=run.run_id,
                         topic=run.title or run.brief,
                         audience=run.audience,
                         goal=run.goal,
                         formats=list(run.formats),
-                        constraints=list(run.constraints),
+                        constraints=list(run.constraints) + (character_constraints(run.character) if run.character else []),
+                        character=run.character,
+                        knowledge_context=self.service.knowledge.accepted_for_run(run_id) if run.character else None,
                     )
                     brief_revision = self.content_runs.save_content_brief(run_id, result["content_brief"])
                     updated = self.content_runs.save_result(run_id, {
@@ -1060,7 +1199,8 @@ class ProductHandler(Handler):
                 self.service.control.record_experience(
                     run_id=run_id,
                     prompt={"brief": run.brief, "title": run.title},
-                    context={"status": run.status, "platform": approved_package.get("platform") if isinstance(approved_package, dict) else None},
+                    context={"status": run.status, "platform": approved_package.get("platform") if isinstance(approved_package, dict) else None,
+                             "character_id": run.character["character_id"] if run.character else None},
                     generated=generated_package,
                     decision="ACCEPT",
                     final=approved_package if isinstance(approved_package, dict) else (run.result or {}),
@@ -1200,6 +1340,19 @@ class ProductHandler(Handler):
                     self._json(404, {"error": "content run not found"})
                     return
                 result = run.result or {}
+                if run.status not in {"PRODUCING", "REVIEW"}:
+                    raise ValueError("QC requires a producing or review run")
+                if run.character:
+                    payload = self._body()
+                    review = payload.get("character_review")
+                    if review is not None:
+                        if not isinstance(review, dict):
+                            raise ValueError("character_review must be an object")
+                        reference = next((r for r in self.service.characters.inventory(run.character)
+                                          if r["reference_id"] == review.get("reference_id") and r["verified"]), None)
+                        if reference is None or review.get("reference_sha256") != reference["original"]["sha256"]:
+                            raise ValueError("review requires a verified original reference and its checksum")
+                        result = {**result, "production_plan": {**result["production_plan"], "character_review": review}}
                 production = result.get("production")
                 if not isinstance(production, dict):
                     raise ValueError("production has not been assembled")
@@ -1213,7 +1366,17 @@ class ProductHandler(Handler):
                     production_plan=result.get("production_plan") if isinstance(result.get("production_plan"), dict) else {},
                     assets=assets,
                     output=output,
+                    information_flow=result.get("information_flow"),
                 )
+                if run.character:
+                    try:
+                        validate_character_release(result)
+                        error = ""
+                    except ValueError as exc:
+                        error = str(exc)
+                    qc["checks"].append({"check": "character_package_review", "passed": not error, "detail": error or "image and caption review verified", "lineage_refs": []})
+                    qc["passed"] = qc["passed"] and not error
+                    qc["status"] = "PASSED" if qc["passed"] else "FAILED"
                 final_result = {
                     **result,
                     "production": {**production, "status": "READY_FOR_REVIEW" if qc["passed"] else "QC_FAILED", "qc": qc},
@@ -1324,6 +1487,8 @@ class ProductHandler(Handler):
                 if run is None:
                     self._json(404, {"error": "content run not found"})
                     return
+                if run.character:
+                    raise ValueError("use /factory for reviewed character production")
                 self.content_runs.start_execution(run_id)
                 try:
                     result = ContentFactoryVerticalSlice(knowledge_store=self.service.knowledge).run(
@@ -1358,7 +1523,7 @@ class ProductHandler(Handler):
                         audience=run.audience,
                         goal=run.goal,
                         formats=list(run.formats),
-                        constraints=list(run.constraints),
+                        constraints=list(run.constraints) + (character_constraints(run.character) if run.character else []),
                     )
                 except Exception:
                     self.content_runs.mark_failed(run_id)
@@ -1387,6 +1552,13 @@ class ProductHandler(Handler):
                     raise ValueError("formats must be an array of strings")
                 if not isinstance(constraints, list) or not all(isinstance(value, str) for value in constraints):
                     raise ValueError("constraints must be an array of strings")
+                character = self.service.characters.snapshot(str(payload["character_id"])) if payload.get("character_id") else None
+                if character:
+                    formats = formats or ["social_post"]
+                    if any(fmt not in {"photo", "social_post"} for fmt in formats):
+                        raise ValueError("the current character workflow supports photo/social_post; character video is not implemented")
+                    if not any(value.strip().lower().startswith("platform:") for value in constraints):
+                        constraints = [*constraints, "platform: " + str(character["profile"].get("content", {}).get("primary_platform", "instagram"))]
                 run = self.content_runs.create(
                     title=title,
                     brief=brief,
@@ -1394,6 +1566,7 @@ class ProductHandler(Handler):
                     goal=goal,
                     formats=tuple(value.strip() for value in formats if value.strip()),
                     constraints=tuple(value.strip() for value in constraints if value.strip()),
+                    character=character,
                 )
                 self._json(201, run.to_dict())
                 return

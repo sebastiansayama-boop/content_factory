@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 import os
 import sys
 import tempfile
@@ -49,6 +50,17 @@ def _prepare_run(
     workdir: Path,
     previous_run_id: str | None,
 ):
+    episode = deepcopy(episode)
+    state = episode["story_state"]
+    if previous_run_id:
+        previous = service.content_runs.get(previous_run_id)
+        if previous is None or not isinstance((previous.result or {}).get("package"), dict):
+            raise ValueError("series predecessor must have a persisted package")
+        previous_series = previous.result["package"]["series"]
+        state["episode_question"] = state["central_question"]
+        state["central_question"] = previous_series["central_question"]
+        state["established"] = list(dict.fromkeys([
+            *previous_series["story_state"]["established"], *state["established"]]))
     run = service.content_runs.create(
         title=episode["title"],
         brief=episode["title"],
@@ -165,6 +177,8 @@ def main() -> int:
     episode = episodes[episode_number]
     episode["story_state"]["series_id"] = data["series_id"]
     episode["story_state"]["title"] = data["title"]
+    episode["story_state"]["episode_question"] = episode["story_state"]["central_question"]
+    episode["story_state"]["central_question"] = data.get("central_question") or data["episodes"][0]["story_state"]["central_question"]
 
     if not os.environ.get("TELEGRAM_BOT_TOKEN") or not os.environ.get("TELEGRAM_CHAT_ID"):
         raise RuntimeError("Telegram credentials are required")

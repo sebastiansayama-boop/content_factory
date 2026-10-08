@@ -31,6 +31,7 @@ class ContentAssembler:
         resolved_assets = assets if assets is not None else self.registry.list_for_run(run_id)
         by_request = {asset.asset_request_id: asset for asset in resolved_assets}
         by_unit_type = {(asset.script_unit_id, asset.asset_type): asset for asset in resolved_assets}
+        image_text = production_plan.get("media_mode") == "image_text"
         sequence = []
         for index, unit in enumerate(units, start=1):
             if not isinstance(unit, dict):
@@ -59,6 +60,17 @@ class ContentAssembler:
                 ),
                 None,
             )
+            if image_text:
+                visual_request = next((item for item in requests if item.get("type") == "visual"), None)
+                visual = by_request.get(str((visual_request or {}).get("asset_request_id")))
+                if visual is None:
+                    raise AssemblyError("photo publication requires its planned visual asset")
+                sequence.append({"position": index, "script_unit_id": unit_id,
+                                 "kind": str(unit.get("kind") or ""), "text": str(unit.get("text") or ""),
+                                 "visual_intent": str(unit.get("visual_intent") or ""),
+                                 "asset_id": visual.asset_id, "asset_uri": visual.uri, "asset_type": visual.asset_type,
+                                 "claim_refs": list(unit.get("claim_refs") or []), "evidence_refs": list(unit.get("evidence_refs") or [])})
+                continue
             if visual_request is None or voice_request is None:
                 raise AssemblyError(f"visual and voice asset requests are required for script unit {unit_id}")
 
@@ -174,7 +186,7 @@ class QualityGate:
         check("asset_requests_present", isinstance(requests, list) and bool(requests), "production plan contains requests")
         check(
             "asset_count_matches_script",
-            isinstance(units, list) and len(assets) >= len(units),
+            isinstance(units, list) and len(assets) >= (len(requests or []) if production_plan.get("media_mode") == "image_text" else len(units)),
             f"{len(assets)} registered assets for {len(units) if isinstance(units, list) else 0} script units",
             [str(item.get("unit_id")) for item in units if isinstance(item, dict)],
         )
@@ -196,7 +208,7 @@ class QualityGate:
                 unit_id = str(unit.get("unit_id") or "") if isinstance(unit, dict) else ""
                 check(
                     f"asset_for_{unit_id}",
-                    bool(unit_id) and unit_id in asset_units,
+                    bool(unit_id) and (unit_id in asset_units or (production_plan.get("media_mode") == "image_text" and bool(assets))),
                     f"registered asset exists for {unit_id}",
                     [unit_id],
                 )
@@ -400,6 +412,29 @@ class QualityGate:
                 "configured semantic guard must explicitly pass",
                 [str(semantic_guard.get("id") or "semantic-guard") if isinstance(semantic_guard, dict) else "semantic-guard"],
             )
+
+        character = production_plan.get("character")
+        if character:
+            from .character import image_info
+            visuals = [asset for asset in assets if asset.asset_type == "visual"]
+            valid_images = bool(visuals)
+            hashes = {}
+            for asset in visuals:
+                try:
+                    info = image_info(Path(asset.uri))
+                    hashes[asset.asset_id] = info["sha256"]
+                    valid_images = valid_images and min(info["width"], info["height"]) >= 512
+                    valid_images = valid_images and asset.provider != "stub" and info["sha256"] == asset.metadata.get("sha256")
+                    valid_images = valid_images and asset.metadata.get("character_revision_id") == character["revision_id"]
+                except (ValueError, OSError):
+                    valid_images = False
+            check("character_images", valid_images, "full-resolution image bytes and character revision verified")
+            review = production_plan.get("character_review") or {}
+            check("character_identity_and_naturalism", bool(review.get("decision_ref"))
+                  and review.get("approved") is True
+                  and review.get("character_revision_id") == character["revision_id"]
+                  and review.get("asset_hashes") == hashes,
+                  "explicit human identity/naturalism review of these exact image bytes is required")
 
         passed = all(item["passed"] for item in checks)
         return {

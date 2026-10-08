@@ -365,6 +365,7 @@ class KnowledgeContentBuilder:
         constraints: list[str],
         knowledge_context: dict[str, Any] | None = None,
         previous_result: dict[str, Any] | None = None,
+        character: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         context = knowledge_context if knowledge_context is not None else self.knowledge.search(topic)
         claims = context["claims"]
@@ -399,23 +400,30 @@ class KnowledgeContentBuilder:
             if isinstance(ref, str) and ref.strip()
         }
         text_rules_prompt = format_publication_text_rules(text_rules)
-        platform = formats[0] if formats else ""
+        from .content_package import platform_from_constraints
+        platform = platform_from_constraints(constraints, default=formats[0] if formats else "")
         relevant_experience = (
             self.experience.retrieve_experiences(
                 topic=topic,
                 platform=platform,
                 limit=3,
+                character_id=character["character_id"] if character else None,
             )
             if self.experience is not None
             else []
         )
         experience_lines: list[str] = []
         for index, item in enumerate(relevant_experience, start=1):
+            example = item["final"] if item["final"] is not None else item["generated"]
+            if isinstance(example, dict):
+                example = example.get("text") or (example.get("package") or {}).get("text") or "\n".join(
+                    str(unit.get("text") or "") for unit in (example.get("script") or {}).get("units", []))
+            example_text = str(example or "")[:1800]
             experience_lines.append(
                 f"""EXPERIENCE {index} ({item["decision"]})
-Reason: {item["reason"] or "(none)"}
-Final: {json.dumps(item["final"] if item["final"] is not None else item["generated"], ensure_ascii=False)}
-QC: {json.dumps(item["qc"], ensure_ascii=False)}"""
+Reason: {str(item["reason"] or "(none)")[:300]}
+Final: {example_text}
+QC: {item["qc"].get("status", "unknown")}"""
             )
         previous_experience_prompt = "\n\n".join(experience_lines) or "(none)"
         editorial = self._generate(
@@ -874,6 +882,16 @@ ACCEPTED KNOWLEDGE:
             "asset_requests": asset_requests,
             "render": {"aspect_ratio": "9:16", "resolution": "1080x1920"},
         }
+        if character and spec.format in {"photo", "social_post"}:
+            if not asset_requests:
+                raise WorkspaceError("character photo production requires a visual asset, not text_only")
+            visual = next(request for request in asset_requests if request["type"] == "visual")
+            visual["claim_refs"] = list(brief.selected_claim_refs)
+            visual["evidence_refs"] = list(brief.evidence_refs)
+            visual["character"] = character
+            visual["visual_intent"] = "\n".join(unit.visual_intent for unit in script.units)
+            production_plan.update(media_mode="image_text", asset_requests=[visual], character=character,
+                                   render={"aspect_ratio": "4:5", "resolution": "1080x1350"})
         result = {
             "editorial": {
                 "selected_idea": selected.to_dict(),
@@ -887,7 +905,10 @@ ACCEPTED KNOWLEDGE:
                 "claim_refs": sorted(claim_ids),
                 "evidence_refs": sorted(evidence_ids),
             },
+            "experience_refs": [item["example_id"] for item in relevant_experience],
         }
+        if character:
+            result["character"] = character
         self.knowledge.record_usage(
             run_id=run_id,
             target_ref=f"content-run:{run_id}:editorial",

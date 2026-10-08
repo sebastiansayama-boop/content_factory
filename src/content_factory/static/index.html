@@ -29,6 +29,7 @@
       <h2>Тема</h2>
       <div class="muted">Опиши, о чём должен быть материал. Источник можно не вставлять: фабрика сама проведёт Research, когда сохранённых знаний недостаточно.</div>
       <div class="field" style="margin-top:12px"><label for="title">Название</label><input id="title" class="input" placeholder="Например: Почему возникают похожие решения в природе"></div>
+      <div class="field"><label for="character">Персонаж</label><select id="character" class="select"><option value="">Тематический материал без персонажа</option></select><button id="loadCharacters" class="link-btn">Загрузить персонажей</button></div>
       <div class="field"><label for="source">Тема или задача</label><textarea id="source" class="textarea" placeholder="Например: Объясни, почему разные виды животных независимо приходят к похожим решениям."></textarea><div class="key" id="sourceCount">0 символов</div></div>
       <div class="field"><label for="language">Язык</label><select id="language" class="select"><option>Русский</option><option>English</option></select></div>
       <div class="field"><label for="tone">Стиль</label><select id="tone" class="select"><option>Естественный</option><option>Деловой</option><option>Объясняющий</option><option>Публицистический</option></select></div>
@@ -49,6 +50,14 @@
       <div id="workspaceEmpty" class="empty">Введи тему и нажми «Создать контент».</div>
       <div id="knowledgeReview" class="hidden"></div>
       <div id="generation" class="hidden"></div>
+      <div id="characterImport" class="review hidden">
+        <strong>Изображение персонажа</strong>
+        <div class="muted">Загрузите оригинальный референс и готовую фотографию. Импорт не утверждает внешность персонажа.</div>
+        <div class="field"><label for="referenceChoice">Референс</label><select id="referenceChoice" class="select"></select></div>
+        <div class="field"><label for="referenceFile">Оригинальный файл референса</label><input id="referenceFile" type="file" accept="image/png,image/jpeg,image/webp"></div>
+        <div class="field"><label for="productionFile">Фотография для публикации</label><input id="productionFile" type="file" accept="image/png,image/jpeg,image/webp"></div>
+        <button id="importCharacter" class="btn">Импортировать и продолжить</button>
+      </div>
       <div id="timeline" class="notice hidden"></div>
       <div id="traceBox" class="notice hidden"></div>
     </section>
@@ -66,6 +75,8 @@
       <div id="review" class="review hidden">
         <strong>Проверка</strong>
         <div id="reviewState" class="review-state">Ожидает проверки</div>
+        <img id="identityReference" class="hidden" alt="Оригинальный референс для сравнения" style="max-width:100%;max-height:320px">
+        <button id="reviewCharacter" class="btn secondary hidden">Подтвердить сходство с референсом, естественность фото и подпись</button>
         <div class="row">
           <button id="approve" class="btn">Принять</button>
           <button id="export" class="btn secondary" disabled>Экспорт</button>
@@ -85,6 +96,7 @@
 <script>
 const $=id=>document.getElementById(id);
 let currentRunId=null,currentRun=null;
+let pendingCharacterJobs=[];
 function setStatus(t){$("status").textContent=t}
 function clearError(){$("error").classList.add("hidden")}
 function error(t){$("error").textContent=t;$("error").classList.remove("hidden")}
@@ -99,6 +111,38 @@ async function api(path,method="POST",body=null){
   if(!r.ok){const e=new Error(data.error||`HTTP ${r.status}`);e.status=r.status;e.data=data;throw e}
   return data
 }
+$("loadCharacters").onclick=async()=>{
+  try{const data=await api("/api/characters","GET");$("character").innerHTML='<option value="">Тематический материал без персонажа</option>'+data.characters.map(c=>`<option value="${esc(c.character_id)}">${esc(c.display_name||c.slug||c.character_id)} · ${esc(c.status)}</option>`).join("")}
+  catch(e){error(e.message)}
+};
+async function uploadImage(file){
+  if(!file)throw new Error("Выберите файл изображения.");
+  const response=await fetch("/api/imports",{method:"POST",headers:{Authorization:`Bearer ${token()}`,"Content-Type":file.type||"application/octet-stream"},body:file});
+  const data=await response.json();if(!response.ok)throw new Error(data.error||"Импорт не выполнен");return data;
+}
+$("importCharacter").onclick=async()=>{
+  const button=$("importCharacter");button.disabled=true;clearError();
+  try{
+    const referenceId=$("referenceChoice").value;
+    const referenceFile=$("referenceFile").files[0];const reference=await uploadImage(referenceFile);
+    await api(`/api/characters/${encodeURIComponent(currentRun.character.character_id)}/references/import`,"POST",{reference_id:referenceId,path:reference.path});
+    $("identityReference").src=URL.createObjectURL(referenceFile);$("identityReference").classList.remove("hidden");
+    const photo=await uploadImage($("productionFile").files[0]);
+    for(const job of pendingCharacterJobs.filter(j=>j.status!=="COMPLETED"))await api(`/api/runs/${encodeURIComponent(currentRunId)}/assets/import`,"POST",{job_id:job.job_id,path:photo.path,provenance:{source:"owner-uploaded production image",reference_id:referenceId,character_revision_id:currentRun.character.revision_id}});
+    $("characterImport").classList.add("hidden");await runFactory();
+  }catch(e){error(e.message)}finally{button.disabled=false}
+};
+$("reviewCharacter").onclick=async()=>{
+  clearError();
+  try{
+    const data=await api(`/api/runs/${encodeURIComponent(currentRunId)}/package`,"GET");
+    const context=data.character_review_context,reference=context.references.find(r=>r.verified&&r.reference_id===$("referenceChoice").value)||context.references.find(r=>r.verified);
+    if(!reference)throw new Error("Нужен проверенный оригинальный референс.");
+    const review={approved:true,decision_ref:"browser-human-image-and-caption-review",character_revision_id:context.character_revision_id,package_digest:context.package_digest,asset_hashes:context.asset_hashes,reference_id:reference.reference_id,reference_sha256:reference.original.sha256};
+    const checked=await api(`/api/runs/${encodeURIComponent(currentRunId)}/qc`,"POST",{character_review:review});
+    currentRun=checked.run;renderRun(currentRun);setStatus(checked.qc.passed?"Готово · QC пройден":"QC требует исправления");
+  }catch(e){error(e.message)}
+};
 function setStep(name){
   const names=["source","analysis","knowledge","production","done"];
   const idx=names.indexOf(name);
@@ -126,6 +170,7 @@ $("runFactory").onclick=async()=>{
     const created=await api("/api/runs","POST",{
       title:$("title").value.trim()||"Content Factory run",
       brief,
+      character_id:$("character").value||undefined,
       audience:"",
       goal:"Create a publishable content package",
       formats:[platformFormat(selectedPlatform())],
@@ -147,10 +192,15 @@ async function runFactory(){
     currentRun=data.run;
     renderRun(data.run);
     renderTimeline(data.events||[]);
-    setStep("done"); setStatus("Готово · QC пройден");
+    setStep("done"); setStatus(data.qc?.passed?"Готово · QC пройден":"Нужна проверка изображения и подписи");
   }catch(e){
     if(e.status===409 && e.data?.run){
       currentRun=e.data.run; currentRunId=currentRun.run_id;
+      if(e.data.jobs){
+        pendingCharacterJobs=e.data.jobs;$("characterImport").classList.remove("hidden");$("knowledgeReview").classList.add("hidden");
+        $("referenceChoice").innerHTML=(e.data.reference_inventory||[]).map(r=>`<option value="${esc(r.reference_id)}">${esc(r.reference_id)} · ${r.verified?"оригинал проверен":"нужен оригинал"}</option>`).join("");
+        setStatus("План готов · требуется фотография персонажа");return;
+      }
       renderKnowledge(e.data.candidates||[]);
       renderTimeline(e.data.events||[]);
       setStep("knowledge"); setStatus("Research завершён · проверь знания");
@@ -174,11 +224,14 @@ function renderRun(run){
   setStep("production");
   $("generation").innerHTML=`<div class="notice"><strong>${esc(result.content_brief?.title||run.title||"Готовый материал")}</strong><br>${esc(result.content_spec?.logline||"Контент создан на подтверждённой knowledge-базе.")}</div>`;
   renderPackage(run);
+  const needsCharacterReview=!!run.character&&["PRODUCING","REVIEW"].includes(run.status)&&!!result.package;
+  $("reviewCharacter").classList.toggle("hidden",!needsCharacterReview);
+  if(needsCharacterReview){$("review").classList.remove("hidden");$("reviewState").textContent="Сравните фото с оригинальным референсом и проверьте подпись.";}
   if(run.status==="REVIEW"){setStep("done");$("review").classList.remove("hidden");$("reviewState").textContent=qc.status==="PASSED"?"QC пройден · нужно принять материал":"Нужна проверка";}
   $("regenerateBox").classList.toggle("hidden",run.status!=="REVIEW" && run.status!=="APPROVED" && run.status!=="EXPORTED");
   $("approve").disabled=run.status!=="REVIEW";
   $("export").disabled=run.status!=="APPROVED";
-  $("publish").disabled=!["APPROVED","EXPORTED"].includes(run.status);
+  $("publish").disabled=!["APPROVED","EXPORTED"].includes(run.status)||run.result?.package?.platform==="instagram";
   $("review").dataset.runId=run.run_id;
 }
 async function loadAsset(asset){
@@ -198,13 +251,13 @@ function renderPackage(run){
   const units=script.units||[];
   let html="";
   if(units.length){
-    html+=`<div class="asset"><div class="asset-body"><div class="format">текст</div><h4>${esc(result.content_spec?.title||run.title||"Материал")}</h4><pre>${esc(units.map(u=>u.text||"").join("\n\n"))}</pre></div></div>`;
+    html+=`<div class="asset"><div class="asset-body"><div class="format">текст</div><h4>${esc(result.package?.title||result.content_spec?.title||run.title||"Материал")}</h4><pre>${esc(result.package?.text||units.map(u=>u.text||"").join("\n\n"))}</pre></div></div>`;
   }
   if(visuals.length){
     html+=`<div class="asset-body" style="padding:0"><div class="key" style="padding:8px 0">Визуалы</div><div class="asset-grid">${visuals.map(a=>`<div class="asset"><img data-asset-id="${esc(a.asset_id)}" alt="${esc(a.asset_id)}"><div class="asset-body"><div class="format">visual</div><div class="key">Claims: ${esc((a.claim_refs||[]).join(", "))}</div></div></div>`).join("")}</div></div>`;
   }
   $("package").innerHTML=html||"<div class='empty'>Production не вернул материалов.</div>";
-  if(run.status==="REVIEW"){
+  if(run.status==="REVIEW"||(run.character&&run.status==="PRODUCING"&&result.package)){
     $("packageEditor").classList.remove("hidden");
     $("packageTitle").value=result.package?.title||result.content_spec?.title||run.title||"";
     $("packageText").value=result.package?.text||units.map(u=>u.text||"").join("\n\n");
@@ -233,13 +286,13 @@ $("savePackage").onclick=async()=>{
   }catch(e){error(e.message);setStatus("Ошибка")}
   finally{$("savePackage").disabled=false}
 };
-$("approve").onclick=async()=>{clearError();try{const d=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/approve","POST",{decision_ref:"browser-user-approval",channel:"local"});currentRun=d.run||d;renderRun(currentRun);setStatus("Материал принят")}catch(e){error(e.message)}};
+$("approve").onclick=async()=>{clearError();try{const d=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/approve","POST",{decision_ref:"browser-user-approval",channel:currentRun?.character?(currentRun.result?.package?.platform||"local"):"local"});currentRun=d.run||d;renderRun(currentRun);setStatus("Материал принят")}catch(e){error(e.message)}};
 $("export").onclick=async()=>{clearError();try{const d=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/export","POST",{});currentRun=d.run||currentRun;renderRun(currentRun);const link=$("exportLink");link.innerHTML='<button class="link-btn" id="downloadExport">Скачать экспорт</button> · SHA256: '+esc(d.export?.sha256||"");$("downloadExport").onclick=downloadExport;setStatus("Экспорт готов")}catch(e){error(e.message)}};
 async function downloadExport(){
   try{
     const t=token(); const r=await fetch("/api/runs/"+encodeURIComponent(currentRunId)+"/export/download",{headers:{"Authorization":`Bearer ${t}`}});
     if(!r.ok)throw new Error("Не удалось скачать экспорт");
-    const blob=await r.blob(); const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="content-package.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    const blob=await r.blob(); const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=currentRun?.result?.export?.artifact||"content-package.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
   }catch(e){error(e.message)}
 }
 $("publish").onclick=async()=>{try{const d=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/publish","POST",{channel:"local"});currentRun=d.run||d;setStatus("Материал опубликован");}catch(e){error(e.message)}};
@@ -252,7 +305,7 @@ $("regenerate").onclick=async()=>{
     await runFactory();
     $("editInstruction").value="";
     $("regenerateBox").classList.add("hidden");
-    setStatus("Новая версия готова · QC пройден");
+    if(currentRun?.status==="REVIEW"&&currentRun?.result?.production?.qc?.passed)setStatus("Новая версия готова · QC пройден");
   }catch(e){error(e.message);setStatus("Ошибка")}finally{$("regenerate").disabled=false}
 };
 </script>
