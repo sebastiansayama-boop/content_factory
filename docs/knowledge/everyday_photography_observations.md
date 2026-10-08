@@ -195,3 +195,13 @@ Modeling implication: a reflective scene may show multiple instances of the same
 5. The sources are hand-picked, not random; no frequency estimates.
 
 Next question: can full-original direct-front-camera portraits be contrasted with these three mirror originals without relying on filenames?
+
+## Audit 008 — direct phone selfie versus mirror capture (2026-10-08)
+**O04 — Alex Neman, OPPO R7f, original 2448×3264**
+Source: https://commons.wikimedia.org/wiki/File:My_selfie,_July_2017.jpg
+Original: https://upload.wikimedia.org/wikipedia/commons/2/27/My_selfie%2C_July_2017.jpg
+Author explicitly describes own smartphone selfie. Actual original opened and visually inspected.
+Observed: Vertical head-to-mid-torso image; single person facing lens, smile, nearly featureless cream wall; dark shirt with large printed graphic; head placed slightly above vertical center with large blank area over head; shoulders cropped near frame sides; one arm is partly visible near lower-left edge but phone itself is absent. Uneven facial skin texture is visible; lighting is bright but soft, with faint wall shadow to subject's right.
+EXIF: OPPO R7f, ISO 1000, 1/14 s, f/2.4; note contradictory digitization date in EXIF (2002) relative to photo date (2017): metadata quality warning. Front camera not conclusively proven by EXIF; author statement + image geometry support selfie output.
+Contrast with O01–O03: direct selfie output can contain no visible camera; mirror image may show camera and hand. Device visibility is useful but not decisive for capture-mode classification.
+Modeling implication: leave plausible negative space and ordinary skin texture; do not mechanically add a visible phone to direct front-camera selfies. Avoid copying any individual subject's appearance.
