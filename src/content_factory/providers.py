@@ -44,6 +44,23 @@ class ImageProvider(Protocol):
 
 
 @runtime_checkable
+class ImageGenerationProvider(Protocol):
+    """Provider boundary for generated still images."""
+    provider: str
+    def generate(self, prompt: str, *, references: Sequence[str] = (), **kwargs: Any) -> ExternalCallResult:
+        ...
+
+
+@runtime_checkable
+class VideoGenerationProvider(Protocol):
+    """Provider boundary for generated video assets."""
+    provider: str
+    def generate(self, prompt: str, *, image_reference: str | None = None,
+                 references: Sequence[str] = (), **kwargs: Any) -> ExternalCallResult:
+        ...
+
+
+@runtime_checkable
 class QCProvider(Protocol):
     """Deterministic quality-check boundary."""
 
