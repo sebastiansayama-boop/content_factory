@@ -98,6 +98,7 @@ def register_content_tools(
         return KnowledgeContentBuilder(
             workspace,
             service.knowledge,
+            service.control,
         ).build(
             run_id=run.run_id,
             topic=run.brief,
