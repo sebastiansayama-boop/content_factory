@@ -88,3 +88,11 @@ Pixel-inspect five distinct originals among R01–R22. Record URL, visible frami
 - No new schema fields justified. **Verified original image visual reviews remain 10/500**, candidates 31; source card count and visual-review count must not be conflated.
 - Next action: prioritize a functioning image-delivery pathway before further metadata-only expansion; once images are visible, annotate scene geometry and compare claims.
 - Commit: b11d52e.
+
+## Checkpoint 009 — visual web inspection without downloading, 2026-10-08
+- Used image search previews and **looked at eight visible images directly**, across mirror selfies, café groups and hiking. Source/image URLs and concrete image-level observations are stored in `photography_research_visual_web.json` (W01–W08).
+- Distinction: visual preview != full-resolution original; commercial marketing/stock-like sources != verified amateur photos. W08 may be generated, so is excluded from any verified real-photo denominator.
+- Patterns: mirror selfies show visible phone + reflective environment; café groups may be posed or conversational; outdoor group perspective produces depth-dependent body sizes. These are **qualitative**, not frequency statistics.
+- Research method correction: there is no requirement to download original files to inspect available web images; keep visual evidence level explicit. Previous 10 original reviews remain unchanged. Eight new previews do not count toward 500 original-verified images.
+- Next question: which of these compositional properties remain when sampling verified user-authored amateur photos rather than marketing imagery?
+- Commit: 2493b07.
