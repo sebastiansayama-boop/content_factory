@@ -1,7 +1,9 @@
 name: Ollama provider live E2E v2
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   ollama-e2e:
