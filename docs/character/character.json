@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "character_id": "creator_001",
+  "status": "draft",
+  "identity": {
+    "origin": "synthetic_composite",
+    "based_on_user_likeness": false,
+    "based_on_specific_real_person": false,
+    "gender_presentation": "male",
+    "adult": true,
+    "age_range": null,
+    "face_description": null,
+    "hair": null,
+    "body_type": null,
+    "distinctive_features": [],
+    "approved_references": []
+  },
+  "personality": {
+    "traits": [],
+    "interests": [],
+    "voice": null,
+    "audience_relationship": null,
+    "boundaries": []
+  },
+  "content": {
+    "style": "natural_creator_lifestyle",
+    "primary_platform": "instagram",
+    "formats": [
+      "photo",
+      "short_video"
+    ],
+    "monetization_candidate": "fanvue"
+  },
+  "visual_identity": {
+    "naturalism": "natural_photographic_anti_gloss",
+    "identity_consistency_required": true,
+    "requirements_document": "docs/character/visual_identity.md"
+  },
+  "production": {
+    "workflow": [
+      "generate",
+      "visual_qc",
+      "accept_or_regenerate",
+      "approve",
+      "publish"
+    ],
+    "first_test": "single character identity reference and repeated natural scene generations"
+  },
+  "compliance": {
+    "ai_created": true,
+    "disclose_as_required_by_platform": true,
+    "real_person_likeness_authorization_required_if_used": true
+  },
+  "open_decisions": [
+    "appearance",
+    "personality",
+    "audience",
+    "approved_identity_reference",
+    "provider_after_real_test"
+  ]
+}
