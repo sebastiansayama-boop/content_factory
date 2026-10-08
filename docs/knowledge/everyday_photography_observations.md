@@ -205,3 +205,42 @@ Observed: Vertical head-to-mid-torso image; single person facing lens, smile, ne
 EXIF: OPPO R7f, ISO 1000, 1/14 s, f/2.4; note contradictory digitization date in EXIF (2002) relative to photo date (2017): metadata quality warning. Front camera not conclusively proven by EXIF; author statement + image geometry support selfie output.
 Contrast with O01–O03: direct selfie output can contain no visible camera; mirror image may show camera and hand. Device visibility is useful but not decisive for capture-mode classification.
 Modeling implication: leave plausible negative space and ordinary skin texture; do not mechanically add a visible phone to direct front-camera selfies. Avoid copying any individual subject's appearance.
+
+## Audit 009 — original image inspection beyond selfies (2026-10-08)
+Six ORIGINAL image URLs were opened and visually inspected in the browser, not merely their descriptions. Each has a distinct credited creator. The observations below refer to the visible image, not assumptions based on title.
+
+**O05 John Hill — Friends at Cafe de Coral 2 (2008)**
+https://commons.wikimedia.org/wiki/File:Friends_at_Cafe_de_Coral_2.JPG
+https://upload.wikimedia.org/wikipedia/commons/c/c5/Friends_at_Cafe_de_Coral_2.JPG
+1024×768. Three people stand tightly together, two in orange work uniforms; all pose and make peace signs, central person looks to side while laughing; another diner partly visible at far right. Overhead lamps and ceiling ducts occupy top quarter. Flash-lit faces and orange clothing are much brighter than the dark restaurant background. EXIF Sanyo CG9, flash fired, 1/30 s, ISO304; edited Photoshop Elements. **Classification: posed third-party group portrait, not candid and not selfie.** Strong causal link between flash metadata and foreground/background brightness difference.
+
+**O06 Hamza Khalifa99 — Group selfie (2023)**
+https://commons.wikimedia.org/wiki/File:Group_selfie.jpg
+https://upload.wikimedia.org/wikipedia/commons/b/b6/Group_selfie.jpg
+4608×3456. Six people on a city street; rightmost man closest to lens is cropped at shoulder and part of head near upper-right corner; other people farther away fit mostly into frame. Unequal face scale across frame; overcast sky and buildings fill background. Several subjects hold coffee cups/bag; gaze and smiles vary. The phone itself is not visible. EXIF Huawei FRL-L22, 24 mm equiv, ISO111, 1/298 s. **Classification: group selfie per author description; capture geometry consistent but no device visibly proven.** Depth arrangement causes unequal apparent sizes; no need to artificially resize heads to match.
+
+**O07 Carlos Ebert — Friends in a cafe (2015)**
+https://commons.wikimedia.org/wiki/File:Friends_in_a_cafe_(22032394919).jpg
+https://upload.wikimedia.org/wikipedia/commons/a/a9/Friends_in_a_cafe_%2822032394919%29.jpg
+4592×3056. Two people sit facing each other at a small table, interacting rather than looking at lens; camera views from a distance through foreground foliage, which occludes parts of chairs/table. Saturated orange wall, framed paintings, deep dark doorway. People occupy small fraction of image, with environmental context dominant. **Classification: third-party environmental candid/observational scene; author label does not prove subjects were unaware of photographer.** Useful for Luca: context and plausible foreground occlusion, not mandatory portrait centrality.
+
+**O08 Deybi mazuera — Sharing a family dinner (2019)**
+https://commons.wikimedia.org/wiki/File:Sharing_a_family_dinner.jpg
+https://upload.wikimedia.org/wikipedia/commons/3/3c/Sharing_a_family_dinner.jpg
+4344×2896. Contrary to title, NO visible dinner or dining table. Three people appear only as dark silhouettes seated on benches near lake at sunset. Most of frame is orange sky, water and black treeline. EXIF Canon EOS Rebel T7i, 135mm, 1/500 s, f/7.1. **Classification: backlit environmental silhouette, NOT meal scene.** Key negative control: titles are insufficient for visual labels; visible content overrides semantic file names.
+
+**O09 Mahjuja Islam — Friends + coffee = happiness (2024)**
+https://commons.wikimedia.org/wiki/File:Friends_%2B_coffee_%3D_happiness.jpg
+https://upload.wikimedia.org/wikipedia/commons/9/95/Friends_%2B_coffee_%3D_happiness.jpg
+3072×4080. Three foamy coffee glasses on a plate with spoons, pink patterned tablecloth and flower arrangement; NO people visible despite 'Friends' in title. Background clutter and objects are partially clipped at frame edges. Image has visible grain/texture, variable focus, and mixed ambient lighting. EXIF OPPO A17, ISO4381, 1/20 s, f/1.8. **Classification: object/food still life, not a portrait or group.** Strong evidence against equating file title with visible social interaction.
+
+**O10 Concertplayer — RD Family pic candid shot (2014)**
+https://commons.wikimedia.org/wiki/File:RD_Family_pic_candid_shot.JPG
+https://upload.wikimedia.org/wikipedia/commons/3/37/RD_Family_pic_candid_shot.JPG
+320×240. Three people close together, a child between two adults; adult at left faces lens, adult at right looks down and smiles, child looks down. All heads are near top edge, lower bodies cropped; dark cluttered background. Low resolution makes fine skin/noise claims unjustified. **Classification: family snapshot with mixed gaze, not enough evidence to infer staged versus candid.**
+
+**Cycle question and answer:** Does 'friends', 'dinner', or 'candid' in a photo title reliably describe the pixels? NO: O08 and O09 visibly contradict literal title interpretation; O10 cannot establish candidness. Image-level evidence must be first-class, metadata only auxiliary.
+
+**Cross-source, cautiously:** friend-shot group portrait (O05), close group selfie (O06), environmental conversation (O07), sunset silhouettes (O08), still life (O09), and low-resolution family snapshot (O10) are distinct capture scenarios. 'Natural' does not equal 'blurred' or 'badly exposed'; each frame has contextual causes for framing and lighting.
+
+**Schema decision:** no new fields yet; existing capture mode, framing and evidence levels can represent these distinctions. Consider a separate visible-content-vs-title mismatch flag in annotation, but do not add until repeated operational need.
