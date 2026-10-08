@@ -1,0 +1,47 @@
+{
+  "project": "Luca everyday photography reference research",
+  "target": {
+    "distinct_images": 500,
+    "independent_authors_or_profiles": 50,
+    "capture_categories_min": 15,
+    "visual_deep_reviews": 100
+  },
+  "verified_progress": {
+    "metadata_reviewed_file_pages": 22,
+    "visual_deep_reviews": 0,
+    "independent_authors_or_profiles_verified": 0,
+    "capture_categories_verified": 0,
+    "generated_separate_luca_photo_tests": 0
+  },
+  "milestones": {
+    "source_audit_every": 25,
+    "generate_comparison_every": 50,
+    "checkpoint_every": 25
+  },
+  "state": "in_progress_manual_session",
+  "last_checkpoint": "2026-10-08",
+  "next_action": "Inspect actual image pixels of five eligible sources from R01–R22; record composition, light, phone position, gaze and crop; then expand independent author sources.",
+  "definitions": {
+    "metadata_reviewed_file_pages": "File pages whose metadata/descriptions were recorded; NOT a visual review.",
+    "visual_deep_reviews": "Actual pixels inspected with structured visible observations.",
+    "independent_authors_or_profiles_verified": "Distinct independently verified public creators/profiles; host domain count is not creator count.",
+    "generated_separate_luca_photo_tests": "Independent image generations, not collage panels."
+  },
+  "research_loop": [
+    "inspect image and provenance",
+    "record observation and uncertainty",
+    "form new question",
+    "search external examples or technical sources",
+    "test competing explanations",
+    "update knowledge and schema only if justified",
+    "commit and read back",
+    "advance progress checkpoint"
+  ],
+  "constraints": [
+    "No deletion; archive old materials",
+    "Do not treat title as proof of camera",
+    "Distinguish observed fact, hypothesis, unknown",
+    "Do not claim background execution without automation",
+    "No synthetic image should be counted as real reference"
+  ]
+}
