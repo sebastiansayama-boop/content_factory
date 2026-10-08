@@ -1,8 +1,7 @@
 name: full-suite-diversity-validation
 
 on:
-  push:
-    branches: [experiment/publication-diversity-guard-v1]
+  workflow_dispatch:
 
 permissions:
   contents: read

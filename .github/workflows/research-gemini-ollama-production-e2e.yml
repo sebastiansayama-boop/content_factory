@@ -1,9 +1,7 @@
 name: Research Gemini to Ollama production E2E
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   research-gemini-production-ollama:
