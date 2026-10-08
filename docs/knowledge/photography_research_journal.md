@@ -48,3 +48,10 @@ Pixel-inspect five distinct originals among R01–R22. Record URL, visible frami
 - EXIF inconsistency in O04 shows why metadata is not infallible.
 - Progress: 4/100 deep original reviews; 32/500 previously logged metadata records; 8 preview reviews. These groups have not been fully deduplicated, so no new 500-photo unique-total claim.
 - Next cycle: widen beyond selfies into third-person everyday scenes.
+
+## Checkpoint 004 — audit 009, 2026-10-08
+- Opened six original image files and directly inspected pixels: posed group portrait, group selfie, candid cafe conversation, backlit silhouettes, coffee still life, and low-res family snapshot.
+- **Two misleading filename/title examples:** `Sharing a family dinner` contains no visible dinner; `Friends + coffee = happiness` contains no people. Never auto-label image content from titles.
+- Verified original reviews **10/100** (4 earlier + 6 this cycle). Credited original authors represented: 10. Metadata-only pages previously 32; avoid summing until deduplicated.
+- Insight: apparent naturalness is caused by actual scene geometry and photographer position, not arbitrary visual errors.
+- Commits: 865c8bd, d26d470.
