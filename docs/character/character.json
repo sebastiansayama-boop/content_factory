@@ -9,13 +9,13 @@
     "gender_presentation": "male",
     "adult": true,
     "age_range": "примерно 25–35 лет по внешнему виду (оценка, не биографический факт)",
-    "face_description": "Молодой взрослый мужчина; лицо овально-угловатое, скулы умеренно выражены, прямая линия носа, лёгкая асимметрия расслабленной полуулыбки; тёмные густые брови; глаза светлого серо-зелёного/орехового оттенка при освещении кафе; естественная текстура кожи, слабые веснушки на носу и щеках; короткая тёмная щетина и усы.",
+    "face_description": "Взрослый мужчина с овально-угловатым лицом, умеренно выраженными скулами и прямым носом, густыми тёмными бровями, спокойной асимметричной полуулыбкой, естественной текстурой кожи, тёмными усами и короткой щетиной. Глаза на исходных изображениях выглядят от коричнево-ореховых до серо-зелёных при разном освещении; точный канонический оттенок ещё не утверждён.",
     "hair": "Густые тёмно-каштановые волосы средней длины, естественно волнистые/кудрявые, объёмная небрежная укладка, несколько локонов на лбу.",
-    "body_type": null,
+    "body_type": "Ранние мудборды: атлетичное/стройное телосложение (концептуальная характеристика, не доказательство роста).",
     "distinctive_features": [
       "Густые волнистые тёмно-каштановые волосы с прядями, опускающимися на лоб",
       "Широкие выраженные тёмные брови",
-      "Серо-зелёные/ореховые глаза (точный оттенок зависит от света)",
+      "Форма глаз и густые брови визуально стабильны; точный цвет глаз требует отдельного утверждения",
       "Лёгкие веснушки, неровности естественной кожи",
       "Тёмная короткая щетина с усами",
       "Узнаваемая расслабленная асимметричная полуулыбка"
@@ -26,6 +26,41 @@
         "reference_id": "luka-ref-2026-10-08-cafe-01",
         "manifest_path": "docs/character/references/luka-cafe-2026-10-08.json",
         "status": "candidate_pending_human_identity_qc"
+      },
+      {
+        "reference_id": "luka-early-01",
+        "manifest_path": "docs/character/references/luka-early-generation-manifest.json",
+        "status": "candidate_context_board_unapproved"
+      },
+      {
+        "reference_id": "luka-early-02",
+        "manifest_path": "docs/character/references/luka-early-generation-manifest.json",
+        "status": "candidate_context_board_unapproved"
+      },
+      {
+        "reference_id": "luka-early-03",
+        "manifest_path": "docs/character/references/luka-early-generation-manifest.json",
+        "status": "candidate_context_board_unapproved"
+      },
+      {
+        "reference_id": "luka-early-04",
+        "manifest_path": "docs/character/references/luka-early-generation-manifest.json",
+        "status": "candidate_context_board_unapproved"
+      },
+      {
+        "reference_id": "luka-early-05",
+        "manifest_path": "docs/character/references/luka-early-generation-manifest.json",
+        "status": "candidate_context_board_unapproved"
+      },
+      {
+        "reference_id": "luka-early-06",
+        "manifest_path": "docs/character/references/luka-early-generation-manifest.json",
+        "status": "candidate_context_board_unapproved"
+      },
+      {
+        "reference_id": "luka-early-07",
+        "manifest_path": "docs/character/references/luka-early-generation-manifest.json",
+        "status": "candidate_context_board_unapproved"
       }
     ]
   },
@@ -56,9 +91,9 @@
       "hair",
       "eyebrows",
       "face_shape",
-      "eyes_approximate_tone",
       "facial_hair",
-      "skin_natural_texture"
+      "skin_natural_texture",
+      "eye_shape"
     ],
     "variable_traits": [
       "clothing",
@@ -68,7 +103,10 @@
       "lighting",
       "expression",
       "grooming_details"
-    ]
+    ],
+    "early_reference_manifest": "docs/character/references/luka-early-generation-manifest.json",
+    "identity_comparison": "docs/character/luka_identity_comparison_2026_10_08.md",
+    "iris_color_status": "unresolved_early_text_dark_brown_new_pixels_hazel_grey_green"
   },
   "production": {
     "workflow": [

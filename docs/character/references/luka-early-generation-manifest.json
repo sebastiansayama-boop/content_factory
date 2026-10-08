@@ -1,0 +1,176 @@
+{
+  "schema_version": "1.0",
+  "character_slug": "luka",
+  "research_date": "2026-10-08",
+  "purpose": "Preserve exact provenance of earlier independently generated composition boards and compare with new candidate cafe portrait; no human approval implied.",
+  "source_type": "generated_collages_not_seven_independent_face_consistency_tests",
+  "comparison_target": {
+    "manifest": "docs/character/references/luka-cafe-2026-10-08.json",
+    "reference_id": "luka-ref-2026-10-08-cafe-01"
+  },
+  "review_status": "visually_reviewed_for_qualitative_similarity",
+  "legacy_sources": [
+    {
+      "reference_id": "luka-early-01",
+      "source_type": "generated_multi_panel_image",
+      "status": "candidate_context_board_unapproved",
+      "original": {
+        "sha256": "1435176167acda0662d3a1d5600b3b2a436df8681253330b66c0ca2b48e233a7",
+        "width": 1536,
+        "height": 1024,
+        "mime_type": "image/png",
+        "source_file_id": "file_0000000065a481faaff69f6be2e9b924",
+        "library_file_id": "libfile_7e889128d358819195fd7cc4d12d9037",
+        "library_path": "/Luka/identity/early_references/luka-early-01-photography-reference-board.png"
+      },
+      "generation": {
+        "provider": "chatgpt_image_generation",
+        "generation_id": "85e21d31-9eee-434d-a3d1-e621d6b99cd7"
+      },
+      "visual_notes": "Lighting, camera parameters and naturalism board; multiple small portraits; profile card says age 27, light brown eyes."
+    },
+    {
+      "reference_id": "luka-early-02",
+      "source_type": "generated_multi_panel_image",
+      "status": "candidate_context_board_unapproved",
+      "original": {
+        "sha256": "f52ccf1bae124bdae0e920a1ae135c3bf706c6eef111c6fb67af2d4e5069b7ff",
+        "width": 1536,
+        "height": 1024,
+        "mime_type": "image/png",
+        "source_file_id": "file_00000000fe38820b8d900e10a95ee208",
+        "library_file_id": "libfile_1f24bcb203488191bebb37ead7b9095d",
+        "library_path": "/Luka/identity/early_references/luka-early-02-lifestyle-character-board.png"
+      },
+      "generation": {
+        "provider": "chatgpt_image_generation",
+        "generation_id": "d54527d3-7b8f-4926-a467-83c65e1f2651"
+      },
+      "visual_notes": "Lifestyle contact sheet; text specifies dark brown eyes; mixed styles and poses; not independently verifiable identity per panel."
+    },
+    {
+      "reference_id": "luka-early-03",
+      "source_type": "generated_multi_panel_image",
+      "status": "candidate_context_board_unapproved",
+      "original": {
+        "sha256": "7e51e6496a1a713cfe92e977f936e4b9d993925172e1587ee57f8773eeaf7b8d",
+        "width": 1312,
+        "height": 1199,
+        "mime_type": "image/png",
+        "source_file_id": "file_00000000c7a481fabf35ad6582453c4b",
+        "library_file_id": "libfile_61c4361ffa788191ac19a6c71f367e06",
+        "library_path": "/Luka/identity/early_references/luka-early-03-primary-character-reference-board.png"
+      },
+      "generation": {
+        "provider": "chatgpt_image_generation",
+        "generation_id": "b2e08190-e407-47d1-88b1-c1c85572eea8"
+      },
+      "visual_notes": "Primary early character overview: large frontal left portrait; strong resemblance to new cafe portrait. Claims dark brown eyes, 25–30 age, height estimate 178–185cm. Generation may not faithfully depict literal text."
+    },
+    {
+      "reference_id": "luka-early-04",
+      "source_type": "generated_multi_panel_image",
+      "status": "candidate_context_board_unapproved",
+      "original": {
+        "sha256": "54146c21c1812be11c4a0567e837157436f7c1dafbee36a8e89ef595e80755f8",
+        "width": 1536,
+        "height": 1024,
+        "mime_type": "image/png",
+        "source_file_id": "file_00000000428481fabcce7ecdc5f18df1",
+        "library_file_id": "libfile_06af3ea89d6c8191857bd268b7f731aa",
+        "library_path": "/Luka/identity/early_references/luka-early-04-cafe-coast-terrace-triptych.png"
+      },
+      "generation": {
+        "provider": "chatgpt_image_generation",
+        "generation_id": "d89140d7-f36e-4a7d-ad0d-77c87e881b2f"
+      },
+      "visual_notes": "Close-up at cafe, coastal side portrait, warm terrace; left portrait close facial and compositional analog to new cafe portrait."
+    },
+    {
+      "reference_id": "luka-early-05",
+      "source_type": "generated_multi_panel_image",
+      "status": "candidate_context_board_unapproved",
+      "original": {
+        "sha256": "44c69c0a7d07ebbc5b75d5769878186addbc33c71dbb567bb003c4e154017626",
+        "width": 1536,
+        "height": 1024,
+        "mime_type": "image/png",
+        "source_file_id": "file_00000000041c821186356bc8325767c0",
+        "library_file_id": "libfile_6238159d1dc48191aad2f6753b1d15a8",
+        "library_path": "/Luka/identity/early_references/luka-early-05-selfie-mirror-cafe-triptych.png"
+      },
+      "generation": {
+        "provider": "chatgpt_image_generation",
+        "generation_id": "cef3c608-1e0d-476e-b973-0f3a55460eb0"
+      },
+      "visual_notes": "Selfie frontal, full-height mirror, candid cafe; useful for character face variation and everyday content."
+    },
+    {
+      "reference_id": "luka-early-06",
+      "source_type": "generated_multi_panel_image",
+      "status": "candidate_context_board_unapproved",
+      "original": {
+        "sha256": "9cd81a2923c6be16ae5229d1d54e4e0ef6f5a0e3c3c564e68d8a673b5e33f13f",
+        "width": 1536,
+        "height": 1024,
+        "mime_type": "image/png",
+        "source_file_id": "file_0000000001588208acd61b885ade920c",
+        "library_file_id": "libfile_5e26a48601f881919055af7bf92e8bf2",
+        "library_path": "/Luka/identity/early_references/luka-early-06-cooking-reading-coffee-triptych.png"
+      },
+      "generation": {
+        "provider": "chatgpt_image_generation",
+        "generation_id": "6216a09b-73aa-47a1-8946-58060075f499"
+      },
+      "visual_notes": "Luka cooking, reading and manual coffee brewing; head-down poses, not good for iris-color validation."
+    },
+    {
+      "reference_id": "luka-early-07",
+      "source_type": "generated_multi_panel_image",
+      "status": "candidate_context_board_unapproved",
+      "original": {
+        "sha256": "bbfa931e620638dbc3eb38a24a0584dd52412ab9fc28b1017e66f7ac2c596877",
+        "width": 1536,
+        "height": 1024,
+        "mime_type": "image/png",
+        "source_file_id": "file_00000000507882119ef9d9a6bced5fbb",
+        "library_file_id": "libfile_dab8de9b9d588191b950b35b4c24f7d3",
+        "library_path": "/Luka/identity/early_references/luka-early-07-hiking-cafe-market-triptych.png"
+      },
+      "generation": {
+        "provider": "chatgpt_image_generation",
+        "generation_id": "45ad121d-ab43-4af8-8824-7ac197bceb1e"
+      },
+      "visual_notes": "Hiking shoe, cafe cup, fruit market scenes; partial side views of Luca, lower identity evidence than frontal portrait."
+    }
+  ],
+  "visual_comparison": {
+    "assessment": "high resemblance in recognizable visual type, not verified identity continuity",
+    "evidence": "direct side-by-side review of earlier originals and latest cafe original",
+    "points_of_agreement": [
+      "dense dark-brown wavy/curly medium-length hair with forehead curls",
+      "full dense dark eyebrow shape",
+      "moderately long straight nose and broad cheekbones",
+      "oval-angular face and tapered jaw",
+      "short dark moustache/stubble",
+      "slightly asymmetric relaxed mouth expression",
+      "warm/olive-beige skin in available lighting"
+    ],
+    "uncertainties": [
+      "eye color inconsistent: early board textual labels dark brown vs newer pixel appearance hazel/grey-green, other boards look light brown",
+      "beard and neck stubble density vary across generations",
+      "face/head proportions shift subtly with angle and scene",
+      "height (178–185cm/180cm) and exact age (27) are board design assumptions, not measurable from the images"
+    ],
+    "limitations": [
+      "Each original is a generated collage; multiple panels in one file are not multiple independent model generations",
+      "No biometrics or identity score; qualitative human-readable visual comparison only",
+      "Prior uploads have no explicit human-approved canonical face status"
+    ]
+  },
+  "comparison_composite": {
+    "library_file_id": "libfile_54402e9094fc81919aa5324cdf51f54c",
+    "library_path": "/Luka/identity/luka-visual-comparison-2026-10-08.jpg",
+    "note": "Four-panel extracted face crops for side-by-side review, source originals unchanged; not an independent reference."
+  }
+}
