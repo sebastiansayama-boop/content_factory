@@ -1,9 +1,7 @@
 name: Gemini Ollama interchangeable E2E
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   interchangeable-llm-e2e:

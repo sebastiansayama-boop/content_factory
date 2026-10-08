@@ -2,10 +2,6 @@ name: Runtime real content capability E2E
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
 
 jobs:
   runtime-real-content:
