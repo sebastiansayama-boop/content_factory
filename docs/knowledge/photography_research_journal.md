@@ -25,3 +25,11 @@ Pixel-inspect five distinct originals among R01–R22. Record URL, visible frami
 | Date | Cycle | Metadata records | Pixel reviews | Profiles verified | Change | Commit |
 |---|---|---:|---:|---:|---|---|
 | 2026-10-08 | Baseline 000 | 22 | 0 | 0 | Created auditable progress tracker and milestone plan | See Git history |
+
+## Checkpoint 001 — audit 005, 2026-10-08
+- Executed external search, compared camera metadata across 10 new file pages, and identified window-versus-mirror reflection question.
+- References increased from 22 to 32 (metadata level); image-pixel reviews remain 0.
+- Added optional `reflective_surface` field to observation schema v0.4.
+- Did NOT count ambiguous titles as verified front-camera photos.
+- Remaining gap: actual visual inspection; next cycle must focus on pixels rather than accumulating titles.
+- Research commits: 5796cf0, 04c8919.
