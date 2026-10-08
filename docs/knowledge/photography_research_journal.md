@@ -96,3 +96,24 @@ Pixel-inspect five distinct originals among R01–R22. Record URL, visible frami
 - Research method correction: there is no requirement to download original files to inspect available web images; keep visual evidence level explicit. Previous 10 original reviews remain unchanged. Eight new previews do not count toward 500 original-verified images.
 - Next question: which of these compositional properties remain when sampling verified user-authored amateur photos rather than marketing imagery?
 - Commit: 2493b07.
+
+## Checkpoint 010 — visual comparison of web search image results (2026-10-08)
+Eight image previews were returned and directly inspected in this turn, **not verified amateur photographs**:
+- X01 https://www.ybibasel.ch/post/hiking-restaurants-in-the-basel-area — three hiking companions in close row, each smiling; arm over shoulder, trekking poles, and background foliage. Commercial/travel source; origin unknown.
+- X02 https://events-heinsberg.de/ — hikers walk abreast; coordinated equipment and all-visible faces; marketing/event illustration source; cannot assume natural unstaged capture.
+- X03 https://www.rawpixel.com/image/17387036/friends-hiking-nature-trail-together — front-facing smiling walkers, balanced spacing and near-even exposure; stock site. Exclude from amateur prevalence.
+- X04 https://www.rawpixel.com/image/17415666/happy-hikers-enjoying-scenic-trail — three people walk close to camera, balanced visible faces; stock site. Exclude from amateur prevalence.
+- X05 https://www.visitbergen.com/ting-a-gjore/tekstilindustrimuseet-museumssenteret-i-hordaland-p826873 — family table scene with cups; child and adult interacting; left empty chair is cut by frame; commercial tourism photo.
+- X06 https://www.gettyimages.com/ — mother and child at café table, both clearly lit, eye contact, neat separation; stock photography. Exclude from amateur prevalence.
+- X07 https://www.gettyimages.com/ — café family around table with different gaze directions and people partially cropped; stock provenance.
+- X08 https://www.gettyimages.com/ — group hikers with arm over shoulder and uneven framing; stock provenance.
+These are qualitative *visual* comparisons only, not source-level verified amateur records. Marketing images can include believable cropping and mixed gaze: those properties are **not reliable standalone authenticity classifiers**.
+
+Independent source cross-check:
+- https://www.flickr.com/photos/31603030%40N08/53261010431/ — photographer Charlie Wambeke describes bright café portrait background due to a window behind subject; concrete causal lighting explanation, but image not pixel-reviewed in this cycle.
+- https://commons.wikimedia.org/wiki/File:A_man_and_woman_enjoy_a_sunny_day_at_a_cafe,_taking_a_selfie_together.jpg — file title describes people taking a selfie; EXIF Nikon Z6, 85mm; recording camera differs from depicted selfie device. Do not classify as front-camera output.
+- https://www.gettyimages.co.uk/detail/photo/medium-shot-of-happy-family-in-cafe-royalty-free-image/1994970134 — marketed as 'candid' but licensed stock with model releases; label does not prove spontaneity.
+
+**New conclusion:** do not use 'messy framing', 'uneven gaze', or 'ordinary props' as a binary amateur-vs-commercial authenticity test. Both types can contain these. Stronger evidence comes from provenance, creator account, EXIF, and documented shooting context.
+**Counters:** 10 prior original-level reviews; 8 new web previews (not added to 500 verified originals). 31 metadata-only candidates remain queued.
+**Next question:** compare actual creator-owned casual snapshots against marketed stock using author evidence, then test whether differences survive matching subject, setting, and camera.
