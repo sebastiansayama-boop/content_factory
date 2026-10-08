@@ -66,3 +66,36 @@ These are observational descriptors; not yet required generation constraints.
 
 ### Next verification
 Find actual front-camera output files with credible device metadata or source testimony, inspect image pixels, then compare the causal constraints against Luca's separate generated photos. Do not promote a parameter to mandatory without a real failed/passed case.
+
+## Reference audit 003 — verified metadata sample (2026-10-08)
+This batch examines file-page descriptions and metadata, not the pixels. 10 new unique file pages, 15 cumulative unique references (R01–R15). All from one hosting platform; NOT 10 independent source platforms/profiles. The goal of 50 images/10 sources remains unmet. Metadata can be inaccurate or altered. Avoid treating filename as camera proof.
+
+| ID | URL | Date | Published metadata | Classification | Evidence | License |
+|---|---|---|---|---|---|---|
+| R06 | https://commons.wikimedia.org/wiki/File:My_selfie,_July_2017.jpg | 2017-07-04 | own work; smartphone selfie per author | actual selfie output claimed; front camera unverified | author statement | unknown |
+| R07 | https://commons.wikimedia.org/wiki/File:Olivia_Arben_selfie.jpg | 2019-10-21 | iPhone XR; 2.87mm f/2.2; ISO200; 1/60s; front camera category | front camera output | EXIF + category | CC BY-SA 4.0 |
+| R08 | https://commons.wikimedia.org/wiki/File:Jokowi_selfie_with_Prabowo_and_reporters.jpg | 2019-10-11 | iPhone 7 Plus front camera 2.87mm f/2.2; ISO125 | front camera group selfie output | EXIF | check page |
+| R09 | https://commons.wikimedia.org/wiki/File:Selfie_in_a_mirror_2015.jpg | 2015-07-28 | file history: monochrome conversion and white balance correction | mirror selfie; postprocessed | file history | CC BY-SA 4.0 |
+| R10 | https://commons.wikimedia.org/wiki/File:Selfie_at_a_mirror_of_the_hotel.jpg | 2025-08-21 | 3072x4096; author own work | mirror selfie | author description | CC0 |
+| R11 | https://commons.wikimedia.org/wiki/File:Mirror_selfie_kish.jpg | 2025-08-10 | 607x1080; author own work | mirror selfie | author description | CC0 |
+| R12 | https://commons.wikimedia.org/wiki/File:K6ka_mirror_selfie_with_D7100_2020-10-10.jpg | 2020-10-10 | Nikon D7100 35mm f/1.8, mirror self-portrait | mirror selfie using DSLR, NOT smartphone | author description | check page |
+| R13 | https://commons.wikimedia.org/wiki/File:Two_middle_school_students_taking_a_mirror_selfie_with_Nokia_3650_early_smartphone_(October_2004_on_Avenue_Pasteur_and_Avenue_Gallieni_in_Courbevoie,_France).jpg | 2004-10 | Nokia 3650; 640x480; author own work | mirror selfie using early camera phone | author description | CC BY 4.0 |
+| R14 | https://commons.wikimedia.org/wiki/File:Selfie_of_iPhone_in_Mirror.jpg | 2019-12-16 | phone in mirror; no person | mirror phone reflection, NOT human portrait | author description | check page |
+| R15 | https://commons.wikimedia.org/wiki/File:Selfie_Belarusian_scientist_Siarhei_Besarab_CERN_safety_helmet_Science_Gateway_June_2026.jpg | 2026-06-20 | Pixel 8 Pro front camera; source of digital media: Edited using generative AI | front-camera image, generatively edited | EXIF processing disclosure | check page |
+
+### Findings from this batch
+- R07/R08: some self-portrait outputs include explicit front-camera device metadata; device attribution is stronger than title alone.
+- R12: mirror selfie can be captured on a DSLR; `mirror_selfie` does not imply smartphone.
+- R09: a historical selfie can be white-balance corrected or monochrome; `unprocessed` is not a safe default.
+- R15: an image captured on a real phone can also be edited with generative AI. Camera provenance and synthetic modification are orthogonal fields.
+- R14: a mirrored phone without a human subject must be excluded from the human-portrait evaluation subset.
+
+### Proposed parameters motivated by concrete records
+- processing_type: none_reported | conventional_edit | generative_edit | unknown (R09, R15).
+- human_subject_present: true | false | unknown (R14).
+- recording_device_evidence: exif | author_statement | title_only | unknown (R07, R12).
+- device_class and camera_facing should be separate fields (R12).
+- reference_selection_status: eligible | excluded | conditional (R14 excluded from human-portrait set).
+
+### Evidence limitations and stopping checkpoint
+Completed **15 metadata-audited distinct reference file pages** cumulatively. Pixel-level compositional observations completed: **0**. Independent host platforms: **1**. Do not count these as 15 visually inspected photographs or as 10 independent platforms. Next: pixel inspection, 35 more records, diversification beyond Commons.
