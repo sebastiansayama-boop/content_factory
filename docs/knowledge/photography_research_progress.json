@@ -7,7 +7,7 @@
     "visual_deep_reviews": 100
   },
   "verified_progress": {
-    "metadata_reviewed_file_pages": 22,
+    "metadata_reviewed_file_pages": 32,
     "visual_deep_reviews": 0,
     "independent_authors_or_profiles_verified": 0,
     "capture_categories_verified": 0,
@@ -19,8 +19,8 @@
     "checkpoint_every": 25
   },
   "state": "in_progress_manual_session",
-  "last_checkpoint": "2026-10-08",
-  "next_action": "Inspect actual image pixels of five eligible sources from R01–R22; record composition, light, phone position, gaze and crop; then expand independent author sources.",
+  "last_checkpoint": "2026-10-08 / audit 005",
+  "next_action": "Prioritize opening original image pixels; metadata count 32 does not satisfy visual analysis. Review R23–R32 and collect image-level evidence.",
   "definitions": {
     "metadata_reviewed_file_pages": "File pages whose metadata/descriptions were recorded; NOT a visual review.",
     "visual_deep_reviews": "Actual pixels inspected with structured visible observations.",
