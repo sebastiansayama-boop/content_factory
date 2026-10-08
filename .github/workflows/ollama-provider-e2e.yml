@@ -2,9 +2,6 @@ name: Ollama provider E2E
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - feat/ollama-boundary-v1
 
 jobs:
   ollama-e2e:
