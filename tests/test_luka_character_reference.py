@@ -29,7 +29,8 @@ def test_luka_identity_reference_is_recoverable_and_not_auto_approved():
     binary = preview.read_bytes()
     git_sha = hashlib.sha1(b"blob " + str(len(binary)).encode() + bytes([0]) + binary).hexdigest()
     assert git_sha == manifest["preview"]["git_blob_sha"]
+    assert hashlib.sha256(binary).hexdigest() == manifest["preview"]["sha256"]
     with Image.open(preview) as image:
         image.load()
         assert image.format == "JPEG"
-        assert image.size == (160, 186)
+        assert image.size == (80, 93)

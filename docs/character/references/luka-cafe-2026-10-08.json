@@ -24,9 +24,12 @@
   },
   "preview": {
     "path": "docs/character/references/luka-cafe-2026-10-08-face-preview.jpg",
-    "git_blob_sha": "d29e4c553a72d9c65c401fa52221c9b3503136cc",
-    "crop_note": "Small derived face crop from original image; for visual orientation only",
-    "verified_pixel_hash": false
+    "git_blob_sha": "a91861ea18538e68c4f88bfdfc4d34ebd0b71884",
+    "crop_note": "Small 80x93 face preview from original; valid JPEG and checksum-verified, NOT a substitute for full-resolution identity comparison",
+    "verified_pixel_hash": true,
+    "sha256": "8d7090a6b471c0be89f68ad8329c1adb54d5dec2c14d24246a38ba71fea315c6",
+    "width": 80,
+    "height": 93
   },
   "description_path": "docs/character/luka_appearance.md",
   "policy": {
