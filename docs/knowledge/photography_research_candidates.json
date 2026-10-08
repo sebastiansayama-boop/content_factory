@@ -443,6 +443,116 @@
       "count_toward_500": false,
       "selection_bias": "targeted_selfie_search",
       "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C045",
+      "url": "https://commons.wikimedia.org/wiki/File:Image_selfie.jpg",
+      "author": "EmersonironmanBR",
+      "category": "direct_selfie",
+      "metadata": "iPhone 11 Pro Max, 3024x4032, 1/30s ISO640; 2023 UN event",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "selfie_search; derivative_check_required",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C046",
+      "url": "https://commons.wikimedia.org/wiki/File:Selfie_Christopher_Flach_NYC_self_portrait_500cm.jpg",
+      "author": "Christopher Flach",
+      "category": "direct_selfie",
+      "metadata": "iPhone 5s, 480x640; small exported file",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "selfie_search; derivative_check_required",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C047",
+      "url": "https://commons.wikimedia.org/wiki/File:Lily_Cao_taking_selfies_with_selfie_stick_and_iPhone_on_the_stage_20231112.jpg",
+      "author": "Solomon203",
+      "category": "friend_shot_portrait",
+      "metadata": "photo OF selfie-taking, not selfie output; 2592x4608",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "selfie_search; derivative_check_required",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C048",
+      "url": "https://commons.wikimedia.org/wiki/File:What_should_be_an_experimental_selfie_became_really_strange.jpg",
+      "author": "Pittigrilli",
+      "category": "multi_reflection",
+      "metadata": "iPhone 6s, 1/17s ISO800; shop-window layered reflection and exaggerated near-glass hands",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "selfie_search; derivative_check_required",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C049",
+      "url": "https://commons.wikimedia.org/wiki/File:Ksenia_Zadvornova.jpg",
+      "author": "Ricco Baroni",
+      "category": "direct_selfie",
+      "metadata": "selfie description, photographer identity ambiguous, needs attribution check",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "selfie_search; derivative_check_required",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C050",
+      "url": "https://commons.wikimedia.org/wiki/File:Two_women_taking_selfie_on_06_0016_(20230214172527).jpg",
+      "author": "N509FZ",
+      "category": "friend_shot_portrait",
+      "metadata": "photo OF two women taking selfie; Beijing transport scene",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "selfie_search; derivative_check_required",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C051",
+      "url": "https://commons.wikimedia.org/wiki/File:Moss_selfie.jpg",
+      "author": "MossAlbatross",
+      "category": "direct_selfie",
+      "metadata": "3024x4032 original; has derived crop, do not count crop separately",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "selfie_search; derivative_check_required",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C052",
+      "url": "https://commons.wikimedia.org/wiki/File:Aravind_AV_selfie_image.jpg",
+      "author": "అరవింద్ ఏవి",
+      "category": "direct_selfie",
+      "metadata": "iPhone EXIF, 2316x3088",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "selfie_search; derivative_check_required",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C053",
+      "url": "https://commons.wikimedia.org/wiki/File:Giant_house_spider_(Eratigena_atrica)_crawling._61-year-old_man%2C_long%2C_messy_eyebrows%2C_wrinkled_forehead._Selfie._Close-up._Stor_husedderkopp_p%C3%A5_rynkete_panne._Norway_2023-10-24_IMG_4243_2.jpg",
+      "author": "Wolfmann",
+      "category": "direct_selfie",
+      "metadata": "2023 close-up selfie; extreme unusual subject; exclude from typical lifestyle prevalence",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "selfie_search; derivative_check_required",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C054",
+      "url": "https://commons.wikimedia.org/wiki/File:Moss_selfie_(cropped).jpg",
+      "author": "MossAlbatross",
+      "category": "direct_selfie",
+      "metadata": "derivative of Moss selfie.jpg, NOT independent capture",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "selfie_search; derivative_check_required",
+      "source_checked": "2026-10-08"
     }
   ],
   "observations": [
