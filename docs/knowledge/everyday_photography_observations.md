@@ -162,3 +162,36 @@ Method: actual image thumbnails returned by external image search were visually 
 ### New operational distinction
 `visual_review_level`: metadata_only | thumbnail_visual_review | original_pixel_review.
 This prevents thumbnail inspection from being inflated to original-image review. Keep deep-original counter at zero until full original files have been inspected.
+
+## Audit 007 — verified ORIGINAL image inspection (2026-10-08)
+For the first time, full-original image links were opened and image pixels directly visually examined. These are 3 distinct original images; metadata-only count unchanged (source overlaps not yet fully deduplicated).
+
+**O01 — GrumpyGroucho, iPhone SE, 960×1280**
+Source: https://commons.wikimedia.org/wiki/File:Selfie_of_iPhone_in_Mirror.jpg
+Original: https://upload.wikimedia.org/wikipedia/commons/8/83/Selfie_of_iPhone_in_Mirror.jpg
+Observed: Vertical dark restroom scene; bright overexposed phone screen held near center at mid-height; only the person's arm and a narrow strip of checkered sleeve enter from left. Door dominates center background; framed picture at right; paper towels and sink edge at lower/right edges. Light is uneven; reflected phone screen clips to white. No face visible. The arm enters from outside frame, not from below the phone.
+Metadata: iPhone SE, 1/20 s, ISO 160, f/2.4, 2.15 mm; CC BY-SA 4.0. This is a reflection image recorded by the iPhone, NOT a portrait of the phone's user. Evidence: full original + author + EXIF.
+Modeling implication: a mirror selfie may have **no visible face**; subject visibility must not be assumed. Phone-screen brightness and background luminance can diverge dramatically.
+
+**O02 — Trougnouf, Fujifilm X-E2, 4936×3296**
+Source: https://commons.wikimedia.org/wiki/File:Shirtless_man_taking_bathroom_mirror_selfie_with_Fujifilm_X-E2_camera_and_XF18-55mm_lens_(DSCF0902).jpg
+Original: https://upload.wikimedia.org/wikipedia/commons/8/80/Shirtless_man_taking_bathroom_mirror_selfie_with_Fujifilm_X-E2_camera_and_XF18-55mm_lens_%28DSCF0902%29.jpg
+Observed: Landscape frame, face mostly concealed by the large camera/lens in the central foreground. Both hands hold camera; wood-panel room and slanted ceiling dominate; warm bright overhead light, face in deep shadow; head hair is partially clipped at top. The camera body/lens is much sharper/brighter than the dim facial area. There is no phone.
+Metadata: Fujifilm X-E2, 18 mm, f/2.8, ISO 800, 1/60 s, darktable processing, CC BY 4.0. This is direct evidence against 'mirror selfie implies phone' and against 'mirror selfie implies portrait orientation'.
+Modeling implication: recording device size and hand grip affect face occlusion; lighting on device and face may be highly asymmetric.
+
+**O03 — Pittigrilli, iPhone 5, 3264×2448**
+Source: https://commons.wikimedia.org/wiki/File:Man_photographing_himself_in_hotel_bathroom_with_mirrors_all_around_to_generate_illusion.jpg
+Original: https://upload.wikimedia.org/wikipedia/commons/a/a6/Man_photographing_himself_in_hotel_bathroom_with_mirrors_all_around_to_generate_illusion.jpg
+Observed: Landscape hotel washroom scene with corner mirrors. Large phone-back shape cuts into far right foreground. Left mirror shows man in profile holding phone; center shows his front reflection; smaller recursively repeated people/phone images recede toward center-right. White sink, faucet and wall socket visible below; straight seams and reflections support multi-mirror geometry. Multiple apparent people are repetitions of ONE subject, not a group photo.
+Metadata: iPhone 5, 1/20 s, f/2.4, ISO 50; edited colors/contrast per file history; CC BY-SA 4.0.
+Modeling implication: a reflective scene may show multiple instances of the same person and device with consistent geometric recursion. Do not reject duplicate human figures automatically, but verify reflection structure.
+
+**Cross-image findings**
+1. Device in frame does not necessarily mean a second camera; mirrored output can include the recording device (O01/O02/O03).
+2. Mirror selfie framing may be vertical or horizontal, face fully absent or partially obscured, and include multiple reflections.
+3. 'Bad photography' must not be defined as arbitrary defects. Observed clipping, shadow and occlusion each have causal explanations.
+4. A reflection-consistency check needs a `mirror_count_or_configuration` observation, but this can initially be a note rather than schema expansion.
+5. The sources are hand-picked, not random; no frequency estimates.
+
+Next question: can full-original direct-front-camera portraits be contrasted with these three mirror originals without relying on filenames?
