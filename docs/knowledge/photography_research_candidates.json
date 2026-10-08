@@ -1,0 +1,151 @@
+{
+  "date": "2026-10-08",
+  "status": "metadata_screened_not_pixel_reviewed",
+  "candidates": [
+    {
+      "id": "C001",
+      "category": "work_study",
+      "url": "https://commons.wikimedia.org/wiki/File:Man_working_on_laptop_and_drinking_coffee_in_cafeteria.jpg",
+      "author": "Shixart1985",
+      "metadata": "Nikon D610; 35 mm; f/1.4; ISO200",
+      "selection_bias": "professional_or_staged_possible",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C002",
+      "category": "work_study",
+      "url": "https://commons.wikimedia.org/wiki/File:Man_working_on_laptop_while_enjoying_a_cold_beverage_in_a_cozy_cafe_setting.jpg",
+      "author": "Shixart1985",
+      "metadata": "Nikon Z6; 85 mm; f/1.8; ISO250; Lightroom",
+      "selection_bias": "professional_or_staged_possible",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C003",
+      "category": "work_study",
+      "url": "https://commons.wikimedia.org/wiki/File:Businesswoman_enjoys_coffee_and_snack_while_working_on_laptop_in_modern_kitchen.jpg",
+      "author": "Shixart1985",
+      "metadata": "Nikon Z6 III; 6048x4032",
+      "selection_bias": "professional_or_staged_possible",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C004",
+      "category": "work_study",
+      "url": "https://commons.wikimedia.org/wiki/File:Professional_woman_enjoying_coffee_while_working_on_laptop_at_a_cozy_desk_in_a_well-lit_room_during_morning_hours.jpg",
+      "author": "Shixart1985",
+      "metadata": "3962x2645",
+      "selection_bias": "professional_or_staged_possible",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C005",
+      "category": "travel_outdoors",
+      "url": "https://commons.wikimedia.org/wiki/File:Friends_on_a_hike_SR_cdm_(10290904385).jpg",
+      "author": "unverified",
+      "metadata": "4000x3000; 2013",
+      "selection_bias": "unverified",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C006",
+      "category": "travel_outdoors",
+      "url": "https://commons.wikimedia.org/wiki/File:YR_Hiking_with_a_few_friends_(15611231713).jpg",
+      "author": "unverified",
+      "metadata": "4288x2848; 2015",
+      "selection_bias": "unverified",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C007",
+      "category": "travel_outdoors",
+      "url": "https://commons.wikimedia.org/wiki/File:YR_Hiking_with_a_few_friends_(16045239627).jpg",
+      "author": "unverified",
+      "metadata": "4288x2848; 2015",
+      "selection_bias": "unverified",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C008",
+      "category": "travel_outdoors",
+      "url": "https://commons.wikimedia.org/wiki/File:YR_Hiking_with_a_few_friends_(16043693230).jpg",
+      "author": "unverified",
+      "metadata": "4288x2848; 2015",
+      "selection_bias": "unverified",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C009",
+      "category": "travel_outdoors",
+      "url": "https://commons.wikimedia.org/wiki/File:Hiking_in_bud_bongao.jpg",
+      "author": "unverified",
+      "metadata": "3000x4000",
+      "selection_bias": "unverified",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C010",
+      "category": "work_study",
+      "url": "https://commons.wikimedia.org/wiki/File:Businesswoman_has_coffee_and_snacks_while_working_on_laptop.jpg",
+      "author": "Shixart1985",
+      "metadata": "Nikon Z6 III; 6048x4032",
+      "selection_bias": "professional_or_staged_possible",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C011",
+      "category": "work_study",
+      "url": "https://commons.wikimedia.org/wiki/File:Young_woman_enjoys_morning_routine_working_on_laptop_with_coffee_and_pastries_in_cozy_room.jpg",
+      "author": "Shixart1985",
+      "metadata": "Nikon D610; 6016x4016",
+      "selection_bias": "professional_or_staged_possible",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C012",
+      "category": "work_study",
+      "url": "https://commons.wikimedia.org/wiki/File:Businessman_working_on_laptop_in_a_modern_restaurant.jpg",
+      "author": "Shixart1985",
+      "metadata": "Nikon Z6; 6048x4024",
+      "selection_bias": "professional_or_staged_possible",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C013",
+      "category": "work_study",
+      "url": "https://commons.wikimedia.org/wiki/File:Woman_enjoying_coffee_while_working_on_laptop_in_cozy_indoor_space_during_daytime.jpg",
+      "author": "Shixart1985",
+      "metadata": "Nikon D610; 35 mm; f/1.4",
+      "selection_bias": "professional_or_staged_possible",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C014",
+      "category": "work_study",
+      "url": "https://commons.wikimedia.org/wiki/File:Professional_woman_working_on_laptop_at_modern_desk_with_coffee_in_bright_office.jpg",
+      "author": "Shixart1985",
+      "metadata": "Nikon D610; 4016x6016",
+      "selection_bias": "professional_or_staged_possible",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    }
+  ],
+  "observations": [
+    "Search results heavily overrepresent one photographer Shixart1985 in laptop scenes; cannot count these as independent author diversity.",
+    "Some lifestyle scenes may be professionally staged; classify before using them to infer amateur conventions.",
+    "Web result provides original resolution and EXIF but this pass could not retrieve actual image bytes for inspection."
+  ]
+}
