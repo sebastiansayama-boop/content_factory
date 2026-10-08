@@ -553,6 +553,96 @@
       "count_toward_500": false,
       "selection_bias": "selfie_search; derivative_check_required",
       "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C055",
+      "url": "https://commons.wikimedia.org/wiki/File:Selfie_in_the_mirror.jpg",
+      "author": "Tiraspolsky",
+      "category": "mirror_selfie",
+      "metadata": "Canon EOS 1000D; 537x768; 2010; ISO1600; f/4; 28mm; 1/160s",
+      "selection_bias": "mirror shot, DSLR not smartphone",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C056",
+      "url": "https://commons.wikimedia.org/wiki/File:Selfie_at_a_mirror_of_the_hotel.jpg",
+      "author": "ShiminUfesoj",
+      "category": "mirror_selfie",
+      "metadata": "3072x4096; 2025; ISO2500; f/1.5; 4.941mm; 1/40s",
+      "selection_bias": "low-light phone-like EXIF; camera model not yet checked",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C057",
+      "url": "https://commons.wikimedia.org/wiki/File:Selfie_in_a_mirror_2015.jpg",
+      "author": "The Swede",
+      "category": "mirror_selfie",
+      "metadata": "1042x1500; 2015; black-and-white processed version uploaded 2021; ISO1000; 98mm",
+      "selection_bias": "later edited version; capture and upload dates differ",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C058",
+      "url": "https://commons.wikimedia.org/wiki/File:Selfie_in_a_branch_mirror.jpg",
+      "author": "The Swede",
+      "category": "multi_reflection",
+      "metadata": "1500x1004; ceiling mirror; 2016; same author as previous",
+      "selection_bias": "repeat author, novel scene",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C059",
+      "url": "https://commons.wikimedia.org/wiki/File:K6ka_mirror_selfie_with_D7100_2020-10-10.jpg",
+      "author": "Enoch Leung",
+      "category": "mirror_selfie",
+      "metadata": "2503x3129; Nikon D7100 with 35mm f/1.8G; 2020",
+      "selection_bias": "DSLR mirror selfie, not phone",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C060",
+      "url": "https://commons.wikimedia.org/wiki/File:Mirror_selfie_kish.jpg",
+      "author": "Mr.Farbod Delavarnia",
+      "category": "mirror_selfie",
+      "metadata": "607x1080; 2025; CC0",
+      "selection_bias": "low-resolution upload",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C061",
+      "url": "https://commons.wikimedia.org/wiki/File:Selfie_in_a_traffic_mirror_in_Castellaro_Lagusello_(MN)_-_Italy_01.JPG",
+      "author": "Dario Crespi",
+      "category": "multi_reflection",
+      "metadata": "3888x2592; outdoor traffic mirror; 2014",
+      "selection_bias": "convex public mirror",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C062",
+      "url": "https://commons.wikimedia.org/wiki/File:Sink_area_with_a_Fujifilm_X-E2_taking_a_selfie_through_a_broken_mirror_in_Sanatorium_du_Basil%2C_Stoumont%2C_Belgium_(DSCF3528-hdr).jpg",
+      "author": "Trougnouf",
+      "category": "multi_reflection",
+      "metadata": "4921x3106; 2018; Fujifilm X-E2; HDR",
+      "selection_bias": "HDR and broken mirror; atypical for amateur phone",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C063",
+      "url": "https://commons.wikimedia.org/wiki/File:Roland_Neveu_%E2%80%98selfie'.jpg",
+      "author": "RNBKK",
+      "category": "mirror_selfie",
+      "metadata": "2041x3000; 1973 analog self portrait",
+      "selection_bias": "historical reference; exclude modern prevalence",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false
     }
   ],
   "observations": [
@@ -562,6 +652,7 @@
     "2026-10-08: 10 new Commons file-page candidates added from cross-source search; 24 candidate records total; images not yet pixel-inspected.",
     "Photographic challenge submissions enforce max four per photographer and own-work requirement, potentially a useful diversity discovery pool, but not a random sample.",
     "2026-10-08 audit 010: web verified metadata for 8 candidate references, 7 new nonduplicate candidate URLs; container image download failed, no visual review count incremented.",
-    "2026-10-08: 12 Commons file pages for self-portraits and depictions of selfie-taking, 12 newly catalogued; 2 same-author near-instant festival photos and cropped derivative identified; do not count as independent scene samples."
+    "2026-10-08: 12 Commons file pages for self-portraits and depictions of selfie-taking, 12 newly catalogued; 2 same-author near-instant festival photos and cropped derivative identified; do not count as independent scene samples.",
+    "2026-10-08 three-cycle source review: 9 Commons records mirror/self-reflection, 9 new nonduplicates; distinguish mirror capture, historical analog, DSLR, low-light phone, HDR, edited derivative; no new pixel-inspected originals."
   ]
 }
