@@ -78,3 +78,13 @@ Pixel-inspect five distinct originals among R01–R22. Record URL, visible frami
 - Wikimedia Commons photo challenge enforces own-work entries and max four entries per author, which may help diversify future sampling, but challenge participation is not evidence of amateur candidness.
 - Tried retrieving image pixels through container network; unavailable. The external image results for this query returned unrelated stock-like visuals, so none were promoted to visually inspected status.
 - Verified visual-original total remains 10/500. Source: Wikimedia Commons file pages and 2025 February photo challenge.
+
+## Checkpoint 008 — external verification and deduplication (2026-10-08)
+- Queried public Commons source records for café/family/outdoor candid categories and opened metadata for multiple files.
+- Checked 8 URLs; **7 novel** candidate URLs added after deduplication, 1 already existed. Candidate queue now **31** (metadata-only, not counted toward 500).
+- Source diversity: WabbitWanderer (Flickr-origin 2020 garden scene, Panasonic DMC-ZS50), David Atoroyo Sika (South Sudan family outdoor, 2017), Irsam Photography (2020 outing), Linda Bartlett (US NIH archival family), Mike from Vancouver (2013 cafe), and historical unknown amateur photographer. Contemporary and archival examples must not be mixed for style prevalence.
+- EXIF observation: WabbitWanderer original lists Panasonic DMC-ZS50, 57.7mm focal length, 1/20 s, ISO400; camera information supports provenance, not claims about the visible image composition.
+- **Failed image retrieval test:** container HTTPS request to upload.wikimedia.org failed with ConnectionError. No image pixels inspected in this cycle. The web image lookup surfaced text pages rather than usable images.
+- No new schema fields justified. **Verified original image visual reviews remain 10/500**, candidates 31; source card count and visual-review count must not be conflated.
+- Next action: prioritize a functioning image-delivery pathway before further metadata-only expansion; once images are visible, annotate scene geometry and compare claims.
+- Commit: b11d52e.
