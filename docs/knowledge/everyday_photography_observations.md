@@ -138,3 +138,27 @@ Counterexamples: R27 explicitly names a mirror reflection; R26 a window reflecti
 New candidate parameter: `reflective_surface` = mirror | window | other | none | unknown. This is motivated by R26/R27; remains an optional observation, not QC gate.
 
 Checkpoint: **32 unique metadata-audited source file pages** R01–R32; **0 pixel-level reviews**. Milestone 25 metadata references crossed, but the planned 25-*photo* visual checkpoint is NOT completed. Verified independent profiles target still not counted without deduplication.
+
+## Audit 006 — first direct visual review of public images (2026-10-08)
+Method: actual image thumbnails returned by external image search were visually inspected, not original full-resolution pixel files. Mark as `thumbnail_visual_review`, not `deep_original_review`. Third-party sites' subject descriptions do not prove authenticity or provenance.
+
+| Review | Image URL | Observed visible properties | Inference limits |
+|---|---|---|---|
+| V01 | https://miro.medium.com/v2/resize:fit:2400/2*nCtUdzkXStGo8DbLqs5SFg.jpeg | Man centered tightly head-and-shoulders; patterned tile wall fills background; camera approximately face height; shoulders cut at lower frame. | Whether front camera, timer, or another photographer is unknown. |
+| V02 | https://d2g8igdw686xgo.cloudfront.net/99652801_1770182420877188_r.jpeg | Bathroom mirror scene: smartphone visibly held beside face; one arm raised, other supports body at counter; door and towel visible; uneven space left/right. | Image provenance and whether cropped/edited unknown. |
+| V03 | https://photos2.spareroom.co.uk/images/flatshare/listings/large/90/25/90256678.jpg | Bathroom mirror image; phone held at upper chest/face level; mirror edge and sinks visible; image includes unused room space and lower foreground counter. | Person's motivation, camera mode, and postprocessing unknown. |
+| V04 | https://insideadschool.com/assets/images/IMG_8313-Armando-Rosales-1-scaled.jpeg | Gallery mirror image; phone near face; free hand holds dark garment; head near upper third; large background gallery and floor visible. | Device rear camera is visible but EXIF not checked. |
+| V05 | https://storage.googleapis.com/sm-core/profile/3e0fe432-d3dd-4de8-8a52-4901e6fcb685.jpeg | Square close portrait; one forearm reaches toward lower-left edge, consistent with handheld selfie; blank wall and wood at edge. | Arm alone does not prove camera ownership; device unseen. |
+| V06 | https://www.mylanguageexchange.com/Uploads/HomePics/4737416.png?rand=0.6595728 | Tight mirror portrait; phone occupies right side, covers portion of shoulder; fingers and phone edges visible; face and phone are both sharp. | Screenshot-style resize; EXIF not established. |
+| V07 | https://c.superprof.com/i/a/36002963/15498843/600/20250416171644/form-biology-tutor-with-grade-offering-online-lessons-via-whatsapp.jpg | Tight mirror selfie; blue phone close to face; strong bright reflection/glare at lower phone edge; top decorative element partially cut. | Exact source of glare unknown. |
+| V08 | https://www.gettyimages.com/ | Photograph shows a person photographing herself in a mirror and another person photographing her with a larger camera; the foreground device and mirror reflections establish two distinct viewpoints. | Illustrative stock photograph; exclude from ordinary-profile frequency estimates. |
+
+### Pattern checks (small, biased sample; not population rates)
+- V02/V03/V04/V06/V07: visible phone and hand placement vary while remaining consistent with mirror-camera geometry.
+- V01/V05: camera or phone may be invisible in a close portrait; avoid classifying as definite front-camera selfies solely from appearance.
+- V03/V04: unoccupied background and partial foreground objects are ordinary compositional possibilities, not mandatory 'imperfections'.
+- V08 and previous Nikon Z6 metadata case: the camera that records the image may differ from a phone depicted inside it.
+
+### New operational distinction
+`visual_review_level`: metadata_only | thumbnail_visual_review | original_pixel_review.
+This prevents thumbnail inspection from being inflated to original-image review. Keep deep-original counter at zero until full original files have been inspected.
