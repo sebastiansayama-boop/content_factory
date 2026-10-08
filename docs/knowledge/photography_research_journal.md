@@ -33,3 +33,11 @@ Pixel-inspect five distinct originals among R01–R22. Record URL, visible frami
 - Did NOT count ambiguous titles as verified front-camera photos.
 - Remaining gap: actual visual inspection; next cycle must focus on pixels rather than accumulating titles.
 - Research commits: 5796cf0, 04c8919.
+
+## Checkpoint 002 — audit 006, 2026-10-08
+- Searched public image results and visually inspected eight distinct previews (V01–V08) from multiple source websites.
+- Recorded observable framing, phone/hand placement, environmental details, and uncertainty per image.
+- Updated schema to v0.5 with `visual_review_level`; preview inspections are **not** counted as original-pixel deep reviews.
+- Progress: 32 metadata file pages; 8 additional thumbnail visual reviews (overlap with file pages not yet deduplicated); 0 original-resolution deep reviews. Do not add 32+8 as distinct image total.
+- Next research question: what changes in framing and reflected geometry between a true mirror-camera output and an external photo depicting someone taking a mirror selfie?
+- Commits: 565f675, 16bea76.
