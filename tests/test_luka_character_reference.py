@@ -34,3 +34,21 @@ def test_luka_identity_reference_is_recoverable_and_not_auto_approved():
         image.load()
         assert image.format == "JPEG"
         assert image.size == (80, 93)
+
+
+def test_early_luka_reference_inventory_is_preserved_and_not_auto_approved():
+    character = json.loads((ROOT / "docs/character/character.json").read_text(encoding="utf-8"))
+    manifest = json.loads((ROOT / "docs/character/references/luka-early-generation-manifest.json").read_text(encoding="utf-8"))
+    sources = manifest["legacy_sources"]
+    assert len(sources) == 7
+    assert len({entry["reference_id"] for entry in sources}) == 7
+    assert len({entry["original"]["sha256"] for entry in sources}) == 7
+    assert len({entry["generation"]["generation_id"] for entry in sources}) == 7
+    assert all(entry["status"] == "candidate_context_board_unapproved" for entry in sources)
+    assert all(entry["original"]["library_file_id"].startswith("libfile_") for entry in sources)
+    assert all(entry["original"]["library_path"].startswith("/Luka/identity/early_references/") for entry in sources)
+    assert all(len(entry["original"]["sha256"]) == 64 for entry in sources)
+    profile_candidates = {item["reference_id"] for item in character["identity"]["reference_candidates"]}
+    assert {entry["reference_id"] for entry in sources}.issubset(profile_candidates)
+    assert character["identity"]["approved_references"] == []
+    assert character["visual_identity"]["iris_color_status"].startswith("unresolved_")
