@@ -311,6 +311,138 @@
       "visual_review_level": "metadata_only",
       "count_toward_500": false,
       "selection_bias": "verify_group_portrait_vs_everyday_scene"
+    },
+    {
+      "id": "C033",
+      "url": "https://commons.wikimedia.org/wiki/File:Selfie_with_phone.jpg",
+      "author": "Fquasie",
+      "category": "friend_shot_portrait",
+      "metadata": "Canon EOS Rebel T4i, 62mm, 1/200s, ISO100; photographer photographed a woman taking selfie in Ghana, NOT phone selfie output",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C034",
+      "url": "https://commons.wikimedia.org/wiki/File:Selfie_with_phone_2.jpg",
+      "author": "Fquasie",
+      "category": "friend_shot_portrait",
+      "metadata": "Canon EOS Rebel T4i, 62mm, 1/200s, ISO100; same author same second with subsecond 99 vs 01, possible burst/session duplicate",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C035",
+      "url": "https://commons.wikimedia.org/wiki/File:My_selfie_(7_September_2022)_(cropped).jpg",
+      "author": "Alex Neman",
+      "category": "direct_selfie",
+      "metadata": "Samsung Galaxy Note 20 Ultra; derivative of My selfie (7 September 2022).jpg, crop is NOT independent photograph",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C036",
+      "url": "https://commons.wikimedia.org/wiki/File:My_face.png",
+      "author": "Jnagy3",
+      "category": "direct_selfie",
+      "metadata": "author reports old phone, woods, 2022; low-resolution PNG; no face-image reuse permission implied",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C037",
+      "url": "https://commons.wikimedia.org/wiki/File:Indoor_selfie_2022.jpg",
+      "author": "Utkarshsingh234",
+      "category": "direct_selfie",
+      "metadata": "1824x4000 tall aspect ratio; own work; 2022",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C038",
+      "url": "https://commons.wikimedia.org/wiki/File:Tourist_Rudolph.A.Furtado_'Selfie'_at_Chobe_National_Park_in_Botswana.jpg",
+      "author": "Rudolph.A.furtado",
+      "category": "travel_outdoors",
+      "metadata": "3264x2448; author reports selfie with elephant from safari jeep",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C039",
+      "url": "https://commons.wikimedia.org/wiki/File:Selfie-3.jpg",
+      "author": "Dahan.ori",
+      "category": "direct_selfie",
+      "metadata": "800x600, 49KB; own work",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C040",
+      "url": "https://commons.wikimedia.org/wiki/File:A_selfie_taken_by_a_man_using_an_%22I_love_Wikipedia%22_filter.jpg",
+      "author": "إيان",
+      "category": "direct_selfie",
+      "metadata": "iPhone 12 Pro, 2.71mm, ISO500, 1/58s; EXIF CameraPosition=2, Instagram software; explicit digital filter",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C041",
+      "url": "https://commons.wikimedia.org/wiki/File:Man_taking_whole_body_selfie_in_mirror_and_looking_strangely_due_to_status_of_high_concentration.jpg",
+      "author": "Pittigrilli",
+      "category": "mirror_selfie",
+      "metadata": "2002x3400, modified/retouched upload; preserve derivative status",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C042",
+      "url": "https://commons.wikimedia.org/wiki/File:Rickallisonselfie.jpg",
+      "author": "Rickallisonmusic",
+      "category": "direct_selfie",
+      "metadata": "iPhone XR; 2316x3088",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C043",
+      "url": "https://commons.wikimedia.org/wiki/File:Rotoiti_selfie.jpg",
+      "author": "Sebastiansmartguy101",
+      "category": "travel_outdoors",
+      "metadata": "own work 2022; location metadata present (do not copy GPS)",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C044",
+      "url": "https://commons.wikimedia.org/wiki/File:Paul_Kaganer%2C_selfie_(2022-05-29).jpg",
+      "author": "Paul Kaganer",
+      "category": "direct_selfie",
+      "metadata": "1150x1150 square crop; own work",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
     }
   ],
   "observations": [
@@ -319,6 +451,7 @@
     "Web result provides original resolution and EXIF but this pass could not retrieve actual image bytes for inspection.",
     "2026-10-08: 10 new Commons file-page candidates added from cross-source search; 24 candidate records total; images not yet pixel-inspected.",
     "Photographic challenge submissions enforce max four per photographer and own-work requirement, potentially a useful diversity discovery pool, but not a random sample.",
-    "2026-10-08 audit 010: web verified metadata for 8 candidate references, 7 new nonduplicate candidate URLs; container image download failed, no visual review count incremented."
+    "2026-10-08 audit 010: web verified metadata for 8 candidate references, 7 new nonduplicate candidate URLs; container image download failed, no visual review count incremented.",
+    "2026-10-08: 12 Commons file pages for self-portraits and depictions of selfie-taking, 12 newly catalogued; 2 same-author near-instant festival photos and cropped derivative identified; do not count as independent scene samples."
   ]
 }
