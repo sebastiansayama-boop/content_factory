@@ -811,7 +811,7 @@ class ProductHandler(Handler):
                         return
                     self._record_trace(run_id, stage="EDITORIAL", task="build_content_brief", tool="KnowledgeContentBuilder", action="build", result={"status": "started"})
                     try:
-                        result = KnowledgeContentBuilder(self.workspace, self.service.knowledge).build(
+                        result = KnowledgeContentBuilder(self.workspace, self.service.knowledge, self.service.control).build(
                             run_id=run_id, topic=run.brief, audience=run.audience,
                             goal=run.goal, formats=list(run.formats), constraints=list(run.constraints),
                         )
