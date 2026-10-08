@@ -1,7 +1,8 @@
 name: provider E2E
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [main]
 
 jobs:
   live-provider-e2e:

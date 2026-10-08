@@ -1,6 +1,8 @@
 name: Deployment Probe Public HTTP
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
