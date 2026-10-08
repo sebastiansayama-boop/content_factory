@@ -55,3 +55,11 @@ Pixel-inspect five distinct originals among R01–R22. Record URL, visible frami
 - Verified original reviews **10/100** (4 earlier + 6 this cycle). Credited original authors represented: 10. Metadata-only pages previously 32; avoid summing until deduplicated.
 - Insight: apparent naturalness is caused by actual scene geometry and photographer position, not arbitrary visual errors.
 - Commits: 865c8bd, d26d470.
+
+## Checkpoint 005 — 500-photo category matrix and auditable manifest, 2026-10-08
+- Researched public category structure: Wikimedia Commons Selfies, People in cafés, Family portrait photographs. These are discovery pools, **not** analyzed photographs.
+- Defined 16 non-overlapping primary categories with quotas summing to exactly 500.
+- Migrated the ten previously documented original-image reviews O01–O10 into a machine-readable per-photo manifest; no newly inspected pixels in this checkpoint.
+- Category progress is **10/500**, and the remainder is 490. Legacy 32 metadata cards and eight thumbnails are not added to the 500 until visually reviewed and deduplicated.
+- Category allocation is a sampling plan, not evidence of 500 completed observations.
+- Repository files: photography_research_categories.json and photography_research_manifest.json.
