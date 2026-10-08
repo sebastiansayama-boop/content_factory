@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.3",
+  "schema_version": "0.4",
   "status": "experimental",
   "purpose": "observation_only_not_generation_gate",
   "source_note": "docs/knowledge/everyday_photography_observations.md",
@@ -13,7 +13,8 @@
     "recording_device": null,
     "depicted_capture_action": null,
     "output_perspective": null,
-    "camera_facing": null
+    "camera_facing": null,
+    "reflective_surface": null
   },
   "checks": {
     "framing_causality": "uncertain",
