@@ -137,6 +137,22 @@ The roadmap is directional, not proof. Completion status is supported by executa
 12. Which real case should be used as the first Discovery → Content Demand proof?
 13. Which bounded real product case should validate the canonical lifecycle before the Discovery/Demand bridge is implemented?
 
+## Content Factory — personal-first product pilot (2026-10-08)
+
+- **Direction:** Content Factory as a standalone, reusable content-production application, not a Luka-specific app.
+- **Goal:** close a reproducible text+image → QC → human approval → export/publication loop in personal use for two distinct projects.
+- **Status:** `ACTIVE` (product direction decided; live acceptance pending).
+- **Current checkpoint:** owner approved personal-first, commercial-later scope; code and existing v1.0 contract inspected; no new product E2E has been run by this documentation decision.
+- **Proven:** existence of shared editorial/runtime/approval/asset/publishing code and automated tests; Luka documents and candidate references on the feature branch.
+- **Unproven:** complete UI-driven pilot with real character asset, restart persistence of imported originals, project separation under production use, Instagram API, commercialization demand.
+- **Research needed:** user/market demand before a separate commercial go/no-go decision; real provider tests only for blocked integration questions.
+- **Dependencies:** `feature/experience-retrieval-v1` + PR #179, image input/provenance, production API/UI, stable storage and permissioned external channels.
+- **Blocked by:** unavailable external original-reference bytes in Codex workspace for full image-consistency proof; no approval for real Instagram API/live publish.
+- **Next legitimate step:** run two bounded E2E scenarios (Luka and thematic series), minimally repair observed defects; see `docs/CODEX_PRODUCT_EXECUTION.md`.
+- **Return point:** `docs/CONTENT_FACTORY_PRODUCT_DEFINITION.md`, `05_decision/2026-10-08-personal-first-product-scope.md`.
+
+This direction does **not** supersede the technical/execution directions above. It selects the near-term user-facing acceptance scope and is not authorization to build SaaS tenants, billing or new agent frameworks.
+
 ## Return points
 
 | Direction | Return point |
@@ -147,6 +163,7 @@ The roadmap is directional, not proof. Completion status is supported by executa
 | Factory Control Plane | `src/content_factory/control_plane.py` + `tests/test_control_plane.py` |
 | Operations & Governance | `RULES.md` + `docs/25_chat_repository_operating_protocol.md` |
 | Learning Loop | `09_learning/` + `08_effects_feedback/` |
+| Personal-first Product Pilot | `docs/CONTENT_FACTORY_PRODUCT_DEFINITION.md` + `docs/CODEX_PRODUCT_EXECUTION.md` |
 | Digital Product Lifecycle | `docs/30_product_development_lifecycle.md` + `model/product-development-lifecycle.yaml` |
 | Discovery / Demand Bridge | `docs/23_content_factory_operating_model.md` + `docs/30_product_development_lifecycle.md` + discovery-demand audit record |
 

@@ -1,4 +1,4 @@
-version: 4
+version: 5
 status: current_navigation_projection
 source_of_truth: docs/29_project_direction_map.md
 
@@ -173,6 +173,25 @@ directions:
     blocked_by: lifecycle gates not yet exercised; producer unresolved
     next_legitimate_step: complete Stage 1 Discovery for the bounded product case, then return for the smallest required bridge contract if later gates justify it
     return_point: docs/23_content_factory_operating_model.md, docs/30_product_development_lifecycle.md
+
+  - id: personal-first-content-factory-product
+    goal: finish Content Factory as a reusable personal content-production application; defer commercial SaaS pending pilot and market evidence
+    status: ACTIVE
+    current_checkpoint: owner approved product scope 2026-10-08; product E2E acceptance not yet proven by this decision
+    proven:
+      - owner decision personal-first and commercial-later
+      - existing production, QC, approval and publishing code and tests
+      - Luka reference manifests in feature branch
+    unproven:
+      - complete real-text-and-image Luka E2E with persisted originals
+      - themed-series regression alongside Luka without context leakage
+      - real Instagram integration
+      - validated demand for commercial users
+    research_needed: collect pilot evidence first; market discovery only before commercial go/no-go
+    dependencies: [existing ContentRun pipeline, image provenance, durable storage, human approval, project contexts]
+    blocked_by: full-resolution Luka originals not accessible by default in Codex workspace; external publication needs permission
+    next_legitimate_step: run Luka and thematic-series E2E; fix only observed errors per docs/CODEX_PRODUCT_EXECUTION.md
+    return_point: docs/CONTENT_FACTORY_PRODUCT_DEFINITION.md
 
 map_requirements:
   direction_fields:
