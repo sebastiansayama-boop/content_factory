@@ -118,3 +118,23 @@ External checks:
 **Schema decision:** Existing fields `recording_device`, `recording_device_evidence`, `processing_type` already cover the distinction. No new parameter justified in this pass. A genuine closed loop can result in NO schema changes.
 
 **Next iteration:** obtain original-image pixels for at least five eligible real photos, record visible framing, hand/phone location, gaze, crop, illumination, and flag uncertainty. Then seek 28 more records and cross-profile sources. Do not claim visual review until performed.
+
+## Audit 005 — live external search → hypothesis test → repository (2026-10-08)
+New file pages from independent web search (not previously in R01–R22):
+- R23 https://commons.wikimedia.org/wiki/File:Image_selfie.jpg — iPhone 11 Pro Max; f/2.2, 2.71 mm, ISO640, 1/30s. Phone EXIF does not alone prove which side camera was used.
+- R24 https://commons.wikimedia.org/wiki/File:Another_mirror_selfie_(50544326273).jpg — Flickr author tjmills1520; author/source record, but camera model not visible in indexed metadata.
+- R25 https://commons.wikimedia.org/wiki/File:Another_mirror_selfie_(50510876573).jpg — another Flickr-origin image; EXIF record lacks camera make/model in indexed excerpt.
+- R26 https://commons.wikimedia.org/wiki/File:Phone_and_camera_-_window_reflection_selfie_(28510828738).jpg — window reflection (not necessarily flat mirror); provenance Flickr; geometry remains uninspected.
+- R27 https://commons.wikimedia.org/wiki/File:Mirror_selfie,_sink,_Jewel_of_the_South,_French_Quarter,_New_Orleans,_Louisiana,_USA.jpg — photographer Cory Doctorow, Pixel 9a, Flickr original. Capture category: mirror.
+- R28 https://commons.wikimedia.org/wiki/File:Museum_Selfie.jpg — iPhone 6, ISO800, 1/17s, museum context.
+- R29 https://commons.wikimedia.org/wiki/File:Moss_selfie.jpg — iPhone 11, ISO125, 1/87s.
+- R30 https://commons.wikimedia.org/wiki/File:Selfie_at_the_Wikimedia_2016_opening.jpg — iPhone 5s, 1/33s.
+- R31 https://commons.wikimedia.org/wiki/File:Selfie_Machine.jpg — iPhone 8 Plus, 1/15s; title alone does not prove selfie output.
+- R32 https://commons.wikimedia.org/wiki/File:Front_camera.jpg — iPad mini (5th generation) EXIF; title does not establish whether it shows a camera or is produced by one.
+
+New question tested: is any title containing "front camera" or "selfie" enough to include a record in our portrait-output subset? NO. R32 ambiguous, R31 ambiguous; requires pixel-level inspection and/or author testimony. EXIF lens focal length without model-specific camera specs does not by itself establish front/rear.
+Counterexamples: R27 explicitly names a mirror reflection; R26 a window reflection. Treat reflective surface as separate from the generic mirror selfie label.
+
+New candidate parameter: `reflective_surface` = mirror | window | other | none | unknown. This is motivated by R26/R27; remains an optional observation, not QC gate.
+
+Checkpoint: **32 unique metadata-audited source file pages** R01–R32; **0 pixel-level reviews**. Milestone 25 metadata references crossed, but the planned 25-*photo* visual checkpoint is NOT completed. Verified independent profiles target still not counted without deduplication.
