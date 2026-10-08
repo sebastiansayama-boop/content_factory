@@ -27,7 +27,7 @@ def test_luka_identity_reference_is_recoverable_and_not_auto_approved():
     assert preview.is_file(), "The GitHub preview image was not committed"
 
     binary = preview.read_bytes()
-    git_sha = hashlib.sha1(f"blob {len(binary)}\\0".encode().replace(b"\\0", b"\\x00") + binary).hexdigest()
+    git_sha = hashlib.sha1(b"blob " + str(len(binary)).encode() + bytes([0]) + binary).hexdigest()
     assert git_sha == manifest["preview"]["git_blob_sha"]
     with Image.open(preview) as image:
         image.load()
