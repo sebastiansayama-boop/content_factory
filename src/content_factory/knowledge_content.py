@@ -4,6 +4,8 @@ import json
 from dataclasses import asdict, dataclass
 from typing import Any
 
+from .factory_control import FactoryControlStore
+
 from .knowledge import KnowledgeStore
 from .publication_text_rules import format_publication_text_rules, resolve_publication_text_rules, validate_publication_text
 from .publication_text_matrix import format_text_variation_matrix
@@ -325,9 +327,15 @@ def _validate_epistemic_scope(units: list[ScriptUnit]) -> None:
 class KnowledgeContentBuilder:
     """Build the editorial-to-script chain from accepted durable knowledge."""
 
-    def __init__(self, workspace: ContentWorkspace, knowledge: KnowledgeStore) -> None:
+    def __init__(
+        self,
+        workspace: ContentWorkspace,
+        knowledge: KnowledgeStore,
+        experience: FactoryControlStore | None = None,
+    ) -> None:
         self.workspace = workspace
         self.knowledge = knowledge
+        self.experience = experience
 
     def _generate(self, *, work_item_id: str, revision_id: str, objective: str, prompt: str) -> dict[str, Any]:
         item = WorkItem(
@@ -391,6 +399,25 @@ class KnowledgeContentBuilder:
             if isinstance(ref, str) and ref.strip()
         }
         text_rules_prompt = format_publication_text_rules(text_rules)
+        platform = formats[0] if formats else ""
+        relevant_experience = (
+            self.experience.retrieve_experiences(
+                topic=topic,
+                platform=platform,
+                limit=3,
+            )
+            if self.experience is not None
+            else []
+        )
+        experience_lines: list[str] = []
+        for index, item in enumerate(relevant_experience, start=1):
+            experience_lines.append(
+                f"""EXPERIENCE {index} ({item["decision"]})
+Reason: {item["reason"] or "(none)"}
+Final: {json.dumps(item["final"] if item["final"] is not None else item["generated"], ensure_ascii=False)}
+QC: {json.dumps(item["qc"], ensure_ascii=False)}"""
+            )
+        previous_experience_prompt = "\n\n".join(experience_lines) or "(none)"
         editorial = self._generate(
             work_item_id=f"content-editorial-{run_id}",
             revision_id="content-editorial-v1",
@@ -404,6 +431,9 @@ Audience: {audience}
 Goal: {goal}
 Constraints: {json.dumps(constraints)}
 If PREVIOUS PUBLICATION is supplied, make the three ideas materially different from it by prioritizing different supported claim subsets and angles. Do not reuse the same factual core merely by changing the opening.
+RELEVANT PREVIOUS EXPERIENCE:
+{previous_experience_prompt}
+Treat this experience only as editorial feedback and examples of prior decisions. It is NOT a factual source. All factual claims must come only from ACCEPTED KNOWLEDGE.
 PREVIOUS PUBLICATION:
 {previous_publication or "(none)"}
 PREVIOUS CLAIM REFS:
