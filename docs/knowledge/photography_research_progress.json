@@ -17,7 +17,7 @@
     "deduplicated_originals_in_manifest": 10,
     "categorized_originals": 10,
     "uncategorized_originals": 0,
-    "metadata_only_candidates_pending_visual_review": 53
+    "metadata_only_candidates_pending_visual_review": 62
   },
   "milestones": {
     "source_audit_every": 25,
@@ -25,8 +25,8 @@
     "checkpoint_every": 25
   },
   "state": "in_progress_manual_session",
-  "last_checkpoint": "2026-10-08 / checkpoint 013",
-  "next_action": "Use image-visible tool for actual pixel observations; 53 source candidates are not 53 visual reviews. Prioritize same-second Fquasie pair and cropped Moss derivative.",
+  "last_checkpoint": "2026-10-08 / checkpoint 014",
+  "next_action": "Perform actual image-pixel inspection on C055-C063 using an image-visible route. Do not increase workload to 5 until at least 3 complete visual inspection cycles are demonstrated.",
   "definitions": {
     "metadata_reviewed_file_pages": "File pages whose metadata/descriptions were recorded; NOT a visual review.",
     "visual_deep_reviews": "Actual pixels inspected with structured visible observations.",
