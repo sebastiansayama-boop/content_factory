@@ -99,3 +99,22 @@ This batch examines file-page descriptions and metadata, not the pixels. 10 new 
 
 ### Evidence limitations and stopping checkpoint
 Completed **15 metadata-audited distinct reference file pages** cumulatively. Pixel-level compositional observations completed: **0**. Independent host platforms: **1**. Do not count these as 15 visually inspected photographs or as 10 independent platforms. Next: pixel inspection, 35 more records, diversification beyond Commons.
+
+## Audit 004 — research loop demonstrated (2026-10-08)
+Question raised by previous audit: does a mirror selfie imply a phone camera, and does an actual phone shot imply unedited output?
+External checks:
+- https://commons.wikimedia.org/wiki/File:Selfie_in_the_mirror.jpg — 2010 mirror selfie; Canon EOS 1000D, 28mm, ISO1600, Adobe Photoshop Elements 2.0. **Correction** to earlier R01: it is NOT evidence of phone photography.
+- https://commons.wikimedia.org/wiki/File:Mirror_selfie_by_K6ka_on_December_25_2017.jpg — mirror selfie, Nikon D60, 18mm, ISO1600; Flickr-origin, independent photographer account.
+- https://commons.wikimedia.org/wiki/File:Selfie_in_mirror_(41841868062).jpg — iPhone SE, 4.15mm, ISO160, Snapseed; Flickr-origin. Device and conventional editing can coexist.
+- https://commons.wikimedia.org/wiki/File:Bad_mirror_selfie_(45523326702).jpg — iPhone SE, 4.15mm, ISO200; Flickr-origin.
+- https://commons.wikimedia.org/wiki/File:Mirror_yourself.jpg — Samsung SM-J415GN, 3.6mm, Lightroom Android; phone origin with postprocessing.
+- https://commons.wikimedia.org/wiki/File:Mirrorselfieatchibicon.jpg — itel S665L, 4.11mm, ISO2200, Lightroom Android.
+- https://commons.wikimedia.org/wiki/File:The_mirror_selfie_(50211731711).jpg — Flickr-origin Oregon DOT; Photoshop CS6 metadata; no trustworthy camera identification from this record alone.
+
+**Results:** 7 additional distinct reference file pages, 22 cumulative metadata-reviewed pages. Pixel-inspected originals: 0. More than one photographer account represented, but still mainly one hosting/index platform and Flickr-sourced mirrors; 10 independently validated source profiles NOT yet demonstrated. Do not mistake number of domains for source independence.
+
+**New question:** how can we tell whether an image was *taken with* a phone versus merely *depicts* a phone? EXIF camera model plus author statement is stronger than title/subject; file-editing software does not automatically imply synthetic pixels.
+
+**Schema decision:** Existing fields `recording_device`, `recording_device_evidence`, `processing_type` already cover the distinction. No new parameter justified in this pass. A genuine closed loop can result in NO schema changes.
+
+**Next iteration:** obtain original-image pixels for at least five eligible real photos, record visible framing, hand/phone location, gaze, crop, illumination, and flag uncertainty. Then seek 28 more records and cross-profile sources. Do not claim visual review until performed.
