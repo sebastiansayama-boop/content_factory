@@ -11,7 +11,8 @@
     "visual_deep_reviews": 0,
     "independent_authors_or_profiles_verified": 0,
     "capture_categories_verified": 0,
-    "generated_separate_luca_photo_tests": 0
+    "generated_separate_luca_photo_tests": 0,
+    "thumbnail_visual_reviews": 8
   },
   "milestones": {
     "source_audit_every": 25,
@@ -19,13 +20,14 @@
     "checkpoint_every": 25
   },
   "state": "in_progress_manual_session",
-  "last_checkpoint": "2026-10-08 / audit 005",
-  "next_action": "Prioritize opening original image pixels; metadata count 32 does not satisfy visual analysis. Review R23–R32 and collect image-level evidence.",
+  "last_checkpoint": "2026-10-08 / audit 006",
+  "next_action": "Review full-resolution originals for V01–V08 where permission/access permits; compare mirror framing across creators and inspect reflected object geometry. Add more distinct profiles, deduplicating creator identities.",
   "definitions": {
     "metadata_reviewed_file_pages": "File pages whose metadata/descriptions were recorded; NOT a visual review.",
     "visual_deep_reviews": "Actual pixels inspected with structured visible observations.",
     "independent_authors_or_profiles_verified": "Distinct independently verified public creators/profiles; host domain count is not creator count.",
-    "generated_separate_luca_photo_tests": "Independent image generations, not collage panels."
+    "generated_separate_luca_photo_tests": "Independent image generations, not collage panels.",
+    "thumbnail_visual_reviews": "Visible content directly inspected from web search thumbnails; distinct from full-resolution original review."
   },
   "research_loop": [
     "inspect image and provenance",
