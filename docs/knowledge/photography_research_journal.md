@@ -41,3 +41,10 @@ Pixel-inspect five distinct originals among R01–R22. Record URL, visible frami
 - Progress: 32 metadata file pages; 8 additional thumbnail visual reviews (overlap with file pages not yet deduplicated); 0 original-resolution deep reviews. Do not add 32+8 as distinct image total.
 - Next research question: what changes in framing and reflected geometry between a true mirror-camera output and an external photo depicting someone taking a mirror selfie?
 - Commits: 565f675, 16bea76.
+
+## Checkpoint 003 — audits 007–008, 2026-10-08
+- Inspected **four full original photographs** (O01–O04) across four distinct credited creators. Three mirror examples, one direct smartphone selfie.
+- Findings: camera visibility, portrait orientation, face visibility, and reflection multiplicity are independent variables; all four original images have visible ordinary imperfections with plausible causes.
+- EXIF inconsistency in O04 shows why metadata is not infallible.
+- Progress: 4/100 deep original reviews; 32/500 previously logged metadata records; 8 preview reviews. These groups have not been fully deduplicated, so no new 500-photo unique-total claim.
+- Next cycle: widen beyond selfies into third-person everyday scenes.
