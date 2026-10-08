@@ -70,3 +70,11 @@ Pixel-inspect five distinct originals among R01–R22. Record URL, visible frami
 - Attempted retrieval of image originals for pixel inspection. This runtime could not resolve Commons via container networking; image search returned no images. **No candidate was falsely promoted to visual-reviewed status.**
 - Verified original visual reviews remain 10/500; 14 new metadata-only candidates are held in a separate queue.
 - Next work: use an image-capable retrieval route to inspect originals, then move records individually to reviewed manifest and update counters.
+
+## Checkpoint 007 — multi-source category search, 2026-10-08
+- Used external search for hiking, café, friend groups and everyday photos; located 10 additional stable file pages (C015–C024). Candidate queue is now 24 items, all metadata-only, not counted in the 500 analyzed originals.
+- Increased distinct known authors in candidate queue (e.g., Altitonantis, Michael Martin, Marta Borchiellini, Bernhard Hanakam, Abe.gova), avoiding single-author saturation.
+- Explicit ambiguity: a camera photograph **depicting** a couple taking a selfie is not necessarily the **output** of their phone camera. C023 flagged for capture-type review.
+- Wikimedia Commons photo challenge enforces own-work entries and max four entries per author, which may help diversify future sampling, but challenge participation is not evidence of amateur candidness.
+- Tried retrieving image pixels through container network; unavailable. The external image results for this query returned unrelated stock-like visuals, so none were promoted to visually inspected status.
+- Verified visual-original total remains 10/500. Source: Wikimedia Commons file pages and 2025 February photo challenge.
