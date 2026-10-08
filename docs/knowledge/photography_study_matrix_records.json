@@ -43,8 +43,9 @@
           "evidence_level": "unknown"
         },
         "camera": {
-          "value": null,
-          "evidence_level": "unknown"
+          "value": "Apple iPhone SE, 2.15mm, f/2.4, ISO160, 1/20s; flash fired",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons EXIF, file dimensions; direct source verified 2026-10-08"
         },
         "distance": {
           "value": null,
@@ -55,8 +56,9 @@
           "evidence_level": "unknown"
         },
         "composition": {
-          "value": null,
-          "evidence_level": "unknown"
+          "value": "Portrait image, 960×1280 pixels",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons EXIF, file dimensions; direct source verified 2026-10-08"
         },
         "lighting": {
           "value": null,
@@ -103,8 +105,9 @@
           "evidence_level": "unknown"
         },
         "processing": {
-          "value": null,
-          "evidence_level": "unknown"
+          "value": "iOS 13.3 software recorded in EXIF",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons EXIF, file dimensions; direct source verified 2026-10-08"
         }
       },
       "observations": [],
@@ -483,8 +486,9 @@
           "evidence_level": "unknown"
         },
         "camera": {
-          "value": null,
-          "evidence_level": "unknown"
+          "value": "Huawei smartphone according to legacy notes",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Legacy journal only; needs current source recheck"
         },
         "distance": {
           "value": null,
@@ -5695,8 +5699,9 @@
           "evidence_level": "unknown"
         },
         "camera": {
-          "value": null,
-          "evidence_level": "unknown"
+          "value": "Canon EOS 1000D, 28mm, f/4, ISO1600, 1/160s",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons EXIF and file dimensions in source metadata"
         },
         "distance": {
           "value": null,
@@ -5707,8 +5712,9 @@
           "evidence_level": "unknown"
         },
         "composition": {
-          "value": null,
-          "evidence_level": "unknown"
+          "value": "537×768 portrait upload",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons EXIF and file dimensions in source metadata"
         },
         "lighting": {
           "value": null,
@@ -5785,8 +5791,9 @@
           "evidence_level": "unknown"
         },
         "camera": {
-          "value": null,
-          "evidence_level": "unknown"
+          "value": "4.941mm, f/1.5, ISO2500, 1/40s",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons EXIF and file dimensions in source metadata"
         },
         "distance": {
           "value": null,
@@ -5797,8 +5804,9 @@
           "evidence_level": "unknown"
         },
         "composition": {
-          "value": null,
-          "evidence_level": "unknown"
+          "value": "3072×4096 portrait upload",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons EXIF and file dimensions in source metadata"
         },
         "lighting": {
           "value": null,
@@ -5887,8 +5895,9 @@
           "evidence_level": "unknown"
         },
         "composition": {
-          "value": null,
-          "evidence_level": "unknown"
+          "value": "1042×1500 portrait upload",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons description and file history"
         },
         "lighting": {
           "value": null,
@@ -5935,8 +5944,9 @@
           "evidence_level": "unknown"
         },
         "processing": {
-          "value": null,
-          "evidence_level": "unknown"
+          "value": "Black-and-white processed image; upload later than 2015 capture",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons description and file history"
         }
       },
       "observations": [],
@@ -6055,8 +6065,9 @@
           "evidence_level": "unknown"
         },
         "camera": {
-          "value": null,
-          "evidence_level": "unknown"
+          "value": "Nikon D7100, 35mm f/1.8 lens",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons source metadata"
         },
         "distance": {
           "value": null,
@@ -6067,8 +6078,9 @@
           "evidence_level": "unknown"
         },
         "composition": {
-          "value": null,
-          "evidence_level": "unknown"
+          "value": "2503×3129 portrait upload",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons source metadata"
         },
         "lighting": {
           "value": null,
@@ -6483,5 +6495,11 @@
       "hypotheses": [],
       "generation_rules": []
     }
-  ]
+  ],
+  "audit": {
+    "total_records": 72,
+    "source_verified_parameter_cells": 12,
+    "visual_parameter_cells_new": 0,
+    "remaining_visual_work": "Requires actual image pixel inspection, not inferred from captions"
+  }
 }
