@@ -263,6 +263,48 @@ class FactoryControlStore:
             for row in rows
         ]
 
+
+
+    def retrieve_experiences(
+        self,
+        *,
+        topic: str,
+        platform: str | None = None,
+        limit: int = 3,
+    ) -> list[dict[str, Any]]:
+        """Return a small deterministic set of relevant prior content experiences."""
+        topic_norm = " ".join(str(topic or "").casefold().split())
+        platform_norm = str(platform or "").strip().casefold()
+        if not topic_norm or limit <= 0:
+            return []
+        rows = self.db.execute(
+            "SELECT * FROM experience_records ORDER BY created_at DESC, rowid DESC"
+        ).fetchall()
+        matches: list[dict[str, Any]] = []
+        for row in rows:
+            prompt = json.loads(row["prompt_json"])
+            context = json.loads(row["context_json"])
+            prompt_text = " ".join(
+                str(prompt.get(key) or "") for key in ("brief", "title")
+            ).casefold()
+            if topic_norm not in prompt_text:
+                continue
+            if platform_norm and str(context.get("platform") or "").strip().casefold() != platform_norm:
+                continue
+            matches.append({
+                "example_id": row["example_id"],
+                "run_id": row["run_id"],
+                "decision": row["decision"],
+                "generated": json.loads(row["generated_json"]),
+                "final": json.loads(row["final_json"]) if row["final_json"] else None,
+                "reason": row["reason"],
+                "qc": json.loads(row["qc_json"]),
+                "created_at": row["created_at"],
+            })
+            if len(matches) >= min(limit, 3):
+                break
+        return matches
+
     def prepare_publication(
         self, run_id: str, channel: str, content_ref: str, payload: dict[str, Any], *, record_event: bool = True
     ) -> dict[str, Any]:
