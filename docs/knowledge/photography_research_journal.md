@@ -140,3 +140,12 @@ Metadata-only candidate queue: **31**.
 New source audits in this checkpoint: **12**.
 Remaining: 490 original-level reviews. Do not confuse source records, web previews, and original reviews.
 Next unresolved test: directly inspect and compare the two 19-second-apart OPPO A17 photos, then evaluate whether they depict the same scene and count independent capture sessions correctly.
+
+## Checkpoint 012 — duplicate-session hypothesis, external source verification (2026-10-08)
+- Read the two actual Commons file pages for `Coffee time with friends.jpg` and `Friends + coffee = happiness.jpg` and checked their EXIF against the prior hypothesis.
+- Both photographs are credited to Mahjuja Islam, made 2024-09-03 using OPPO A17, with matching dimensions 3072×4080. Times 16:43:04 and 16:43:23 yield **19 seconds** between exposures. These are *distinct files*; no claim that pixels are duplicates.
+- `Coffee time with friends.jpg` EXIF: ISO4141, f/1.8, 0.040004 sec, 4.05 mm physical focal length, 28 mm equivalent, no flash, auto white balance, MediaTek camera app. This is a documented phone camera low-light/high-ISO exposure, but noise level is **not visually measured**.
+- Hypothesis strengthened: one short capture session rather than independent scenes. To test visual similarity, need actual image pixels or visible preview, not merely file-page metadata. Keep both source files separate but group under one *provisional* capture-session ID.
+- Additional source contrast: `Friends and tea.jpg` is self-uploaded 2019 Egypt, Nikon D750, 1/20 sec, f/6.3, ISO1800, 32 mm. `Friends talking over tea (Unsplash).jpg` is credited to Matthew Henry, Canon 5D Mark III, 50 mm, ISO100, 1/4000 sec. These illustrate very different capture regimes for similar text-described social scenes, not measured visual distributions.
+- **Counter integrity:** 10 legacy original visual reviews, 0 new pixel-confirmed originals this checkpoint. This cycle did not satisfy the 500-photo visual target.
+- Sources: https://commons.wikimedia.org/wiki/File:Coffee_time_with_friends.jpg ; https://commons.wikimedia.org/wiki/File:Friends_%2B_coffee_%3D_happiness.jpg ; https://commons.wikimedia.org/wiki/File:Friends_and_tea.jpg ; https://commons.wikimedia.org/wiki/File:Friends_talking_over_tea_(Unsplash).jpg
