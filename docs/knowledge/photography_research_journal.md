@@ -63,3 +63,10 @@ Pixel-inspect five distinct originals among R01–R22. Record URL, visible frami
 - Category progress is **10/500**, and the remainder is 490. Legacy 32 metadata cards and eight thumbnails are not added to the 500 until visually reviewed and deduplicated.
 - Category allocation is a sampling plan, not evidence of 500 completed observations.
 - Repository files: photography_research_categories.json and photography_research_manifest.json.
+
+## Checkpoint 006 — active external search, 2026-10-08
+- Searched for hiking and laptop/café photos. Screened 14 distinct Commons file pages; recorded stable URLs, metadata, author where available, and possible staged-photo bias in `photography_research_candidates.json`.
+- Discovered serious author skew: 9/14 candidate records belong to the same photographer (Shixart1985); do not count 9 independent profiles.
+- Attempted retrieval of image originals for pixel inspection. This runtime could not resolve Commons via container networking; image search returned no images. **No candidate was falsely promoted to visual-reviewed status.**
+- Verified original visual reviews remain 10/500; 14 new metadata-only candidates are held in a separate queue.
+- Next work: use an image-capable retrieval route to inspect originals, then move records individually to reviewed manifest and update counters.
