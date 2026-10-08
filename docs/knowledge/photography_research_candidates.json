@@ -141,11 +141,113 @@
       "selection_bias": "professional_or_staged_possible",
       "visual_review_level": "metadata_only",
       "count_toward_500": false
+    },
+    {
+      "id": "C015",
+      "category": "travel_outdoors",
+      "url": "https://commons.wikimedia.org/wiki/File:A_group_of_friends_on_a_casual_hike.jpg",
+      "author": "Altitonantis",
+      "metadata": "Nikon D3500; 6000×4000; CC0",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "unassessed"
+    },
+    {
+      "id": "C016",
+      "category": "friends_cafe",
+      "url": "https://commons.wikimedia.org/wiki/File:Friends_at_the_Cafe_-_Flickr_-_pinemikey.jpg",
+      "author": "Michael Martin",
+      "metadata": "Olympus digital camera; 650×850; Flickr CC BY-SA 2.0",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "unassessed"
+    },
+    {
+      "id": "C017",
+      "category": "friends_cafe",
+      "url": "https://commons.wikimedia.org/wiki/File:Friends_(153424261).jpeg",
+      "author": "Marta Borchiellini",
+      "metadata": "2048×1536; 500px archive",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "unassessed"
+    },
+    {
+      "id": "C018",
+      "category": "travel_outdoors",
+      "url": "https://commons.wikimedia.org/wiki/File:Hiking_(114232935).jpeg",
+      "author": "Bernhard Hanakam",
+      "metadata": "2048×1365; 500px archive",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "unassessed"
+    },
+    {
+      "id": "C019",
+      "category": "friends_cafe",
+      "url": "https://commons.wikimedia.org/wiki/File:Coffee_and_friends.jpg",
+      "author": "Abe.gova",
+      "metadata": "4029×5037; CC BY-SA 4.0",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "unassessed"
+    },
+    {
+      "id": "C020",
+      "category": "food_coffee_objects",
+      "url": "https://commons.wikimedia.org/wiki/File:Coffee_time_with_friends.jpg",
+      "author": "Mahjuja Islam",
+      "metadata": "3072×4080; CC0; creator overlaps O09; check image duplication",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "unassessed"
+    },
+    {
+      "id": "C021",
+      "category": "friends_cafe",
+      "url": "https://commons.wikimedia.org/wiki/File:Friends_enjoy_drinks_and_snacks_at_a_table.jpg",
+      "author": "Shixart1985",
+      "metadata": "Nikon Z6; 4024×6048; potentially staged",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "repeated_professional_author"
+    },
+    {
+      "id": "C022",
+      "category": "travel_outdoors",
+      "url": "https://commons.wikimedia.org/wiki/File:YR_Hiking_with_a_few_friends_(15611231713).jpg",
+      "author": "unverified",
+      "metadata": "4288×2848; first day hike",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "unassessed"
+    },
+    {
+      "id": "C023",
+      "category": "group_selfie",
+      "url": "https://commons.wikimedia.org/wiki/File:A_man_and_woman_enjoy_a_sunny_day_at_a_cafe,_taking_a_selfie_together.jpg",
+      "author": "unverified",
+      "metadata": "85mm lens; likely photo OF selfie action, not selfie output",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "unassessed"
+    },
+    {
+      "id": "C024",
+      "category": "food_coffee_objects",
+      "url": "https://commons.wikimedia.org/wiki/File:COFFEE_friends_-_panoramio.jpg",
+      "author": "unverified",
+      "metadata": "2816×2120; Panoramio mirror",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "unassessed"
     }
   ],
   "observations": [
     "Search results heavily overrepresent one photographer Shixart1985 in laptop scenes; cannot count these as independent author diversity.",
     "Some lifestyle scenes may be professionally staged; classify before using them to infer amateur conventions.",
-    "Web result provides original resolution and EXIF but this pass could not retrieve actual image bytes for inspection."
+    "Web result provides original resolution and EXIF but this pass could not retrieve actual image bytes for inspection.",
+    "2026-10-08: 10 new Commons file-page candidates added from cross-source search; 24 candidate records total; images not yet pixel-inspected.",
+    "Photographic challenge submissions enforce max four per photographer and own-work requirement, potentially a useful diversity discovery pool, but not a random sample."
   ]
 }
