@@ -156,3 +156,14 @@ Pass 2: 10 further file pages C045–C054, including independent creator Emerson
 Countercheck: metadata-only queue now 53; **original-level visual review count remains 10/500**. The first-person description of the shop-window shot reports close-to-glass hands/phone appearing large and ceiling lights reflected in glass; this is *author-described geometry*, not a newly witnessed pixel observation. Do not re-label as visually reviewed.
 Scientific implication: camera category cannot be inferred from the word "selfie". Distinguish (A) front-camera output, (B) mirror/window reflection self-portrait, (C) third-party photo of selfie-taking, (D) cropped derivative. A and C have opposite viewpoint origins. Capture session and derivative parent IDs should be used when estimating sample independence.
 Limit reached: the available browser search delivers metadata and image-search results, but this run has not produced a verifiable image-pixel inspection route. More source cards would not advance the 500 *visual* target; stop claiming otherwise.
+
+## Checkpoint 014 — three-cycle workload test (2026-10-08)
+### Cycle 1: search and source classification
+Opened current Wikimedia Commons search results for mirror self-portraits. Registered nine new Commons records C055–C063 in the candidate JSON, each with attributed creator, camera/file context and review status. Includes ceiling mirror, convex traffic mirror, broken mirror HDR, 1973 historical mirror self-portrait, Nikon D7100, Canon EOS 1000D and a 2025 hotel mirror photo. Commit `eba411fa`.
+
+### Cycle 2: comparative research and falsifiable hypotheses
+Created `photography_capture_comparison_2026_10_08.json` with three controlled source-metadata comparisons: camera type, reflecting-surface geometry, and file history. Observations are **metadata/captions**, not new image-pixel inspection. Canon EOS 1000D mirror selfie: 28mm, ISO1600, 1/160s; hotel mirror photo: 4.941mm, ISO2500, 1/40s; Nikon D7100 mirror photo: 35mm lens. An author-reported ceiling mirror is distinct from an outdoor traffic mirror. Black-and-white version uploaded years after capture cannot be assumed native. Commit `b3b33c5`.
+
+### Cycle 3: audit and countercheck
+Read current manifest/progress and checked source novelty. Nine new source pages, zero new verified image-level reviews. Source candidate queue **62**. Prior legacy original reviews **10/500**. Hypotheses for later pixel tests: lens perspective vs camera distance; reflection curvature; edits/revisions; ISO/noise vs output resizing. No schema modification because image-level evidence insufficient.
+**Outcome:** 3 research cycles logged and 3 GitHub writes planned; **0/3 complete visual-inspection cycles**. This is a partial workload test, not a successful test of three full cycles. Blocker is inability to substantiate pixel-level inspection in current web source flow. Avoid repeating metadata-only loops as if they advance 500-photo target.
