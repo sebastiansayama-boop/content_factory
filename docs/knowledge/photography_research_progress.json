@@ -13,7 +13,10 @@
     "capture_categories_verified": 0,
     "generated_separate_luca_photo_tests": 0,
     "thumbnail_visual_reviews": 8,
-    "verified_original_image_authors": 10
+    "verified_original_image_authors": 10,
+    "deduplicated_originals_in_manifest": 10,
+    "categorized_originals": 10,
+    "uncategorized_originals": 0
   },
   "milestones": {
     "source_audit_every": 25,
@@ -21,8 +24,8 @@
     "checkpoint_every": 25
   },
   "state": "in_progress_manual_session",
-  "last_checkpoint": "2026-10-08 / audit 009",
-  "next_action": "Continue non-selfie full-original inspection; audit diversity of cameras, light and viewpoints; reconcile original reviews with metadata page IDs and deduplicate before reporting unique /500.",
+  "last_checkpoint": "2026-10-08 / categorized baseline",
+  "next_action": "Continue actual original-image reviews by underrepresented categories. Expand manifest with source, creator, license, pixel-level notes, then update category counts. Do not count category search results as examined photos.",
   "definitions": {
     "metadata_reviewed_file_pages": "File pages whose metadata/descriptions were recorded; NOT a visual review.",
     "visual_deep_reviews": "Actual pixels inspected with structured visible observations.",
