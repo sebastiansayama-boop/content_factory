@@ -8,17 +8,20 @@
     "based_on_specific_real_person": false,
     "gender_presentation": "male",
     "adult": true,
-    "age_range": "примерно 25–35 лет по внешнему виду (оценка, не биографический факт)",
-    "face_description": "Взрослый мужчина с овально-угловатым лицом, умеренно выраженными скулами и прямым носом, густыми тёмными бровями, небольшой естественной асимметрией формы губ (выражение лица меняется от сцены к сцене), естественной текстурой кожи, тёмными усами и короткой щетиной. Глаза на исходных изображениях выглядят от коричнево-ореховых до серо-зелёных при разном освещении; точный канонический оттенок ещё не утверждён.",
+    "age_range": "35 лет — выбранный возраст персонажа; не вывод из изображений",
+    "face_description": "Лука, 35 лет: умеренно вытянутое овально-угловатое лицо с выраженными, но естественными скулами и чёткой немассивной челюстью; слегка квадратный подбородок; прямой мужественный нос средней ширины с естественно округлым кончиком; миндалевидные, слегка глубоко посаженные светлые серо-зелёные глаза с ореховым нюансом; густые естественные тёмные брови; чувственные умеренно полные губы с чуть более полной нижней губой и небольшой природной асимметрией; короткая заметная тёмная щетина и усы; естественная текстура светло-оливковой кожи тёплого оттенка.",
     "hair": "Густые тёмно-каштановые волосы средней длины, естественно волнистые/кудрявые, объёмная небрежная укладка, несколько локонов на лбу.",
-    "body_type": "Ранние мудборды: атлетичное/стройное телосложение (концептуальная характеристика, не доказательство роста).",
+    "body_type": "V-Taper Muscular: рост 182 см, широкие плечи, развитые грудные мышцы, узкая талия, атлетичные руки и спина, пропорциональные ноги, умеренно выраженный пресс; реалистичная мускулатура без бодибилдерской гипертрофии.",
     "distinctive_features": [
-      "Густые волнистые тёмно-каштановые волосы с прядями, опускающимися на лоб",
-      "Широкие выраженные тёмные брови",
-      "Форма глаз и густые брови визуально стабильны; точный цвет глаз требует отдельного утверждения",
-      "Лёгкие веснушки, неровности естественной кожи",
-      "Тёмная короткая щетина с усами",
-      "Небольшая естественная асимметрия формы губ; улыбка и мимика не являются фиксированными признаками идентичности"
+      "Густые тёмно-каштановые кудрявые волосы средней длины, объёмные и слегка растрёпанные, с отдельными локонами на лбу",
+      "Густые, выразительные тёмные брови естественной формы",
+      "Светлые серо-зелёные миндалевидные глаза с ореховым оттенком (выбранная характеристика персонажа)",
+      "Овально-угловатое лицо с выраженными скулами, чёткой челюстью и слегка квадратным подбородком",
+      "Прямой мужественный нос средней ширины",
+      "Чувственные умеренно полные губы и лёгкая природная асимметрия формы губ",
+      "Тёплая светло-оливковая кожа с естественной текстурой",
+      "Короткая заметная тёмная щетина и усы",
+      "V-образный спортивный силуэт с выраженной грудью и узкой талией"
     ],
     "approved_references": [],
     "reference_candidates": [
@@ -106,27 +109,27 @@
     ],
     "early_reference_manifest": "docs/character/references/luka-early-generation-manifest.json",
     "identity_comparison": "docs/character/luka_identity_comparison_2026_10_08.md",
-    "iris_color_status": "unresolved_early_text_dark_brown_new_pixels_hazel_grey_green",
-    "passport_version": "1.0-candidate",
-    "passport_review_status": "awaiting_explicit_owner_approval_of_primary_reference",
+    "iris_color_status": "selected_by_owner_light_grey_green_with_hazel",
+    "passport_version": "1.1-assembled-spec",
+    "passport_review_status": "traits_selected_reference_face_not_yet_approved",
     "primary_visual_candidate": {
       "reference_id": "luka-ref-2026-10-08-cafe-01",
       "image_library_path": "/Luka/identity/luka-cafe-2026-10-08-original.png",
       "image_library_file_id": "libfile_3630a4297fc08191abdd8cd1d73d9b89",
       "sha256": "b7476ff7300a83dc1897fdac11c38c36fb249251b0fb84e10c9bcf6a1d7bd9e5",
       "status": "candidate_not_approved",
-      "purpose": "anchor for anatomical facial identity, not pose, lighting, expression or wardrobe"
+      "purpose": "historical comparison candidate only; NOT a canonical face or an exact depiction of the newly assembled passport"
     },
     "facial_identity_spec": {
-      "facial_structure": "Moderately elongated oval-angular face, defined but not exaggerated cheekbones, moderately broad chin with a softly angular jaw; do not narrow jaw or replace face with juvenile/delicate features.",
-      "nose": "Predominantly straight nose and consistent bridge/tip proportions relative to reference; reject changes in nose width or projection that alter identity.",
-      "eyebrows": "Distinctively thick, dark, broadly straight brows with gentle curvature.",
-      "eyes": "Preserve eye shape, eyelid geometry and spacing relative to reference; precise iris shade is unresolved and must not be asserted as fixed.",
-      "lips": "Preserve natural lip proportions and slight resting asymmetry; smile, half-smile and expression are NOT identity anchors.",
-      "hair": "Dense, dark chestnut, medium-length wavy-curly hair with irregular ringlets across forehead; exact strand placement can vary.",
-      "facial_hair": "Visible dark moustache plus short, uneven stubble along cheeks, jaw and chin; modest grooming variation permitted, but do not remove beard or change facial structure.",
-      "skin": "Natural pores, light freckles and small skin irregularities; no plastic beauty retouching, no exaggerated artificial defects.",
-      "physique": "Lean athletic impression from conceptual boards; exact height, dimensions and age not established by photographs."
+      "facial_structure": "Slightly elongated oval-angular face; pronounced natural cheekbones; defined moderately wide jaw; slightly squared chin.",
+      "nose": "Straight, masculine, medium width; natural gently rounded tip.",
+      "eyebrows": "Thick, dark, expressive, naturally shaped, not over-groomed.",
+      "eyes": "Almond-shaped, slightly deep-set, light grey-green with a subtle hazel cast. Confidence and flirtation are variable expressions, not fixed facial anatomy.",
+      "lips": "Naturally sensual and moderately full; lower lip slightly fuller; subtle resting asymmetry; no cosmetic filler look.",
+      "hair": "Dense medium-length dark-chestnut curls, naturally tousled with several ringlets on forehead.",
+      "facial_hair": "Short but visibly defined dark stubble and moustache; not a dense full beard.",
+      "skin": "Warm light-olive skin; visible natural pores and minor imperfections, no heavy smoothing.",
+      "physique": "35 years old; 182 cm; V-taper muscular build; broad shoulders, pronounced developed pectorals, narrow waist, athletic arms and legs, moderate abs; short, visible, neatly trimmed chest and abdomen hair; realistic proportions."
     },
     "non_identity_attributes": [
       "head_tilt",
@@ -143,11 +146,11 @@
       "pose"
     ],
     "generation_reference_rules": [
-      "Before generation, load the PRIMARY FULL-RESOLUTION IMAGE into the actual image provider as image-conditioned reference when supported; a text description or reading the file in chat is not proof of conditioning.",
+      "Before generation, load the OWNER-APPROVED FULL-RESOLUTION IMAGE into the actual image provider as image-conditioned reference when supported; a text description or reading the file in chat is not proof of conditioning.",
       "Record whether the provider genuinely received the reference. If unconfirmed, label generation identity_unverified; do not claim likeness was preserved.",
       "Do not use the rejected October 9 cafe experiments as canonical visual references.",
       "Do not lock expression, head angle or original cafe setting; action, hands, gaze and light must follow the new scene.",
-      "Compare new independent single-frame images with primary original for facial structure, brows, eyes, nose, jaw, lips, hair and stubble before owner acceptance."
+      "Compare new independent single-frame images with owner-approved original for facial structure, brows, eyes, nose, jaw, lips, hair and stubble before owner acceptance."
     ],
     "last_experiment_outcome": {
       "date": "2026-10-09",
@@ -156,9 +159,19 @@
       "state": "failed_identity_check"
     },
     "approval_requirements": [
-      "Owner explicitly approves full-resolution primary portrait as canonical facial anchor.",
-      "At least two further independent single-frame scenes with verified reference conditioning pass comparative visual identity review before claiming multi-scene consistency."
-    ]
+      "Generate or assemble an independent reference image matching the selected facial and body traits and explicitly obtain owner approval as canonical identity.",
+      "Verify identity preservation across independent scenes using directly supplied reference images before claiming consistent generation."
+    ],
+    "styling_preferences": {
+      "audience": "Primarily adult gay men; avoid assuming uniform individual preferences.",
+      "look": "Mature confident sensual lifestyle, not constant posing or stereotyped expressions",
+      "swimwear": {
+        "status": "selected_lookbook_reference_not_anatomical_measurement",
+        "description": "Keep the last accepted swimwear catalog styling as-is, fitted but physically plausible fabric, seam tension and drape; no additional emphasis requested",
+        "reference_file_id": "file_000000009c1c820b9832ab7307120f59",
+        "reference_note": "Conversation-generated five-style swimwear catalog; not an approved facial identity reference."
+      }
+    }
   },
   "production": {
     "workflow": [
@@ -176,11 +189,12 @@
     "real_person_likeness_authorization_required_if_used": true
   },
   "open_decisions": [
-    "appearance",
     "personality",
     "audience",
     "approved_identity_reference",
-    "provider_after_real_test"
+    "provider_after_real_test",
+    "canonical_face_approval",
+    "identity_conditioned_multiscene_test"
   ],
   "display_name": "Лука",
   "slug": "luka"
