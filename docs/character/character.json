@@ -23,7 +23,19 @@
       "Короткая заметная тёмная щетина и усы",
       "V-образный спортивный силуэт с выраженной грудью и узкой талией"
     ],
-    "approved_references": [],
+    "approved_references": [
+      {
+        "reference_id": "luka-canonical-board-2026-10-09",
+        "kind": "approved_composite_identity_board",
+        "library_path": "/Luka/identity/luka-canonical-board-2026-10-09.jpeg",
+        "library_file_id": "libfile_9eb6d18d91088191a19ab9611827a62c",
+        "file_id": "file_00000000f344820ba6123ccf5ee07d4e",
+        "approved_by": "owner",
+        "approved_at_date": "2026-10-09",
+        "original_upload_file_id": "file_00000000b1a4820bace71833ffb9d722",
+        "notes": "User explicitly approved this precise composite board as canonical visual appearance. Multi-panel board is one image, not independent proof of identity consistency."
+      }
+    ],
     "reference_candidates": [
       {
         "reference_id": "luka-assembled-portrait-2026-10-09",
@@ -94,7 +106,7 @@
     "requirements_document": "docs/character/visual_identity.md",
     "appearance_specification": "docs/character/luka_appearance.md",
     "reference_manifest": "docs/character/references/luka-cafe-2026-10-08.json",
-    "current_reference_status": "candidate_pending_human_identity_qc",
+    "current_reference_status": "approved_canonical_board",
     "locked_traits": [
       "hair",
       "eyebrows",
@@ -116,14 +128,13 @@
     "identity_comparison": "docs/character/luka_identity_comparison_2026_10_08.md",
     "iris_color_status": "selected_by_owner_light_grey_green_with_hazel",
     "passport_version": "1.1-assembled-spec",
-    "passport_review_status": "assembled_portrait_saved_pending_owner_approval",
+    "passport_review_status": "canonical_board_approved_multiscene_generation_unverified",
     "primary_visual_candidate": {
-      "reference_id": "luka-assembled-portrait-2026-10-09",
-      "image_library_path": "/Luka/identity/luka-assembled-portrait-2026-10-09.png",
-      "image_library_file_id": "libfile_0380ea1349848191b4434a768ae4d7c4",
-      "generation_id": "6fc7759d-052f-469e-817d-c872d88deabf",
-      "status": "primary_candidate_pending_owner_approval",
-      "purpose": "selected-appearance reference candidate; identity consistency not validated"
+      "reference_id": "luka-canonical-board-2026-10-09",
+      "image_library_path": "/Luka/identity/luka-canonical-board-2026-10-09.jpeg",
+      "image_library_file_id": "libfile_9eb6d18d91088191a19ab9611827a62c",
+      "status": "approved_canonical_board",
+      "purpose": "canonical visual design and reference for Luka; component images must be extracted or derived without introducing another identity"
     },
     "facial_identity_spec": {
       "facial_structure": "Slightly elongated oval-angular face; pronounced natural cheekbones; defined moderately wide jaw; slightly squared chin.",
@@ -151,11 +162,11 @@
       "pose"
     ],
     "generation_reference_rules": [
-      "Before generation, load the OWNER-APPROVED FULL-RESOLUTION IMAGE into the actual image provider as image-conditioned reference when supported; a text description or reading the file in chat is not proof of conditioning.",
+      "Before generation, load the CANONICAL VISUAL REFERENCE (or its traceable individual crop) into the actual image provider as image-conditioned reference when supported; a text description or reading the file in chat is not proof of conditioning.",
       "Record whether the provider genuinely received the reference. If unconfirmed, label generation identity_unverified; do not claim likeness was preserved.",
       "Do not use the rejected October 9 cafe experiments as canonical visual references.",
       "Do not lock expression, head angle or original cafe setting; action, hands, gaze and light must follow the new scene.",
-      "Compare new independent single-frame images with owner-approved original for facial structure, brows, eyes, nose, jaw, lips, hair and stubble before owner acceptance."
+      "Compare new independent single-frame images with canonical image or traceable crop for facial structure, brows, eyes, nose, jaw, lips, hair and stubble before owner acceptance."
     ],
     "last_experiment_outcome": {
       "date": "2026-10-09",
@@ -164,8 +175,9 @@
       "state": "failed_identity_check"
     },
     "approval_requirements": [
-      "Generate or assemble an independent reference image matching the selected facial and body traits and explicitly obtain owner approval as canonical identity.",
-      "Verify identity preservation across independent scenes using directly supplied reference images before claiming consistent generation."
+      "Approval of composite canonical visual reference by owner completed on 2026-10-09.",
+      "Extract useful single-view crops from this approved board and verify image-conditioned references were actually received by generation provider.",
+      "Verify consistent identity across independent generated scenes; collage alone does not validate that ability."
     ],
     "styling_preferences": {
       "audience": "Primarily adult gay men; avoid assuming uniform individual preferences.",
@@ -177,7 +189,19 @@
         "reference_note": "Conversation-generated five-style swimwear catalog; not an approved facial identity reference."
       }
     },
-    "character_card": "docs/character/LUKA_CHARACTER_CARD.md"
+    "character_card": "docs/character/LUKA_CHARACTER_CARD.md",
+    "canonical_reference": {
+      "reference_id": "luka-canonical-board-2026-10-09",
+      "kind": "approved_composite_identity_board",
+      "library_path": "/Luka/identity/luka-canonical-board-2026-10-09.jpeg",
+      "library_file_id": "libfile_9eb6d18d91088191a19ab9611827a62c",
+      "file_id": "file_00000000f344820ba6123ccf5ee07d4e",
+      "approved_by": "owner",
+      "approved_at_date": "2026-10-09",
+      "original_upload_file_id": "file_00000000b1a4820bace71833ffb9d722",
+      "notes": "User explicitly approved this precise composite board as canonical visual appearance. Multi-panel board is one image, not independent proof of identity consistency."
+    },
+    "historical_references_status": "Previous cafe portraits, earlier boards and experiments are historical/comparison references only, not authoritative identity anchors."
   },
   "production": {
     "workflow": [
@@ -197,10 +221,9 @@
   "open_decisions": [
     "personality",
     "audience",
-    "approved_identity_reference",
     "provider_after_real_test",
-    "canonical_face_approval",
-    "identity_conditioned_multiscene_test"
+    "identity_conditioned_multiscene_test",
+    "independent_identity_consistency_validation"
   ],
   "display_name": "Лука",
   "slug": "luka"
