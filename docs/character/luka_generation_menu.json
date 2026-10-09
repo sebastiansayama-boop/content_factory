@@ -4,15 +4,26 @@
   "status": "operator_preset_not_runtime_wired",
   "scope": "ChatGPT image generation with GitHub provenance; not a claim of automated image-provider support inside Content Factory",
   "character_profile": "docs/character/character.json",
-  "character_reference_manifest": "docs/character/references/luka-early-generation-manifest.json",
-  "single_portrait_reference": "docs/character/references/luka-cafe-2026-10-08.json",
+  "character_reference_manifest": "docs/character/character.json",
+  "single_portrait_reference": null,
   "capture_study": "docs/knowledge/photography_observation_parameters.json",
   "naturalism_skill": "docs/skills/natural_photography.md",
   "identity": {
     "source": "character_profile",
     "read_only": true,
     "approved_references_required_for_claiming_verified_identity": true,
-    "note": "Latest portrait and early images remain unapproved candidates; do not claim locked face validation merely because text matches."
+    "note": "Canonical reference is owner-approved composite board in character.json. Single-view crop is not yet approved; do not use previous cafe portrait as current identity reference.",
+    "reference_source": "character.json#identity.approved_references",
+    "reference_preflight": {
+      "required": true,
+      "checks": [
+        "Read current approved reference from character.json",
+        "Verify exact media file can be accessed and attached as image input to provider; file path alone is insufficient",
+        "Prefer single-view crop of canonical board; a collage is one source and its small panels may be insufficient quality",
+        "Record actual provider input reference and provenance before paid generation"
+      ],
+      "on_failure": "stop_without_generation"
+    }
   },
   "fields": [
     {
