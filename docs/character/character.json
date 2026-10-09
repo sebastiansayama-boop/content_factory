@@ -106,7 +106,59 @@
     ],
     "early_reference_manifest": "docs/character/references/luka-early-generation-manifest.json",
     "identity_comparison": "docs/character/luka_identity_comparison_2026_10_08.md",
-    "iris_color_status": "unresolved_early_text_dark_brown_new_pixels_hazel_grey_green"
+    "iris_color_status": "unresolved_early_text_dark_brown_new_pixels_hazel_grey_green",
+    "passport_version": "1.0-candidate",
+    "passport_review_status": "awaiting_explicit_owner_approval_of_primary_reference",
+    "primary_visual_candidate": {
+      "reference_id": "luka-ref-2026-10-08-cafe-01",
+      "image_library_path": "/Luka/identity/luka-cafe-2026-10-08-original.png",
+      "image_library_file_id": "libfile_3630a4297fc08191abdd8cd1d73d9b89",
+      "sha256": "b7476ff7300a83dc1897fdac11c38c36fb249251b0fb84e10c9bcf6a1d7bd9e5",
+      "status": "candidate_not_approved",
+      "purpose": "anchor for anatomical facial identity, not pose, lighting, expression or wardrobe"
+    },
+    "facial_identity_spec": {
+      "facial_structure": "Moderately elongated oval-angular face, defined but not exaggerated cheekbones, moderately broad chin with a softly angular jaw; do not narrow jaw or replace face with juvenile/delicate features.",
+      "nose": "Predominantly straight nose and consistent bridge/tip proportions relative to reference; reject changes in nose width or projection that alter identity.",
+      "eyebrows": "Distinctively thick, dark, broadly straight brows with gentle curvature.",
+      "eyes": "Preserve eye shape, eyelid geometry and spacing relative to reference; precise iris shade is unresolved and must not be asserted as fixed.",
+      "lips": "Preserve natural lip proportions and slight resting asymmetry; smile, half-smile and expression are NOT identity anchors.",
+      "hair": "Dense, dark chestnut, medium-length wavy-curly hair with irregular ringlets across forehead; exact strand placement can vary.",
+      "facial_hair": "Visible dark moustache plus short, uneven stubble along cheeks, jaw and chin; modest grooming variation permitted, but do not remove beard or change facial structure.",
+      "skin": "Natural pores, light freckles and small skin irregularities; no plastic beauty retouching, no exaggerated artificial defects.",
+      "physique": "Lean athletic impression from conceptual boards; exact height, dimensions and age not established by photographs."
+    },
+    "non_identity_attributes": [
+      "head_tilt",
+      "hand_supporting_head",
+      "half_smile",
+      "direct_gaze",
+      "coffee",
+      "cafe",
+      "white_shirt",
+      "golden_hour",
+      "camera_framing",
+      "background",
+      "clothing",
+      "pose"
+    ],
+    "generation_reference_rules": [
+      "Before generation, load the PRIMARY FULL-RESOLUTION IMAGE into the actual image provider as image-conditioned reference when supported; a text description or reading the file in chat is not proof of conditioning.",
+      "Record whether the provider genuinely received the reference. If unconfirmed, label generation identity_unverified; do not claim likeness was preserved.",
+      "Do not use the rejected October 9 cafe experiments as canonical visual references.",
+      "Do not lock expression, head angle or original cafe setting; action, hands, gaze and light must follow the new scene.",
+      "Compare new independent single-frame images with primary original for facial structure, brows, eyes, nose, jaw, lips, hair and stubble before owner acceptance."
+    ],
+    "last_experiment_outcome": {
+      "date": "2026-10-09",
+      "reference_manifest": "docs/character/references/luka-identity-retry-2026-10-09.json",
+      "observation": "Repeated cafe outputs improved pose realism but changed jaw/nose and reduced facial hair; identity continuity not validated.",
+      "state": "failed_identity_check"
+    },
+    "approval_requirements": [
+      "Owner explicitly approves full-resolution primary portrait as canonical facial anchor.",
+      "At least two further independent single-frame scenes with verified reference conditioning pass comparative visual identity review before claiming multi-scene consistency."
+    ]
   },
   "production": {
     "workflow": [
