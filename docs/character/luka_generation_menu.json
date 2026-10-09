@@ -120,7 +120,8 @@
         "stretching",
         "natural_movement",
         "sitting_resting"
-      ]
+      ],
+      "note": "Every generated frame must specify one concrete, observable everyday activity with a plausible hand interaction and gaze target; do not leave natural_movement as an unspecified action."
     },
     {
       "key": "hands",
@@ -213,10 +214,11 @@
     "Do not default to head tilt, hand supporting head, direct camera gaze or half-smile.",
     "No invented EXIF, camera metadata or identity-verification claims.",
     "Photograph must have plausible gaze, hands, camera geometry and lighting.",
-    "Do not treat a generated collage as independent multiple photographs."
+    "Do not treat a generated collage as independent multiple photographs.",
+    "Specify one specific observable action per photo and a believable reason the camera is there; align hands, gaze, pose, and props with that action."
   ],
   "anti_repetition": {
-    "lookback_last_n": 3,
+    "lookback_last_n": 5,
     "fields": [
       "head_direction",
       "gaze",
@@ -225,10 +227,11 @@
       "hands",
       "framing",
       "camera_position",
-      "capture_style"
+      "capture_style",
+      "lighting"
     ],
     "maximum_matching_fields_consecutive": 3,
-    "method": "operator_preflight; compare stored requests; if fewer than three history records exist, compare known recent images qualitatively",
+    "method": "operator preflight; compare stored requests and visible images from last five independent frames, emphasizing combinations of expression, action, framing and lighting; when history is incomplete, report limits rather than claim auto-enforcement",
     "not_auto_enforced": true
   },
   "starter_presets": [
