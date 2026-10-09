@@ -1,0 +1,319 @@
+{
+  "schema_version": "1.0",
+  "menu_id": "luka_photo_generation_menu_v1",
+  "status": "operator_preset_not_runtime_wired",
+  "scope": "ChatGPT image generation with GitHub provenance; not a claim of automated image-provider support inside Content Factory",
+  "character_profile": "docs/character/character.json",
+  "character_reference_manifest": "docs/character/references/luka-early-generation-manifest.json",
+  "single_portrait_reference": "docs/character/references/luka-cafe-2026-10-08.json",
+  "capture_study": "docs/knowledge/photography_observation_parameters.json",
+  "naturalism_skill": "docs/skills/natural_photography.md",
+  "identity": {
+    "source": "character_profile",
+    "read_only": true,
+    "approved_references_required_for_claiming_verified_identity": true,
+    "note": "Latest portrait and early images remain unapproved candidates; do not claim locked face validation merely because text matches."
+  },
+  "fields": [
+    {
+      "key": "intent",
+      "label": "Назначение",
+      "default": "instagram_post",
+      "options": [
+        "instagram_post",
+        "avatar",
+        "story",
+        "identity_test",
+        "sensual_lifestyle"
+      ]
+    },
+    {
+      "key": "scene",
+      "label": "Сцена",
+      "default": "cafe",
+      "options": [
+        "cafe",
+        "apartment",
+        "kitchen",
+        "street",
+        "balcony",
+        "bookshop",
+        "beach",
+        "travel"
+      ]
+    },
+    {
+      "key": "framing",
+      "label": "Крупность",
+      "default": "half_body",
+      "options": [
+        "face_portrait",
+        "half_body",
+        "three_quarter",
+        "full_body",
+        "environmental_wide"
+      ]
+    },
+    {
+      "key": "camera_position",
+      "label": "Положение камеры",
+      "default": "eye_level",
+      "options": [
+        "eye_level",
+        "slightly_below",
+        "slightly_above",
+        "side_45",
+        "over_shoulder",
+        "mirror"
+      ]
+    },
+    {
+      "key": "head_direction",
+      "label": "Положение головы",
+      "default": "straight",
+      "options": [
+        "straight",
+        "turn_left",
+        "turn_right",
+        "down",
+        "looking_up"
+      ]
+    },
+    {
+      "key": "gaze",
+      "label": "Взгляд",
+      "default": "off_camera",
+      "options": [
+        "direct",
+        "off_camera",
+        "down_at_action",
+        "at_companion",
+        "eyes_closed"
+      ]
+    },
+    {
+      "key": "expression",
+      "label": "Мимика",
+      "default": "neutral",
+      "options": [
+        "neutral",
+        "open_smile",
+        "laughing",
+        "thoughtful",
+        "focused",
+        "mischievous",
+        "soft_flirt",
+        "sleepy"
+      ]
+    },
+    {
+      "key": "action",
+      "label": "Действие",
+      "default": "natural_movement",
+      "options": [
+        "walking",
+        "talking",
+        "cooking",
+        "reading",
+        "pouring_coffee",
+        "adjusting_shirt",
+        "stretching",
+        "natural_movement",
+        "sitting_resting"
+      ]
+    },
+    {
+      "key": "hands",
+      "label": "Руки",
+      "default": "natural_non_face_contact",
+      "options": [
+        "natural_non_face_contact",
+        "holding_cup",
+        "in_pockets",
+        "holding_phone",
+        "working_with_object",
+        "one_hand_on_hip",
+        "behind_head"
+      ]
+    },
+    {
+      "key": "wardrobe",
+      "label": "Одежда",
+      "default": "casual_shirt",
+      "options": [
+        "casual_shirt",
+        "tshirt",
+        "linen_open_shirt",
+        "tank_top",
+        "light_sweater",
+        "beachwear"
+      ]
+    },
+    {
+      "key": "sensuality",
+      "label": "Чувственность",
+      "default": "subtle",
+      "options": [
+        "none",
+        "subtle",
+        "flirty",
+        "sensual_non_explicit"
+      ]
+    },
+    {
+      "key": "lighting",
+      "label": "Свет",
+      "default": "soft_daylight",
+      "options": [
+        "soft_daylight",
+        "overcast",
+        "window_side_light",
+        "golden_hour",
+        "late_evening",
+        "indoor_ambient"
+      ]
+    },
+    {
+      "key": "capture_style",
+      "label": "Кто снимает",
+      "default": "friend_candid",
+      "options": [
+        "friend_candid",
+        "phone_selfie",
+        "mirror_selfie",
+        "tripod_self_portrait",
+        "street_photo"
+      ]
+    },
+    {
+      "key": "color_treatment",
+      "label": "Обработка",
+      "default": "minimal",
+      "options": [
+        "minimal",
+        "warm_natural",
+        "cool_natural",
+        "film_like_subtle"
+      ]
+    },
+    {
+      "key": "variation_strength",
+      "label": "Контроль разнообразия",
+      "default": "strong",
+      "options": [
+        "gentle",
+        "moderate",
+        "strong"
+      ]
+    }
+  ],
+  "hard_constraints": [
+    "Character remains a fictional adult male; do not infer or invent canonical age/eye shade/ethnicity from pixels.",
+    "Avoid beautified plastic skin and oversharpened AI-looking detail.",
+    "Do not default to head tilt, hand supporting head, direct camera gaze or half-smile.",
+    "No invented EXIF, camera metadata or identity-verification claims.",
+    "Photograph must have plausible gaze, hands, camera geometry and lighting.",
+    "Do not treat a generated collage as independent multiple photographs."
+  ],
+  "anti_repetition": {
+    "lookback_last_n": 3,
+    "fields": [
+      "head_direction",
+      "gaze",
+      "expression",
+      "action",
+      "hands",
+      "framing",
+      "camera_position",
+      "capture_style"
+    ],
+    "maximum_matching_fields_consecutive": 3,
+    "method": "operator_preflight; compare stored requests; if fewer than three history records exist, compare known recent images qualitatively",
+    "not_auto_enforced": true
+  },
+  "starter_presets": [
+    {
+      "preset_id": "street_laugh",
+      "label": "Улица — живой смех",
+      "values": {
+        "intent": "instagram_post",
+        "scene": "street",
+        "framing": "three_quarter",
+        "camera_position": "side_45",
+        "head_direction": "turn_left",
+        "gaze": "at_companion",
+        "expression": "laughing",
+        "action": "walking",
+        "hands": "natural_non_face_contact",
+        "wardrobe": "tshirt",
+        "sensuality": "none",
+        "lighting": "overcast",
+        "capture_style": "friend_candid",
+        "color_treatment": "minimal",
+        "variation_strength": "strong"
+      }
+    },
+    {
+      "preset_id": "kitchen_focus",
+      "label": "Дома — занят делом",
+      "values": {
+        "intent": "instagram_post",
+        "scene": "kitchen",
+        "framing": "half_body",
+        "camera_position": "slightly_above",
+        "head_direction": "down",
+        "gaze": "down_at_action",
+        "expression": "focused",
+        "action": "cooking",
+        "hands": "working_with_object",
+        "wardrobe": "tank_top",
+        "sensuality": "subtle",
+        "lighting": "window_side_light",
+        "capture_style": "friend_candid",
+        "color_treatment": "minimal",
+        "variation_strength": "strong"
+      }
+    },
+    {
+      "preset_id": "balcony_flirt",
+      "label": "Балкон — лёгкий флирт",
+      "values": {
+        "intent": "sensual_lifestyle",
+        "scene": "balcony",
+        "framing": "three_quarter",
+        "camera_position": "slightly_below",
+        "head_direction": "straight",
+        "gaze": "off_camera",
+        "expression": "mischievous",
+        "action": "adjusting_shirt",
+        "hands": "working_with_object",
+        "wardrobe": "linen_open_shirt",
+        "sensuality": "flirty",
+        "lighting": "late_evening",
+        "capture_style": "friend_candid",
+        "color_treatment": "warm_natural",
+        "variation_strength": "strong"
+      }
+    }
+  ],
+  "request_template": {
+    "character_id": "creator_001",
+    "menu_version": "1.0",
+    "preset_id": null,
+    "overrides": {},
+    "reference_id": null,
+    "last_generation_refs": [],
+    "status": "draft",
+    "notes": ""
+  },
+  "review_template": {
+    "identity_consistency": "unverified",
+    "realism": "unreviewed",
+    "pose_diversity": "unreviewed",
+    "composition_diversity": "unreviewed",
+    "anatomy": "unreviewed",
+    "scene_match": "unreviewed",
+    "owner_decision": "pending",
+    "issue_notes": []
+  }
+}
