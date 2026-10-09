@@ -26,6 +26,11 @@
     "approved_references": [],
     "reference_candidates": [
       {
+        "reference_id": "luka-assembled-portrait-2026-10-09",
+        "manifest_path": "docs/character/LUKA_CHARACTER_CARD.md",
+        "status": "primary_candidate_pending_owner_approval"
+      },
+      {
         "reference_id": "luka-ref-2026-10-08-cafe-01",
         "manifest_path": "docs/character/references/luka-cafe-2026-10-08.json",
         "status": "candidate_pending_human_identity_qc"
@@ -111,14 +116,14 @@
     "identity_comparison": "docs/character/luka_identity_comparison_2026_10_08.md",
     "iris_color_status": "selected_by_owner_light_grey_green_with_hazel",
     "passport_version": "1.1-assembled-spec",
-    "passport_review_status": "traits_selected_reference_face_not_yet_approved",
+    "passport_review_status": "assembled_portrait_saved_pending_owner_approval",
     "primary_visual_candidate": {
-      "reference_id": "luka-ref-2026-10-08-cafe-01",
-      "image_library_path": "/Luka/identity/luka-cafe-2026-10-08-original.png",
-      "image_library_file_id": "libfile_3630a4297fc08191abdd8cd1d73d9b89",
-      "sha256": "b7476ff7300a83dc1897fdac11c38c36fb249251b0fb84e10c9bcf6a1d7bd9e5",
-      "status": "candidate_not_approved",
-      "purpose": "historical comparison candidate only; NOT a canonical face or an exact depiction of the newly assembled passport"
+      "reference_id": "luka-assembled-portrait-2026-10-09",
+      "image_library_path": "/Luka/identity/luka-assembled-portrait-2026-10-09.png",
+      "image_library_file_id": "libfile_0380ea1349848191b4434a768ae4d7c4",
+      "generation_id": "6fc7759d-052f-469e-817d-c872d88deabf",
+      "status": "primary_candidate_pending_owner_approval",
+      "purpose": "selected-appearance reference candidate; identity consistency not validated"
     },
     "facial_identity_spec": {
       "facial_structure": "Slightly elongated oval-angular face; pronounced natural cheekbones; defined moderately wide jaw; slightly squared chin.",
@@ -171,7 +176,8 @@
         "reference_file_id": "file_000000009c1c820b9832ab7307120f59",
         "reference_note": "Conversation-generated five-style swimwear catalog; not an approved facial identity reference."
       }
-    }
+    },
+    "character_card": "docs/character/LUKA_CHARACTER_CARD.md"
   },
   "production": {
     "workflow": [
