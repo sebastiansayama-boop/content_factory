@@ -66,6 +66,13 @@
       <div id="review" class="review hidden">
         <strong>Проверка</strong>
         <div id="reviewState" class="review-state">Ожидает проверки</div>
+        <div class="field">
+          <label for="releaseChannel">Куда выпускать материал</label>
+          <select id="releaseChannel" class="input">
+            <option value="local">Локально — без внешней отправки</option>
+            <option value="telegram">Telegram — в настроенный канал</option>
+          </select>
+        </div>
         <div class="row">
           <button id="approve" class="btn">Принять</button>
           <button id="export" class="btn secondary" disabled>Экспорт</button>
@@ -174,18 +181,35 @@ function renderRun(run){
   setStep("production");
   $("generation").innerHTML=`<div class="notice"><strong>${esc(result.content_brief?.title||run.title||"Готовый материал")}</strong><br>${esc(result.content_spec?.logline||"Контент создан на подтверждённой knowledge-базе.")}</div>`;
   renderPackage(run);
-  if(["REVIEW","APPROVED","EXPORTED"].includes(run.status)){setStep("done");$("review").classList.remove("hidden");$("reviewState").textContent=run.status==="REVIEW"?(qc.status==="PASSED"?"QC пройден · нужно принять материал":"Нужна проверка"):(run.status==="EXPORTED"?"Материал экспортирован · внешняя публикация не подтверждена":"Материал утверждён");}else{$("review").classList.add("hidden");}
+  if(["REVIEW","APPROVED","EXPORTED","PUBLISHED"].includes(run.status)){
+    setStep("done");$("review").classList.remove("hidden");
+    $("reviewState").textContent=run.status==="REVIEW"?(qc.status==="PASSED"?"QC пройден · нужно принять материал":"Нужна проверка"):(run.status==="EXPORTED"?"Материал экспортирован · внешняя публикация не подтверждена":(run.status==="PUBLISHED"?"Выпуск завершён":"Материал утверждён"));
+  }else{$("review").classList.add("hidden");}
+  const prepared=result.publication||{};
+  if(prepared.channel){$("releaseChannel").value=prepared.channel;}
+  $("releaseChannel").disabled=run.status!=="REVIEW";
   $("regenerateBox").classList.toggle("hidden",run.status!=="REVIEW" && run.status!=="APPROVED" && run.status!=="EXPORTED");
   $("approve").disabled=run.status!=="REVIEW";
   $("export").disabled=run.status!=="APPROVED";
   $("publish").disabled=!["APPROVED","EXPORTED"].includes(run.status);
   $("review").dataset.runId=run.run_id;
   const link=$("exportLink");
-  if(run.status==="EXPORTED"){
+  if(["EXPORTED","PUBLISHED"].includes(run.status) && result.export?.status==="EXPORTED"){
     link.innerHTML='<button class="link-btn" id="downloadBundle">Скачать пост (.zip)</button> · <button class="link-btn" id="downloadExport">Скачать JSON</button>';
     $("downloadBundle").onclick=downloadBundle;
     $("downloadExport").onclick=downloadExport;
   }else{link.innerHTML="";}
+  if(run.status==="PUBLISHED"){
+    const published=document.createElement("div");published.className="notice";published.style.marginTop="10px";
+    const isTelegram=prepared.channel==="telegram";
+    const fake=String(prepared.external_id||"").startsWith("fake-message-");
+    published.textContent=isTelegram?(fake?"Тестовая отправка — реального сообщения нет.":"Telegram: ответ адаптера сохранён."):"Локальный выпуск — публикации в Telegram нет.";
+    const url=String(prepared.external_url||"");
+    if(isTelegram && /^https:\/\/t\.me\//.test(url)){
+      const link=document.createElement("a");link.href=url;link.target="_blank";link.rel="noopener noreferrer";link.textContent=" · Открыть сообщение в Telegram";published.appendChild(link);
+    }
+    $("review").appendChild(published);
+  }
 }
 async function loadAsset(asset){
   if(asset.asset_type!=="visual")return;
@@ -239,7 +263,11 @@ $("savePackage").onclick=async()=>{
   }catch(e){error(e.message);setStatus("Ошибка")}
   finally{$("savePackage").disabled=false}
 };
-$("approve").onclick=async()=>{clearError();try{const d=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/approve","POST",{decision_ref:"browser-user-approval",channel:"local"});currentRun=d.run||d;renderRun(currentRun);setStatus("Материал принят")}catch(e){error(e.message)}};
+$("approve").onclick=async()=>{clearError();try{
+  const channel=$("releaseChannel").value;
+  const d=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/approve","POST",{decision_ref:"browser-approval-"+crypto.randomUUID(),channel});
+  currentRun=d.run||d;renderRun(currentRun);setStatus(channel==="telegram"?"Материал принят · подготовлен для Telegram":"Материал принят");
+}catch(e){error(e.message)}};
 $("export").onclick=async()=>{clearError();try{const d=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/export","POST",{});currentRun=d.run||currentRun;renderRun(currentRun);setStatus("Экспорт готов · доступны пост (.zip) и JSON")}catch(e){error(e.message)}};
 async function downloadExport(){
   try{
@@ -255,7 +283,20 @@ async function downloadBundle(){
     const blob=await r.blob(); const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="post-bundle.zip";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
   }catch(e){error(e.message)}
 }
-$("publish").onclick=async()=>{try{const d=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/publish","POST",{channel:"local"});currentRun=d.run||d;setStatus("Локальный выпуск сохранён · внешняя публикация не подтверждена");}catch(e){error(e.message)}};
+$("publish").onclick=async()=>{clearError();
+  const publication=currentRun?.result?.publication||{};
+  const channel=publication.channel;
+  if(!channel)return error("Сначала прими материал и выбери канал выпуска.");
+  if(channel==="telegram" && !confirm("Отправить утверждённый материал в Telegram? Это действие будет видно подписчикам."))return;
+  $("publish").disabled=true;
+  try{
+    const published=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/publish","POST",{channel,publication_id:publication.publication_id});
+    if(published.channel!==channel)throw new Error("Канал выпуска не совпадает с утверждённым.");
+    currentRun=await api("/api/runs/"+encodeURIComponent(currentRunId),"GET");
+    renderRun(currentRun);
+    setStatus(channel==="telegram"?(String(published.external_id||"").startsWith("fake-message-")?"Тестовая публикация выполнена — реальной отправки нет":"Telegram принял публикацию"):"Локальный выпуск сохранён · внешняя публикация не подтверждена");
+  }catch(e){error(e.message);$("publish").disabled=false}
+};
 $("regenerate").onclick=async()=>{
   clearError(); const instruction=$("editInstruction").value.trim(); if(!instruction)return error("Опиши, что изменить.");
   $("regenerate").disabled=true;setStatus("Создаю новую версию…");
