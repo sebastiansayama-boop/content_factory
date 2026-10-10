@@ -256,4 +256,18 @@ def test_openverse_pipeline_uses_visual_gate_to_reject_nile_cruise(tmp_path, mon
     assert verification["candidate_id"] == "crocodile"
     assert verification["decision"] == "ACCEPT"
     assert verification["forbidden_present"] is False
+    assert verification["policy_version"] == "v1"
+    assert verification["decision_id"].startswith("vdecision-")
+
+    from content_factory.visual_policy import VisualPolicyStore
+
+    policy_store = VisualPolicyStore(tmp_path / "visual_policy.sqlite3")
+    try:
+        recorded = policy_store.db.execute(
+            "SELECT COUNT(*) AS count FROM visual_decisions WHERE run_id=?",
+            ("run-visual-1",),
+        ).fetchone()
+        assert recorded["count"] == 2
+    finally:
+        policy_store.close()
     jobs.close()
