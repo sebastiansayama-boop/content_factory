@@ -183,6 +183,31 @@ class ProductHandler(Handler):
                 self.wfile.write(raw)
                 return
 
+            if raw_run_path.endswith("/export/bundle"):
+                run_id = raw_run_path.removesuffix("/export/bundle").strip("/")
+                run = self.content_runs.get(run_id)
+                if run is None:
+                    self._json(404, {"error": "content run not found"})
+                    return
+                if run.status != "EXPORTED":
+                    self._json(409, {"error": "an exported run is required"})
+                    return
+                try:
+                    bundle_bytes = ContentExporter(
+                        os.environ.get("FACTORY_DATA_DIR", "./data")
+                    ).build_post_bundle(run_id=run_id, result=run.result or {})
+                except ValueError as exc:
+                    self._json(409, {"error": str(exc)})
+                    return
+                self.send_response(200)
+                self.send_header("Content-Type", "application/zip")
+                self.send_header("Content-Length", str(len(bundle_bytes)))
+                self.send_header("Content-Disposition", 'attachment; filename="post-bundle.zip"')
+                self.send_header("Cache-Control", "private, no-store")
+                self.end_headers()
+                self.wfile.write(bundle_bytes)
+                return
+
             if raw_run_path.endswith("/export/download"):
                 run_id = raw_run_path.removesuffix("/export/download").strip("/")
                 run = self.content_runs.get(run_id)
