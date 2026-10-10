@@ -662,3 +662,80 @@ def test_user_vertical_slice_assets_regeneration_and_export_download(tmp_path, m
         server.server_close()
         thread.join(timeout=2)
         service.close()
+
+
+def test_telegram_approval_missing_credentials_leaves_run_in_review(tmp_path, monkeypatch):
+    from content_factory.service import FactoryService
+    from tests.test_telegram_publication_smoke import _create_prepared_run
+
+    monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("FACTORY_PROVIDER", "local")
+    monkeypatch.delenv("FACTORY_TELEGRAM_FAKE", raising=False)
+    monkeypatch.delenv("TELEGRAM_CHAT_ID", raising=False)
+    monkeypatch.delenv("TELEGRAM_BOT_TOKEN", raising=False)
+    service = FactoryService()
+    try:
+        run, _ = _create_prepared_run(service, tmp_path, with_media=False)
+        handler = DummyHandler(
+            f"/api/runs/{run.run_id}/approve",
+            {"decision_ref": "test-missing-telegram-credentials", "channel": "telegram"},
+        )
+        handler.service = service
+        handler.content_runs = service.content_runs
+        ProductHandler.do_POST(handler)
+
+        assert handler.status == 400
+        assert "TELEGRAM_CHAT_ID is required" in handler.response["error"]
+        assert service.content_runs.get(run.run_id).status == "REVIEW"
+        assert service.control.list_publications(run.run_id) == []
+
+        monkeypatch.setenv("TELEGRAM_CHAT_ID", "@testchannel")
+        handler = DummyHandler(
+            f"/api/runs/{run.run_id}/approve",
+            {"decision_ref": "test-missing-telegram-token", "channel": "telegram"},
+        )
+        handler.service = service
+        handler.content_runs = service.content_runs
+        ProductHandler.do_POST(handler)
+        assert handler.status == 400
+        assert "TELEGRAM_BOT_TOKEN is required" in handler.response["error"]
+        assert service.content_runs.get(run.run_id).status == "REVIEW"
+        assert service.control.list_publications(run.run_id) == []
+    finally:
+        service.close()
+
+
+def test_telegram_publish_rejects_channel_switch_after_approval(tmp_path, monkeypatch):
+    from content_factory.service import FactoryService
+    from tests.test_telegram_publication_smoke import _create_prepared_run
+
+    monkeypatch.setenv("FACTORY_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("FACTORY_PROVIDER", "local")
+    monkeypatch.setenv("FACTORY_TELEGRAM_FAKE", "1")
+    monkeypatch.setenv("TELEGRAM_CHAT_ID", "fake-chat")
+    service = FactoryService()
+    try:
+        run, _ = _create_prepared_run(service, tmp_path, with_media=False)
+        approve = DummyHandler(
+            f"/api/runs/{run.run_id}/approve",
+            {"decision_ref": "human-telegram-decision", "channel": "telegram"},
+        )
+        approve.service = service
+        approve.content_runs = service.content_runs
+        ProductHandler.do_POST(approve)
+        assert approve.status == 200, approve.response
+        publication_id = approve.response["result"]["publication"]["publication_id"]
+
+        publish = DummyHandler(
+            f"/api/runs/{run.run_id}/publish",
+            {"publication_id": publication_id, "channel": "local"},
+        )
+        publish.service = service
+        publish.content_runs = service.content_runs
+        ProductHandler.do_POST(publish)
+        assert publish.status == 400
+        assert "channel" in publish.response["error"]
+        assert service.content_runs.get(run.run_id).status == "APPROVED"
+        assert service.control.list_publications(run.run_id)[0]["status"] == "PREPARED"
+    finally:
+        service.close()
