@@ -82,7 +82,7 @@ def test_browser_user_vertical_slice(factory_server, page):
     page.get_by_text("Материал принят", exact=True).wait_for()
 
     page.locator("#export").click()
-    page.get_by_text("Экспорт готов", exact=True).wait_for()
+    page.get_by_text("Экспорт готов · доступны пост (.zip) и JSON", exact=True).wait_for()
     download_button = page.locator("#downloadExport")
     assert download_button.count() == 1
 
@@ -90,6 +90,16 @@ def test_browser_user_vertical_slice(factory_server, page):
         download_button.click()
     download = download_info.value
     assert download.suggested_filename == "content-package.json"
+
+    with page.expect_download() as bundle_download_info:
+        page.locator("#downloadBundle").click()
+    bundle_download = bundle_download_info.value
+    assert bundle_download.suggested_filename == "post-bundle.zip"
+    from zipfile import ZipFile
+    with ZipFile(bundle_download.path()) as archive:
+        assert "caption.txt" in archive.namelist()
+        assert "content-package.json" in archive.namelist()
+        assert any(name.startswith("images/") for name in archive.namelist())
 
     page.locator("#editInstruction").fill(
         "Сделай следующую версию менее рекламной и более объясняющей."

@@ -174,12 +174,18 @@ function renderRun(run){
   setStep("production");
   $("generation").innerHTML=`<div class="notice"><strong>${esc(result.content_brief?.title||run.title||"Готовый материал")}</strong><br>${esc(result.content_spec?.logline||"Контент создан на подтверждённой knowledge-базе.")}</div>`;
   renderPackage(run);
-  if(run.status==="REVIEW"){setStep("done");$("review").classList.remove("hidden");$("reviewState").textContent=qc.status==="PASSED"?"QC пройден · нужно принять материал":"Нужна проверка";}
+  if(["REVIEW","APPROVED","EXPORTED"].includes(run.status)){setStep("done");$("review").classList.remove("hidden");$("reviewState").textContent=run.status==="REVIEW"?(qc.status==="PASSED"?"QC пройден · нужно принять материал":"Нужна проверка"):(run.status==="EXPORTED"?"Материал экспортирован · внешняя публикация не подтверждена":"Материал утверждён");}else{$("review").classList.add("hidden");}
   $("regenerateBox").classList.toggle("hidden",run.status!=="REVIEW" && run.status!=="APPROVED" && run.status!=="EXPORTED");
   $("approve").disabled=run.status!=="REVIEW";
   $("export").disabled=run.status!=="APPROVED";
   $("publish").disabled=!["APPROVED","EXPORTED"].includes(run.status);
   $("review").dataset.runId=run.run_id;
+  const link=$("exportLink");
+  if(run.status==="EXPORTED"){
+    link.innerHTML='<button class="link-btn" id="downloadBundle">Скачать пост (.zip)</button> · <button class="link-btn" id="downloadExport">Скачать JSON</button>';
+    $("downloadBundle").onclick=downloadBundle;
+    $("downloadExport").onclick=downloadExport;
+  }else{link.innerHTML="";}
 }
 async function loadAsset(asset){
   if(asset.asset_type!=="visual")return;
@@ -234,7 +240,7 @@ $("savePackage").onclick=async()=>{
   finally{$("savePackage").disabled=false}
 };
 $("approve").onclick=async()=>{clearError();try{const d=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/approve","POST",{decision_ref:"browser-user-approval",channel:"local"});currentRun=d.run||d;renderRun(currentRun);setStatus("Материал принят")}catch(e){error(e.message)}};
-$("export").onclick=async()=>{clearError();try{const d=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/export","POST",{});currentRun=d.run||currentRun;renderRun(currentRun);const link=$("exportLink");link.innerHTML='<button class="link-btn" id="downloadExport">Скачать экспорт</button> · SHA256: '+esc(d.export?.sha256||"");$("downloadExport").onclick=downloadExport;setStatus("Экспорт готов")}catch(e){error(e.message)}};
+$("export").onclick=async()=>{clearError();try{const d=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/export","POST",{});currentRun=d.run||currentRun;renderRun(currentRun);setStatus("Экспорт готов · доступны пост (.zip) и JSON")}catch(e){error(e.message)}};
 async function downloadExport(){
   try{
     const t=token(); const r=await fetch("/api/runs/"+encodeURIComponent(currentRunId)+"/export/download",{headers:{"Authorization":`Bearer ${t}`}});
@@ -242,7 +248,14 @@ async function downloadExport(){
     const blob=await r.blob(); const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="content-package.json";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
   }catch(e){error(e.message)}
 }
-$("publish").onclick=async()=>{try{const d=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/publish","POST",{channel:"local"});currentRun=d.run||d;setStatus("Материал опубликован");}catch(e){error(e.message)}};
+async function downloadBundle(){
+  try{
+    const t=token(); const r=await fetch("/api/runs/"+encodeURIComponent(currentRunId)+"/export/bundle",{headers:{"Authorization":`Bearer ${t}`}});
+    if(!r.ok){let message="Не удалось собрать пакет поста";try{message=(await r.json()).error||message}catch(_e){}throw new Error(message)}
+    const blob=await r.blob(); const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="post-bundle.zip";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  }catch(e){error(e.message)}
+}
+$("publish").onclick=async()=>{try{const d=await api("/api/runs/"+encodeURIComponent(currentRunId)+"/publish","POST",{channel:"local"});currentRun=d.run||d;setStatus("Локальный выпуск сохранён · внешняя публикация не подтверждена");}catch(e){error(e.message)}};
 $("regenerate").onclick=async()=>{
   clearError(); const instruction=$("editInstruction").value.trim(); if(!instruction)return error("Опиши, что изменить.");
   $("regenerate").disabled=true;setStatus("Создаю новую версию…");
