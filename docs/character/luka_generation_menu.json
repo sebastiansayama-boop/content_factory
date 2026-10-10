@@ -329,5 +329,25 @@
     "scene_match": "unreviewed",
     "owner_decision": "pending",
     "issue_notes": []
+  },
+  "editorial_mode": {
+    "status": "owner_approved_visual_direction_not_runtime_wired",
+    "direction_document": "docs/character/LUKA_EDITORIAL_DIRECTION_2026-10-10.md",
+    "default_theme": "NOIR",
+    "shot_types": [
+      "editorial_full_body",
+      "side_profile",
+      "closeup_detail",
+      "seated_fashion",
+      "sculptural_body"
+    ],
+    "requirements": [
+      "plan 3-5 visibly distinct angles and framings",
+      "fashion studio or advertising campaign look; not generic outdoor lifestyle",
+      "real image reference conditioning must be verified independently",
+      "publishable photos have no simulated Instagram interface or fake engagement metrics",
+      "do not equate re-generation with cropping original board"
+    ],
+    "identity_reference": "docs/character/character.json#identity.approved_references"
   }
 }
