@@ -115,7 +115,7 @@ class ContentExporter:
         units = script.get("units") if isinstance(script.get("units"), list) else []
         caption = str(package.get("text") or "").strip()
         if not caption:
-            caption = "\\n\\n".join(str(unit.get("text") or "").strip() for unit in units if isinstance(unit, dict)).strip()
+            caption = "\n\n".join(str(unit.get("text") or "").strip() for unit in units if isinstance(unit, dict)).strip()
         if not caption:
             raise ExportError("approved publication has no usable caption")
 
@@ -161,7 +161,7 @@ class ContentExporter:
         }
         buffer = io.BytesIO()
         with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
-            archive.writestr("caption.txt", caption + "\\n")
+            archive.writestr("caption.txt", caption + "\n")
             archive.writestr("metadata.json", json.dumps(metadata, ensure_ascii=False, indent=2))
             archive.write(package_path, arcname="content-package.json")
             for image_path, image_name, _ in images:
