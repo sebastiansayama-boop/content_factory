@@ -112,3 +112,44 @@ def test_browser_user_vertical_slice(factory_server, page):
     runs = service.content_runs.list()
     assert len(runs) >= 2
     assert any(run.status == "REVIEW" for run in runs)
+
+
+def test_browser_explicit_telegram_publication_with_fake_provider(factory_server, page):
+    # No external Telegram call: fixture activates FACTORY_TELEGRAM_FAKE=1.
+    base_url, service = factory_server
+    page.goto(base_url, wait_until="domcontentloaded")
+    page.locator("#token").fill("browser-e2e-token")
+    page.locator("#title").fill("Telegram release proof")
+    page.locator("#source").fill(
+        "Explain how volcanic lightning occurs during explosive volcanic eruptions."
+    )
+    page.locator('#platforms input[value="telegram"]').check()
+    page.locator("#runFactory").click()
+    page.get_by_text("Research завершён · проверь знания", exact=True).wait_for()
+    page.locator("#knowledgeReview button[data-claim]").first.click()
+    page.get_by_text("Готово · QC пройден", exact=True).wait_for()
+
+    run_id = service.content_runs.list()[0].run_id
+    page.locator("#releaseChannel").select_option("telegram")
+    page.locator("#approve").click()
+    page.get_by_text("Материал принят · подготовлен для Telegram", exact=True).wait_for()
+    prepared = service.content_runs.get(run_id).result["publication"]
+    assert prepared["status"] == "PREPARED"
+    assert prepared["channel"] == "telegram"
+    assert page.locator("#releaseChannel").is_disabled()
+
+    # Declining the confirmation must not publish anything.
+    page.once("dialog", lambda dialog: dialog.dismiss())
+    page.locator("#publish").click()
+    assert service.content_runs.get(run_id).status == "APPROVED"
+
+    page.once("dialog", lambda dialog: dialog.accept())
+    page.locator("#publish").click()
+    page.get_by_text("Тестовая публикация выполнена — реальной отправки нет", exact=True).wait_for()
+
+    persisted = service.content_runs.get(run_id)
+    assert persisted.status == "PUBLISHED"
+    assert persisted.result["publication"]["channel"] == "telegram"
+    assert persisted.result["publication"]["external_id"].startswith("fake-message-")
+    assert page.locator("#publicationProof").inner_text().startswith("Тестовая отправка")
+    assert page.locator("#publish").is_disabled()
