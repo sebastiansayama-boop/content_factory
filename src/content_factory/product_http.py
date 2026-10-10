@@ -61,10 +61,12 @@ class ProductHandler(Handler):
     def _protect_product_api(self) -> bool:
         now = time.monotonic()
         client_ip = self.client_address[0]
-        if self._auth_failure_limited(client_ip, now):
-            self._json(429, {"error": "too many authentication failures"}, retry_after=60)
-            return False
+        # Only failed authentication attempts consume the failure budget.
+        # A valid browser workflow performs many authorized API calls.
         if not self._authorized():
+            if self._auth_failure_limited(client_ip, now):
+                self._json(429, {"error": "too many authentication failures"}, retry_after=60)
+                return False
             self._json(401, {"error": "missing or invalid API token"})
             return False
         if self._rate_limited(self._authorized_requests, 10, now, 60.0):
