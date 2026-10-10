@@ -82,7 +82,7 @@ def test_browser_user_vertical_slice(factory_server, page):
     page.get_by_text("Материал принят", exact=True).wait_for()
 
     page.locator("#export").click()
-    page.get_by_text("Экспорт готов", exact=True).wait_for()
+    page.get_by_text("Экспорт готов · доступны пост (.zip) и JSON", exact=True).wait_for()
     download_button = page.locator("#downloadExport")
     assert download_button.count() == 1
 
