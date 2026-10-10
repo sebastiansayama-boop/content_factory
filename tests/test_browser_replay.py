@@ -91,6 +91,16 @@ def test_browser_user_vertical_slice(factory_server, page):
     download = download_info.value
     assert download.suggested_filename == "content-package.json"
 
+    with page.expect_download() as bundle_download_info:
+        page.locator("#downloadBundle").click()
+    bundle_download = bundle_download_info.value
+    assert bundle_download.suggested_filename == "post-bundle.zip"
+    from zipfile import ZipFile
+    with ZipFile(bundle_download.path()) as archive:
+        assert "caption.txt" in archive.namelist()
+        assert "content-package.json" in archive.namelist()
+        assert any(name.startswith("images/") for name in archive.namelist())
+
     page.locator("#editInstruction").fill(
         "Сделай следующую версию менее рекламной и более объясняющей."
     )
