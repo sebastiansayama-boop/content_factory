@@ -92,16 +92,16 @@
     "boundaries": []
   },
   "content": {
-    "style": "natural_creator_lifestyle",
+    "style": "themed_professional_male_fashion_editorial",
     "primary_platform": "instagram",
     "formats": [
       "photo",
-      "short_video"
+      "instagram_carousel"
     ],
     "monetization_candidate": "fanvue"
   },
   "visual_identity": {
-    "naturalism": "natural_photographic_anti_gloss",
+    "naturalism": "studio_editorial_photographic_realism",
     "identity_consistency_required": true,
     "requirements_document": "docs/character/visual_identity.md",
     "appearance_specification": "docs/character/luka_appearance.md",
@@ -181,7 +181,7 @@
     ],
     "styling_preferences": {
       "audience": "Primarily adult gay men; avoid assuming uniform individual preferences.",
-      "look": "Mature confident sensual lifestyle, not constant posing or stereotyped expressions",
+      "look": "Virtual male fashion model; themed studio editorial, noir tailoring, architectural shadows, menswear and non-explicit sensual fashion. Do not default to outdoor lifestyle or uniformly similar frontal portraits.",
       "swimwear": {
         "status": "selected_lookbook_reference_not_anatomical_measurement",
         "description": "Keep the last accepted swimwear catalog styling as-is, fitted but physically plausible fabric, seam tension and drape; no additional emphasis requested",
@@ -201,7 +201,8 @@
       "original_upload_file_id": "file_00000000b1a4820bace71833ffb9d722",
       "notes": "User explicitly approved this precise composite board as canonical visual appearance. Multi-panel board is one image, not independent proof of identity consistency."
     },
-    "historical_references_status": "Previous cafe portraits, earlier boards and experiments are historical/comparison references only, not authoritative identity anchors."
+    "historical_references_status": "Previous cafe portraits, earlier boards and experiments are historical/comparison references only, not authoritative identity anchors.",
+    "editorial_direction_document": "docs/character/LUKA_EDITORIAL_DIRECTION_2026-10-10.md"
   },
   "production": {
     "workflow": [
@@ -211,7 +212,7 @@
       "approve",
       "publish"
     ],
-    "first_test": "single character identity reference and repeated natural scene generations"
+    "first_test": "Reference-conditioned editorial photo series with distinct framing and camera angles; identity stability remains unverified."
   },
   "compliance": {
     "ai_created": true,
@@ -219,11 +220,12 @@
     "real_person_likeness_authorization_required_if_used": true
   },
   "open_decisions": [
-    "personality",
     "audience",
     "provider_after_real_test",
     "identity_conditioned_multiscene_test",
-    "independent_identity_consistency_validation"
+    "independent_identity_consistency_validation",
+    "identity_conditioned_editorial_test",
+    "instagram_publication_metrics"
   ],
   "display_name": "Лука",
   "slug": "luka"
