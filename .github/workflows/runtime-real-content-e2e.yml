@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
-      OLLAMA_MODEL: qwen2.5:1.5b
+      OLLAMA_MODEL: qwen2.5:3b
       OLLAMA_ENDPOINT: http://127.0.0.1:11434/api/generate
       OLLAMA_TIMEOUT: "180"
     steps:
@@ -29,4 +29,4 @@ jobs:
       - name: Pull local model
         run: ollama pull "$OLLAMA_MODEL"
       - name: Run real capability chain
-        run: pytest -q tests/test_runtime_real_content_e2e.py -m external -s
+        run: pytest -q tests/test_autonomous_series_10x.py -m external -s
