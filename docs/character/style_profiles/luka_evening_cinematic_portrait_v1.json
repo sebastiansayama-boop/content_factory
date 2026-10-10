@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0",
+  "profile_id": "luka_evening_cinematic_portrait_v1",
+  "status": "draft_unvalidated",
+  "character_source": "docs/character/character.json",
+  "character_id": "creator_001",
+  "reference": {
+    "kind": "external_style_reference",
+    "source_upload_file_id": "file_00000000075082078b081361e3c6d14d",
+    "role": "lighting_composition_color_only",
+    "identity_transfer": false,
+    "notes": "One uploaded 600x600 portrait of a different adult man; do not transfer his face, haircut, full beard, or piercings. Visual properties are estimates, not recovered EXIF or physical measurements."
+  },
+  "identity": {
+    "canonical_reference": "luka-canonical-board-2026-10-09",
+    "source": "docs/character/character.json#identity.approved_references",
+    "preserve": [
+      "oval-angular face",
+      "grey-green/hazel eyes",
+      "medium-length dark chestnut curls",
+      "short dark stubble and moustache",
+      "light olive skin"
+    ],
+    "image_conditioning_status": "unverified",
+    "on_missing_provider_reference": "mark_identity_unverified"
+  },
+  "visual": {
+    "genre": "quiet cinematic lifestyle/editorial portrait",
+    "composition": {
+      "framing": "tight head-and-upper-torso",
+      "camera_view": "slightly above or eye-level",
+      "gaze": "camera-facing",
+      "expression": "quiet serious, unforced",
+      "pose": "shoulders relaxed, slight torso turn; no default hand-to-face pose"
+    },
+    "lighting": {
+      "time_impression": "blue hour or dusk",
+      "key": "soft warm front-side illumination",
+      "ambient": "cool subdued blue-gray backdrop",
+      "contrast": "moderate, preserved shadow detail",
+      "specularity": "restrained"
+    },
+    "color": {
+      "palette": [
+        "warm light-olive skin",
+        "dusty blush fabric",
+        "deep desaturated blue-gray background"
+      ],
+      "saturation": "restrained",
+      "grade": "natural cinematic, no teal-orange exaggeration"
+    },
+    "styling": {
+      "shirt": "loose open-collar pale dusty-pink matte shirt",
+      "hair": "canonical Luka curls, not reference man's short styled hair",
+      "facial_hair": "canonical short stubble, not reference man's thick beard"
+    },
+    "rendering": {
+      "skin": "subtle skin pores and irregularities, minimal smoothing",
+      "fabric": "plausible folds and weave",
+      "sharpness": "eyes in focus, avoid uniform oversharpening",
+      "background": "simple softly defocused surface"
+    }
+  },
+  "transfer_rules": {
+    "copy": [
+      "light direction and softness",
+      "warm/cool separation",
+      "tight composition",
+      "restrained editorial finish",
+      "quiet mood"
+    ],
+    "do_not_copy": [
+      "reference subject's identity",
+      "short haircut",
+      "thick full beard",
+      "earring or unique facial details"
+    ]
+  },
+  "evaluation": {
+    "axes": [
+      "canonical identity",
+      "skin/hair realism",
+      "lighting coherence",
+      "naturalness of color grade",
+      "pose and lens plausibility"
+    ],
+    "comparison_to": "uploaded style reference for visual qualities only",
+    "requires_owner_feedback": true
+  },
+  "provenance": {
+    "recorded_on": "2026-10-10",
+    "type": "human-guided visual analysis",
+    "technical_camera_settings": "not observed"
+  }
+}

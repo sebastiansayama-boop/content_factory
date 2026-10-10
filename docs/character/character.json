@@ -1,0 +1,232 @@
+{
+  "schema_version": "1.0",
+  "character_id": "creator_001",
+  "status": "draft",
+  "identity": {
+    "origin": "synthetic_composite",
+    "based_on_user_likeness": false,
+    "based_on_specific_real_person": false,
+    "gender_presentation": "male",
+    "adult": true,
+    "age_range": "35 лет — выбранный возраст персонажа; не вывод из изображений",
+    "face_description": "Лука, 35 лет: умеренно вытянутое овально-угловатое лицо с выраженными, но естественными скулами и чёткой немассивной челюстью; слегка квадратный подбородок; прямой мужественный нос средней ширины с естественно округлым кончиком; миндалевидные, слегка глубоко посаженные светлые серо-зелёные глаза с ореховым нюансом; густые естественные тёмные брови; чувственные умеренно полные губы с чуть более полной нижней губой и небольшой природной асимметрией; короткая заметная тёмная щетина и усы; естественная текстура светло-оливковой кожи тёплого оттенка.",
+    "hair": "Густые тёмно-каштановые волосы средней длины, естественно волнистые/кудрявые, объёмная небрежная укладка, несколько локонов на лбу.",
+    "body_type": "V-Taper Muscular: рост 182 см, широкие плечи, развитые грудные мышцы, узкая талия, атлетичные руки и спина, пропорциональные ноги, умеренно выраженный пресс; реалистичная мускулатура без бодибилдерской гипертрофии.",
+    "distinctive_features": [
+      "Густые тёмно-каштановые кудрявые волосы средней длины, объёмные и слегка растрёпанные, с отдельными локонами на лбу",
+      "Густые, выразительные тёмные брови естественной формы",
+      "Светлые серо-зелёные миндалевидные глаза с ореховым оттенком (выбранная характеристика персонажа)",
+      "Овально-угловатое лицо с выраженными скулами, чёткой челюстью и слегка квадратным подбородком",
+      "Прямой мужественный нос средней ширины",
+      "Чувственные умеренно полные губы и лёгкая природная асимметрия формы губ",
+      "Тёплая светло-оливковая кожа с естественной текстурой",
+      "Короткая заметная тёмная щетина и усы",
+      "V-образный спортивный силуэт с выраженной грудью и узкой талией"
+    ],
+    "approved_references": [
+      {
+        "reference_id": "luka-canonical-board-2026-10-09",
+        "kind": "approved_composite_identity_board",
+        "library_path": "/Luka/identity/luka-canonical-board-2026-10-09.jpeg",
+        "library_file_id": "libfile_9eb6d18d91088191a19ab9611827a62c",
+        "file_id": "file_00000000f344820ba6123ccf5ee07d4e",
+        "approved_by": "owner",
+        "approved_at_date": "2026-10-09",
+        "original_upload_file_id": "file_00000000b1a4820bace71833ffb9d722",
+        "notes": "User explicitly approved this precise composite board as canonical visual appearance. Multi-panel board is one image, not independent proof of identity consistency."
+      }
+    ],
+    "reference_candidates": [
+      {
+        "reference_id": "luka-assembled-portrait-2026-10-09",
+        "manifest_path": "docs/character/LUKA_CHARACTER_CARD.md",
+        "status": "primary_candidate_pending_owner_approval"
+      },
+      {
+        "reference_id": "luka-ref-2026-10-08-cafe-01",
+        "manifest_path": "docs/character/references/luka-cafe-2026-10-08.json",
+        "status": "candidate_pending_human_identity_qc"
+      },
+      {
+        "reference_id": "luka-early-01",
+        "manifest_path": "docs/character/references/luka-early-generation-manifest.json",
+        "status": "candidate_context_board_unapproved"
+      },
+      {
+        "reference_id": "luka-early-02",
+        "manifest_path": "docs/character/references/luka-early-generation-manifest.json",
+        "status": "candidate_context_board_unapproved"
+      },
+      {
+        "reference_id": "luka-early-03",
+        "manifest_path": "docs/character/references/luka-early-generation-manifest.json",
+        "status": "candidate_context_board_unapproved"
+      },
+      {
+        "reference_id": "luka-early-04",
+        "manifest_path": "docs/character/references/luka-early-generation-manifest.json",
+        "status": "candidate_context_board_unapproved"
+      },
+      {
+        "reference_id": "luka-early-05",
+        "manifest_path": "docs/character/references/luka-early-generation-manifest.json",
+        "status": "candidate_context_board_unapproved"
+      },
+      {
+        "reference_id": "luka-early-06",
+        "manifest_path": "docs/character/references/luka-early-generation-manifest.json",
+        "status": "candidate_context_board_unapproved"
+      },
+      {
+        "reference_id": "luka-early-07",
+        "manifest_path": "docs/character/references/luka-early-generation-manifest.json",
+        "status": "candidate_context_board_unapproved"
+      }
+    ]
+  },
+  "personality": {
+    "traits": [],
+    "interests": [],
+    "voice": null,
+    "audience_relationship": null,
+    "boundaries": []
+  },
+  "content": {
+    "style": "themed_professional_male_fashion_editorial",
+    "primary_platform": "instagram",
+    "formats": [
+      "photo",
+      "instagram_carousel"
+    ],
+    "monetization_candidate": "fanvue"
+  },
+  "visual_identity": {
+    "naturalism": "studio_editorial_photographic_realism",
+    "identity_consistency_required": true,
+    "requirements_document": "docs/character/visual_identity.md",
+    "appearance_specification": "docs/character/luka_appearance.md",
+    "reference_manifest": "docs/character/references/luka-cafe-2026-10-08.json",
+    "current_reference_status": "approved_canonical_board",
+    "locked_traits": [
+      "hair",
+      "eyebrows",
+      "face_shape",
+      "facial_hair",
+      "skin_natural_texture",
+      "eye_shape"
+    ],
+    "variable_traits": [
+      "clothing",
+      "pose",
+      "setting",
+      "camera_angle",
+      "lighting",
+      "expression",
+      "grooming_details"
+    ],
+    "early_reference_manifest": "docs/character/references/luka-early-generation-manifest.json",
+    "identity_comparison": "docs/character/luka_identity_comparison_2026_10_08.md",
+    "iris_color_status": "selected_by_owner_light_grey_green_with_hazel",
+    "passport_version": "1.1-assembled-spec",
+    "passport_review_status": "canonical_board_approved_multiscene_generation_unverified",
+    "primary_visual_candidate": {
+      "reference_id": "luka-canonical-board-2026-10-09",
+      "image_library_path": "/Luka/identity/luka-canonical-board-2026-10-09.jpeg",
+      "image_library_file_id": "libfile_9eb6d18d91088191a19ab9611827a62c",
+      "status": "approved_canonical_board",
+      "purpose": "canonical visual design and reference for Luka; component images must be extracted or derived without introducing another identity"
+    },
+    "facial_identity_spec": {
+      "facial_structure": "Slightly elongated oval-angular face; pronounced natural cheekbones; defined moderately wide jaw; slightly squared chin.",
+      "nose": "Straight, masculine, medium width; natural gently rounded tip.",
+      "eyebrows": "Thick, dark, expressive, naturally shaped, not over-groomed.",
+      "eyes": "Almond-shaped, slightly deep-set, light grey-green with a subtle hazel cast. Confidence and flirtation are variable expressions, not fixed facial anatomy.",
+      "lips": "Naturally sensual and moderately full; lower lip slightly fuller; subtle resting asymmetry; no cosmetic filler look.",
+      "hair": "Dense medium-length dark-chestnut curls, naturally tousled with several ringlets on forehead.",
+      "facial_hair": "Short but visibly defined dark stubble and moustache; not a dense full beard.",
+      "skin": "Warm light-olive skin; visible natural pores and minor imperfections, no heavy smoothing.",
+      "physique": "35 years old; 182 cm; V-taper muscular build; broad shoulders, pronounced developed pectorals, narrow waist, athletic arms and legs, moderate abs; short, visible, neatly trimmed chest and abdomen hair; realistic proportions."
+    },
+    "non_identity_attributes": [
+      "head_tilt",
+      "hand_supporting_head",
+      "half_smile",
+      "direct_gaze",
+      "coffee",
+      "cafe",
+      "white_shirt",
+      "golden_hour",
+      "camera_framing",
+      "background",
+      "clothing",
+      "pose"
+    ],
+    "generation_reference_rules": [
+      "Before generation, load the CANONICAL VISUAL REFERENCE (or its traceable individual crop) into the actual image provider as image-conditioned reference when supported; a text description or reading the file in chat is not proof of conditioning.",
+      "Record whether the provider genuinely received the reference. If unconfirmed, label generation identity_unverified; do not claim likeness was preserved.",
+      "Do not use the rejected October 9 cafe experiments as canonical visual references.",
+      "Do not lock expression, head angle or original cafe setting; action, hands, gaze and light must follow the new scene.",
+      "Compare new independent single-frame images with canonical image or traceable crop for facial structure, brows, eyes, nose, jaw, lips, hair and stubble before owner acceptance."
+    ],
+    "last_experiment_outcome": {
+      "date": "2026-10-09",
+      "reference_manifest": "docs/character/references/luka-identity-retry-2026-10-09.json",
+      "observation": "Repeated cafe outputs improved pose realism but changed jaw/nose and reduced facial hair; identity continuity not validated.",
+      "state": "failed_identity_check"
+    },
+    "approval_requirements": [
+      "Approval of composite canonical visual reference by owner completed on 2026-10-09.",
+      "Extract useful single-view crops from this approved board and verify image-conditioned references were actually received by generation provider.",
+      "Verify consistent identity across independent generated scenes; collage alone does not validate that ability."
+    ],
+    "styling_preferences": {
+      "audience": "Primarily adult gay men; avoid assuming uniform individual preferences.",
+      "look": "Virtual male fashion model; themed studio editorial, noir tailoring, architectural shadows, menswear and non-explicit sensual fashion. Do not default to outdoor lifestyle or uniformly similar frontal portraits.",
+      "swimwear": {
+        "status": "selected_lookbook_reference_not_anatomical_measurement",
+        "description": "Keep the last accepted swimwear catalog styling as-is, fitted but physically plausible fabric, seam tension and drape; no additional emphasis requested",
+        "reference_file_id": "file_000000009c1c820b9832ab7307120f59",
+        "reference_note": "Conversation-generated five-style swimwear catalog; not an approved facial identity reference."
+      }
+    },
+    "character_card": "docs/character/LUKA_CHARACTER_CARD.md",
+    "canonical_reference": {
+      "reference_id": "luka-canonical-board-2026-10-09",
+      "kind": "approved_composite_identity_board",
+      "library_path": "/Luka/identity/luka-canonical-board-2026-10-09.jpeg",
+      "library_file_id": "libfile_9eb6d18d91088191a19ab9611827a62c",
+      "file_id": "file_00000000f344820ba6123ccf5ee07d4e",
+      "approved_by": "owner",
+      "approved_at_date": "2026-10-09",
+      "original_upload_file_id": "file_00000000b1a4820bace71833ffb9d722",
+      "notes": "User explicitly approved this precise composite board as canonical visual appearance. Multi-panel board is one image, not independent proof of identity consistency."
+    },
+    "historical_references_status": "Previous cafe portraits, earlier boards and experiments are historical/comparison references only, not authoritative identity anchors.",
+    "editorial_direction_document": "docs/character/LUKA_EDITORIAL_DIRECTION_2026-10-10.md"
+  },
+  "production": {
+    "workflow": [
+      "generate",
+      "visual_qc",
+      "accept_or_regenerate",
+      "approve",
+      "publish"
+    ],
+    "first_test": "Reference-conditioned editorial photo series with distinct framing and camera angles; identity stability remains unverified."
+  },
+  "compliance": {
+    "ai_created": true,
+    "disclose_as_required_by_platform": true,
+    "real_person_likeness_authorization_required_if_used": true
+  },
+  "open_decisions": [
+    "audience",
+    "provider_after_real_test",
+    "identity_conditioned_multiscene_test",
+    "independent_identity_consistency_validation",
+    "identity_conditioned_editorial_test",
+    "instagram_publication_metrics"
+  ],
+  "display_name": "Лука",
+  "slug": "luka"
+}

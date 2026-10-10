@@ -1,0 +1,54 @@
+{
+  "project": "Luca everyday photography reference research",
+  "target": {
+    "distinct_images": 500,
+    "independent_authors_or_profiles": 50,
+    "capture_categories_min": 15,
+    "visual_deep_reviews": 100
+  },
+  "verified_progress": {
+    "metadata_reviewed_file_pages": 32,
+    "visual_deep_reviews": 10,
+    "independent_authors_or_profiles_verified": 0,
+    "capture_categories_verified": 0,
+    "generated_separate_luca_photo_tests": 0,
+    "thumbnail_visual_reviews": 8,
+    "verified_original_image_authors": 10,
+    "deduplicated_originals_in_manifest": 10,
+    "categorized_originals": 10,
+    "uncategorized_originals": 0,
+    "metadata_only_candidates_pending_visual_review": 62
+  },
+  "milestones": {
+    "source_audit_every": 25,
+    "generate_comparison_every": 50,
+    "checkpoint_every": 25
+  },
+  "state": "in_progress_manual_session",
+  "last_checkpoint": "2026-10-08 / checkpoint 014",
+  "next_action": "Perform actual image-pixel inspection on C055-C063 using an image-visible route. Do not increase workload to 5 until at least 3 complete visual inspection cycles are demonstrated.",
+  "definitions": {
+    "metadata_reviewed_file_pages": "File pages whose metadata/descriptions were recorded; NOT a visual review.",
+    "visual_deep_reviews": "Actual pixels inspected with structured visible observations.",
+    "independent_authors_or_profiles_verified": "Distinct independently verified public creators/profiles; host domain count is not creator count.",
+    "generated_separate_luca_photo_tests": "Independent image generations, not collage panels.",
+    "thumbnail_visual_reviews": "Visible content directly inspected from web search thumbnails; distinct from full-resolution original review."
+  },
+  "research_loop": [
+    "inspect image and provenance",
+    "record observation and uncertainty",
+    "form new question",
+    "search external examples or technical sources",
+    "test competing explanations",
+    "update knowledge and schema only if justified",
+    "commit and read back",
+    "advance progress checkpoint"
+  ],
+  "constraints": [
+    "No deletion; archive old materials",
+    "Do not treat title as proof of camera",
+    "Distinguish observed fact, hypothesis, unknown",
+    "Do not claim background execution without automation",
+    "No synthetic image should be counted as real reference"
+  ]
+}

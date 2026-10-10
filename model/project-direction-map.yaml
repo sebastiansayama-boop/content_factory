@@ -174,6 +174,25 @@ directions:
     next_legitimate_step: complete Stage 1 Discovery for the bounded product case, then return for the smallest required bridge contract if later gates justify it
     return_point: docs/23_content_factory_operating_model.md, docs/30_product_development_lifecycle.md
 
+  - id: shared-character-production
+    goal: persistent characters in the existing ContentRun production cycle
+    status: BLOCKED
+    current_checkpoint: 10_records/2026-10-08-shared-character-production-cycle.md
+    proven:
+      - checksum-verified original import without candidate promotion
+      - full-resolution image plus caption and explicit revision-bound review
+      - Instagram ZIP export without fabricated publication
+      - restart and character/platform experience retrieval
+      - existing linked library publication compatibility with test adapter
+    unproven:
+      - actual Luka full-resolution visual identity
+      - live creative provider and external distribution in this task
+    research_needed: provider selection only after originals and an authorized live test
+    dependencies: [original reference, production image, owner identity review]
+    blocked_by: original Luka files unavailable; human visual review outstanding
+    next_legitimate_step: import preserved original and complete real Luka image/QC/export
+    return_point: docs/character/production_cycle.md
+
 map_requirements:
   direction_fields:
     - goal

@@ -105,6 +105,9 @@ class FactoryService:
     def __init__(self) -> None:
         root = Path(os.environ.get("FACTORY_DATA_DIR", "./data"))
         root.mkdir(parents=True, exist_ok=True)
+        from .character import CharacterCatalog
+        self.characters = CharacterCatalog(
+            Path(os.environ.get("FACTORY_CHARACTER_DIR", str(Path(__file__).resolve().parents[2] / "docs" / "character"))), root)
         self._store = RuntimeStore(root / "runtime.sqlite3")
         self._artifacts = ArtifactStore(root / "artifacts")
         self._content_runs = ContentRunStore(root / "content_runs.sqlite3")
@@ -354,10 +357,10 @@ class Handler(BaseHTTPRequestHandler):
 
         now = time.monotonic()
         client_ip = self.client_address[0]
-        if self._auth_failure_limited(client_ip, now):
-            self._json(429, {"error": "too many authentication failures"}, retry_after=60)
-            return
         if not self._authorized():
+            if self._auth_failure_limited(client_ip, now):
+                self._json(429, {"error": "too many authentication failures"}, retry_after=60)
+                return
             self._json(401, {"error": "missing or invalid API token"})
             return
         if self._rate_limited(self._authorized_requests, RATE_LIMIT_REQUESTS, now, RATE_LIMIT_WINDOW_SECONDS):

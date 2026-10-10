@@ -66,6 +66,8 @@ class AssetExecutor:
 
     def _execute(self, job: AssetJob) -> AssetExecution:
         provider = os.environ.get("FACTORY_ASSET_PROVIDER", "stub").strip().lower() or "stub"
+        if job.character and job.asset_type == "visual":
+            raise AssetExecutionError("character image requires verified import; generic stub/stock images cannot represent a persistent character")
         if provider == "stub":
             return self._execute_stub(job)
         if provider == "openverse":
@@ -78,6 +80,35 @@ class AssetExecutor:
             # Higgsfield is currently a visual provider; keep voice deterministic.
             return self._execute_stub(job)
         raise AssetExecutionError("FACTORY_ASSET_PROVIDER must be 'stub', 'openverse' or 'higgsfield'")
+
+    def import_image(self, job_id: str, source: Path, *, provenance: dict[str, Any]) -> AssetJob:
+        from .character import image_info
+        job = self.jobs.get(job_id)
+        if job is None or job.asset_type != "visual":
+            raise ValueError("a visual production job is required")
+        if job.status not in {"QUEUED", "FAILED"}:
+            raise ValueError("only queued or failed jobs accept an image import")
+        info = image_info(source)
+        if min(info["width"], info["height"]) < 512:
+            raise ValueError("production image must be full resolution, at least 512 pixels on each side")
+        if not str(provenance.get("source") or "").strip():
+            raise ValueError("image import requires provenance.source")
+        if job.character:
+            if provenance.get("character_revision_id") != job.character["revision_id"]:
+                raise ValueError("import must bind to the planned character revision")
+            if provenance.get("reference_id") not in {r["reference_id"] for r in job.character["references"]}:
+                raise ValueError("image import must identify a preserved character reference")
+        extension = {"JPEG": ".jpg", "PNG": ".png", "WEBP": ".webp"}[info["format"]]
+        path = self.root / "asset_jobs" / job.run_id / (job.asset_request_id + extension)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        import shutil
+        shutil.copyfile(source, path)
+        self.jobs.mark_running(job_id)
+        return self.jobs.complete(job_id, {
+            "asset_id": "asset-" + hashlib.sha256((job.job_id + info["sha256"]).encode()).hexdigest()[:24],
+            "provider": "imported", "path": str(path), "status": "READY",
+            "metadata": {**info, **provenance, "character_id": (job.character or {}).get("character_id")},
+        })
 
     def _execute_stub(self, job: AssetJob) -> AssetExecution:
         digest = hashlib.sha256(

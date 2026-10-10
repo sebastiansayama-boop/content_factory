@@ -1,0 +1,134 @@
+{
+  "date": "2026-10-08",
+  "purpose": "Independent audit of creator provenance, titles, camera metadata and sampling contamination",
+  "entries": [
+    {
+      "id": "A01",
+      "url": "https://commons.wikimedia.org/wiki/File:Friends_in_a_cafe_(22032394919).jpg",
+      "author": "Carlos Ebert",
+      "category": "friends_cafe",
+      "evidence": "Flickr source confirmed CC BY 2.0; Sony NEX-5 ISO800; software Photoshop 7.0; existing O07",
+      "review_level": "metadata_cross_checked",
+      "visually_inspected_in_this_cycle": false,
+      "counts_toward_500": false
+    },
+    {
+      "id": "A02",
+      "url": "https://commons.wikimedia.org/wiki/File:Friends_at_Cafe_de_Coral_2.JPG",
+      "author": "John Hill",
+      "category": "family_group",
+      "evidence": "own work 2008 Hong Kong; Sanyo Xacti VPC-CG9; existing O05",
+      "review_level": "metadata_cross_checked",
+      "visually_inspected_in_this_cycle": false,
+      "counts_toward_500": false
+    },
+    {
+      "id": "A03",
+      "url": "https://commons.wikimedia.org/wiki/File:Coffee_and_friends.jpg",
+      "author": "Abe.gova",
+      "category": "food_coffee_objects",
+      "evidence": "Own work Canon EOS 6D Mark II, 50mm, f/5.6, ISO100; title does not prove people visible",
+      "review_level": "metadata_cross_checked",
+      "visually_inspected_in_this_cycle": false,
+      "counts_toward_500": false
+    },
+    {
+      "id": "A04",
+      "url": "https://commons.wikimedia.org/wiki/File:Friends_at_the_Cafe_-_Flickr_-_pinemikey.jpg",
+      "author": "Michael Martin",
+      "category": "friends_cafe",
+      "evidence": "Flickr original dated 2011; Olympus; 650x850; candidate C016",
+      "review_level": "metadata_cross_checked",
+      "visually_inspected_in_this_cycle": false,
+      "counts_toward_500": false
+    },
+    {
+      "id": "A05",
+      "url": "https://commons.wikimedia.org/wiki/File:Friends_%2B_coffee_%3D_happiness.jpg",
+      "author": "Mahjuja Islam",
+      "category": "food_coffee_objects",
+      "evidence": "Own work OPPO A17, ISO4381, 1/20s, 4.05mm; existing O09",
+      "review_level": "metadata_cross_checked",
+      "visually_inspected_in_this_cycle": false,
+      "counts_toward_500": false
+    },
+    {
+      "id": "A06",
+      "url": "https://commons.wikimedia.org/wiki/File:Coffee_time_with_friends.jpg",
+      "author": "Mahjuja Islam",
+      "category": "food_coffee_objects",
+      "evidence": "Same author same day and 19 seconds apart as A05; likely near-duplicate shooting sequence, must check pixels before counting independent scene",
+      "review_level": "metadata_cross_checked",
+      "visually_inspected_in_this_cycle": false,
+      "counts_toward_500": false
+    },
+    {
+      "id": "A07",
+      "url": "https://commons.wikimedia.org/wiki/File:Friends_%26_Neighbours_Cafe_(9572627255).jpg",
+      "author": "Mike from Vancouver",
+      "category": "friends_cafe",
+      "evidence": "Flickr, 2013; title identifies cafe location, not necessarily people",
+      "review_level": "metadata_cross_checked",
+      "visually_inspected_in_this_cycle": false,
+      "counts_toward_500": false
+    },
+    {
+      "id": "A08",
+      "url": "https://commons.wikimedia.org/wiki/File:Friends_enjoy_drinks_and_snacks_at_a_table.jpg",
+      "author": "Shixart1985",
+      "category": "friends_cafe",
+      "evidence": "Own work Nikon Z6 f/1.4 ISO250; highly descriptive keywords; do not infer amateur candidness",
+      "review_level": "metadata_cross_checked",
+      "visually_inspected_in_this_cycle": false,
+      "counts_toward_500": false
+    },
+    {
+      "id": "A09",
+      "url": "https://commons.wikimedia.org/wiki/File:COFFEE_friends_-_panoramio.jpg",
+      "author": "Richard Mayer",
+      "category": "food_coffee_objects",
+      "evidence": "Panoramio original 2011; 'friends' may be venue name",
+      "review_level": "metadata_cross_checked",
+      "visually_inspected_in_this_cycle": false,
+      "counts_toward_500": false
+    },
+    {
+      "id": "A10",
+      "url": "https://commons.wikimedia.org/wiki/File:Friends_and_tea.jpg",
+      "author": "Mona Hassan Abo-Abda",
+      "category": "friends_cafe",
+      "evidence": "Own work 2019 Egypt, Wiki Loves Folklore; culturally distinct tea gathering",
+      "review_level": "metadata_cross_checked",
+      "visually_inspected_in_this_cycle": false,
+      "counts_toward_500": false
+    },
+    {
+      "id": "A11",
+      "url": "https://commons.wikimedia.org/wiki/File:Friends_Restaurant.jpg",
+      "author": "YoshiniSivakumar 123",
+      "category": "food_coffee_objects",
+      "evidence": "Title is restaurant name, no claim people are present",
+      "review_level": "metadata_cross_checked",
+      "visually_inspected_in_this_cycle": false,
+      "counts_toward_500": false
+    },
+    {
+      "id": "A12",
+      "url": "https://commons.wikimedia.org/wiki/File:Candid_(50358383057).jpg",
+      "author": "WabbitWanderer",
+      "category": "home_casual",
+      "evidence": "Author caption Ling checking vegetables backyard 2020; original Flickr provenance",
+      "review_level": "metadata_cross_checked",
+      "visually_inspected_in_this_cycle": false,
+      "counts_toward_500": false
+    }
+  ],
+  "findings": [
+    "A05 and A06 were taken 19 seconds apart by same author; likely one shooting session and not independent samples; this is a hypothesis until image comparison.",
+    "Names of businesses such as Friends Restaurant and Friends & Neighbours Cafe must not be parsed as people-in-photo.",
+    "A01 is a 2015 author-owned Flickr photograph but EXIF reports Photoshop 7.0; original camera file and uploaded edit should be distinguished.",
+    "A08 shows that self-uploaded 'own work' does not imply unstaged or smartphone-shot.",
+    "EXIF values can be misleading: A01 f/1 and 0mm focal length may reflect adapted manual lens or missing lens data, not a literal zero-mm lens."
+  ],
+  "counting_rule": "These are provenance audits only; do not increase visual original count."
+}

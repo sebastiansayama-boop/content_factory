@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "character_slug": "luka",
+  "reference_id": "luka-identity-retry-2026-10-09",
+  "status": "rejected_identity_drift",
+  "source_reference": {
+    "library_path": "/Luka/identity/luka-cafe-2026-10-08-original.png",
+    "library_file_id": "libfile_3630a4297fc08191abdd8cd1d73d9b89"
+  },
+  "last_candidate": {
+    "library_path": "/Luka/experiments/luka-cafe-identity-test-2026-10-09.png",
+    "library_file_id": "libfile_e382f609171c81919569eacc9384b455",
+    "generation_id": "d2e9213d-29d7-4bd7-b9fb-99697f79abef"
+  },
+  "prior_attempt_generation_id": "9c006971-5589-449b-bd2c-a5543e8f6a78",
+  "review": {
+    "visual_identity": "fail",
+    "behavioral_naturalism": "better_than_head-on-hand_portrait",
+    "specific_issues": [
+      "Face appears younger and more delicate than original portrait; jawline and nose altered",
+      "Facial hair much lighter",
+      "Two generated outputs reused nearly same clothing, cafe setting and pose"
+    ],
+    "generation_metadata": {
+      "edit_op": null,
+      "parent_gen_id": null
+    },
+    "identity_reference_conditioning": "not_verified",
+    "decision": "do_not_promote_or_publish"
+  },
+  "note": "Original source was visually reviewed in chat; generator did not provide evidence of a pixel-conditioned edit. No claim of verified identity preservation."
+}

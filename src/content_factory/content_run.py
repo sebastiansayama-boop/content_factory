@@ -45,6 +45,7 @@ class ContentRun:
     result: dict[str, object] | None
     created_at: str
     updated_at: str
+    character: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, object]:
         value = asdict(self)
@@ -110,6 +111,8 @@ class ContentRunStore:
             self._connection.execute("ALTER TABLE content_runs ADD COLUMN plan_json TEXT")
         if "result_json" not in columns:
             self._connection.execute("ALTER TABLE content_runs ADD COLUMN result_json TEXT")
+        if "character_json" not in columns:
+            self._connection.execute("ALTER TABLE content_runs ADD COLUMN character_json TEXT")
         self._connection.execute(
             "CREATE INDEX IF NOT EXISTS idx_content_runs_updated_at ON content_runs(updated_at DESC)"
         )
@@ -140,6 +143,7 @@ class ContentRunStore:
         goal: str = "",
         formats: tuple[str, ...] = (),
         constraints: tuple[str, ...] = (),
+        character: dict[str, Any] | None = None,
     ) -> ContentRun:
         now = _now()
         run = ContentRun(
@@ -155,14 +159,15 @@ class ContentRunStore:
             result=None,
             created_at=now,
             updated_at=now,
+            character=character,
         )
         with self._connection:
             self._connection.execute(
                 """
                 INSERT INTO content_runs(
                     run_id, title, brief, audience, goal, formats_json,
-                    constraints_json, status, plan_json, result_json, created_at, updated_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    constraints_json, status, plan_json, result_json, created_at, updated_at, character_json
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     run.run_id,
@@ -177,6 +182,7 @@ class ContentRunStore:
                     None,
                     run.created_at,
                     run.updated_at,
+                    json.dumps(character, ensure_ascii=False) if character is not None else None,
                 ),
             )
         return run
@@ -611,6 +617,7 @@ class ContentRunStore:
             result=json.loads(row["result_json"]) if row["result_json"] else None,
             created_at=row["created_at"],
             updated_at=row["updated_at"],
+            character=json.loads(row["character_json"]) if row["character_json"] else None,
         )
 
     def close(self) -> None:

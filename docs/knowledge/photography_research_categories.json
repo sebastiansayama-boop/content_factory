@@ -1,0 +1,136 @@
+{
+  "research_goal": "500 individual photos with source verification and visible pixel analysis",
+  "status": "taxonomy_with_ten_legacy_reviewed_originals",
+  "total_target": 500,
+  "categories": [
+    {
+      "id": "direct_selfie",
+      "target": 50,
+      "definition": "Direct phone selfies; camera absent from frame",
+      "verified_image_count": 1,
+      "source_candidate_count": 0
+    },
+    {
+      "id": "mirror_selfie",
+      "target": 45,
+      "definition": "Single mirror self portraits and recording device geometry",
+      "verified_image_count": 2,
+      "source_candidate_count": 0
+    },
+    {
+      "id": "multi_reflection",
+      "target": 15,
+      "definition": "Corner mirrors, windows, repeated reflections",
+      "verified_image_count": 1,
+      "source_candidate_count": 0
+    },
+    {
+      "id": "group_selfie",
+      "target": 35,
+      "definition": "Selfie with two or more people",
+      "verified_image_count": 1,
+      "source_candidate_count": 0
+    },
+    {
+      "id": "friend_shot_portrait",
+      "target": 45,
+      "definition": "Everyday portraits made by companion",
+      "verified_image_count": 0,
+      "source_candidate_count": 0
+    },
+    {
+      "id": "friends_cafe",
+      "target": 35,
+      "definition": "Social interactions at cafe and restaurants",
+      "verified_image_count": 1,
+      "source_candidate_count": 0
+    },
+    {
+      "id": "home_casual",
+      "target": 40,
+      "definition": "Home interiors, reading, relaxing, desk",
+      "verified_image_count": 0,
+      "source_candidate_count": 0
+    },
+    {
+      "id": "cooking_kitchen",
+      "target": 25,
+      "definition": "Food preparation and kitchen activity",
+      "verified_image_count": 0,
+      "source_candidate_count": 0
+    },
+    {
+      "id": "food_coffee_objects",
+      "target": 25,
+      "definition": "Ordinary food/drink object photographs",
+      "verified_image_count": 1,
+      "source_candidate_count": 0
+    },
+    {
+      "id": "street_city",
+      "target": 35,
+      "definition": "Urban walking, street, transit",
+      "verified_image_count": 0,
+      "source_candidate_count": 0
+    },
+    {
+      "id": "travel_outdoors",
+      "target": 35,
+      "definition": "Hiking, park, outdoor leisure",
+      "verified_image_count": 0,
+      "source_candidate_count": 0
+    },
+    {
+      "id": "night_low_light",
+      "target": 25,
+      "definition": "Dim rooms, streetlights, night",
+      "verified_image_count": 0,
+      "source_candidate_count": 0
+    },
+    {
+      "id": "family_group",
+      "target": 25,
+      "definition": "Family gatherings and mixed gaze",
+      "verified_image_count": 2,
+      "source_candidate_count": 0
+    },
+    {
+      "id": "work_study",
+      "target": 25,
+      "definition": "Working, studying, laptop, coworking",
+      "verified_image_count": 0,
+      "source_candidate_count": 0
+    },
+    {
+      "id": "activity_motion",
+      "target": 25,
+      "definition": "Sports, movement, pets, everyday action",
+      "verified_image_count": 0,
+      "source_candidate_count": 0
+    },
+    {
+      "id": "environmental_wide",
+      "target": 15,
+      "definition": "Wide scenes with small human subjects",
+      "verified_image_count": 1,
+      "source_candidate_count": 0
+    }
+  ],
+  "inclusion_rules": [
+    "One stable original file URL per image",
+    "Record visible content from pixels before counting visually reviewed",
+    "Record creator/license/source when available",
+    "No inferred camera mode from title alone",
+    "Exclude illustrations and generated imagery from real photo total",
+    "Mark staged or stock photos distinctly",
+    "Deduplicate by source URL and visual duplicates"
+  ],
+  "sampling_rule": "Include diverse photographers, devices, years, light conditions and capture situations; do not use category size as a proxy for natural-photo quality.",
+  "progress_reconciliation": "Existing O01-O10 reviewed originals require migration into item-level manifest before category counts are populated. Do not misrepresent target allocations as evidence.",
+  "reference_category_sources": [
+    "https://commons.wikimedia.org/wiki/Category:Selfies",
+    "https://commons.wikimedia.org/wiki/Category:People_in_caf%C3%A9s",
+    "https://commons.wikimedia.org/wiki/Category:Family_portrait_photographs"
+  ],
+  "created_at": "2026-10-08"
+}

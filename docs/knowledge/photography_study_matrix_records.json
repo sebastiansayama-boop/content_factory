@@ -1,0 +1,6505 @@
+{
+  "schema_version": "1.0",
+  "created_at": "2026-10-08",
+  "method": "Do not fill visually observable properties without inspecting pixels. Missing data is null. Legacy status preserved, not revalidated.",
+  "fields": [
+    "scene",
+    "photographer",
+    "camera",
+    "distance",
+    "angle",
+    "composition",
+    "lighting",
+    "exposure",
+    "color",
+    "focus",
+    "motion",
+    "body_pose",
+    "expression",
+    "clothing",
+    "environment",
+    "interaction",
+    "imperfections",
+    "processing"
+  ],
+  "records": [
+    {
+      "photo_id": "O01",
+      "category": "mirror_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Selfie_of_iPhone_in_Mirror.jpg",
+      "source_type": "legacy_original",
+      "review_status": "legacy_visual_review_reported_not_revalidated",
+      "count_toward_500": "legacy_reported_only",
+      "evidence": {
+        "legacy_journal": "docs/knowledge/everyday_photography_observations.md"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": "Apple iPhone SE, 2.15mm, f/2.4, ISO160, 1/20s; flash fired",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons EXIF, file dimensions; direct source verified 2026-10-08"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": "Portrait image, 960×1280 pixels",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons EXIF, file dimensions; direct source verified 2026-10-08"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": "iOS 13.3 software recorded in EXIF",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons EXIF, file dimensions; direct source verified 2026-10-08"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "O02",
+      "category": "mirror_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Shirtless_man_taking_bathroom_mirror_selfie_with_Fujifilm_X-E2_camera_and_XF18-55mm_lens_(DSCF0902).jpg",
+      "source_type": "legacy_original",
+      "review_status": "legacy_visual_review_reported_not_revalidated",
+      "count_toward_500": "legacy_reported_only",
+      "evidence": {
+        "legacy_journal": "docs/knowledge/everyday_photography_observations.md"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "O03",
+      "category": "multi_reflection",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Man_photographing_himself_in_hotel_bathroom_with_mirrors_all_around_to_generate_illusion.jpg",
+      "source_type": "legacy_original",
+      "review_status": "legacy_visual_review_reported_not_revalidated",
+      "count_toward_500": "legacy_reported_only",
+      "evidence": {
+        "legacy_journal": "docs/knowledge/everyday_photography_observations.md"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "O04",
+      "category": "direct_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:My_selfie,_July_2017.jpg",
+      "source_type": "legacy_original",
+      "review_status": "legacy_visual_review_reported_not_revalidated",
+      "count_toward_500": "legacy_reported_only",
+      "evidence": {
+        "legacy_journal": "docs/knowledge/everyday_photography_observations.md"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "O05",
+      "category": "family_group",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Friends_at_Cafe_de_Coral_2.JPG",
+      "source_type": "legacy_original",
+      "review_status": "legacy_visual_review_reported_not_revalidated",
+      "count_toward_500": "legacy_reported_only",
+      "evidence": {
+        "legacy_journal": "docs/knowledge/everyday_photography_observations.md"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "O06",
+      "category": "group_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Group_selfie.jpg",
+      "source_type": "legacy_original",
+      "review_status": "legacy_visual_review_reported_not_revalidated",
+      "count_toward_500": "legacy_reported_only",
+      "evidence": {
+        "legacy_journal": "docs/knowledge/everyday_photography_observations.md"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": "Huawei smartphone according to legacy notes",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Legacy journal only; needs current source recheck"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "O07",
+      "category": "friends_cafe",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Friends_in_a_cafe_(22032394919).jpg",
+      "source_type": "legacy_original",
+      "review_status": "legacy_visual_review_reported_not_revalidated",
+      "count_toward_500": "legacy_reported_only",
+      "evidence": {
+        "legacy_journal": "docs/knowledge/everyday_photography_observations.md"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "O08",
+      "category": "environmental_wide",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Sharing_a_family_dinner.jpg",
+      "source_type": "legacy_original",
+      "review_status": "legacy_visual_review_reported_not_revalidated",
+      "count_toward_500": "legacy_reported_only",
+      "evidence": {
+        "legacy_journal": "docs/knowledge/everyday_photography_observations.md"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "O09",
+      "category": "food_coffee_objects",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Friends_%2B_coffee_%3D_happiness.jpg",
+      "source_type": "legacy_original",
+      "review_status": "legacy_visual_review_reported_not_revalidated",
+      "count_toward_500": "legacy_reported_only",
+      "evidence": {
+        "legacy_journal": "docs/knowledge/everyday_photography_observations.md"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "O10",
+      "category": "family_group",
+      "source_url": "https://commons.wikimedia.org/wiki/File:RD_Family_pic_candid_shot.JPG",
+      "source_type": "legacy_original",
+      "review_status": "legacy_visual_review_reported_not_revalidated",
+      "count_toward_500": "legacy_reported_only",
+      "evidence": {
+        "legacy_journal": "docs/knowledge/everyday_photography_observations.md"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C001",
+      "category": "work_study",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Man_working_on_laptop_and_drinking_coffee_in_cafeteria.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Shixart1985",
+        "source_metadata": "Nikon D610; 35 mm; f/1.4; ISO200",
+        "selection_bias": "professional_or_staged_possible"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C002",
+      "category": "work_study",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Man_working_on_laptop_while_enjoying_a_cold_beverage_in_a_cozy_cafe_setting.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Shixart1985",
+        "source_metadata": "Nikon Z6; 85 mm; f/1.8; ISO250; Lightroom",
+        "selection_bias": "professional_or_staged_possible"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C003",
+      "category": "work_study",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Businesswoman_enjoys_coffee_and_snack_while_working_on_laptop_in_modern_kitchen.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Shixart1985",
+        "source_metadata": "Nikon Z6 III; 6048x4032",
+        "selection_bias": "professional_or_staged_possible"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C004",
+      "category": "work_study",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Professional_woman_enjoying_coffee_while_working_on_laptop_at_a_cozy_desk_in_a_well-lit_room_during_morning_hours.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Shixart1985",
+        "source_metadata": "3962x2645",
+        "selection_bias": "professional_or_staged_possible"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C005",
+      "category": "travel_outdoors",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Friends_on_a_hike_SR_cdm_(10290904385).jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "unverified",
+        "source_metadata": "4000x3000; 2013",
+        "selection_bias": "unverified"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C006",
+      "category": "travel_outdoors",
+      "source_url": "https://commons.wikimedia.org/wiki/File:YR_Hiking_with_a_few_friends_(15611231713).jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "unverified",
+        "source_metadata": "4288x2848; 2015",
+        "selection_bias": "unverified"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C007",
+      "category": "travel_outdoors",
+      "source_url": "https://commons.wikimedia.org/wiki/File:YR_Hiking_with_a_few_friends_(16045239627).jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "unverified",
+        "source_metadata": "4288x2848; 2015",
+        "selection_bias": "unverified"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C008",
+      "category": "travel_outdoors",
+      "source_url": "https://commons.wikimedia.org/wiki/File:YR_Hiking_with_a_few_friends_(16043693230).jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "unverified",
+        "source_metadata": "4288x2848; 2015",
+        "selection_bias": "unverified"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C009",
+      "category": "travel_outdoors",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Hiking_in_bud_bongao.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "unverified",
+        "source_metadata": "3000x4000",
+        "selection_bias": "unverified"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C010",
+      "category": "work_study",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Businesswoman_has_coffee_and_snacks_while_working_on_laptop.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Shixart1985",
+        "source_metadata": "Nikon Z6 III; 6048x4032",
+        "selection_bias": "professional_or_staged_possible"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C011",
+      "category": "work_study",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Young_woman_enjoys_morning_routine_working_on_laptop_with_coffee_and_pastries_in_cozy_room.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Shixart1985",
+        "source_metadata": "Nikon D610; 6016x4016",
+        "selection_bias": "professional_or_staged_possible"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C012",
+      "category": "work_study",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Businessman_working_on_laptop_in_a_modern_restaurant.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Shixart1985",
+        "source_metadata": "Nikon Z6; 6048x4024",
+        "selection_bias": "professional_or_staged_possible"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C013",
+      "category": "work_study",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Woman_enjoying_coffee_while_working_on_laptop_in_cozy_indoor_space_during_daytime.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Shixart1985",
+        "source_metadata": "Nikon D610; 35 mm; f/1.4",
+        "selection_bias": "professional_or_staged_possible"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C014",
+      "category": "work_study",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Professional_woman_working_on_laptop_at_modern_desk_with_coffee_in_bright_office.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Shixart1985",
+        "source_metadata": "Nikon D610; 4016x6016",
+        "selection_bias": "professional_or_staged_possible"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C015",
+      "category": "travel_outdoors",
+      "source_url": "https://commons.wikimedia.org/wiki/File:A_group_of_friends_on_a_casual_hike.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Altitonantis",
+        "source_metadata": "Nikon D3500; 6000×4000; CC0",
+        "selection_bias": "unassessed"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C016",
+      "category": "friends_cafe",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Friends_at_the_Cafe_-_Flickr_-_pinemikey.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Michael Martin",
+        "source_metadata": "Olympus digital camera; 650×850; Flickr CC BY-SA 2.0",
+        "selection_bias": "unassessed"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C017",
+      "category": "friends_cafe",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Friends_(153424261).jpeg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Marta Borchiellini",
+        "source_metadata": "2048×1536; 500px archive",
+        "selection_bias": "unassessed"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C018",
+      "category": "travel_outdoors",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Hiking_(114232935).jpeg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Bernhard Hanakam",
+        "source_metadata": "2048×1365; 500px archive",
+        "selection_bias": "unassessed"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C019",
+      "category": "friends_cafe",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Coffee_and_friends.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Abe.gova",
+        "source_metadata": "4029×5037; CC BY-SA 4.0",
+        "selection_bias": "unassessed"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C020",
+      "category": "food_coffee_objects",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Coffee_time_with_friends.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Mahjuja Islam",
+        "source_metadata": "3072×4080; CC0; creator overlaps O09; check image duplication",
+        "selection_bias": "unassessed"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C021",
+      "category": "friends_cafe",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Friends_enjoy_drinks_and_snacks_at_a_table.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Shixart1985",
+        "source_metadata": "Nikon Z6; 4024×6048; potentially staged",
+        "selection_bias": "repeated_professional_author"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C022",
+      "category": "travel_outdoors",
+      "source_url": "https://commons.wikimedia.org/wiki/File:YR_Hiking_with_a_few_friends_(15611231713).jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "unverified",
+        "source_metadata": "4288×2848; first day hike",
+        "selection_bias": "unassessed"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C023",
+      "category": "group_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:A_man_and_woman_enjoy_a_sunny_day_at_a_cafe,_taking_a_selfie_together.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "unverified",
+        "source_metadata": "85mm lens; likely photo OF selfie action, not selfie output",
+        "selection_bias": "unassessed"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C024",
+      "category": "food_coffee_objects",
+      "source_url": "https://commons.wikimedia.org/wiki/File:COFFEE_friends_-_panoramio.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "unverified",
+        "source_metadata": "2816×2120; Panoramio mirror",
+        "selection_bias": "unassessed"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C025",
+      "category": "family_group",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Family_sitting_outside.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "David Atoroyo Sika",
+        "source_metadata": "South Sudan; 6000x4000; 2017; CC BY-SA 4.0",
+        "selection_bias": "verify_group_portrait_vs_everyday_scene"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C026",
+      "category": "family_group",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Family_outdoor_outing.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Irsam Photography",
+        "source_metadata": "2020; 1000x667; CC BY-SA 4.0",
+        "selection_bias": "verify_group_portrait_vs_everyday_scene"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C027",
+      "category": "family_group",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Family_standing_outside.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Linda Bartlett",
+        "source_metadata": "1800x2700; US government public domain",
+        "selection_bias": "verify_group_portrait_vs_everyday_scene"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C028",
+      "category": "home_casual",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Candid_(50358383057).jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "WabbitWanderer",
+        "source_metadata": "Panasonic DMC-ZS50; 4000x3000; 2020; CC BY-SA 2.0; author describes garden vegetable checking",
+        "selection_bias": "unassessed"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C029",
+      "category": "friends_cafe",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Friends_%26_Neighbours_Cafe_(9572627255).jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Mike from Vancouver",
+        "source_metadata": "4000x3000; 2013; CC BY-SA",
+        "selection_bias": "unassessed"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C030",
+      "category": "friends_cafe",
+      "source_url": "https://commons.wikimedia.org/wiki/File:One_of_the_best_friends_of_mine_who_is_banned_from_univesity,_opened_a_coffeeshop_today._(3968725959).jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "unverified",
+        "source_metadata": "1152x864; 2009; original source description",
+        "selection_bias": "unassessed"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C031",
+      "category": "family_group",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Family_group_photo,_South_Devon,_late_19th_century.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "unknown amateur photographer",
+        "source_metadata": "glass-plate scan, 1870–1891; historical comparison only, not contemporary lifestyle",
+        "selection_bias": "verify_group_portrait_vs_everyday_scene"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C033",
+      "category": "friend_shot_portrait",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Selfie_with_phone.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Fquasie",
+        "source_metadata": "Canon EOS Rebel T4i, 62mm, 1/200s, ISO100; photographer photographed a woman taking selfie in Ghana, NOT phone selfie output",
+        "selection_bias": "targeted_selfie_search"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C034",
+      "category": "friend_shot_portrait",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Selfie_with_phone_2.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Fquasie",
+        "source_metadata": "Canon EOS Rebel T4i, 62mm, 1/200s, ISO100; same author same second with subsecond 99 vs 01, possible burst/session duplicate",
+        "selection_bias": "targeted_selfie_search"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C035",
+      "category": "direct_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:My_selfie_(7_September_2022)_(cropped).jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Alex Neman",
+        "source_metadata": "Samsung Galaxy Note 20 Ultra; derivative of My selfie (7 September 2022).jpg, crop is NOT independent photograph",
+        "selection_bias": "targeted_selfie_search"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C036",
+      "category": "direct_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:My_face.png",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Jnagy3",
+        "source_metadata": "author reports old phone, woods, 2022; low-resolution PNG; no face-image reuse permission implied",
+        "selection_bias": "targeted_selfie_search"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C037",
+      "category": "direct_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Indoor_selfie_2022.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Utkarshsingh234",
+        "source_metadata": "1824x4000 tall aspect ratio; own work; 2022",
+        "selection_bias": "targeted_selfie_search"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C038",
+      "category": "travel_outdoors",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Tourist_Rudolph.A.Furtado_'Selfie'_at_Chobe_National_Park_in_Botswana.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Rudolph.A.furtado",
+        "source_metadata": "3264x2448; author reports selfie with elephant from safari jeep",
+        "selection_bias": "targeted_selfie_search"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C039",
+      "category": "direct_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Selfie-3.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Dahan.ori",
+        "source_metadata": "800x600, 49KB; own work",
+        "selection_bias": "targeted_selfie_search"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C040",
+      "category": "direct_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:A_selfie_taken_by_a_man_using_an_%22I_love_Wikipedia%22_filter.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "إيان",
+        "source_metadata": "iPhone 12 Pro, 2.71mm, ISO500, 1/58s; EXIF CameraPosition=2, Instagram software; explicit digital filter",
+        "selection_bias": "targeted_selfie_search"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C041",
+      "category": "mirror_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Man_taking_whole_body_selfie_in_mirror_and_looking_strangely_due_to_status_of_high_concentration.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Pittigrilli",
+        "source_metadata": "2002x3400, modified/retouched upload; preserve derivative status",
+        "selection_bias": "targeted_selfie_search"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C042",
+      "category": "direct_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Rickallisonselfie.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Rickallisonmusic",
+        "source_metadata": "iPhone XR; 2316x3088",
+        "selection_bias": "targeted_selfie_search"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C043",
+      "category": "travel_outdoors",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Rotoiti_selfie.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Sebastiansmartguy101",
+        "source_metadata": "own work 2022; location metadata present (do not copy GPS)",
+        "selection_bias": "targeted_selfie_search"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C044",
+      "category": "direct_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Paul_Kaganer%2C_selfie_(2022-05-29).jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Paul Kaganer",
+        "source_metadata": "1150x1150 square crop; own work",
+        "selection_bias": "targeted_selfie_search"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C045",
+      "category": "direct_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Image_selfie.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "EmersonironmanBR",
+        "source_metadata": "iPhone 11 Pro Max, 3024x4032, 1/30s ISO640; 2023 UN event",
+        "selection_bias": "selfie_search; derivative_check_required"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C046",
+      "category": "direct_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Selfie_Christopher_Flach_NYC_self_portrait_500cm.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Christopher Flach",
+        "source_metadata": "iPhone 5s, 480x640; small exported file",
+        "selection_bias": "selfie_search; derivative_check_required"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C047",
+      "category": "friend_shot_portrait",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Lily_Cao_taking_selfies_with_selfie_stick_and_iPhone_on_the_stage_20231112.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Solomon203",
+        "source_metadata": "photo OF selfie-taking, not selfie output; 2592x4608",
+        "selection_bias": "selfie_search; derivative_check_required"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C048",
+      "category": "multi_reflection",
+      "source_url": "https://commons.wikimedia.org/wiki/File:What_should_be_an_experimental_selfie_became_really_strange.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Pittigrilli",
+        "source_metadata": "iPhone 6s, 1/17s ISO800; shop-window layered reflection and exaggerated near-glass hands",
+        "selection_bias": "selfie_search; derivative_check_required"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C049",
+      "category": "direct_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Ksenia_Zadvornova.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Ricco Baroni",
+        "source_metadata": "selfie description, photographer identity ambiguous, needs attribution check",
+        "selection_bias": "selfie_search; derivative_check_required"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C050",
+      "category": "friend_shot_portrait",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Two_women_taking_selfie_on_06_0016_(20230214172527).jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "N509FZ",
+        "source_metadata": "photo OF two women taking selfie; Beijing transport scene",
+        "selection_bias": "selfie_search; derivative_check_required"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C051",
+      "category": "direct_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Moss_selfie.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "MossAlbatross",
+        "source_metadata": "3024x4032 original; has derived crop, do not count crop separately",
+        "selection_bias": "selfie_search; derivative_check_required"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C052",
+      "category": "direct_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Aravind_AV_selfie_image.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "అరవింద్ ఏవి",
+        "source_metadata": "iPhone EXIF, 2316x3088",
+        "selection_bias": "selfie_search; derivative_check_required"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C053",
+      "category": "direct_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Giant_house_spider_(Eratigena_atrica)_crawling._61-year-old_man%2C_long%2C_messy_eyebrows%2C_wrinkled_forehead._Selfie._Close-up._Stor_husedderkopp_p%C3%A5_rynkete_panne._Norway_2023-10-24_IMG_4243_2.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Wolfmann",
+        "source_metadata": "2023 close-up selfie; extreme unusual subject; exclude from typical lifestyle prevalence",
+        "selection_bias": "selfie_search; derivative_check_required"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C054",
+      "category": "direct_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Moss_selfie_(cropped).jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "MossAlbatross",
+        "source_metadata": "derivative of Moss selfie.jpg, NOT independent capture",
+        "selection_bias": "selfie_search; derivative_check_required"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C055",
+      "category": "mirror_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Selfie_in_the_mirror.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Tiraspolsky",
+        "source_metadata": "Canon EOS 1000D; 537x768; 2010; ISO1600; f/4; 28mm; 1/160s",
+        "selection_bias": "mirror shot, DSLR not smartphone"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": "Canon EOS 1000D, 28mm, f/4, ISO1600, 1/160s",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons EXIF and file dimensions in source metadata"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": "537×768 portrait upload",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons EXIF and file dimensions in source metadata"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C056",
+      "category": "mirror_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Selfie_at_a_mirror_of_the_hotel.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "ShiminUfesoj",
+        "source_metadata": "3072x4096; 2025; ISO2500; f/1.5; 4.941mm; 1/40s",
+        "selection_bias": "low-light phone-like EXIF; camera model not yet checked"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": "4.941mm, f/1.5, ISO2500, 1/40s",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons EXIF and file dimensions in source metadata"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": "3072×4096 portrait upload",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons EXIF and file dimensions in source metadata"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C057",
+      "category": "mirror_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Selfie_in_a_mirror_2015.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "The Swede",
+        "source_metadata": "1042x1500; 2015; black-and-white processed version uploaded 2021; ISO1000; 98mm",
+        "selection_bias": "later edited version; capture and upload dates differ"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": "1042×1500 portrait upload",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons description and file history"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": "Black-and-white processed image; upload later than 2015 capture",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons description and file history"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C058",
+      "category": "multi_reflection",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Selfie_in_a_branch_mirror.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "The Swede",
+        "source_metadata": "1500x1004; ceiling mirror; 2016; same author as previous",
+        "selection_bias": "repeat author, novel scene"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C059",
+      "category": "mirror_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:K6ka_mirror_selfie_with_D7100_2020-10-10.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Enoch Leung",
+        "source_metadata": "2503x3129; Nikon D7100 with 35mm f/1.8G; 2020",
+        "selection_bias": "DSLR mirror selfie, not phone"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": "Nikon D7100, 35mm f/1.8 lens",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons source metadata"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": "2503×3129 portrait upload",
+          "evidence_level": "source_metadata_or_caption",
+          "evidence_source": "Commons source metadata"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C060",
+      "category": "mirror_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Mirror_selfie_kish.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Mr.Farbod Delavarnia",
+        "source_metadata": "607x1080; 2025; CC0",
+        "selection_bias": "low-resolution upload"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C061",
+      "category": "multi_reflection",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Selfie_in_a_traffic_mirror_in_Castellaro_Lagusello_(MN)_-_Italy_01.JPG",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Dario Crespi",
+        "source_metadata": "3888x2592; outdoor traffic mirror; 2014",
+        "selection_bias": "convex public mirror"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C062",
+      "category": "multi_reflection",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Sink_area_with_a_Fujifilm_X-E2_taking_a_selfie_through_a_broken_mirror_in_Sanatorium_du_Basil%2C_Stoumont%2C_Belgium_(DSCF3528-hdr).jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "Trougnouf",
+        "source_metadata": "4921x3106; 2018; Fujifilm X-E2; HDR",
+        "selection_bias": "HDR and broken mirror; atypical for amateur phone"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    },
+    {
+      "photo_id": "C063",
+      "category": "mirror_selfie",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Roland_Neveu_%E2%80%98selfie'.jpg",
+      "source_type": "candidate",
+      "review_status": "metadata_only",
+      "count_toward_500": false,
+      "evidence": {
+        "author": "RNBKK",
+        "source_metadata": "2041x3000; 1973 analog self portrait",
+        "selection_bias": "historical reference; exclude modern prevalence"
+      },
+      "analysis": {
+        "scene": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "photographer": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "camera": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "distance": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "angle": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "composition": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "lighting": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "exposure": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "color": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "focus": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "motion": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "body_pose": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "expression": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "clothing": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "environment": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "interaction": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "imperfections": {
+          "value": null,
+          "evidence_level": "unknown"
+        },
+        "processing": {
+          "value": null,
+          "evidence_level": "unknown"
+        }
+      },
+      "observations": [],
+      "hypotheses": [],
+      "generation_rules": []
+    }
+  ],
+  "audit": {
+    "total_records": 72,
+    "source_verified_parameter_cells": 12,
+    "visual_parameter_cells_new": 0,
+    "remaining_visual_work": "Requires actual image pixel inspection, not inferred from captions"
+  }
+}

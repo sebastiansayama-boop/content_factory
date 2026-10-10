@@ -254,3 +254,12 @@ real external publication       OPTIONAL (HTTPS webhook)
 The application is v1.0 for personal/local use. The repository's production deployment definition uses a persistent `/data` disk; the current lightweight Render preview service uses ephemeral filesystem storage and therefore must not be treated as the durable production deployment until that storage configuration is applied.
 
 See `docs/v1.0_release.md` for the release contract and explicit non-goals.
+
+## Persistent character photo workflow
+
+The existing workspace can select a repository character, import verified
+originals and a production photo, prepare/edit a caption, perform explicit
+identity/QC review, approve and export an Instagram publication ZIP.
+Thematic runs and existing Telegram series use the same services.
+See [shared character production](docs/character/production_cycle.md) for the
+operator workflow and the precise limits of current Luka evidence.

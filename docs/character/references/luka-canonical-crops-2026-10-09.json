@@ -1,0 +1,83 @@
+{
+  "schema_version": "1.0",
+  "parent": {
+    "reference_id": "luka-canonical-board-2026-10-09",
+    "library_file_id": "libfile_9eb6d18d91088191a19ab9611827a62c",
+    "image_dimensions": [
+      1536,
+      1024
+    ]
+  },
+  "method": "literal non-generative image crop; no upscaling or alteration",
+  "status": "prepared_not_verified_in_provider",
+  "crops": [
+    {
+      "name": "front",
+      "box": [
+        457,
+        5,
+        729,
+        343
+      ],
+      "library_path": "/Luka/identity/reference_crops/luka_front.png",
+      "library_file_id": "libfile_ebc2ae44a5608191bf724451c82e71b4",
+      "sha256": "0fdaffb07f1b59721e4dad0de1e8fba0eefe1d3066ae77b82ed802225cb91617"
+    },
+    {
+      "name": "three_quarter",
+      "box": [
+        733,
+        5,
+        1007,
+        343
+      ],
+      "library_path": "/Luka/identity/reference_crops/luka_three_quarter.png",
+      "library_file_id": "libfile_abc6b808cb8c819198aa47df80325f6a",
+      "sha256": "734122b48e9e46ace28e94615b0cc73d0e7f16af6900893e01abe2662cc25c31"
+    },
+    {
+      "name": "profile",
+      "box": [
+        1014,
+        5,
+        1279,
+        343
+      ],
+      "library_path": "/Luka/identity/reference_crops/luka_profile.png",
+      "library_file_id": "libfile_f3a37930ae3481919dc30c33018dedb1",
+      "sha256": "1bdcb26cddf1079c4776c662469b487189a792ea215b348bb2c91d04b6c28399"
+    },
+    {
+      "name": "full_body_front",
+      "box": [
+        458,
+        406,
+        666,
+        787
+      ],
+      "library_path": "/Luka/identity/reference_crops/luka_full_body_front.png",
+      "library_file_id": "libfile_b4fbcbb47c0c8191a6611e6626d35822",
+      "sha256": "0e62c6bf2eb1803939168b03b44f4768cde9cb5c1fc5d90aeec285a2fed8c142"
+    },
+    {
+      "name": "main_portrait",
+      "box": [
+        35,
+        110,
+        442,
+        690
+      ],
+      "library_path": "/Luka/identity/reference_crops/luka_main_portrait.png",
+      "library_file_id": "libfile_cf0585f5b038819182ba7d6bfcf6bfe5",
+      "sha256": "1286af27cb5c5bed8cbf390ffee3c6c40a69659a71315ce32ce03bd9abe92fb8"
+    }
+  ],
+  "test": {
+    "provider": "runway",
+    "model": "nano-banana-pro",
+    "scene": "morning_market_peach_selection",
+    "status": "not_submitted",
+    "reason": "Reference upload rejected by connector validation: file field requires provider-native object; cannot establish conditioned reference through available interface.",
+    "credits_used": 0
+  }
+}

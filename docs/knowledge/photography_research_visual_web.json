@@ -1,0 +1,123 @@
+{
+  "created_at": "2026-10-08",
+  "review_level": "visible_web_image_previews",
+  "records": [
+    {
+      "id": "W01",
+      "category": "mirror_selfie",
+      "url": "https://thewpwire.org/staff_name/ainsley-moran/",
+      "image_url": "https://thewpwire.org/wp-content/uploads/2024/09/image_50734593-991x1200.jpg",
+      "observed": [
+        "phone held at upper-right relative to torso",
+        "head left of phone and slightly tilted",
+        "white subway-tile wall and dark door in mirror",
+        "counter and sink intrude in lower frame",
+        "one hand rests on hip"
+      ],
+      "caveat": "Website profile photograph; amateur origin unverified"
+    },
+    {
+      "id": "W02",
+      "category": "mirror_selfie",
+      "url": "https://www.spareroom.co.uk/flatmate/17082699",
+      "image_url": "https://photos2.spareroom.co.uk/images/flatshare/listings/large/90/25/90256678.jpg",
+      "observed": [
+        "phone occupies left side of reflection near face",
+        "bathroom sinks and mirror seams visible",
+        "torso centered and face fully visible",
+        "bright ceiling light creates top-heavy illumination"
+      ],
+      "caveat": "Profile image; not evidence of typical prevalence"
+    },
+    {
+      "id": "W03",
+      "category": "friends_cafe",
+      "url": "https://houston.culturemap.com/news/society/08-14-11-bayou-buddies-new-montrose-whole-foods-and-buffalo-bayou-partnership-turn-up-the-party-heat",
+      "image_url": "https://culturemedia.s3.amazonaws.com/photos/2011-08-11/Bayou_Buddies_2667.jpg",
+      "observed": [
+        "four people posed near cafe table",
+        "leftmost person's face cropped at frame edge",
+        "bright window backlighting",
+        "wood table dominates lower foreground",
+        "all mostly face camera"
+      ],
+      "caveat": "Event photo, not spontaneous candid"
+    },
+    {
+      "id": "W04",
+      "category": "friends_cafe",
+      "url": "https://lweb.cfa.harvard.edu/itamp-photogallery?page=3",
+      "image_url": "https://lweb.cfa.harvard.edu/sites/www.cfa.harvard.edu/files/at%20cafe.JPG",
+      "observed": [
+        "seven or more people around two cafe tables",
+        "people at extreme left cut by frame",
+        "coffee cups and brick wall prominent",
+        "bright windows blow out exterior detail",
+        "gaze varies across group"
+      ],
+      "caveat": "Institutional group photo; faces and people partly occluded"
+    },
+    {
+      "id": "W05",
+      "category": "travel_outdoors",
+      "url": "https://www.authentikusa.com/en/blog/tipping-in-the-us-practical-guide",
+      "image_url": "https://cdn.authentik.com/usa/uploads/images/orig/blog/pourboire-aux-usa-guide-unsplash.jpg",
+      "observed": [
+        "group photographed from behind on trail",
+        "backpacks and water bottles prominent",
+        "foreground hikers partially crop at edges",
+        "warm backlight silhouettes clothing edges"
+      ],
+      "caveat": "Commercial travel article/Unsplash-sourced; staged possibility"
+    },
+    {
+      "id": "W06",
+      "category": "travel_outdoors",
+      "url": "https://www.auroraeggertcoaching.com/workshops-retreats-in-alberta",
+      "image_url": "https://static.wixstatic.com/media/11062b_4658efc1274c4bceb8691a44c65d6241~mv2.jpg/v1/fill/w_4586%2Ch_3057%2Cal_c%2Cq_90%2Cenc_auto/11062b_4658efc1274c4bceb8691a44c65d6241~mv2.jpg",
+      "observed": [
+        "lead hiker occupies large foreground",
+        "two companions smaller and further up trail",
+        "diagonal path and bright midday sunlight",
+        "lead person's backpack strap swings away from body"
+      ],
+      "caveat": "Commercial retreat imagery; likely staged, not counted as amateur evidence"
+    },
+    {
+      "id": "W07",
+      "category": "friends_cafe",
+      "url": "https://www.placemakr.com/blog/2500-penn-coffee-shops",
+      "image_url": "https://www.placemakr.com/hubfs/FriendswithCoffee.jpg",
+      "observed": [
+        "people converse around cafe table rather than look toward lens",
+        "person on far right cut off at frame edge",
+        "foreground cups and potted plant visible",
+        "background shelving and warm interior lights"
+      ],
+      "caveat": "Commercial marketing photo, cannot infer amateur distribution"
+    },
+    {
+      "id": "W08",
+      "category": "friends_cafe",
+      "url": "https://quicko.com/refer-a-friend",
+      "image_url": "https://framerusercontent.com/images/8D4TLzvopfjf4owXymPAd4wxapY.png?height=1024&width=1024",
+      "observed": [
+        "four subjects arranged tightly around round table",
+        "all faces cleanly lit and smiling",
+        "foreground cups and hands unobstructed",
+        "background people softly blurred"
+      ],
+      "caveat": "Commercial image, possibly generated or staged; exclude from real-photo denominator until provenance verified"
+    }
+  ],
+  "counts": {
+    "visible_web_previews": 8,
+    "eligible_verified_amateur_originals": 0
+  },
+  "rules": [
+    "These eight are not new full-original inspections",
+    "Commercial or potentially generated images cannot be assumed real amateur photos",
+    "Do not add to 500 original-reviewed count",
+    "Observations are from images displayed by image search, not text descriptions"
+  ]
+}

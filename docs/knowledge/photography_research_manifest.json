@@ -1,0 +1,97 @@
+{
+  "purpose": "Individual source-level inventory; legacy original-image reviews migrated from audit 007–009",
+  "count": 10,
+  "records": [
+    {
+      "id": "O01",
+      "category": "mirror_selfie",
+      "source": "https://commons.wikimedia.org/wiki/File:Selfie_of_iPhone_in_Mirror.jpg",
+      "review_status": "original_visual_review_reported_in_legacy_journal",
+      "review_notes_location": "docs/knowledge/everyday_photography_observations.md",
+      "verified_creator_identity": "see legacy journal",
+      "license_status": "verify before reuse"
+    },
+    {
+      "id": "O02",
+      "category": "mirror_selfie",
+      "source": "https://commons.wikimedia.org/wiki/File:Shirtless_man_taking_bathroom_mirror_selfie_with_Fujifilm_X-E2_camera_and_XF18-55mm_lens_(DSCF0902).jpg",
+      "review_status": "original_visual_review_reported_in_legacy_journal",
+      "review_notes_location": "docs/knowledge/everyday_photography_observations.md",
+      "verified_creator_identity": "see legacy journal",
+      "license_status": "verify before reuse"
+    },
+    {
+      "id": "O03",
+      "category": "multi_reflection",
+      "source": "https://commons.wikimedia.org/wiki/File:Man_photographing_himself_in_hotel_bathroom_with_mirrors_all_around_to_generate_illusion.jpg",
+      "review_status": "original_visual_review_reported_in_legacy_journal",
+      "review_notes_location": "docs/knowledge/everyday_photography_observations.md",
+      "verified_creator_identity": "see legacy journal",
+      "license_status": "verify before reuse"
+    },
+    {
+      "id": "O04",
+      "category": "direct_selfie",
+      "source": "https://commons.wikimedia.org/wiki/File:My_selfie,_July_2017.jpg",
+      "review_status": "original_visual_review_reported_in_legacy_journal",
+      "review_notes_location": "docs/knowledge/everyday_photography_observations.md",
+      "verified_creator_identity": "see legacy journal",
+      "license_status": "verify before reuse"
+    },
+    {
+      "id": "O05",
+      "category": "family_group",
+      "source": "https://commons.wikimedia.org/wiki/File:Friends_at_Cafe_de_Coral_2.JPG",
+      "review_status": "original_visual_review_reported_in_legacy_journal",
+      "review_notes_location": "docs/knowledge/everyday_photography_observations.md",
+      "verified_creator_identity": "see legacy journal",
+      "license_status": "verify before reuse"
+    },
+    {
+      "id": "O06",
+      "category": "group_selfie",
+      "source": "https://commons.wikimedia.org/wiki/File:Group_selfie.jpg",
+      "review_status": "original_visual_review_reported_in_legacy_journal",
+      "review_notes_location": "docs/knowledge/everyday_photography_observations.md",
+      "verified_creator_identity": "see legacy journal",
+      "license_status": "verify before reuse"
+    },
+    {
+      "id": "O07",
+      "category": "friends_cafe",
+      "source": "https://commons.wikimedia.org/wiki/File:Friends_in_a_cafe_(22032394919).jpg",
+      "review_status": "original_visual_review_reported_in_legacy_journal",
+      "review_notes_location": "docs/knowledge/everyday_photography_observations.md",
+      "verified_creator_identity": "see legacy journal",
+      "license_status": "verify before reuse"
+    },
+    {
+      "id": "O08",
+      "category": "environmental_wide",
+      "source": "https://commons.wikimedia.org/wiki/File:Sharing_a_family_dinner.jpg",
+      "review_status": "original_visual_review_reported_in_legacy_journal",
+      "review_notes_location": "docs/knowledge/everyday_photography_observations.md",
+      "verified_creator_identity": "see legacy journal",
+      "license_status": "verify before reuse"
+    },
+    {
+      "id": "O09",
+      "category": "food_coffee_objects",
+      "source": "https://commons.wikimedia.org/wiki/File:Friends_%2B_coffee_%3D_happiness.jpg",
+      "review_status": "original_visual_review_reported_in_legacy_journal",
+      "review_notes_location": "docs/knowledge/everyday_photography_observations.md",
+      "verified_creator_identity": "see legacy journal",
+      "license_status": "verify before reuse"
+    },
+    {
+      "id": "O10",
+      "category": "family_group",
+      "source": "https://commons.wikimedia.org/wiki/File:RD_Family_pic_candid_shot.JPG",
+      "review_status": "original_visual_review_reported_in_legacy_journal",
+      "review_notes_location": "docs/knowledge/everyday_photography_observations.md",
+      "verified_creator_identity": "see legacy journal",
+      "license_status": "verify before reuse"
+    }
+  ],
+  "caveat": "These 10 entries were reviewed in previous turns; this migration does not constitute 10 new inspections."
+}

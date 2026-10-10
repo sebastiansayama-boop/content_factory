@@ -1,0 +1,79 @@
+# Luka — редакционный визуальный курс (2026-10-10)
+
+Статус: решения владельца, подтверждённые в чате; не утверждение о технически проверенной идентичности отдельных изображений.
+
+## Сущность персонажа
+- Лука — цифровой аватар владельца, виртуальная мужская фотомодель для Instagram `@luka.somewhere`; не приложение, не отдельная ИИ-модель.
+- Биографию не сочинять заранее: характер и события раскрываются в процессе публикаций.
+- Instagram-контент на английском; публично обозначен как virtual character / AI-created.
+- Внешность из `docs/character/character.json` не менять. Канон: approved `luka-canonical-board-2026-10-09` в ChatGPT Library. Не путать визуальную похожесть на словах с фактической передачей эталонного изображения в генератор.
+
+## Утверждённое изменение подачи
+- Отказ от попыток делать все изображения «случайными бытовыми фото» на природе. Пользователь неоднократно отметил искусственность пейзажей и синтетическую обработку одиночных портретов.
+- Основной формат теперь: тематические fashion/editorial/advertising-studio фотосессии, иногда чувственная мужская мода без откровенного сексуального контента.
+- Начальная тема: **NOIR** — чёрный tailored look, архитектурные тени, направленный свет, контраст, фактуры ткани/кожи, сдержанная драматичность.
+- **Визуальный эталон направления** (не паспорт лица): одобренный пользователем пятикадровый редакционный коллаж с сидячей позой в чёрном костюме, поворотом обнажённой спины, крупным профилем, полулежащей позой в белой рубашке и ростовым видом в пальто. Последний исходный коллаж в беседе: generation id `24077bfb-6392-4506-92e8-e2eda3d31c3c`; пользователь выбрал именно этот тип формата. Исходный ранее понравившийся коллаж `6b190b08-c087-4326-8411-fb693964b6d1`.
+- Важно: коллаж — **эталон visual direction**, не доказательство того, что разные кадры технически привязаны к одобренному эталону внешности.
+
+## Производственный принцип
+1. Тема съёмки → внешний/стилистический ориентир → план 3–5 принципиально разных планов (hero, профиль, фактура, полный рост, пластика).
+2. Сначала цельная редакционная история или moodboard, затем отдельные пригодные для Instagram фотографии без интерфейсов, имитации лайков, рамок и декоративных надписей.
+3. Внутри серии обязательна смена ракурса, масштаба, действия, силуэта и/или распределения светотени. Не выдавать три одинаковых фронтальных портрета за серию.
+4. Запрет на автоматический повтор позы «рука подпирает лицо» как универсальной модели; внутри конкретного fashion-замысла возможны сознательные исключения.
+5. Реальный канонический image-reference должен быть передан провайдеру как изображение и подтверждён, иначе статус `identity_unverified`. Оценивать также геометрию, текстуры и костюм.
+6. Отдельные кадры, сгенерированные по мотивам коллажа, не тождественны техническому вырезанию исходных панелей. Не утверждать обратное.
+7. Не считать предложенные или сгенерированные изображения опубликованными, пока владелец не подтвердит публикацию.
+
+## Публикации
+- 2026-10-09: первая Instagram-публикация — Лука на террасе у моря, подтверждена пользовательским скриншотом. Текст приветствия был подготовлен ранее. Метрики неизвестны.
+- NOIR: moodboard и пять отдельных фотографий были созданы в чате; **факт размещения этой карусели в Instagram не подтверждён**.
+
+## Исполнение и безопасность
+- Только облачные генерация и работа с GitHub, без WSL/Docker/Ollama, локальных команд, self-hosted runners и фоновой нагрузки на ноутбук.
+- GitHub — хранение паспорта, визуального курса и истории; запись в GitHub не запускает локальные вычисления сама по себе. Не запускать workflows/публикацию без явного запроса владельца.
+- Это не внедрение нового приложения или генерационной архитектуры. Меняем только контентные установки и записи о решениях.
+
+
+## Главная цель: накапливать опыт генераций (решение владельца, 2026-10-10)
+Каждая следующая генерация должна использовать результаты предыдущих и **проверять конкретное улучшение** — не только позы/кадра, но и качества самого синтеза: фотореализм, фактуру, стабильность внешности, свет, визуальный стиль, совместимость референсов с моделью и формат выдачи.
+
+**Минимальный цикл:** предыдущий результат + оценка владельца → сформулированная проблема → одна проверяемая гипотеза → генерация → сравнение с предыдущим → ACCEPT / EDIT / REGENERATE / REJECT → короткая запись об опыте → применение в следующей генерации.
+
+Для каждого значимого опыта фиксировать только:
+- **Исходные условия:** модель/режим (если достоверно известны), тема, реальный image-reference и факт его передачи провайдеру, идентификатор результата.
+- **Наблюдение:** что получилось/не получилось в лице, фактуре, анатомии, свете, стиле, композиции; прямые слова владельца при наличии.
+- **Изменённый фактор и исход сравнения:** что проверяли, стало ли лучше/хуже/неясно относительно конкретного предыдущего примера.
+- **Вывод для следующей генерации:** одна применимая инструкция или явное «пока неизвестно».
+
+**Не смешивать:** (а) пожелание владельца, (б) оценку результата, (в) доказанный эффект при сравнении. Не объявлять модель лучше по одному привлекательному изображению; визуальный коллаж не подтверждает identity consistency отдельных генераций.
+
+### Уже полученные наблюдения
+- Пользователь оценил природные/lifestyle-кадры как заметно синтетические. Не пытаться представлять прежнюю серию как реалистичную только из-за новых сценариев.
+- Повторялись фронтальные ракурсы и жест «рука у лица». В редакционной серии нужны намеренно разные позы и планы.
+- При создании обычного изображения модель иногда добавляла **нарисованный интерфейс Instagram** и вымышленные метрики. Итоговая фотография для загрузки должна быть без них.
+- Пользователь предпочёл конкретный NOIR multi-panel fashion editorial и счёл его убедительнее одиночных студийных кадров. Это **одобрение направления**, пока не сравнительный тест качества отдельных рендеров.
+- По запросу «разделить коллаж» были отдельно сгенерированы похожие изображения; это не было техническим извлечением пикселей исходных панелей.
+- Стабильность лица и реальное reference-conditioning провайдера пока **не подтверждены**; при необходимости вначале решить именно эту проверку, а не тиражировать неподтверждённые кадры.
+
+Практика: перед новым сетом прочитать последние релевантные записи опыта; после решения владельца дополнить историю по факту. Не строить отдельный обучающий сервис или менять веса ИИ; это прикладная память о проверенных способах генерации.
+
+
+### Feedback: bedroom lighting board, 2026-10-10
+- Source generation: `6c8c4ce1-3efd-4059-b899-16dd5d344299` (six-panel contact sheet; not six controlled edits of one identical frame).
+- **Owner preference:** likes frames **2, 6, 5**, in that order as stated, without confirmed ranking among these picks.
+- 2: soft neutral daylight / low-gloss appearance, seated with hand in hair.
+- 6: mixed low-light night interior with warm lamps and cool background, reclining pose.
+- 5: strong backlighting / silhouette and rim light, three-quarter rear view.
+- Rejected/not selected: 1 warm high-contrast morning; 3 blue overcast; 4 warm amber evening. Non-selection is not an explicit dislike.
+- **Inference, not proven:** owner may prefer controlled, varied tonal separation and restrained highlights to uniformly golden light; night and backlighting can be desirable rather than automatically less natural.
+- **Confound:** lighting, pose, framing, outfit arrangement, and gaze changed simultaneously. This is a preference observation, **not evidence that any single light type causes better realism**.
+- **Next generation:** derive a new original shot concept based on 2, 6, or 5, prioritizing the selected tonal strategies while avoiding recycled hand-to-head poses; compare at full size and check identity independently.
+
+
+### Feedback: fitted black T-shirt urban portrait, 2026-10-10
+- **Generation ID:** `8a3661c7-004c-45f7-865d-4914cce80315`. Single portrait, no collage or overlays. Chat file: `file_00000000aed0820690eb03b05192b85f`.
+- **Owner decision:** positive / ACCEPT candidate — exact feedback: «Отлично, хорошо вышло». This confirms approval of this particular result, not statistical improvement.
+- **Image observations:** Luka-like adult man with medium-length dark curls, short beard/stubble; fitted black T-shirt emphasizes shoulder/chest V silhouette without extreme bodybuilding proportions; white trousers and pale outer layer held casually; natural-looking bright outdoor stone street, relaxed asymmetrical stance; eye-level medium/full-torso framing. No artificial dashboard, labels or fake Instagram UI.
+- **Plausible useful combination, NOT isolated causal finding:** physically plausible athletic fit + body-readable wardrobe + believable hand interaction + clear daylight + simple lived-in urban backdrop produces a result the owner likes.
+- **Unverified:** no proven direct conditioning on the approved identity image (generation metadata `edit_op=null`, `parent_gen_id=null`), no independent ID consistency or technical realism benchmark.
+- **Reuse next:** use as **positive style/scene example**, not a replacement for canonical identity; test in a different environment or framing without repeating the exact pose, facial expression or outfit.

@@ -1,0 +1,658 @@
+{
+  "date": "2026-10-08",
+  "status": "metadata_screened_not_pixel_reviewed",
+  "candidates": [
+    {
+      "id": "C001",
+      "category": "work_study",
+      "url": "https://commons.wikimedia.org/wiki/File:Man_working_on_laptop_and_drinking_coffee_in_cafeteria.jpg",
+      "author": "Shixart1985",
+      "metadata": "Nikon D610; 35 mm; f/1.4; ISO200",
+      "selection_bias": "professional_or_staged_possible",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C002",
+      "category": "work_study",
+      "url": "https://commons.wikimedia.org/wiki/File:Man_working_on_laptop_while_enjoying_a_cold_beverage_in_a_cozy_cafe_setting.jpg",
+      "author": "Shixart1985",
+      "metadata": "Nikon Z6; 85 mm; f/1.8; ISO250; Lightroom",
+      "selection_bias": "professional_or_staged_possible",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C003",
+      "category": "work_study",
+      "url": "https://commons.wikimedia.org/wiki/File:Businesswoman_enjoys_coffee_and_snack_while_working_on_laptop_in_modern_kitchen.jpg",
+      "author": "Shixart1985",
+      "metadata": "Nikon Z6 III; 6048x4032",
+      "selection_bias": "professional_or_staged_possible",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C004",
+      "category": "work_study",
+      "url": "https://commons.wikimedia.org/wiki/File:Professional_woman_enjoying_coffee_while_working_on_laptop_at_a_cozy_desk_in_a_well-lit_room_during_morning_hours.jpg",
+      "author": "Shixart1985",
+      "metadata": "3962x2645",
+      "selection_bias": "professional_or_staged_possible",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C005",
+      "category": "travel_outdoors",
+      "url": "https://commons.wikimedia.org/wiki/File:Friends_on_a_hike_SR_cdm_(10290904385).jpg",
+      "author": "unverified",
+      "metadata": "4000x3000; 2013",
+      "selection_bias": "unverified",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C006",
+      "category": "travel_outdoors",
+      "url": "https://commons.wikimedia.org/wiki/File:YR_Hiking_with_a_few_friends_(15611231713).jpg",
+      "author": "unverified",
+      "metadata": "4288x2848; 2015",
+      "selection_bias": "unverified",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C007",
+      "category": "travel_outdoors",
+      "url": "https://commons.wikimedia.org/wiki/File:YR_Hiking_with_a_few_friends_(16045239627).jpg",
+      "author": "unverified",
+      "metadata": "4288x2848; 2015",
+      "selection_bias": "unverified",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C008",
+      "category": "travel_outdoors",
+      "url": "https://commons.wikimedia.org/wiki/File:YR_Hiking_with_a_few_friends_(16043693230).jpg",
+      "author": "unverified",
+      "metadata": "4288x2848; 2015",
+      "selection_bias": "unverified",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C009",
+      "category": "travel_outdoors",
+      "url": "https://commons.wikimedia.org/wiki/File:Hiking_in_bud_bongao.jpg",
+      "author": "unverified",
+      "metadata": "3000x4000",
+      "selection_bias": "unverified",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C010",
+      "category": "work_study",
+      "url": "https://commons.wikimedia.org/wiki/File:Businesswoman_has_coffee_and_snacks_while_working_on_laptop.jpg",
+      "author": "Shixart1985",
+      "metadata": "Nikon Z6 III; 6048x4032",
+      "selection_bias": "professional_or_staged_possible",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C011",
+      "category": "work_study",
+      "url": "https://commons.wikimedia.org/wiki/File:Young_woman_enjoys_morning_routine_working_on_laptop_with_coffee_and_pastries_in_cozy_room.jpg",
+      "author": "Shixart1985",
+      "metadata": "Nikon D610; 6016x4016",
+      "selection_bias": "professional_or_staged_possible",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C012",
+      "category": "work_study",
+      "url": "https://commons.wikimedia.org/wiki/File:Businessman_working_on_laptop_in_a_modern_restaurant.jpg",
+      "author": "Shixart1985",
+      "metadata": "Nikon Z6; 6048x4024",
+      "selection_bias": "professional_or_staged_possible",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C013",
+      "category": "work_study",
+      "url": "https://commons.wikimedia.org/wiki/File:Woman_enjoying_coffee_while_working_on_laptop_in_cozy_indoor_space_during_daytime.jpg",
+      "author": "Shixart1985",
+      "metadata": "Nikon D610; 35 mm; f/1.4",
+      "selection_bias": "professional_or_staged_possible",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C014",
+      "category": "work_study",
+      "url": "https://commons.wikimedia.org/wiki/File:Professional_woman_working_on_laptop_at_modern_desk_with_coffee_in_bright_office.jpg",
+      "author": "Shixart1985",
+      "metadata": "Nikon D610; 4016x6016",
+      "selection_bias": "professional_or_staged_possible",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C015",
+      "category": "travel_outdoors",
+      "url": "https://commons.wikimedia.org/wiki/File:A_group_of_friends_on_a_casual_hike.jpg",
+      "author": "Altitonantis",
+      "metadata": "Nikon D3500; 6000×4000; CC0",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "unassessed"
+    },
+    {
+      "id": "C016",
+      "category": "friends_cafe",
+      "url": "https://commons.wikimedia.org/wiki/File:Friends_at_the_Cafe_-_Flickr_-_pinemikey.jpg",
+      "author": "Michael Martin",
+      "metadata": "Olympus digital camera; 650×850; Flickr CC BY-SA 2.0",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "unassessed"
+    },
+    {
+      "id": "C017",
+      "category": "friends_cafe",
+      "url": "https://commons.wikimedia.org/wiki/File:Friends_(153424261).jpeg",
+      "author": "Marta Borchiellini",
+      "metadata": "2048×1536; 500px archive",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "unassessed"
+    },
+    {
+      "id": "C018",
+      "category": "travel_outdoors",
+      "url": "https://commons.wikimedia.org/wiki/File:Hiking_(114232935).jpeg",
+      "author": "Bernhard Hanakam",
+      "metadata": "2048×1365; 500px archive",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "unassessed"
+    },
+    {
+      "id": "C019",
+      "category": "friends_cafe",
+      "url": "https://commons.wikimedia.org/wiki/File:Coffee_and_friends.jpg",
+      "author": "Abe.gova",
+      "metadata": "4029×5037; CC BY-SA 4.0",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "unassessed"
+    },
+    {
+      "id": "C020",
+      "category": "food_coffee_objects",
+      "url": "https://commons.wikimedia.org/wiki/File:Coffee_time_with_friends.jpg",
+      "author": "Mahjuja Islam",
+      "metadata": "3072×4080; CC0; creator overlaps O09; check image duplication",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "unassessed"
+    },
+    {
+      "id": "C021",
+      "category": "friends_cafe",
+      "url": "https://commons.wikimedia.org/wiki/File:Friends_enjoy_drinks_and_snacks_at_a_table.jpg",
+      "author": "Shixart1985",
+      "metadata": "Nikon Z6; 4024×6048; potentially staged",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "repeated_professional_author"
+    },
+    {
+      "id": "C022",
+      "category": "travel_outdoors",
+      "url": "https://commons.wikimedia.org/wiki/File:YR_Hiking_with_a_few_friends_(15611231713).jpg",
+      "author": "unverified",
+      "metadata": "4288×2848; first day hike",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "unassessed"
+    },
+    {
+      "id": "C023",
+      "category": "group_selfie",
+      "url": "https://commons.wikimedia.org/wiki/File:A_man_and_woman_enjoy_a_sunny_day_at_a_cafe,_taking_a_selfie_together.jpg",
+      "author": "unverified",
+      "metadata": "85mm lens; likely photo OF selfie action, not selfie output",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "unassessed"
+    },
+    {
+      "id": "C024",
+      "category": "food_coffee_objects",
+      "url": "https://commons.wikimedia.org/wiki/File:COFFEE_friends_-_panoramio.jpg",
+      "author": "unverified",
+      "metadata": "2816×2120; Panoramio mirror",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "unassessed"
+    },
+    {
+      "id": "C025",
+      "category": "family_group",
+      "url": "https://commons.wikimedia.org/wiki/File:Family_sitting_outside.jpg",
+      "author": "David Atoroyo Sika",
+      "metadata": "South Sudan; 6000x4000; 2017; CC BY-SA 4.0",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "verify_group_portrait_vs_everyday_scene"
+    },
+    {
+      "id": "C026",
+      "category": "family_group",
+      "url": "https://commons.wikimedia.org/wiki/File:Family_outdoor_outing.jpg",
+      "author": "Irsam Photography",
+      "metadata": "2020; 1000x667; CC BY-SA 4.0",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "verify_group_portrait_vs_everyday_scene"
+    },
+    {
+      "id": "C027",
+      "category": "family_group",
+      "url": "https://commons.wikimedia.org/wiki/File:Family_standing_outside.jpg",
+      "author": "Linda Bartlett",
+      "metadata": "1800x2700; US government public domain",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "verify_group_portrait_vs_everyday_scene"
+    },
+    {
+      "id": "C028",
+      "category": "home_casual",
+      "url": "https://commons.wikimedia.org/wiki/File:Candid_(50358383057).jpg",
+      "author": "WabbitWanderer",
+      "metadata": "Panasonic DMC-ZS50; 4000x3000; 2020; CC BY-SA 2.0; author describes garden vegetable checking",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "unassessed"
+    },
+    {
+      "id": "C029",
+      "category": "friends_cafe",
+      "url": "https://commons.wikimedia.org/wiki/File:Friends_%26_Neighbours_Cafe_(9572627255).jpg",
+      "author": "Mike from Vancouver",
+      "metadata": "4000x3000; 2013; CC BY-SA",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "unassessed"
+    },
+    {
+      "id": "C030",
+      "category": "friends_cafe",
+      "url": "https://commons.wikimedia.org/wiki/File:One_of_the_best_friends_of_mine_who_is_banned_from_univesity,_opened_a_coffeeshop_today._(3968725959).jpg",
+      "author": "unverified",
+      "metadata": "1152x864; 2009; original source description",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "unassessed"
+    },
+    {
+      "id": "C031",
+      "category": "family_group",
+      "url": "https://commons.wikimedia.org/wiki/File:Family_group_photo,_South_Devon,_late_19th_century.jpg",
+      "author": "unknown amateur photographer",
+      "metadata": "glass-plate scan, 1870–1891; historical comparison only, not contemporary lifestyle",
+      "visual_review_level": "metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "verify_group_portrait_vs_everyday_scene"
+    },
+    {
+      "id": "C033",
+      "url": "https://commons.wikimedia.org/wiki/File:Selfie_with_phone.jpg",
+      "author": "Fquasie",
+      "category": "friend_shot_portrait",
+      "metadata": "Canon EOS Rebel T4i, 62mm, 1/200s, ISO100; photographer photographed a woman taking selfie in Ghana, NOT phone selfie output",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C034",
+      "url": "https://commons.wikimedia.org/wiki/File:Selfie_with_phone_2.jpg",
+      "author": "Fquasie",
+      "category": "friend_shot_portrait",
+      "metadata": "Canon EOS Rebel T4i, 62mm, 1/200s, ISO100; same author same second with subsecond 99 vs 01, possible burst/session duplicate",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C035",
+      "url": "https://commons.wikimedia.org/wiki/File:My_selfie_(7_September_2022)_(cropped).jpg",
+      "author": "Alex Neman",
+      "category": "direct_selfie",
+      "metadata": "Samsung Galaxy Note 20 Ultra; derivative of My selfie (7 September 2022).jpg, crop is NOT independent photograph",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C036",
+      "url": "https://commons.wikimedia.org/wiki/File:My_face.png",
+      "author": "Jnagy3",
+      "category": "direct_selfie",
+      "metadata": "author reports old phone, woods, 2022; low-resolution PNG; no face-image reuse permission implied",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C037",
+      "url": "https://commons.wikimedia.org/wiki/File:Indoor_selfie_2022.jpg",
+      "author": "Utkarshsingh234",
+      "category": "direct_selfie",
+      "metadata": "1824x4000 tall aspect ratio; own work; 2022",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C038",
+      "url": "https://commons.wikimedia.org/wiki/File:Tourist_Rudolph.A.Furtado_'Selfie'_at_Chobe_National_Park_in_Botswana.jpg",
+      "author": "Rudolph.A.furtado",
+      "category": "travel_outdoors",
+      "metadata": "3264x2448; author reports selfie with elephant from safari jeep",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C039",
+      "url": "https://commons.wikimedia.org/wiki/File:Selfie-3.jpg",
+      "author": "Dahan.ori",
+      "category": "direct_selfie",
+      "metadata": "800x600, 49KB; own work",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C040",
+      "url": "https://commons.wikimedia.org/wiki/File:A_selfie_taken_by_a_man_using_an_%22I_love_Wikipedia%22_filter.jpg",
+      "author": "إيان",
+      "category": "direct_selfie",
+      "metadata": "iPhone 12 Pro, 2.71mm, ISO500, 1/58s; EXIF CameraPosition=2, Instagram software; explicit digital filter",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C041",
+      "url": "https://commons.wikimedia.org/wiki/File:Man_taking_whole_body_selfie_in_mirror_and_looking_strangely_due_to_status_of_high_concentration.jpg",
+      "author": "Pittigrilli",
+      "category": "mirror_selfie",
+      "metadata": "2002x3400, modified/retouched upload; preserve derivative status",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C042",
+      "url": "https://commons.wikimedia.org/wiki/File:Rickallisonselfie.jpg",
+      "author": "Rickallisonmusic",
+      "category": "direct_selfie",
+      "metadata": "iPhone XR; 2316x3088",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C043",
+      "url": "https://commons.wikimedia.org/wiki/File:Rotoiti_selfie.jpg",
+      "author": "Sebastiansmartguy101",
+      "category": "travel_outdoors",
+      "metadata": "own work 2022; location metadata present (do not copy GPS)",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C044",
+      "url": "https://commons.wikimedia.org/wiki/File:Paul_Kaganer%2C_selfie_(2022-05-29).jpg",
+      "author": "Paul Kaganer",
+      "category": "direct_selfie",
+      "metadata": "1150x1150 square crop; own work",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "targeted_selfie_search",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C045",
+      "url": "https://commons.wikimedia.org/wiki/File:Image_selfie.jpg",
+      "author": "EmersonironmanBR",
+      "category": "direct_selfie",
+      "metadata": "iPhone 11 Pro Max, 3024x4032, 1/30s ISO640; 2023 UN event",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "selfie_search; derivative_check_required",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C046",
+      "url": "https://commons.wikimedia.org/wiki/File:Selfie_Christopher_Flach_NYC_self_portrait_500cm.jpg",
+      "author": "Christopher Flach",
+      "category": "direct_selfie",
+      "metadata": "iPhone 5s, 480x640; small exported file",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "selfie_search; derivative_check_required",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C047",
+      "url": "https://commons.wikimedia.org/wiki/File:Lily_Cao_taking_selfies_with_selfie_stick_and_iPhone_on_the_stage_20231112.jpg",
+      "author": "Solomon203",
+      "category": "friend_shot_portrait",
+      "metadata": "photo OF selfie-taking, not selfie output; 2592x4608",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "selfie_search; derivative_check_required",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C048",
+      "url": "https://commons.wikimedia.org/wiki/File:What_should_be_an_experimental_selfie_became_really_strange.jpg",
+      "author": "Pittigrilli",
+      "category": "multi_reflection",
+      "metadata": "iPhone 6s, 1/17s ISO800; shop-window layered reflection and exaggerated near-glass hands",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "selfie_search; derivative_check_required",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C049",
+      "url": "https://commons.wikimedia.org/wiki/File:Ksenia_Zadvornova.jpg",
+      "author": "Ricco Baroni",
+      "category": "direct_selfie",
+      "metadata": "selfie description, photographer identity ambiguous, needs attribution check",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "selfie_search; derivative_check_required",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C050",
+      "url": "https://commons.wikimedia.org/wiki/File:Two_women_taking_selfie_on_06_0016_(20230214172527).jpg",
+      "author": "N509FZ",
+      "category": "friend_shot_portrait",
+      "metadata": "photo OF two women taking selfie; Beijing transport scene",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "selfie_search; derivative_check_required",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C051",
+      "url": "https://commons.wikimedia.org/wiki/File:Moss_selfie.jpg",
+      "author": "MossAlbatross",
+      "category": "direct_selfie",
+      "metadata": "3024x4032 original; has derived crop, do not count crop separately",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "selfie_search; derivative_check_required",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C052",
+      "url": "https://commons.wikimedia.org/wiki/File:Aravind_AV_selfie_image.jpg",
+      "author": "అరవింద్ ఏవి",
+      "category": "direct_selfie",
+      "metadata": "iPhone EXIF, 2316x3088",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "selfie_search; derivative_check_required",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C053",
+      "url": "https://commons.wikimedia.org/wiki/File:Giant_house_spider_(Eratigena_atrica)_crawling._61-year-old_man%2C_long%2C_messy_eyebrows%2C_wrinkled_forehead._Selfie._Close-up._Stor_husedderkopp_p%C3%A5_rynkete_panne._Norway_2023-10-24_IMG_4243_2.jpg",
+      "author": "Wolfmann",
+      "category": "direct_selfie",
+      "metadata": "2023 close-up selfie; extreme unusual subject; exclude from typical lifestyle prevalence",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "selfie_search; derivative_check_required",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C054",
+      "url": "https://commons.wikimedia.org/wiki/File:Moss_selfie_(cropped).jpg",
+      "author": "MossAlbatross",
+      "category": "direct_selfie",
+      "metadata": "derivative of Moss selfie.jpg, NOT independent capture",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false,
+      "selection_bias": "selfie_search; derivative_check_required",
+      "source_checked": "2026-10-08"
+    },
+    {
+      "id": "C055",
+      "url": "https://commons.wikimedia.org/wiki/File:Selfie_in_the_mirror.jpg",
+      "author": "Tiraspolsky",
+      "category": "mirror_selfie",
+      "metadata": "Canon EOS 1000D; 537x768; 2010; ISO1600; f/4; 28mm; 1/160s",
+      "selection_bias": "mirror shot, DSLR not smartphone",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C056",
+      "url": "https://commons.wikimedia.org/wiki/File:Selfie_at_a_mirror_of_the_hotel.jpg",
+      "author": "ShiminUfesoj",
+      "category": "mirror_selfie",
+      "metadata": "3072x4096; 2025; ISO2500; f/1.5; 4.941mm; 1/40s",
+      "selection_bias": "low-light phone-like EXIF; camera model not yet checked",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C057",
+      "url": "https://commons.wikimedia.org/wiki/File:Selfie_in_a_mirror_2015.jpg",
+      "author": "The Swede",
+      "category": "mirror_selfie",
+      "metadata": "1042x1500; 2015; black-and-white processed version uploaded 2021; ISO1000; 98mm",
+      "selection_bias": "later edited version; capture and upload dates differ",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C058",
+      "url": "https://commons.wikimedia.org/wiki/File:Selfie_in_a_branch_mirror.jpg",
+      "author": "The Swede",
+      "category": "multi_reflection",
+      "metadata": "1500x1004; ceiling mirror; 2016; same author as previous",
+      "selection_bias": "repeat author, novel scene",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C059",
+      "url": "https://commons.wikimedia.org/wiki/File:K6ka_mirror_selfie_with_D7100_2020-10-10.jpg",
+      "author": "Enoch Leung",
+      "category": "mirror_selfie",
+      "metadata": "2503x3129; Nikon D7100 with 35mm f/1.8G; 2020",
+      "selection_bias": "DSLR mirror selfie, not phone",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C060",
+      "url": "https://commons.wikimedia.org/wiki/File:Mirror_selfie_kish.jpg",
+      "author": "Mr.Farbod Delavarnia",
+      "category": "mirror_selfie",
+      "metadata": "607x1080; 2025; CC0",
+      "selection_bias": "low-resolution upload",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C061",
+      "url": "https://commons.wikimedia.org/wiki/File:Selfie_in_a_traffic_mirror_in_Castellaro_Lagusello_(MN)_-_Italy_01.JPG",
+      "author": "Dario Crespi",
+      "category": "multi_reflection",
+      "metadata": "3888x2592; outdoor traffic mirror; 2014",
+      "selection_bias": "convex public mirror",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C062",
+      "url": "https://commons.wikimedia.org/wiki/File:Sink_area_with_a_Fujifilm_X-E2_taking_a_selfie_through_a_broken_mirror_in_Sanatorium_du_Basil%2C_Stoumont%2C_Belgium_(DSCF3528-hdr).jpg",
+      "author": "Trougnouf",
+      "category": "multi_reflection",
+      "metadata": "4921x3106; 2018; Fujifilm X-E2; HDR",
+      "selection_bias": "HDR and broken mirror; atypical for amateur phone",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false
+    },
+    {
+      "id": "C063",
+      "url": "https://commons.wikimedia.org/wiki/File:Roland_Neveu_%E2%80%98selfie'.jpg",
+      "author": "RNBKK",
+      "category": "mirror_selfie",
+      "metadata": "2041x3000; 1973 analog self portrait",
+      "selection_bias": "historical reference; exclude modern prevalence",
+      "visual_review_level": "source_metadata_only",
+      "count_toward_500": false
+    }
+  ],
+  "observations": [
+    "Search results heavily overrepresent one photographer Shixart1985 in laptop scenes; cannot count these as independent author diversity.",
+    "Some lifestyle scenes may be professionally staged; classify before using them to infer amateur conventions.",
+    "Web result provides original resolution and EXIF but this pass could not retrieve actual image bytes for inspection.",
+    "2026-10-08: 10 new Commons file-page candidates added from cross-source search; 24 candidate records total; images not yet pixel-inspected.",
+    "Photographic challenge submissions enforce max four per photographer and own-work requirement, potentially a useful diversity discovery pool, but not a random sample.",
+    "2026-10-08 audit 010: web verified metadata for 8 candidate references, 7 new nonduplicate candidate URLs; container image download failed, no visual review count incremented.",
+    "2026-10-08: 12 Commons file pages for self-portraits and depictions of selfie-taking, 12 newly catalogued; 2 same-author near-instant festival photos and cropped derivative identified; do not count as independent scene samples.",
+    "2026-10-08 three-cycle source review: 9 Commons records mirror/self-reflection, 9 new nonduplicates; distinguish mirror capture, historical analog, DSLR, low-light phone, HDR, edited derivative; no new pixel-inspected originals."
+  ]
+}

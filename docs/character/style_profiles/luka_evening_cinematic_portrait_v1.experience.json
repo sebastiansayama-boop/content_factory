@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "record_type": "visual_generation_experience",
+  "character": "luka",
+  "date": "2026-10-10",
+  "profile": "docs/character/style_profiles/luka_evening_cinematic_portrait_v1.json",
+  "comparison": {
+    "reference_style_upload": "file_00000000075082078b081361e3c6d14d",
+    "first_generation_id": "f5591fef-e6a1-41f6-916d-22b252a605dd",
+    "second_generation_id": "47675eb1-01c7-4bd1-80b4-a51e9a022995",
+    "owner_feedback": "Да, определенно лучше в сравнении даже с предыдущим разом",
+    "owner_preferred": "second",
+    "reasoning_status": "subjective comparative feedback"
+  },
+  "observations": {
+    "improved": [
+      "warmer face/cool background lighting appears less intense",
+      "facial highlights and grade appear somewhat more restrained",
+      "slightly reduced glossy editorial impression"
+    ],
+    "remaining_risks": [
+      "hair and skin look possibly over-defined",
+      "the face still appears carefully styled and idealized",
+      "no verified image-provider visual identity conditioning"
+    ],
+    "confounds": [
+      "generation and framing may have changed",
+      "no identical-pixel edit established",
+      "not a controlled isolated lighting test"
+    ]
+  },
+  "next_test": {
+    "goal": "Improve photograph-like naturalism while preserving Luka's canonical traits and second portrait's core mood",
+    "changes": [
+      "reduce conspicuous orange hair rimlight and skin specular sheen",
+      "subtle softness in fine-detail contrast, maintain realistic eye focus",
+      "slightly uneven ambient illumination while keeping dusk blue-gray mood",
+      "avoid overly styled expression/pose"
+    ],
+    "invariants": [
+      "Luka's thick dark curls and short stubble",
+      "muted dusty-pink shirt",
+      "low-key blue-gray dusk background",
+      "tight portrait framing"
+    ],
+    "identity_status": "unverified",
+    "success_check": "owner preference, realistic texture, lighting plausibility, likeness separately evaluated"
+  },
+  "status": "owner_preferred_iteration_not_quality_proven"
+}

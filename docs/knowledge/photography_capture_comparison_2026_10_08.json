@@ -1,0 +1,41 @@
+{
+  "goal": "Contrast physically different self-portrait capture mechanisms without treating titles as pixel observations",
+  "method": "Nine live Commons source pages checked for EXIF, original dimensions, uploader, upload revisions and captions; NO new pixel-level inspections",
+  "comparisons": [
+    {
+      "group": "camera",
+      "records": [
+        "C055",
+        "C059",
+        "C056"
+      ],
+      "evidence": "C055 Canon EOS 1000D 28mm ISO1600 f/4 1/160s; C059 Nikon D7100 35mm f/1.8; C056 4.941mm f/1.5 ISO2500 1/40s",
+      "inference": "Mirror selfie can be captured with interchangeable-lens cameras or a short-focal-length mobile-type camera; camera geometry must be specified, not guessed from 'selfie'."
+    },
+    {
+      "group": "mirror_geometry",
+      "records": [
+        "C058",
+        "C061",
+        "C062"
+      ],
+      "evidence": "author captions identify ceiling mirror, outdoor traffic mirror, broken mirror with HDR",
+      "inference": "Reflector curvature/orientation/surface continuity are distinct causal parameters; no visual geometry measurements yet."
+    },
+    {
+      "group": "file_history",
+      "records": [
+        "C057",
+        "C063"
+      ],
+      "evidence": "C057 photograph made 2015, black-white processed upload 2021; C063 analog 1973 self-portrait uploaded 2024",
+      "inference": "Inception date, upload date, editing date and modern-style suitability must be separate."
+    }
+  ],
+  "falsifiable_tests": [
+    "Compare ceiling vs planar mirror reflection using actual image pixels and check whether reflected camera orientation follows surface geometry.",
+    "Inspect the 2015 edited selfie revisions to determine what contrast/tone changed, without assuming black-and-white is camera-native.",
+    "Compare DSLR mirror self-portrait with 2025 low-light hotel mirror portrait to identify focal perspective and noise effects while controlling for scene."
+  ],
+  "count_in_500": 0
+}

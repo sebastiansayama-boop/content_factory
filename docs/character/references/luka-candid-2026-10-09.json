@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "reference_id": "luka-test-candid-cafe-2026-10-09-01",
+  "character_slug": "luka",
+  "status": "experimental_not_approved_identity_drift",
+  "origin": {
+    "type": "chatgpt_image_generation",
+    "generation_id": "fdee5779-53f0-4938-a201-e3212fdc0267",
+    "created_at": "2026-10-09",
+    "source_is_synthetic": true
+  },
+  "image": {
+    "library_path": "/Luka/experiments/luka-cafe-candid-2026-10-09.png",
+    "library_file_id": "libfile_49843b32fc388191970d21180ad459b9",
+    "mime_type": "image/png",
+    "width": 1312,
+    "height": 1199,
+    "sha256": "9249464087cb676456c62ebfbee389f051929a3bc47bb273c72a36b95a8f7708"
+  },
+  "comparison_reference": {
+    "library_path": "/Luka/identity/luka-cafe-2026-10-08-original.png",
+    "library_file_id": "libfile_3630a4297fc08191abdd8cd1d73d9b89",
+    "reference_status": "candidate_pending_human_identity_qc"
+  },
+  "shot": {
+    "scene": "street cafe",
+    "mood": "everyday natural",
+    "framing": "three_quarter",
+    "capture_style": "friend_candid",
+    "creativity": "balanced",
+    "action": "putting folded receipt into bag",
+    "gaze": "off_camera",
+    "expression": "focused_neutral",
+    "hands": "working_with_object",
+    "lighting": "overcast",
+    "wardrobe": "dark knit sweater",
+    "postprocess": "minimal"
+  },
+  "assessment": {
+    "identity_consistency": "fail_observed_visible_face_drift",
+    "behavioral_naturalism": "improved_relative_to_cafe_portrait",
+    "gaze_and_hands": "plausible",
+    "lighting": "plausible_overcast",
+    "composition": "more_environment_visible_than_portrait",
+    "anatomy": "not_exhaustively_checked",
+    "owner_decision": "pending",
+    "publication": "not_requested"
+  },
+  "notes": [
+    "Generated face has weaker facial hair and different nose/jaw contours than Luka reference. Not accepted as a new identity anchor.",
+    "One image produced only; no re-generation or publication.",
+    "Retain as failed experimental example; do not update canonical approved_references."
+  ],
+  "menu_revision_commit": "68e6112477a2edc586299d755ea764fa5c5cd23c"
+}

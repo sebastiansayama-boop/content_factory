@@ -1,0 +1,40 @@
+{
+  "schema_version": "0.5",
+  "status": "experimental",
+  "purpose": "observation_only_not_generation_gate",
+  "source_note": "docs/knowledge/everyday_photography_observations.md",
+  "capture": {
+    "capture_mode": null,
+    "photographer_relation": null,
+    "camera_support": null,
+    "visible_capture_device": null,
+    "gaze_target": null,
+    "arm_camera_geometry": null,
+    "recording_device": null,
+    "depicted_capture_action": null,
+    "output_perspective": null,
+    "camera_facing": null,
+    "reflective_surface": null
+  },
+  "checks": {
+    "framing_causality": "uncertain",
+    "reflection_consistency": "not_applicable",
+    "occlusion_consistency": "uncertain",
+    "object_continuity": "uncertain",
+    "identity_cross_generation": "not_tested"
+  },
+  "evidence": {
+    "reference_url": null,
+    "license": null,
+    "observation": null,
+    "evidence_level": "hypothesis",
+    "reviewed_at": null,
+    "postprocessing_disclosed": "unknown",
+    "processing_type": "unknown",
+    "human_subject_present": null,
+    "recording_device_evidence": "unknown",
+    "reference_selection_status": "conditional",
+    "review_method": "metadata_only",
+    "visual_review_level": "metadata_only"
+  }
+}

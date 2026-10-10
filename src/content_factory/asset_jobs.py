@@ -29,6 +29,7 @@ class AssetJob:
     result: dict[str, object] | None
     created_at: str
     updated_at: str
+    character: dict[str, object] | None = None
 
     def to_dict(self) -> dict[str, object]:
         value = asdict(self)
@@ -74,6 +75,8 @@ class AssetJobStore:
         columns = {row["name"] for row in self._connection.execute("PRAGMA table_info(asset_jobs)").fetchall()}
         if "visual_intent" not in columns:
             self._connection.execute("ALTER TABLE asset_jobs ADD COLUMN visual_intent TEXT NOT NULL DEFAULT ''")
+        if "character_json" not in columns:
+            self._connection.execute("ALTER TABLE asset_jobs ADD COLUMN character_json TEXT")
         self._connection.execute(
             "CREATE INDEX IF NOT EXISTS idx_asset_jobs_run ON asset_jobs(run_id, created_at)"
         )
@@ -113,20 +116,21 @@ class AssetJobStore:
                     result=None,
                     created_at=now,
                     updated_at=now,
+                    character=request.get("character"),
                 )
                 self._connection.execute(
                     """
                     INSERT OR IGNORE INTO asset_jobs(
                         job_id, run_id, asset_request_id, script_unit_id, asset_type,
                         status, claim_refs_json, evidence_refs_json, visual_intent,
-                        acceptance_criteria_json, result_json, created_at, updated_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        acceptance_criteria_json, result_json, created_at, updated_at, character_json
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         job.job_id, job.run_id, job.asset_request_id, job.script_unit_id,
                         job.asset_type, job.status, json.dumps(job.claim_refs),
                         json.dumps(job.evidence_refs), job.visual_intent, json.dumps(job.acceptance_criteria),
-                        None, job.created_at, job.updated_at,
+                        None, job.created_at, job.updated_at, json.dumps(job.character) if job.character else None,
                     ),
                 )
                 stored = self.get(job.job_id)
@@ -208,6 +212,7 @@ class AssetJobStore:
             result=json.loads(row["result_json"]) if row["result_json"] else None,
             created_at=row["created_at"],
             updated_at=row["updated_at"],
+            character=json.loads(row["character_json"]) if row["character_json"] else None,
         )
 
     def close(self) -> None:

@@ -1,0 +1,123 @@
+{
+  "schema_version": "1.0",
+  "pilot_id": "luka-instagram-14d-2026-10-10",
+  "status": "started_content_preparation_pending_first_publication",
+  "platform": "instagram",
+  "account": "@luka.somewhere",
+  "period": {
+    "start": "2026-10-10",
+    "end": "2026-10-23",
+    "timezone": "Asia/Bangkok",
+    "note": "Dates are planning targets only, NOT scheduled automations or actual publications."
+  },
+  "purpose": "Assess whether consistent Luka identity and a varied activity-driven feed can attract new followers, without making unproven causal claims after six posts.",
+  "source_research": "docs/character/LUKA_INSTAGRAM_COMPETITOR_STUDY_2026-10-10.md",
+  "canonical_identity_reference": "docs/character/character.json#identity.approved_references",
+  "baseline": {
+    "captured_at": null,
+    "followers": null,
+    "reach_7d": null,
+    "nonfollower_reach_7d": null,
+    "profile_visits_7d": null,
+    "new_follows_7d": null,
+    "source": "pending user-provided Instagram Insights screenshot; do not infer or fabricate"
+  },
+  "measurement_schedule": [
+    "baseline before first new post",
+    "24h after each post",
+    "72h after each post",
+    "end 2026-10-23"
+  ],
+  "metric_definitions": {
+    "reach": "unique accounts reached; if Insights supports",
+    "nonfollower_reach": "unique accounts not following; if Insights supports",
+    "profile_follow_conversion": "new follows / profile visits when both tracked in same window and denominator >0; observational, not attributed to one post",
+    "engagement_per_reach": "(saves + shares)/reach, with denominators from same post/window; do not compare against count of impressions",
+    "followers_growth": "followers_end - followers_start; not causal after 6-post sample"
+  },
+  "posts": [
+    {
+      "id": "P01",
+      "target_date": "2026-10-10",
+      "theme": "bookstore / an action, not a pose",
+      "format": "single 4:5 photo",
+      "concept": "Luka quietly examining an illustrated photo book in a small independent city bookshop; tactile ordinary moment; a tailored relaxed neutral tee shows athletic silhouette under clothing; camera off-axis, his attention on the open book; different from approved black-T-shirt alley portrait.",
+      "identity_status": "unverified_until_provider_conditioning_verified",
+      "caption": "Went in to look around. Found a book I couldn't put down.\\n\\nDo you ever go into a bookshop without knowing what you're looking for?",
+      "status": "still_approved_reel_motion_draft_rejected_image_to_video_external_test_pending",
+      "asset": {
+        "still": {
+          "gen_id": "0ab8aac1-4d29-406c-9a53-78c19ca174ab",
+          "chat_file_id": "file_00000000b9648211ac0e80783efe69eb"
+        },
+        "reel_prototype": {
+          "status": "rejected_owner_reports_static_video",
+          "format": "MP4 H264 1080x1920 30fps 7s no audio",
+          "method": "single source still with subtle 3.8% virtual camera zoom and blurred vertical background, no character or book animation",
+          "local_output_path": "/mnt/data/luka_bookstore_reel_test_7s.mp4",
+          "notes": "No video AI generations; character remains pixel source still to avoid identity drift. Blurred borders are intentional and not an outpaint.",
+          "owner_feedback": "Видео полностью статично, я могу использовать другой инструмент",
+          "lesson": "An MP4 of a still with pan/zoom is not actual image-to-video character animation. Do not label motion photo as actual AI video or publish as animated Luka. To animate, use cloud image-to-video with facial and hand-motion checking; connected Runway workspace did not expose video models on its free plan.",
+          "next_candidate": "Try browser-based Kling image-to-video free credits or PixVerse daily free credits; generated footage not yet tested, no publishing."
+        }
+      }
+    },
+    {
+      "id": "P02",
+      "target_date": "2026-10-12",
+      "theme": "short private moment at home",
+      "format": "single 4:5 photo",
+      "concept": "Coffee in the kitchen while doing something; relaxed, non-idealized lighting",
+      "status": "planned"
+    },
+    {
+      "id": "P03",
+      "target_date": "2026-10-15",
+      "theme": "sport in action",
+      "format": "single 4:5 photo or 2-frame carousel",
+      "concept": "Tennis warm-up or after-play, practical movement, credible body mechanics, no imitation of Cyrus image",
+      "status": "planned"
+    },
+    {
+      "id": "P04",
+      "target_date": "2026-10-17",
+      "theme": "city discovery",
+      "format": "single 4:5 photo",
+      "concept": "Natural candid activity, different locale and wardrobe, sense of occasion not empty posing",
+      "status": "planned"
+    },
+    {
+      "id": "P05",
+      "target_date": "2026-10-20",
+      "theme": "body editorial",
+      "format": "single 4:5 photo or 3-frame carousel",
+      "concept": "Tasteful fitness/lifestyle, strong male body presentation without hypertrophy or copying a real person's identity",
+      "status": "planned"
+    },
+    {
+      "id": "P06",
+      "target_date": "2026-10-23",
+      "theme": "professionally directed fashion editorial",
+      "format": "carousel if independent images pass QC",
+      "concept": "Noir-influenced modern menswear in an original shoot with genuinely different angles and poses",
+      "status": "planned"
+    }
+  ],
+  "prepublication_gate": [
+    "owner accepts image and caption",
+    "visual identity checked against approved Luka reference",
+    "no depicted social-media UI/text/watermarks",
+    "AI nature of account disclosed on profile; review Instagram platform label",
+    "record posted URL/time only when actual publication is confirmed"
+  ],
+  "after_publication": {
+    "capture": "post URL, time, asset ID, caption version, 24h/72h views/reach/saves/shares/comments/profile visits/follows where available",
+    "never_claim": "published without a link/user confirmation; successful experiment on aesthetic reaction alone"
+  },
+  "constraints": [
+    "no local software or user laptop computing",
+    "no paid API",
+    "no auto-posting without explicit account access and confirmed permission",
+    "do not change Content Factory architecture"
+  ]
+}
