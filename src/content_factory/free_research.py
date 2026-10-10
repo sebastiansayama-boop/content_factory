@@ -299,6 +299,13 @@ class FreeWebGeminiAdapter:
         marker = "USER BRIEF:"
         if marker in prompt:
             return prompt.split(marker, 1)[1].strip()
+        # Live research tests also supply TOPIC instead of USER BRIEF.
+        # Treat it as a retrieval request only in an explicit research stage:
+        # production prompts may repeat TOPIC and must reuse the same packet.
+        if re.search(r"(?i)\bresearch (?:this|the) topic\b|\byou are the research stage\b", prompt):
+            topic = re.search(r"(?im)^TOPIC:[ \t]*(?:\r?\n[ \t]*)?([^\r\n]+)", prompt)
+            if topic:
+                return topic.group(1).strip()
         return ""
 
     def _research_prompt(self, prompt: str, packet: RetrievalPacket) -> str:
