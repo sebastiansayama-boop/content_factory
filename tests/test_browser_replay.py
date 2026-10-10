@@ -125,7 +125,15 @@ def test_browser_explicit_telegram_publication_with_fake_provider(factory_server
     )
     page.locator('#platforms input[value="telegram"]').check()
     page.locator("#runFactory").click()
-    page.get_by_text("Research завершён · проверь знания", exact=True).wait_for()
+    try:
+        page.get_by_text("Research завершён · проверь знания", exact=True).wait_for(timeout=12000)
+    except Exception as exc:
+        assert False, (
+            f"Telegram browser research did not reach knowledge review: "
+            f"status={page.locator('#status').inner_text()!r}, "
+            f"error={page.locator('#error').inner_text()!r}, "
+            f"runs={[x.status for x in service.content_runs.list()]!r}"
+        ) from exc
     page.locator("#knowledgeReview button[data-claim]").first.click()
     page.get_by_text("Готово · QC пройден", exact=True).wait_for()
 
