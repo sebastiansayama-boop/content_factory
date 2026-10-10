@@ -199,8 +199,9 @@ function renderRun(run){
     $("downloadBundle").onclick=downloadBundle;
     $("downloadExport").onclick=downloadExport;
   }else{link.innerHTML="";}
+  document.getElementById("publicationProof")?.remove();
   if(run.status==="PUBLISHED"){
-    const published=document.createElement("div");published.className="notice";published.style.marginTop="10px";
+    const published=document.createElement("div");published.id="publicationProof";published.className="notice";published.style.marginTop="10px";
     const isTelegram=prepared.channel==="telegram";
     const fake=String(prepared.external_id||"").startsWith("fake-message-");
     published.textContent=isTelegram?(fake?"Тестовая отправка — реального сообщения нет.":"Telegram: ответ адаптера сохранён."):"Локальный выпуск — публикации в Telegram нет.";
