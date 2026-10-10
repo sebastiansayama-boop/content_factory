@@ -636,7 +636,7 @@ def test_user_vertical_slice_assets_regeneration_and_export_download(tmp_path, m
             assert {"caption.txt", "metadata.json", "content-package.json"} <= names
             images = sorted(name for name in names if name.startswith("images/"))
             assert len(images) >= 2
-            assert archive.read(images[0]).startswith(b"\\x89PNG")
+            assert archive.read(images[0]).startswith(b"\x89PNG")
             assert archive.read("caption.txt").decode("utf-8").strip() == result["package"]["text"]
             metadata = json.loads(archive.read("metadata.json"))
             assert metadata["decision_ref"] == "user-vertical-slice-approval"
