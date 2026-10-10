@@ -649,8 +649,11 @@ class ProductHandler(Handler):
                     prepared = next((item for item in publications if item["publication_id"] == requested_publication_id), None)
                 else:
                     prepared = next((item for item in publications if item["status"] == "PREPARED"), None)
+                requested_channel = str(payload.get("channel") or "").strip().lower()
+                if prepared is not None and requested_channel and requested_channel != str(prepared.get("channel") or "").lower():
+                    raise ValueError("requested channel does not match approved publication channel")
                 if prepared is None:
-                    channel = str(payload.get("channel") or "local").strip()
+                    channel = requested_channel or "local"
                     if not channel:
                         raise ValueError("channel is required")
                     result = run.result or {}
@@ -1070,9 +1073,26 @@ class ProductHandler(Handler):
                 payload = self._body()
                 decision_ref = str(payload.get("decision_ref", "")).strip()
                 actor_id = str(payload.get("actor_id") or decision_ref).strip()
-                channel = str(payload.get("channel") or "local").strip()
-                if not channel:
-                    raise ValueError("channel is required")
+                channel = str(payload.get("channel") or "local").strip().lower()
+                if channel not in {"local", "telegram"}:
+                    raise ValueError("unsupported publication channel")
+
+                # Preflight release prerequisites before persisting human approval:
+                # an invalid Telegram configuration must leave the run in REVIEW.
+                assets = self.service.asset_registry.list_for_run(run_id)
+                artifact_ids = [asset.asset_id for asset in assets]
+                if not artifact_ids:
+                    raise ValueError("approved run has no production artifacts")
+                if not isinstance(result.get("information_flow"), dict):
+                    raise ValueError("approved run is missing information flow")
+                destination = ""
+                if channel == "telegram":
+                    fake = os.environ.get("FACTORY_TELEGRAM_FAKE", "").strip() == "1"
+                    destination = os.environ.get("TELEGRAM_CHAT_ID", "").strip() or ("fake-chat" if fake else "")
+                    if not destination:
+                        raise ValueError("TELEGRAM_CHAT_ID is required for Telegram publication")
+                    if not fake and not os.environ.get("TELEGRAM_BOT_TOKEN", "").strip():
+                        raise ValueError("TELEGRAM_BOT_TOKEN is required for Telegram publication")
                 artifact_version = self._authorize_release_action(run, Action.APPROVE, actor_id)
                 updated = self.content_runs.approve(run_id, decision_ref=decision_ref)
                 approved_result = dict(updated.result or {})
@@ -1092,10 +1112,6 @@ class ProductHandler(Handler):
                     qc=qc,
                     provenance={"run_id": run_id, "source": "human", "decision_ref": decision_ref},
                 )
-                assets = self.service.asset_registry.list_for_run(run_id)
-                artifact_ids = [asset.asset_id for asset in assets]
-                if not artifact_ids:
-                    raise ValueError("approved run has no production artifacts")
                 content_ref = str(
                     payload.get("content_ref")
                     or (result.get("export") or {}).get("artifact")
@@ -1103,15 +1119,6 @@ class ProductHandler(Handler):
                     or run_id
                 )
                 output = production.get("output") if isinstance(production.get("output"), dict) else {}
-                destination = (
-                    os.environ.get("TELEGRAM_CHAT_ID", "").strip()
-                    if channel.lower() == "telegram"
-                    else ""
-                )
-                if channel.lower() == "telegram" and not destination:
-                    destination = "fake-chat" if os.environ.get("FACTORY_TELEGRAM_FAKE", "").strip() == "1" else ""
-                if channel.lower() == "telegram" and not destination:
-                    raise ValueError("TELEGRAM_CHAT_ID is required for Telegram publication")
                 publication_payload = {
                     "run_id": run_id,
                     "content_ref": content_ref,
@@ -1145,9 +1152,7 @@ class ProductHandler(Handler):
                     "publication.prepared",
                     output_refs=(str(publication["publication_id"]), channel),
                 )
-                flow = result.get("information_flow")
-                if not isinstance(flow, dict):
-                    raise ValueError("approved run is missing information flow")
+                flow = result["information_flow"]
                 updated_flow = attach_publication(
                     flow,
                     publication_id=str(publication["publication_id"]),
