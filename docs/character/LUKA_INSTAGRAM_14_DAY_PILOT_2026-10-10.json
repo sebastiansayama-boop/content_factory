@@ -44,18 +44,21 @@
       "concept": "Luka quietly examining an illustrated photo book in a small independent city bookshop; tactile ordinary moment; a tailored relaxed neutral tee shows athletic silhouette under clothing; camera off-axis, his attention on the open book; different from approved black-T-shirt alley portrait.",
       "identity_status": "unverified_until_provider_conditioning_verified",
       "caption": "Went in to look around. Found a book I couldn't put down.\\n\\nDo you ever go into a bookshop without knowing what you're looking for?",
-      "status": "still_and_motion_graphics_reel_draft_for_owner_review_no_publication",
+      "status": "still_approved_reel_motion_draft_rejected_image_to_video_external_test_pending",
       "asset": {
         "still": {
           "gen_id": "0ab8aac1-4d29-406c-9a53-78c19ca174ab",
           "chat_file_id": "file_00000000b9648211ac0e80783efe69eb"
         },
         "reel_prototype": {
-          "status": "rendered_cloud_preview_not_published",
+          "status": "rejected_owner_reports_static_video",
           "format": "MP4 H264 1080x1920 30fps 7s no audio",
           "method": "single source still with subtle 3.8% virtual camera zoom and blurred vertical background, no character or book animation",
           "local_output_path": "/mnt/data/luka_bookstore_reel_test_7s.mp4",
-          "notes": "No video AI generations; character remains pixel source still to avoid identity drift. Blurred borders are intentional and not an outpaint."
+          "notes": "No video AI generations; character remains pixel source still to avoid identity drift. Blurred borders are intentional and not an outpaint.",
+          "owner_feedback": "Видео полностью статично, я могу использовать другой инструмент",
+          "lesson": "An MP4 of a still with pan/zoom is not actual image-to-video character animation. Do not label motion photo as actual AI video or publish as animated Luka. To animate, use cloud image-to-video with facial and hand-motion checking; connected Runway workspace did not expose video models on its free plan.",
+          "next_candidate": "Try browser-based Kling image-to-video free credits or PixVerse daily free credits; generated footage not yet tested, no publishing."
         }
       }
     },
