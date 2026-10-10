@@ -196,7 +196,7 @@ def test_free_web_gemini_topic_research_reuses_packet_for_production():
     production_prompt = (
         "Write one finished Telegram publication in Russian.\n"
         "TOPIC:\nМалоизвестные факты из истории человечества\n"
-        "ACCEPTED KNOWLEDGE:\n{\\\"claims\\\": []}\n"
+        "ACCEPTED KNOWLEDGE: provided claims and evidence\n"
     )
     adapter.research(production_prompt)
     assert retriever.calls == 1
