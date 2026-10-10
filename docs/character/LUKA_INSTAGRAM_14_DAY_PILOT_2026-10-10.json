@@ -44,7 +44,20 @@
       "concept": "Luka quietly examining an illustrated photo book in a small independent city bookshop; tactile ordinary moment; a tailored relaxed neutral tee shows athletic silhouette under clothing; camera off-axis, his attention on the open book; different from approved black-T-shirt alley portrait.",
       "identity_status": "unverified_until_provider_conditioning_verified",
       "caption": "Went in to look around. Found a book I couldn't put down.\\n\\nDo you ever go into a bookshop without knowing what you're looking for?",
-      "status": "brief_and_caption_ready_image_pending"
+      "status": "still_and_motion_graphics_reel_draft_for_owner_review_no_publication",
+      "asset": {
+        "still": {
+          "gen_id": "0ab8aac1-4d29-406c-9a53-78c19ca174ab",
+          "chat_file_id": "file_00000000b9648211ac0e80783efe69eb"
+        },
+        "reel_prototype": {
+          "status": "rendered_cloud_preview_not_published",
+          "format": "MP4 H264 1080x1920 30fps 7s no audio",
+          "method": "single source still with subtle 3.8% virtual camera zoom and blurred vertical background, no character or book animation",
+          "local_output_path": "/mnt/data/luka_bookstore_reel_test_7s.mp4",
+          "notes": "No video AI generations; character remains pixel source still to avoid identity drift. Blurred borders are intentional and not an outpaint."
+        }
+      }
     },
     {
       "id": "P02",
