@@ -624,6 +624,25 @@ def test_user_vertical_slice_assets_regeneration_and_export_download(tmp_path, m
         assert export_bytes["run_id"] == built["run"]["run_id"]
         assert export_bytes["output_id"]
 
+        # The user-ready post is a downloadable ZIP, not just internal JSON.
+        from io import BytesIO
+        from zipfile import ZipFile
+        status, bundle, bundle_type = request("GET", f"/api/runs/{run_id}/export/bundle")
+        assert status == 200
+        assert bundle_type == "application/zip"
+        assert isinstance(bundle, bytes)
+        with ZipFile(BytesIO(bundle)) as archive:
+            names = set(archive.namelist())
+            assert {"caption.txt", "metadata.json", "content-package.json"} <= names
+            images = sorted(name for name in names if name.startswith("images/"))
+            assert len(images) >= 2
+            assert archive.read(images[0]).startswith(b"\\x89PNG")
+            assert archive.read("caption.txt").decode("utf-8").strip() == result["package"]["text"]
+            metadata = json.loads(archive.read("metadata.json"))
+            assert metadata["decision_ref"] == "user-vertical-slice-approval"
+            assert metadata["publication_status"] == "NOT_PUBLISHED_BY_EXPORT"
+            assert len(metadata["images"]) == len(images)
+
         status, regenerated, _ = request("POST", f"/api/runs/{run_id}/regenerate", {
             "instruction": "Сделай следующую версию менее рекламной и более объясняющей."
         })
