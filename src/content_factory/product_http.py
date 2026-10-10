@@ -189,7 +189,7 @@ class ProductHandler(Handler):
                 if run is None:
                     self._json(404, {"error": "content run not found"})
                     return
-                if run.status != "EXPORTED":
+                if run.status not in {"EXPORTED", "PUBLISHED"}:
                     self._json(409, {"error": "an exported run is required"})
                     return
                 try:
