@@ -56,3 +56,15 @@
 - Стабильность лица и реальное reference-conditioning провайдера пока **не подтверждены**; при необходимости вначале решить именно эту проверку, а не тиражировать неподтверждённые кадры.
 
 Практика: перед новым сетом прочитать последние релевантные записи опыта; после решения владельца дополнить историю по факту. Не строить отдельный обучающий сервис или менять веса ИИ; это прикладная память о проверенных способах генерации.
+
+
+### Feedback: bedroom lighting board, 2026-10-10
+- Source generation: `6c8c4ce1-3efd-4059-b899-16dd5d344299` (six-panel contact sheet; not six controlled edits of one identical frame).
+- **Owner preference:** likes frames **2, 6, 5**, in that order as stated, without confirmed ranking among these picks.
+- 2: soft neutral daylight / low-gloss appearance, seated with hand in hair.
+- 6: mixed low-light night interior with warm lamps and cool background, reclining pose.
+- 5: strong backlighting / silhouette and rim light, three-quarter rear view.
+- Rejected/not selected: 1 warm high-contrast morning; 3 blue overcast; 4 warm amber evening. Non-selection is not an explicit dislike.
+- **Inference, not proven:** owner may prefer controlled, varied tonal separation and restrained highlights to uniformly golden light; night and backlighting can be desirable rather than automatically less natural.
+- **Confound:** lighting, pose, framing, outfit arrangement, and gaze changed simultaneously. This is a preference observation, **not evidence that any single light type causes better realism**.
+- **Next generation:** derive a new original shot concept based on 2, 6, or 5, prioritizing the selected tonal strategies while avoiding recycled hand-to-head poses; compare at full size and check identity independently.
