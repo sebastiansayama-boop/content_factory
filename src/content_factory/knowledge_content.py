@@ -574,7 +574,14 @@ USER CONSTRAINTS:
                 evidence_ids,
             )
         except WorkspaceError as exc:
-            if not any(name in str(exc) for name in ("claim_refs", "evidence_refs")):
+            # The same provenance contract also reports unknown durable IDs,
+            # using messages without the JSON field names. Retry once, but
+            # never accept an unrecognized ref without validating it again.
+            provenance_errors = (
+                "claim_refs", "evidence_refs",
+                "unknown knowledge claim refs", "unknown knowledge evidence refs",
+            )
+            if not any(name in str(exc) for name in provenance_errors):
                 raise
             spec_raw = self._generate(
                 work_item_id=f"content-spec-{run_id}-provenance-retry",
@@ -589,6 +596,11 @@ claim_refs and evidence_refs MUST be JSON arrays of non-empty strings copied exa
 
 CONTENT BRIEF:
 {brief_json}
+
+ALLOWED CLAIM REFS (copy these exact IDs, do not fabricate kc-* values):
+{json.dumps(sorted(brief.selected_claim_refs), ensure_ascii=False)}
+ALLOWED EVIDENCE REFS (copy these exact IDs, do not fabricate ke-* values):
+{json.dumps(sorted(brief.evidence_refs), ensure_ascii=False)}
 
 USER CONSTRAINTS:
 {json.dumps(constraints, ensure_ascii=False)}""",

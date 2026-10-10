@@ -173,6 +173,50 @@ convergent evolution
     assert adapter.text(production_result).startswith("{")
 
 
+
+def test_free_web_gemini_topic_research_reuses_packet_for_production():
+    retriever = FakeRetriever()
+    gemini = FakeGemini()
+    adapter = FreeWebGeminiAdapter(
+        GeminiConfig(model="gemini-test"),
+        retriever=retriever,
+        gemini=gemini,
+    )
+
+    research_prompt = (
+        "You are the research stage. Research this topic and return JSON.\n"
+        "TOPIC:\nМалоизвестные факты из истории человечества\n"
+    )
+    adapter.research(research_prompt)
+    assert retriever.calls == 1
+    assert "SUPPLIED RETRIEVAL PACK" in gemini.prompts[0]
+    assert adapter._packet.query == "Малоизвестные факты из истории человечества"
+
+    # A generation prompt can contain TOPIC without starting a new research run.
+    production_prompt = (
+        "Write one finished Telegram publication in Russian.\n"
+        "TOPIC:\nМалоизвестные факты из истории человечества\n"
+        "ACCEPTED KNOWLEDGE: provided claims and evidence\n"
+    )
+    adapter.research(production_prompt)
+    assert retriever.calls == 1
+    assert "RETRIEVAL PACK USED FOR THIS RUN" in gemini.prompts[1]
+
+
+def test_free_web_gemini_rejects_production_without_retrieval():
+    import pytest
+
+    retriever = FakeRetriever()
+    adapter = FreeWebGeminiAdapter(
+        GeminiConfig(model="gemini-test"),
+        retriever=retriever,
+        gemini=FakeGemini(),
+    )
+    with pytest.raises(RuntimeError, match="production requested before retrieval-backed research"):
+        adapter.research("Write a Telegram post.\nTOPIC:\nHistory\n")
+    assert retriever.calls == 0
+
+
 def test_free_web_gemini_uses_plain_gemini_chat_api_without_search_tool(monkeypatch):
     import content_factory.integrations as integrations
 

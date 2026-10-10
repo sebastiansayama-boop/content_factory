@@ -264,3 +264,70 @@ def test_structure_steps_normalizes_structured_model_output():
             "purpose": "summarize",
         },
     ]) == ["Introduction", "Development", "Conclusion"]
+
+
+def test_knowledge_content_builder_retries_unknown_spec_ids(tmp_path):
+    import json
+
+    store = KnowledgeStore(tmp_path / "knowledge.sqlite3")
+    store.capture(run_id="research-provenance-retry", research=_research())
+    claim = store._connection.execute("SELECT claim_id FROM knowledge_claims").fetchone()["claim_id"]
+    evidence = store._connection.execute("SELECT evidence_id FROM knowledge_evidence").fetchone()["evidence_id"]
+    store.promote_claim(claim, decision_ref="DEC-PROVENANCE-RETRY")
+
+    idea = {
+        "ideas": [{
+            "idea_id": "idea-1", "title": "Spirit houses", "angle": "Offerings",
+            "audience": "general", "purpose": "explain", "formats": ["article"],
+            "claim_refs": [claim], "evidence_refs": [evidence],
+        }],
+    }
+    brief = {
+        "title": "Spirit houses", "objective": "Explain offerings", "angle": "Offerings",
+        "selected_claim_refs": [claim], "evidence_refs": [evidence],
+        "editorial_points": [{
+            "point_id": "point-1", "text": "Offerings", "role": "development",
+            "claim_refs": [claim], "evidence_refs": [evidence],
+        }],
+        "content_elements": [{
+            "element_id": "element-1", "kind": "narration",
+            "editorial_point_ids": ["point-1"], "purpose": "Explain",
+            "production_intent": "article paragraph",
+            "claim_refs": [claim], "evidence_refs": [evidence],
+        }],
+    }
+    spec = {
+        "spec_id": "spec-1", "title": "Spirit houses",
+        "objective": "Explain offerings", "audience": "general",
+        "format": "article", "tone": "clear",
+        "structure": ["hook", "context", "development", "conclusion"],
+        "constraints": ["use accepted evidence"], "style_bible": {},
+        "claim_refs": [claim], "evidence_refs": [evidence],
+    }
+    invalid_spec = {**spec, "claim_refs": ["kc-9876543210"]}
+    script = {
+        "script_id": "script-1", "title": "Spirit houses", "variation_mode": "scene",
+        "units": [
+            {"unit_id": f"unit-{i}", "kind": "narration", "text": "Explain supported claim",
+             "visual_intent": "show supporting evidence",
+             "claim_refs": [claim], "evidence_refs": [evidence]}
+            for i in range(1, 5)
+        ],
+    }
+    factory = FakeFactory(
+        [json.dumps(value) for value in (idea, brief, invalid_spec, spec, script)],
+        tmp_path,
+    )
+    result = KnowledgeContentBuilder(ContentWorkspace(factory), store).build(
+        run_id="run-provenance-retry",
+        topic="Thai spirit houses offerings",
+        audience="general",
+        goal="explain",
+        formats=["article"],
+        constraints=[],
+    )
+    assert result["content_spec"]["claim_refs"] == [claim]
+    assert result["content_spec"]["evidence_refs"] == [evidence]
+
+    factory._store.close()
+    store.close()
