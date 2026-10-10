@@ -68,3 +68,12 @@
 - **Inference, not proven:** owner may prefer controlled, varied tonal separation and restrained highlights to uniformly golden light; night and backlighting can be desirable rather than automatically less natural.
 - **Confound:** lighting, pose, framing, outfit arrangement, and gaze changed simultaneously. This is a preference observation, **not evidence that any single light type causes better realism**.
 - **Next generation:** derive a new original shot concept based on 2, 6, or 5, prioritizing the selected tonal strategies while avoiding recycled hand-to-head poses; compare at full size and check identity independently.
+
+
+### Feedback: fitted black T-shirt urban portrait, 2026-10-10
+- **Generation ID:** `8a3661c7-004c-45f7-865d-4914cce80315`. Single portrait, no collage or overlays. Chat file: `file_00000000aed0820690eb03b05192b85f`.
+- **Owner decision:** positive / ACCEPT candidate — exact feedback: «Отлично, хорошо вышло». This confirms approval of this particular result, not statistical improvement.
+- **Image observations:** Luka-like adult man with medium-length dark curls, short beard/stubble; fitted black T-shirt emphasizes shoulder/chest V silhouette without extreme bodybuilding proportions; white trousers and pale outer layer held casually; natural-looking bright outdoor stone street, relaxed asymmetrical stance; eye-level medium/full-torso framing. No artificial dashboard, labels or fake Instagram UI.
+- **Plausible useful combination, NOT isolated causal finding:** physically plausible athletic fit + body-readable wardrobe + believable hand interaction + clear daylight + simple lived-in urban backdrop produces a result the owner likes.
+- **Unverified:** no proven direct conditioning on the approved identity image (generation metadata `edit_op=null`, `parent_gen_id=null`), no independent ID consistency or technical realism benchmark.
+- **Reuse next:** use as **positive style/scene example**, not a replacement for canonical identity; test in a different environment or framing without repeating the exact pose, facial expression or outfit.
