@@ -1,8 +1,12 @@
 name: RCC-004 Approved Telegram Proof
 
-# Safety: no push, schedule, or workflow_dispatch trigger.
-# A later real-send workflow requires a separate reviewed change.
+# Safety: push only on changes to this fake-only workflow; no Telegram token.
+# Real-send is never called.
 on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/rcc004-approved-telegram-proof.yml
   workflow_dispatch:
     inputs:
       dry_run_acknowledgement:
@@ -15,7 +19,7 @@ permissions:
 
 jobs:
   dry-run:
-    if: inputs.dry_run_acknowledgement == 'DRY_RUN_ONLY'
+    if: github.event_name == 'push' || inputs.dry_run_acknowledgement == 'DRY_RUN_ONLY'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -30,4 +34,4 @@ jobs:
         env:
           FACTORY_TELEGRAM_FAKE: '1'
           TELEGRAM_CHAT_ID: fake-chat
-        run: pytest -q tests/test_library_publication_idempotency.py
+        run: pytest -q tests/test_library_publication_idempotency.py tests/test_rcc004_proof_safety.py
