@@ -1,0 +1,40 @@
+name: RCC-004 Approved Telegram Proof
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/rcc004-approved-telegram-proof.yml
+
+permissions:
+  contents: read
+
+jobs:
+  publish-once:
+    if: github.event.head_commit.message == 'proof: rcc-004-approved-telegram'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: rcc004-approved-telegram-once
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -e .
+      - name: Publish exact user-approved RCC-004 text
+        env:
+          RCC004_APPROVED: 'YES'
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: '@AtlasOpenLab'
+        run: python scripts/rcc004_approved_telegram_proof.py
+      - name: Save evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rcc004-approved-telegram-proof
+          path: rcc004-proof-result.json
+          if-no-files-found: ignore
