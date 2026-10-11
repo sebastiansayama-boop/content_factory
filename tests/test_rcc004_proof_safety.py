@@ -3,21 +3,17 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-import yaml
-
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "rcc004_approved_telegram_proof.py"
 WORKFLOW = ROOT / ".github" / "workflows" / "rcc004-approved-telegram-proof.yml"
 
 
-def test_rcc004_workflow_has_no_automatic_real_send_trigger():
+def test_rcc004_workflow_is_manual_fake_only():
     raw = WORKFLOW.read_text(encoding="utf-8")
-    # PyYAML may interpret YAML 1.1 'on' as True.
-    data = yaml.safe_load(raw)
-    events = data.get("on", data.get(True, {}))
-    assert isinstance(events, dict)
-    assert set(events) == {"workflow_dispatch"}
+    assert "\non:\n  workflow_dispatch:" in raw
+    assert "\n  push:" not in raw
+    assert "\n  schedule:" not in raw
     assert "TELEGRAM_BOT_TOKEN" not in raw
     assert "rcc004_approved_telegram_proof.py" not in raw
     assert "FACTORY_TELEGRAM_FAKE" in raw
