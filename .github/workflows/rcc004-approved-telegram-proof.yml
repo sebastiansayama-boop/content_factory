@@ -1,22 +1,23 @@
 name: RCC-004 Approved Telegram Proof
 
+# Safety: no push, schedule, or workflow_dispatch trigger.
+# A later real-send workflow requires a separate reviewed change.
 on:
-  push:
-    branches: [main]
-    paths:
-      - .github/workflows/rcc004-approved-telegram-proof.yml
+  workflow_dispatch:
+    inputs:
+      dry_run_acknowledgement:
+        description: 'Type DRY_RUN_ONLY; this workflow cannot publish'
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 jobs:
-  publish-once:
-    if: github.event.head_commit.message == 'proof: rcc-004-approved-telegram'
+  dry-run:
+    if: inputs.dry_run_acknowledgement == 'DRY_RUN_ONLY'
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    concurrency:
-      group: rcc004-approved-telegram-once
-      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,17 +25,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install -e .
-      - name: Publish exact user-approved RCC-004 text
+      - run: pip install -e '.[dev]'
+      - name: Fake Telegram idempotency regression
         env:
-          RCC004_APPROVED: 'YES'
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: '@AtlasOpenLab'
-        run: python scripts/rcc004_approved_telegram_proof.py
-      - name: Save evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: rcc004-approved-telegram-proof
-          path: rcc004-proof-result.json
-          if-no-files-found: ignore
+          FACTORY_TELEGRAM_FAKE: '1'
+          TELEGRAM_CHAT_ID: fake-chat
+        run: pytest -q tests/test_library_publication_idempotency.py
