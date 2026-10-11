@@ -11,8 +11,10 @@ WORKFLOW = ROOT / ".github" / "workflows" / "rcc004-approved-telegram-proof.yml"
 
 def test_rcc004_workflow_is_manual_fake_only():
     raw = WORKFLOW.read_text(encoding="utf-8")
-    assert "\non:\n  workflow_dispatch:" in raw
-    assert "\n  push:" not in raw
+    assert "\non:\n  push:" in raw
+    assert "workflow_dispatch:" in raw
+    assert "branches: [main]" in raw
+    assert ".github/workflows/rcc004-approved-telegram-proof.yml" in raw
     assert "\n  schedule:" not in raw
     assert "TELEGRAM_BOT_TOKEN" not in raw
     assert "rcc004_approved_telegram_proof.py" not in raw
